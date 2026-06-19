@@ -87,6 +87,7 @@ Modifier classes: `beginner` `intermediate` `advanced`
 </div>
 <!-- Compact density: add class="vt-table compact" -->
 <!-- Cell status: td.vt-ok (✓)  td.vt-no (✗)  td.vt-partial (~) -->
+<!-- Optional flavor under the icon: <td class="vt-no"><span class="note">rewrite the list</span></td> -->
 <!-- Recommended column: <col class="vt-col-pick"> frames the column with accent
      side+bottom rails (box-shadow, so they survive zebra stripes and cell fills
      like .vt-ok/.vt-no) plus a soft tint for text cells;
@@ -143,7 +144,7 @@ A11y: label association and `aria-valuenow` on the progress bar are auto-injecte
 `data-answer` = 0-based index of the correct option.
 Keep every option the same length — no formatting tells.
 
-### Single-answer (default) — immediate reveal with per-option misconceptions
+### Single-answer — retry until correct, with per-option misconceptions
 ```html
 <div class="vt-quiz" data-answer="1">
   <p class="q">Question?</p>
@@ -151,24 +152,20 @@ Keep every option the same length — no formatting tells.
   <button class="opt">Option B — correct</button>
   <button class="opt">Option C</button>
   <div class="feedback"></div>
-  <template class="why-good">Shown after any answer — explains why correct.</template>
+  <template class="why-good">Shown once the learner picks correctly.</template>
   <template class="why-bad">Fallback shown when wrong, no per-option template.</template>
   <template data-opt="0">Misconception for option A specifically.</template>
   <template data-opt="2">Misconception for option C specifically.</template>
   <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
 </div>
 ```
+A wrong pick shows feedback **without** revealing the answer or locking — the
+learner keeps picking until correct (the only single-answer behavior; no flag).
+Buttons never lock, even after a correct pick, so the learner can click the
+wrong options afterward to read their explanations.
 - `template[data-opt="N"]` — per-option misconception (0-indexed). Falls back to `template.why-bad`.
-- `template.why-good` — always shown after answering (correct or wrong).
+- `template.why-good` — shown when the learner answers correctly.
 - `div.vt-quiz-live` — hidden aria-live region; include for screen-reader feedback.
-
-### Try-again mode — add `data-try-again`
-```html
-<div class="vt-quiz" data-answer="1" data-try-again>
-  …same interior…
-</div>
-```
-Wrong clicks show feedback without revealing the answer or locking the quiz — the user keeps picking until correct.
 
 ### Multi-select — add `data-multi`, set `data-answer` to a comma-separated list
 ```html

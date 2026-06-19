@@ -198,7 +198,8 @@
     <button class="opt">Every 15 minutes, 9am–5pm, Monday to Friday</button>
     <div class="feedback"></div>
     <template class="why-good">Right — read it field by field: every 15 min (minute), within hours 9–17, any day-of-month, any month, weekdays 1–5.</template>
-    <template class="why-bad">Read field by field. <code>*/15</code> is every 15 minutes within the hour (not a single :15 mark), and the hour and weekday fields are not stars — so it is neither all day nor every day.</template>
+    <template data-opt="0">"All day, every day" ignores two fields: <code>9-17</code> limits it to the 9am–5pm hours, and <code>1-5</code> limits it to Monday–Friday.</template>
+    <template data-opt="1"><code>*/15</code> fires at :00, :15, :30 and :45 of every hour in range — not only at :15. And <code>9-17</code> is the whole 9am–5pm span, not just 9 and 5.</template>
   </div>
 
   <div class="quiz" data-answer="1">
@@ -208,7 +209,8 @@
     <button class="opt"><code>0 6 * * 0</code></button>
     <div class="feedback"></div>
     <template class="why-good">Right — minute 0, hour 6 is 6:00am, and the star in day-of-week means every day.</template>
-    <template class="why-bad">Order is minute then hour, so <code>6 0</code> is 12:06am. And <code>* * 0</code> in the weekday field restricts it to Sundays only — not every day.</template>
+    <template data-opt="0">Fields are minute then hour, so <code>6 0</code> means minute 6 of hour 0 — that is 12:06am, not 6:00am.</template>
+    <template data-opt="2"><code>0 6</code> is the right time, but <code>0</code> in the weekday field restricts it to Sundays only. Use <code>*</code> there for every day.</template>
   </div>
 
   <div class="teacher">
@@ -259,7 +261,7 @@
     const opts = quiz.querySelectorAll('button.opt');
     const fb = quiz.querySelector('.feedback');
     const good = quiz.querySelector('.why-good').innerHTML;
-    const bad = quiz.querySelector('.why-bad').innerHTML;
+    const badT = quiz.querySelector('.why-bad');
     opts.forEach((btn, i) => btn.addEventListener('click', () => {
       opts.forEach(b => b.classList.remove('correct', 'wrong'));
       opts[answer].classList.add('correct');
@@ -267,6 +269,8 @@
         fb.className = 'feedback show good';
         fb.innerHTML = '✔ ' + good;
       } else {
+        const perOpt = quiz.querySelector('template[data-opt="' + i + '"]');
+        const bad = perOpt ? perOpt.innerHTML : (badT ? badT.innerHTML : 'Not quite.');
         btn.classList.add('wrong');
         fb.className = 'feedback show bad';
         fb.innerHTML = '✘ ' + bad;

@@ -18,7 +18,7 @@ beforeEach(() => {
 
 // ── Single-answer (default mode) ──────────────────────────────────────────────
 
-describe('quiz — single answer, default mode', () => {
+describe('quiz — single answer', () => {
   function buildQuiz() {
     const q = makeQuiz(`
       <div class="vt-quiz" data-answer="1">
@@ -91,27 +91,6 @@ describe('quiz — single answer, default mode', () => {
     expect(fb.textContent).toContain('Generic wrong.');
   });
 
-  it('always shows why-correct explanation after a wrong click', () => {
-    const q = buildQuiz();
-    click(q.querySelectorAll('button.opt')[0]);
-    const fb = q.querySelector('.feedback');
-    expect(fb.textContent).toContain('Because B is right.');
-  });
-
-  it('marks correct answer button even after wrong click', () => {
-    const q = buildQuiz();
-    click(q.querySelectorAll('button.opt')[0]);
-    expect(q.querySelectorAll('button.opt')[1].classList.contains('correct')).toBe(true);
-  });
-
-  it('disables all buttons after answering (default, no try-again)', () => {
-    const q = buildQuiz();
-    click(q.querySelectorAll('button.opt')[0]);
-    q.querySelectorAll('button.opt').forEach(b => {
-      expect(b.disabled).toBe(true);
-    });
-  });
-
   it('announces feedback in aria-live region', () => {
     const q = buildQuiz();
     click(q.querySelectorAll('button.opt')[1]);
@@ -151,12 +130,12 @@ describe('quiz — a11y', () => {
   });
 });
 
-// ── Try-again mode ────────────────────────────────────────────────────────────
+// ── Retry behavior (single-answer is always retry) ─────────────────────────────
 
-describe('quiz — try-again mode', () => {
-  function buildTryAgainQuiz() {
+describe('quiz — single answer, retry behavior', () => {
+  function buildRetryQuiz() {
     const q = makeQuiz(`
-      <div class="vt-quiz" data-answer="1" data-try-again>
+      <div class="vt-quiz" data-answer="1">
         <button class="opt">Wrong</button>
         <button class="opt">Correct</button>
         <div class="feedback"></div>
@@ -168,17 +147,16 @@ describe('quiz — try-again mode', () => {
     return q;
   }
 
-  it('buttons remain enabled after wrong click in try-again mode', () => {
-    const q = buildTryAgainQuiz();
+  it('buttons remain enabled after a wrong click', () => {
+    const q = buildRetryQuiz();
     click(q.querySelectorAll('button.opt')[0]);
-    // wrong click — buttons should NOT be disabled
     q.querySelectorAll('button.opt').forEach(b => {
       expect(b.disabled).toBe(false);
     });
   });
 
-  it('does not reveal the correct answer after a wrong click in try-again mode', () => {
-    const q = buildTryAgainQuiz();
+  it('does not reveal the correct answer after a wrong click', () => {
+    const q = buildRetryQuiz();
     click(q.querySelectorAll('button.opt')[0]);
     // answer is index 1 — must stay hidden
     expect(q.querySelectorAll('button.opt')[1].classList.contains('correct')).toBe(false);
@@ -186,7 +164,7 @@ describe('quiz — try-again mode', () => {
   });
 
   it('clicking another answer after a wrong click clears the prior wrong state', () => {
-    const q = buildTryAgainQuiz();
+    const q = buildRetryQuiz();
     const opts = q.querySelectorAll('button.opt');
     click(opts[0]); // wrong
     click(opts[1]); // correct
@@ -194,12 +172,32 @@ describe('quiz — try-again mode', () => {
     expect(opts[1].classList.contains('correct')).toBe(true);
   });
 
-  it('locks quiz after correct click even in try-again mode', () => {
-    const q = buildTryAgainQuiz();
+  it('keeps buttons clickable after a correct click', () => {
+    const q = buildRetryQuiz();
     click(q.querySelectorAll('button.opt')[1]);
     q.querySelectorAll('button.opt').forEach(b => {
-      expect(b.disabled).toBe(true);
+      expect(b.disabled).toBe(false);
     });
+  });
+
+  it('shows a wrong answer\'s explanation when clicked after the correct one', () => {
+    const q = makeQuiz(`
+      <div class="vt-quiz" data-answer="1">
+        <button class="opt">Wrong</button>
+        <button class="opt">Correct</button>
+        <div class="feedback"></div>
+        <template class="why-good">Yes!</template>
+        <template data-opt="0">Here is why Wrong is wrong.</template>
+        <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    `);
+    wireQuiz(q);
+    const opts = q.querySelectorAll('button.opt');
+    click(opts[1]); // correct first
+    click(opts[0]); // then explore the wrong one
+    const fb = q.querySelector('.feedback');
+    expect(fb.classList.contains('bad')).toBe(true);
+    expect(fb.textContent).toContain('Here is why Wrong is wrong.');
   });
 });
 
