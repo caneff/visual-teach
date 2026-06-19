@@ -247,17 +247,17 @@ Vendor scripts (in `assets/prism/`): `prism-core`, `prism-clike`, `prism-javascr
 No JS required. Renders with accent background + border so it stands out from
 plain `<code>` without being syntax-highlighted.
 
-## Footer / sources (numbered refs, source-type icons, companion slot, verified-date)
+## Footer / sources (source-type icons, companion slot, verified-date)
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```html
 <footer class="vt-sources">
   <span class="lbl">Sources</span>
-  <ol class="vt-reflist">
+  <ul class="vt-reflist">
     <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial</a> <span class="note">— one-line note.</span></li>
     <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Reference docs</a></li>
     <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
     <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Community forum</a></li>
-  </ol>
+  </ul>
   <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Glossary &amp; concept map</a></div>
   <div class="meta">Lesson 0001 · verified 2026-06-19</div>
 </footer>
