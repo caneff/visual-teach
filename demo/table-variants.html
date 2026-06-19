@@ -5,16 +5,17 @@
 <style>
 /* ===== CANDIDATE table variants — preview before folding into visual-teach.css ===== */
 
-/* table-stakes: responsive wrapper + zebra + density */
+/* table-stakes: responsive wrapper + zebra (--vt-stripe = 6% ink) + density */
 .vt-table-wrap { overflow-x: auto; margin: 1rem 0; }
-.vt-table tbody tr:nth-child(even) { background: var(--vt-soft); }      /* zebra */
-.vt-table.compact th, .vt-table.compact td { padding: .3rem .5rem; }     /* density */
+.vt-table tbody tr:nth-child(even) { background: var(--vt-stripe, color-mix(in srgb, var(--vt-ink) 6%, var(--vt-paper))); }
+.vt-table.compact th, .vt-table.compact td { padding: .3rem .5rem; }
 
-/* header column (first column = row headers) */
+/* header column + subdue matrix row-label header */
 .vt-table th[scope="row"] {
   text-align: left; text-transform: none; letter-spacing: 0; font-size: .9rem;
   color: var(--vt-ink); font-weight: 600; white-space: nowrap;
 }
+.vt-table thead th:first-child { color: var(--vt-muted); font-weight: 400; }
 
 /* cell status: ✓ / ✗ / ~ auto-rendered, tinted, themeable */
 .vt-ok, .vt-no, .vt-partial { text-align: center; font-weight: 700; }
@@ -25,27 +26,28 @@
 .vt-no::before      { content: "✗"; }
 .vt-partial::before { content: "~"; }
 
-/* comparison highlight: recommended column via <col> + header badge */
+/* comparison highlight: col background + th-level top border (border on <col> unreliable) */
 .vt-col-pick { background: var(--vt-accent-soft); }
+.vt-th-pick  { background: var(--vt-accent-soft); border-top: 3px solid var(--vt-accent); }
 .vt-pick-badge {
-  display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .62rem; text-transform: uppercase; letter-spacing: .06em;
-  background: var(--vt-accent); color: var(--vt-accent-fg);
-  padding: .05rem .4rem; border-radius: 999px; margin-left: .35rem; vertical-align: middle;
+  display: block; font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .63rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--vt-accent); margin-bottom: .18rem;
 }
 
 /* row emphasis: the one key row */
 .vt-row-key { background: var(--vt-accent-soft); }
 .vt-row-key th[scope="row"], .vt-row-key td:first-child { box-shadow: inset 3px 0 0 var(--vt-accent); }
 
-/* key/value reference table */
+/* key/value reference table — key column gets background + border-right separator */
 .vt-kv { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
 .vt-kv th[scope="row"] {
-  text-align: left; text-transform: none; letter-spacing: 0; font-size: .95rem;
-  color: var(--vt-ink); font-weight: 600; width: 32%; padding: .55rem .7rem;
-  border-bottom: 1px solid var(--vt-rule); vertical-align: top; white-space: nowrap;
+  text-align: left; text-transform: none; letter-spacing: 0; font-size: .92rem;
+  color: var(--vt-ink); font-weight: 600; width: 30%; padding: .5rem .7rem .5rem .6rem;
+  border-bottom: 1px solid var(--vt-rule); border-right: 1px solid var(--vt-rule);
+  background: var(--vt-soft); vertical-align: top; white-space: nowrap;
 }
-.vt-kv td { padding: .55rem .7rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
+.vt-kv td { padding: .5rem .7rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
 </style>
 </head><body><main>
   <p class="vt-kicker">visual-teach · candidate</p>
@@ -53,12 +55,12 @@
   <p class="vt-lede">Candidate table features, all CSS (degrade + print). Pick what earns v1.</p>
 
   <h2><span class="vt-num">1</span>Comparison matrix — cell status + recommended column + header column</h2>
-  <p>One realistic table combining three variants: feature rows (header column), tool columns with ✓/✗/~ cells, and a recommended column highlighted.</p>
+  <p>One realistic table combining three variants: feature rows (header column), tool columns with ✓/✗/~ cells, and a recommended column highlighted. Use <code>col.vt-col-pick</code> for the column background and <code>th.vt-th-pick</code> for the header border + badge.</p>
   <div class="vt-table-wrap">
   <table class="vt-table">
     <colgroup><col><col><col class="vt-col-pick"><col></colgroup>
     <thead><tr>
-      <th>Capability</th><th>Google Sheets</th><th>BigQuery<span class="vt-pick-badge">Recommended</span></th><th>CSV Upload</th>
+      <th scope="col">Capability</th><th scope="col">Google Sheets</th><th scope="col" class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>BigQuery</th><th scope="col">CSV Upload</th>
     </tr></thead>
     <tbody>
       <tr><th scope="row">Handles &gt;1M rows</th><td class="vt-no"></td><td class="vt-ok"></td><td class="vt-partial"></td></tr>
@@ -68,7 +70,7 @@
     </tbody>
   </table>
   </div>
-  <p class="vt-meta">The highlighted row above is row-emphasis (<code>tr.vt-row-key</code>) — flagging the one idea that matters most.</p>
+  <p class="vt-meta">Row emphasis (<code>tr.vt-row-key</code>) flags the single most important row. Badge stacks above the column name via <code>display: block</code>.</p>
 
   <h2><span class="vt-num">2</span>Key/value reference table</h2>
   <p>For glossaries, field references, config keys — term on the left, meaning on the right.</p>

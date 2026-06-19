@@ -17,6 +17,7 @@
 /* derived tints */
 :root {
   --vt-soft:         color-mix(in srgb, var(--vt-ink) 4%, var(--vt-paper));
+  --vt-stripe:       color-mix(in srgb, var(--vt-ink) 6%, var(--vt-paper));
   --vt-neutral-soft: color-mix(in srgb, var(--vt-ink) 12%, var(--vt-paper));
   --vt-accent-dk:    color-mix(in srgb, var(--vt-accent) 78%, #000);
   --vt-good-soft:    color-mix(in srgb, var(--vt-good) 12%, var(--vt-paper));
@@ -99,7 +100,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 /* table — responsive wrapper + zebra + density */
 .vt-table-wrap { overflow-x: auto; margin: 1rem 0; }
 .vt-table-wrap > .vt-table, .vt-table-wrap > table { margin: 0; }
-.vt-table tbody tr:nth-child(even) { background: var(--vt-soft); }
+.vt-table tbody tr:nth-child(even) { background: var(--vt-stripe); }
 .vt-table.compact th, .vt-table.compact td { padding: .3rem .5rem; }
 
 /* table — header column (first column = row headers) */
@@ -107,6 +108,8 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   text-align: left; text-transform: none; letter-spacing: 0; font-size: .9rem;
   color: var(--vt-ink); font-weight: 600; white-space: nowrap;
 }
+/* table — comparison-matrix: subdue the row-label column header so data columns read first */
+.vt-table thead th:first-child { color: var(--vt-muted); font-weight: 400; }
 
 /* table — cell status: ✓ / ✗ / ~ auto-rendered, tinted, themeable */
 .vt-ok, .vt-no, .vt-partial { text-align: center; font-weight: 700; }
@@ -117,13 +120,18 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-no::before      { content: "✗"; }
 .vt-partial::before { content: "~"; }
 
-/* table — comparison highlight: recommended column via <col> + header badge */
+/* table — comparison highlight: recommended column via <col> background + .vt-th-pick header */
 .vt-col-pick { background: var(--vt-accent-soft); }
+/* .vt-th-pick on the <th> adds the top accent border (border on <col> is unreliable with border-collapse) */
+.vt-th-pick {
+  background: var(--vt-accent-soft);
+  border-top: 3px solid var(--vt-accent);
+}
+/* badge stacks above the column name as a block label */
 .vt-pick-badge {
-  display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .62rem; text-transform: uppercase; letter-spacing: .06em;
-  background: var(--vt-accent); color: var(--vt-accent-fg);
-  padding: .05rem .4rem; border-radius: 999px; margin-left: .35rem; vertical-align: middle;
+  display: block; font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .63rem; text-transform: uppercase; letter-spacing: .07em;
+  color: var(--vt-accent); margin-bottom: .18rem;
 }
 
 /* table — row emphasis */
@@ -133,11 +141,12 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 /* table — key/value reference */
 .vt-kv { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
 .vt-kv th[scope="row"] {
-  text-align: left; text-transform: none; letter-spacing: 0; font-size: .95rem;
-  color: var(--vt-ink); font-weight: 600; width: 32%; padding: .55rem .7rem;
-  border-bottom: 1px solid var(--vt-rule); vertical-align: top; white-space: nowrap;
+  text-align: left; text-transform: none; letter-spacing: 0; font-size: .92rem;
+  color: var(--vt-ink); font-weight: 600; width: 30%; padding: .5rem .7rem .5rem .6rem;
+  border-bottom: 1px solid var(--vt-rule); border-right: 1px solid var(--vt-rule);
+  background: var(--vt-soft); vertical-align: top; white-space: nowrap;
 }
-.vt-kv td { padding: .55rem .7rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
+.vt-kv td { padding: .5rem .7rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
 
 /* pill — base (accent fill) */
 .vt-pill {

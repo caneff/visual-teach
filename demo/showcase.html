@@ -50,12 +50,12 @@
   <div class="vt-callout success">Success tone — you did the thing.</div>
   <div class="vt-callout risk"><strong>Risk:</strong> the gotcha that bites.</div>
 
-  <p class="sc-label">Table — base + cell status + header col + row emphasis</p>
+  <p class="sc-label">Table — comparison matrix: cell status + header col + recommended col + row emphasis</p>
   <div class="vt-table-wrap">
   <table class="vt-table">
     <colgroup><col><col><col class="vt-col-pick"><col></colgroup>
     <thead><tr>
-      <th>Capability</th><th>Option A</th><th>Option B<span class="vt-pick-badge">Recommended</span></th><th>Option C</th>
+      <th scope="col">Capability</th><th scope="col">Option A</th><th scope="col" class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Option B</th><th scope="col">Option C</th>
     </tr></thead>
     <tbody>
       <tr><th scope="row">Handles &gt;1 M rows</th><td class="vt-no"></td><td class="vt-ok"></td><td class="vt-partial"></td></tr>

@@ -25,6 +25,38 @@ test('table variants', () => {
   expect(hasClass('.vt-kv'),                               'key/value table').toBe(true);
 });
 
+test('table polish — recommended column', () => {
+  expect(hasClass('.vt-th-pick'), 'recommended-column header class (th-level, not col-level)').toBe(true);
+  const thPickIdx = css.indexOf('.vt-th-pick');
+  const thPickBlock = css.slice(thPickIdx, thPickIdx + 300);
+  expect(thPickBlock.includes('border-top'), 'recommended header has accent top border').toBe(true);
+  const badgeIdx = css.indexOf('.vt-pick-badge');
+  const badgeBlock = css.slice(badgeIdx, badgeIdx + 300);
+  expect(badgeBlock.includes('display: block'), 'pick badge is block-level so it stacks above column name').toBe(true);
+});
+
+test('table polish — zebra striping token', () => {
+  expect(css.includes('--vt-stripe'), 'dedicated --vt-stripe token for zebra rows').toBe(true);
+  const zebraRule = css.match(/\.vt-table tbody tr:nth-child\(even\)\s*\{[^}]+\}/)?.[0] ?? '';
+  expect(zebraRule.includes('--vt-stripe'), 'zebra uses --vt-stripe token not raw --vt-soft').toBe(true);
+});
+
+test('table polish — key/value visual separation', () => {
+  const kvThIdx = css.indexOf('.vt-kv th[scope="row"]');
+  const kvThBlock = css.slice(kvThIdx, kvThIdx + 350);
+  expect(
+    kvThBlock.includes('background') || kvThBlock.includes('border-right'),
+    'key column has background or border-right for visual separation'
+  ).toBe(true);
+});
+
+test('table polish — matrix first-column header label', () => {
+  expect(
+    hasClass('.vt-table thead th:first-child') || hasClass('.vt-table thead tr th:first-child'),
+    'matrix row-label column header gets reduced visual weight'
+  ).toBe(true);
+});
+
 test('pill variants', () => {
   expect(hasClass('.vt-pill.neutral'),  'pill neutral fill').toBe(true);
   expect(hasClass('.vt-pill.good'),     'pill good fill').toBe(true);
