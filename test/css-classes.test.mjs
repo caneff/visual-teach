@@ -27,12 +27,10 @@ test('table variants', () => {
 
 test('table polish — recommended column', () => {
   expect(hasClass('.vt-th-pick'), 'recommended-column header class (th-level, not col-level)').toBe(true);
-  const thPickIdx = css.indexOf('.vt-th-pick');
-  const thPickBlock = css.slice(thPickIdx, thPickIdx + 300);
-  expect(thPickBlock.includes('border-top'), 'recommended header has accent top border').toBe(true);
-  const badgeIdx = css.indexOf('.vt-pick-badge');
-  const badgeBlock = css.slice(badgeIdx, badgeIdx + 300);
-  expect(badgeBlock.includes('display: block'), 'pick badge is block-level so it stacks above column name').toBe(true);
+  const thPickRule = css.match(/\.vt-th-pick\s*\{[^}]+\}/)?.[0] ?? '';
+  expect(thPickRule.includes('border-top'), 'recommended header has accent top border').toBe(true);
+  const badgeRule = css.match(/\.vt-pick-badge\s*\{[^}]+\}/)?.[0] ?? '';
+  expect(badgeRule.includes('display: block'), 'pick badge is block-level so it stacks above column name').toBe(true);
 });
 
 test('table polish — zebra striping token', () => {
@@ -42,10 +40,9 @@ test('table polish — zebra striping token', () => {
 });
 
 test('table polish — key/value visual separation', () => {
-  const kvThIdx = css.indexOf('.vt-kv th[scope="row"]');
-  const kvThBlock = css.slice(kvThIdx, kvThIdx + 350);
+  const kvThRule = css.match(/\.vt-kv th\[scope="row"\]\s*\{[^}]+\}/)?.[0] ?? '';
   expect(
-    kvThBlock.includes('background') || kvThBlock.includes('border-right'),
+    kvThRule.includes('background') || kvThRule.includes('border-right'),
     'key column has background or border-right for visual separation'
   ).toBe(true);
 });

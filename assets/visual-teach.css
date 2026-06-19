@@ -127,7 +127,6 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   background: var(--vt-accent-soft);
   border-top: 3px solid var(--vt-accent);
 }
-/* badge stacks above the column name as a block label */
 .vt-pick-badge {
   display: block; font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: .63rem; text-transform: uppercase; letter-spacing: .07em;
