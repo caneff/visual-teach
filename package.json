@@ -2,12 +2,14 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "serve": "python3 -m http.server 8000",
     "typecheck": "echo 'No TypeScript — skipping'"
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
     "@vitest/browser": "^4.1.9",
     "jsdom": "^29.1.1",
+    "playwright": "^1.61.0",
     "prismjs": "^1.30.0",
     "vitest": "^4.1.9"
   },

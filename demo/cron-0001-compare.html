@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>visual-teach · Cron lesson — before / after</title>
+<style>
+  /* ponytail: iframes, not copied markup — the two lessons stay the source of truth */
+  body { margin: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background: #f4f5f7; }
+  header { padding: .9rem 1.2rem; border-bottom: 1px solid #e3e6ea; background: #fff; }
+  header h1 { margin: 0; font-size: 1rem; }
+  header p { margin: .25rem 0 0; font-size: .85rem; color: #5b6472; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #e3e6ea; }
+  .pane { display: flex; flex-direction: column; background: #fff; min-width: 0; }
+  .pane .lbl { padding: .5rem 1rem; font-size: .8rem; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; color: #5b6472; border-bottom: 1px solid #e3e6ea; }
+  .pane.before .lbl { color: #c5221f; }
+  .pane.after  .lbl { color: #0d7d4d; }
+  iframe { border: 0; width: 100%; height: calc(100vh - 120px); }
+  @media (max-width: 800px) { .cols { grid-template-columns: 1fr; } iframe { height: 70vh; } }
+  .toggle { float: right; font: inherit; font-size: .8rem; padding: .35rem .8rem; border-radius: 999px;
+    border: 1px solid #cbd1d9; background: #fff; cursor: pointer; }
+</style>
+</head><body>
+<header>
+  <button class="toggle" onclick="setTheme()">◐ theme</button>
+  <h1>Cron · Lesson 0001 — before / after</h1>
+  <p>Same lesson, plain HTML (left) vs. visual-teach blocks (right). Scroll each pane. Theme toggle only moves the right pane — dark mode is free with visual-teach, hand-built in the plain version.</p>
+</header>
+<div class="cols">
+  <div class="pane before">
+    <span class="lbl">Before · plain HTML</span>
+    <iframe src="cron-0001-before.html" title="Before"></iframe>
+  </div>
+  <div class="pane after">
+    <span class="lbl">After · visual-teach</span>
+    <iframe src="cron-0001-after.html" title="After"></iframe>
+  </div>
+</div>
+<script>
+  // postMessage, not contentDocument — iframes are cross-origin under file://
+  let dark = false;
+  function setTheme() {
+    dark = !dark;
+    for (const f of document.querySelectorAll('iframe'))
+      f.contentWindow.postMessage({ vtTheme: dark ? 'dark' : 'light' }, '*');
+  }
+</script>
+</body></html>

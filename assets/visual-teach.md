@@ -93,10 +93,12 @@ Modifier classes: `beginner` `intermediate` `advanced`
 </div>
 <!-- Compact density: add class="vt-table compact" -->
 <!-- Cell status: td.vt-ok (✓)  td.vt-no (✗)  td.vt-partial (~) -->
-<!-- Recommended column: <col class="vt-col-pick"> tints the column;
+<!-- Recommended column: <col class="vt-col-pick"> frames the column with accent
+     side+bottom rails (box-shadow, so they survive zebra stripes and cell fills
+     like .vt-ok/.vt-no) plus a soft tint for text cells;
      <th class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Name</th>
-     draws the accent top border + badge (the th class is required — a border on
-     <col> is unreliable with border-collapse) -->
+     closes the frame with the accent top border + badge (the th class is required
+     — a plain border on <col> is unreliable with border-collapse) -->
 ```
 
 Key/value reference table (glossary, config keys):
@@ -305,6 +307,12 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
     <span class="vt-node em">Transform</span>
   </div>
 </div>
+```
+`vt-row` wraps by default. Add `.nowrap` to keep the columns on one line (and
+scroll horizontally if they overflow) — for a row that must read as a single
+unit, e.g. the five positional fields of a cron expression `* * * * *`:
+```html
+<div class="vt-row nowrap"> … </div>
 ```
 
 ### Split — before / after. Add `.before` / `.after` on panels for colour cues.
