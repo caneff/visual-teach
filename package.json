@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "test": "node test/css-classes.test.mjs"
+  },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
     "@vitest/browser": "^4.1.9",
