@@ -16,12 +16,13 @@
 
 /* derived tints */
 :root {
-  --vt-soft:       color-mix(in srgb, var(--vt-ink) 4%, var(--vt-paper));
-  --vt-accent-dk:  color-mix(in srgb, var(--vt-accent) 78%, #000);
-  --vt-good-soft:  color-mix(in srgb, var(--vt-good) 12%, var(--vt-paper));
-  --vt-bad-soft:   color-mix(in srgb, var(--vt-bad) 12%, var(--vt-paper));
-  --vt-warn-soft:  color-mix(in srgb, var(--vt-warn) 14%, var(--vt-paper));
-  --vt-accent-soft:color-mix(in srgb, var(--vt-accent) 8%, var(--vt-paper));
+  --vt-soft:         color-mix(in srgb, var(--vt-ink) 4%, var(--vt-paper));
+  --vt-neutral-soft: color-mix(in srgb, var(--vt-ink) 12%, var(--vt-paper));
+  --vt-accent-dk:    color-mix(in srgb, var(--vt-accent) 78%, #000);
+  --vt-good-soft:    color-mix(in srgb, var(--vt-good) 12%, var(--vt-paper));
+  --vt-bad-soft:     color-mix(in srgb, var(--vt-bad) 12%, var(--vt-paper));
+  --vt-warn-soft:    color-mix(in srgb, var(--vt-warn) 14%, var(--vt-paper));
+  --vt-accent-soft:  color-mix(in srgb, var(--vt-accent) 8%, var(--vt-paper));
 }
 
 /* dark mode — override the 9 base tokens; derived tints + masked icons follow.
@@ -146,14 +147,14 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 }
 
 /* pill — semantic fills */
-.vt-pill.neutral { background: var(--vt-soft); color: var(--vt-muted); }
+.vt-pill.neutral { background: var(--vt-neutral-soft); color: var(--vt-muted); }
 .vt-pill.good    { background: var(--vt-good); color: var(--vt-accent-fg); }
 .vt-pill.bad     { background: var(--vt-bad);  color: var(--vt-accent-fg); }
 .vt-pill.warn    { background: var(--vt-warn); color: #000; }
 
 /* pill — outline */
 .vt-pill.outline          { background: transparent; color: var(--vt-accent); border: 1px solid var(--vt-accent); }
-.vt-pill.outline.neutral  { color: var(--vt-muted); border-color: var(--vt-rule); }
+.vt-pill.outline.neutral  { color: var(--vt-muted); border-color: var(--vt-muted); }
 .vt-pill.outline.good     { color: var(--vt-good); border-color: var(--vt-good); }
 .vt-pill.outline.bad      { color: var(--vt-bad);  border-color: var(--vt-bad); }
 .vt-pill.outline.warn     { color: #9a6b00; border-color: var(--vt-warn); }
@@ -186,6 +187,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   background: var(--vt-accent); color: var(--vt-accent-fg);
   font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .8rem; font-weight: 700;
 }
+.vt-badge.sm { width: 1.2rem; height: 1.2rem; font-size: .7rem; }
 
 /* keyboard keycap */
 .vt-kbd {

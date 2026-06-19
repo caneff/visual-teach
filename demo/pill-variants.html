@@ -6,13 +6,13 @@
 /* ===== CANDIDATE pill / level / badge / kbd — preview before folding ===== */
 .vt-pill { vertical-align: middle; }
 /* semantic fills */
-.vt-pill.neutral { background: var(--vt-soft); color: var(--vt-muted); }
+.vt-pill.neutral { background: var(--vt-neutral-soft); color: var(--vt-muted); }
 .vt-pill.good    { background: var(--vt-good); }
 .vt-pill.bad     { background: var(--vt-bad); }
 .vt-pill.warn    { background: var(--vt-warn); color: #000; }
 /* outline */
 .vt-pill.outline          { background: transparent; color: var(--vt-accent); border: 1px solid var(--vt-accent); }
-.vt-pill.outline.neutral  { color: var(--vt-muted); border-color: var(--vt-rule); }
+.vt-pill.outline.neutral  { color: var(--vt-muted); border-color: var(--vt-muted); }
 .vt-pill.outline.good     { color: var(--vt-good); border-color: var(--vt-good); }
 .vt-pill.outline.bad      { color: var(--vt-bad);  border-color: var(--vt-bad); }
 .vt-pill.outline.warn     { color: #9a6b00; border-color: var(--vt-warn); }
@@ -36,6 +36,7 @@
 .vt-badge { display: inline-flex; align-items: center; justify-content: center;
   width: 1.5rem; height: 1.5rem; border-radius: 999px; background: var(--vt-accent);
   color: var(--vt-accent-fg); font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .8rem; font-weight: 700; }
+.vt-badge.sm { width: 1.2rem; height: 1.2rem; font-size: .7rem; }
 
 /* kbd keycaps */
 .vt-kbd { font-family: ui-monospace, 'Cascadia Code', Menlo, monospace; font-size: .8rem; line-height: 1;
@@ -97,7 +98,7 @@
   <p class="lbl">Count / step badge</p>
   <div class="row">
     <span class="vt-badge">1</span><span class="vt-badge">2</span><span class="vt-badge">3</span>
-    <span style="margin-left:.5rem">Step <span class="vt-badge" style="width:1.2rem;height:1.2rem;font-size:.72rem">3</span> of 7</span>
+    <span style="margin-left:.5rem">Step <span class="vt-badge sm">3</span> of 7</span>
   </div>
 
   <p class="lbl">Section tags (pill on a heading)</p>

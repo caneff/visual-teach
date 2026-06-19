@@ -45,6 +45,14 @@ test('difficulty / level pills', () => {
 });
 
 test('badge + kbd', () => {
-  expect(hasClass('.vt-badge'), 'count/step badge').toBe(true);
-  expect(hasClass('.vt-kbd'),   'keyboard keycap').toBe(true);
+  expect(hasClass('.vt-badge'),    'count/step badge').toBe(true);
+  expect(hasClass('.vt-badge.sm'), 'badge small size for inline "Step N of M" use').toBe(true);
+  expect(hasClass('.vt-kbd'),      'keyboard keycap').toBe(true);
+});
+
+test('neutral color token', () => {
+  expect(css.includes('--vt-neutral-soft'), 'dedicated neutral-soft tint token').toBe(true);
+  // neutral pill must reference the new token, not the near-invisible --vt-soft
+  const neutralRule = css.match(/\.vt-pill\.neutral\s*\{[^}]+\}/)?.[0] ?? '';
+  expect(neutralRule.includes('--vt-neutral-soft'), 'neutral pill uses --vt-neutral-soft background').toBe(true);
 });
