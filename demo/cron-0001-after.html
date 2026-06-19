@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1 · Reading a cron expression</title>
+<link rel="stylesheet" href="../assets/visual-teach.css">
+<!-- topic palette: only the tokens that differ from visual-teach defaults -->
+<style>:root{ --vt-accent:#2f6f4f; --vt-accent-fg:#ffffff; }</style>
+</head>
+<body>
+<main>
+  <p class="vt-kicker">Cron &amp; scheduling · Lesson 1</p>
+  <h1>Reading a cron expression</h1>
+  <p class="vt-lede">Five fields, left to right, decide exactly when a job runs — learn to read any line at a glance.</p>
+  <div class="vt-metabar">
+    <span class="item">⏱ <strong>~12 min</strong></span>
+    <span class="item">Needs: <strong>terminal access</strong></span>
+    <span class="item">Nothing to install</span>
+  </div>
+
+  <h2><span class="vt-num">1</span>The five fields</h2>
+  <p>A cron expression is five numbers separated by spaces. Position is everything: the scheduler reads them left to right.</p>
+  <div class="vt-diagram">
+    <div class="vt-row nowrap">
+      <div class="vt-col"><span class="vt-node em">*</span><span class="vt-col-label">minute</span></div>
+      <div class="vt-col"><span class="vt-node">*</span><span class="vt-col-label">hour</span></div>
+      <div class="vt-col"><span class="vt-node">*</span><span class="vt-col-label">day of month</span></div>
+      <div class="vt-col"><span class="vt-node">*</span><span class="vt-col-label">month</span></div>
+      <div class="vt-col"><span class="vt-node">*</span><span class="vt-col-label">day of week</span></div>
+    </div>
+  </div>
+  <div class="vt-table-wrap">
+    <table class="vt-table">
+      <thead><tr><th>Field</th><th>Range</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">minute</th><td><code>0–59</code></td><td></td></tr>
+        <tr><th scope="row">hour</th><td><code>0–23</code></td><td>24-hour clock</td></tr>
+        <tr><th scope="row">day of month</th><td><code>1–31</code></td><td></td></tr>
+        <tr><th scope="row">month</th><td><code>1–12</code></td><td></td></tr>
+        <tr><th scope="row">day of week</th><td><code>0–6</code></td><td><code>0</code> (and <code>7</code>) is Sunday</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>A bare <code>*</code> means "every value of this field," so <code>* * * * *</code> means every minute of every hour of every day. The whole skill is narrowing those stars down.</p>
+  <div class="vt-callout insight">
+    <strong>Key idea:</strong> cron checks the clock once a minute and runs every job whose five fields all match the current time. There is no field smaller than a minute.
+  </div>
+
+  <h2><span class="vt-num">2</span>The four operators</h2>
+  <p>Four small operators turn a star into a real schedule. Each one acts inside a single field.</p>
+  <div class="vt-table-wrap">
+    <table class="vt-table">
+      <thead><tr><th>Operator</th><th>Means</th><th>Example in the minute field</th></tr></thead>
+      <tbody>
+        <tr><th scope="row"><code>*</code></th><td>every value</td><td><code>*</code> → every minute</td></tr>
+        <tr><th scope="row"><code>*/n</code></th><td>every n steps</td><td><code>*/15</code> → minute 0, 15, 30, 45</td></tr>
+        <tr><th scope="row"><code>,</code></th><td>a list</td><td><code>0,30</code> → minute 0 and 30</td></tr>
+        <tr><th scope="row"><code>-</code></th><td>a range</td><td><code>0-4</code> → minutes 0 through 4</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>They combine. <code>0,30 9-17 * * *</code> runs on the hour and half-hour, but only between 9am and 5pm. Read it field by field and it falls open.</p>
+  <div class="vt-callout">
+    <strong>Watch the slash.</strong> <code>*/15</code> in the <em>hour</em> field is every 15 hours, not every 15 minutes. The operator is the same; the field it sits in changes the unit.
+  </div>
+
+  <h2><span class="vt-num">3</span>A worked example</h2>
+  <p>Here is a nightly backup. Open your user crontab with <code>crontab -e</code> and add a line:</p>
+  <div class="vt-code">
+    <div class="vt-code-head"><span>crontab -e</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
+<pre><code class="language-bash"># ┌ minute  ┌ hour  ┌ day  ┌ month  ┌ weekday
+# │         │       │      │        │
+30 2 * * *  /usr/local/bin/backup.sh   # 02:30 every day
+0 7 * * 1-5 /usr/local/bin/report.sh   # 07:00 Mon–Fri</code></pre>
+  </div>
+  <p>The editor <code>crontab -e</code> opens is usually vi: press <kbd class="vt-kbd">Esc</kbd>, type <code>:wq</code>, and hit <kbd class="vt-kbd">Enter</kbd> to save. List your jobs anytime with <code>crontab -l</code>.</p>
+  <div class="vt-callout risk">
+    <strong>Timezone trap:</strong> system cron runs in the server's timezone, not yours. A job set for <code>30 2 * * *</code> fires at 2:30am <em>server</em> time — on a UTC server that may be the middle of your afternoon. Check <code>timedatectl</code> before you trust a schedule.
+  </div>
+
+  <h2><span class="vt-num">4</span>Two ways to say "every 15 minutes"</h2>
+  <p>Beginners often reach for a comma list when a step would do. Both run at the same times, but one scales and one does not.</p>
+  <div class="vt-table-wrap">
+    <table class="vt-table">
+      <colgroup><col><col><col class="vt-col-pick"></colgroup>
+      <thead><tr><th>Need</th><th><code>0,15,30,45 * * * *</code></th><th class="vt-th-pick"><span class="vt-pick-badge">Recommended</span><code>*/15 * * * *</code></th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Reads clearly</th><td class="vt-ok"></td><td class="vt-ok"></td></tr>
+        <tr><th scope="row">Easy to change the interval</th><td class="vt-no"></td><td class="vt-ok"></td></tr>
+        <tr><th scope="row">Stays short for fine intervals</th><td class="vt-no"></td><td class="vt-ok"></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="vt-callout insight">
+    <strong>Reach for <code>*/n</code>.</strong> The comma list works, but you hand-maintain it; change the interval and you rewrite the whole thing. The step form changes with one number.
+  </div>
+
+  <h2><span class="vt-num">5</span>Hands-on: add a job</h2>
+  <p>Add the nightly backup yourself. Check off steps as you go — progress is saved in this page.</p>
+  <ol class="vt-checklist" data-key="cron-0001">
+    <li><input type="checkbox"><div>
+      <span class="vt-step-title">Open your crontab</span>
+      <span class="vt-step-body">Run <code>crontab -e</code> in a terminal.</span></div></li>
+    <li><input type="checkbox"><div>
+      <span class="vt-step-title">Add the backup line</span>
+      <span class="vt-step-body">Type <code>30 2 * * * /usr/local/bin/backup.sh</code> on its own line.</span></div></li>
+    <li><input type="checkbox"><div>
+      <span class="vt-step-title">Save and exit</span>
+      <span class="vt-step-body"><kbd class="vt-kbd">Esc</kbd>, then <code>:wq</code>, then <kbd class="vt-kbd">Enter</kbd>.</span></div></li>
+    <li><input type="checkbox"><div>
+      <span class="vt-step-title">Confirm it landed</span>
+      <span class="vt-step-body">Run <code>crontab -l</code> and check your line is listed.</span></div></li>
+  </ol>
+
+  <h2><span class="vt-num">6</span>Check yourself</h2>
+
+  <div class="vt-quiz" data-answer="2">
+    <p class="q">1. What does <code>*/15 9-17 * * 1-5</code> run?</p>
+    <button class="opt">Every 15 minutes, all day, every day</button>
+    <button class="opt">At 9:15 and 5:15, on weekdays only</button>
+    <button class="opt">Every 15 minutes, 9am–5pm, Monday to Friday</button>
+    <div class="feedback"></div>
+    <template class="why-good">Right — read it field by field: every 15 min (minute), within hours 9–17, any day-of-month, any month, weekdays 1–5.</template>
+    <template class="why-bad">Read field by field. <code>*/15</code> is every 15 minutes within the hour (not a single :15 mark), and the hour and weekday fields are not stars — so it is neither all day nor every day.</template>
+    <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <div class="vt-quiz" data-answer="1">
+    <p class="q">2. Which expression runs at exactly 6:00am every day?</p>
+    <button class="opt"><code>6 0 * * *</code></button>
+    <button class="opt"><code>0 6 * * *</code></button>
+    <button class="opt"><code>0 6 * * 0</code></button>
+    <div class="feedback"></div>
+    <template class="why-good">Right — minute 0, hour 6 is 6:00am, and the star in day-of-week means every day.</template>
+    <template class="why-bad">Order is minute then hour, so <code>6 0</code> is 12:06am. And <code>* * 0</code> in the weekday field restricts it to Sundays only — not every day.</template>
+    <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <div class="vt-teacher">
+    <div>
+      <p class="h">🎓 Stuck or curious? Your teacher is the agent that made this.</p>
+      <p>Ask it anything — follow-up questions are the point, not an interruption. Not sure where to start:</p>
+      <div class="vt-asks">
+        <span class="vt-ask">Why is there no "every second" field?</span>
+        <span class="vt-ask">How do I test a schedule without waiting?</span>
+        <span class="vt-ask">What does <code>0 0 1 * *</code> do?</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="vt-recap">
+    <p class="h">✦ What you just earned</p>
+    You can read any standard five-field cron line, reach for <code>*/n</code> over hand-written lists, and you know to check the server timezone before trusting a schedule.
+  </div>
+  <p><a class="vt-cta" href="#">Next: special strings (<code>@daily</code>, <code>@reboot</code>) and cron's environment →</a></p>
+
+  <footer class="vt-sources">
+    <span class="lbl">Sources</span>
+    <ul class="vt-reflist">
+      <li><span class="vt-src-ic" data-type="spec"></span><a href="https://man7.org/linux/man-pages/man5/crontab.5.html">crontab(5) — Linux man page</a></li>
+      <li><span class="vt-src-ic" data-type="doc"></span><a href="https://crontab.guru">crontab.guru</a> <span class="note">— paste an expression, read it back in English.</span></li>
+    </ul>
+    <div class="meta">Lesson 0001 · verified 2026-06-19</div>
+  </footer>
+</main>
+
+<script src="../assets/prism/prism-core.min.js"></script>
+<script src="../assets/prism/prism-clike.min.js"></script>
+<script src="../assets/prism/prism-bash.min.js"></script>
+<script type="module" src="../assets/visual-teach.js"></script>
+</body>
+</html>

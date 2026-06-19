@@ -240,11 +240,23 @@ function initPrism() {
   try { Prism.highlightAll(); } catch (e) {}
 }
 
+/* Theme bridge: let an embedding parent (e.g. an iframe-based before/after
+   compare page) set the lesson theme via postMessage({vtTheme:'dark'|'light'}).
+   Cross-origin-safe, so it works even when lessons are opened over file://,
+   where the parent cannot reach contentDocument. */
+export function wireThemeBridge(win) {
+  win.addEventListener('message', function (e) {
+    var t = e.data && e.data.vtTheme;
+    if (t === 'dark' || t === 'light') win.document.documentElement.dataset.theme = t;
+  });
+}
+
 function init() {
   document.querySelectorAll('.vt-quiz').forEach(wireQuiz);
   document.querySelectorAll('.vt-checklist').forEach(wireChecklist);
   document.querySelectorAll('.vt-code').forEach(wireCodeBlock);
   initPrism();
+  if (typeof window !== 'undefined') wireThemeBridge(window);
 }
 
 if (typeof document !== 'undefined') {

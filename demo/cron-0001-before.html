@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1 · Reading a cron expression</title>
+<style>
+  :root {
+    --ink: #1a1f2b;
+    --muted: #5b6472;
+    --accent: #2f6f4f;
+    --accent-dark: #245c40;
+    --good: #0d7d4d;
+    --bad: #c5221f;
+    --rule: #e3e6ea;
+    --bg-soft: #f6f8fa;
+    --bg-warm: #fef7e0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Georgia, 'Times New Roman', serif;
+    color: var(--ink); margin: 0; background: #fff; line-height: 1.6;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+  .kicker {
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .8rem;
+    text-transform: uppercase; letter-spacing: .12em; color: var(--accent);
+  }
+  h1 { font-size: 2.1rem; line-height: 1.2; margin: .3rem 0 .5rem; letter-spacing: -.01em; }
+  .lede { font-size: 1.1rem; color: var(--muted); font-style: italic; margin-bottom: .5rem; }
+  .meta { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem; color: var(--muted); margin-bottom: 2.5rem; }
+  h2 {
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.25rem;
+    margin-top: 2.8rem; padding-bottom: .3rem; border-bottom: 2px solid var(--rule);
+  }
+  h2 .n { color: var(--accent); margin-right: .4rem; }
+  a { color: var(--accent); }
+  code {
+    font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+    font-size: .88em; background: var(--bg-soft); padding: .1em .35em; border-radius: 4px;
+  }
+  pre {
+    font-family: ui-monospace, 'Cascadia Code', Menlo, monospace; font-size: .85rem;
+    background: var(--bg-soft); padding: .8rem 1rem; border-radius: 8px; overflow-x: auto;
+    line-height: 1.5;
+  }
+  pre .c { color: var(--muted); }
+  .callout {
+    background: var(--bg-warm); border-left: 4px solid #f9ab00;
+    padding: .9rem 1.1rem; margin: 1.4rem 0; font-size: .97rem; border-radius: 0 8px 8px 0;
+  }
+  .callout.danger { background: #fdeeee; border-left-color: var(--bad); }
+  .insight {
+    background: var(--bg-soft); border-left: 4px solid var(--accent);
+    padding: .9rem 1.1rem; margin: 1.4rem 0; border-radius: 0 8px 8px 0;
+  }
+  .flow {
+    text-align: center; font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+    font-size: 1.15rem; letter-spacing: .04em; margin: 1.3rem 0 .4rem;
+  }
+  .flow .lbls {
+    display: block; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .72rem;
+    text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin-top: .3rem;
+  }
+  table { width: 100%; border-collapse: collapse; font-size: .93rem; margin: 1rem 0; }
+  th {
+    text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .75rem;
+    text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+    padding: .45rem .6rem; border-bottom: 2px solid var(--rule);
+  }
+  td { padding: .5rem .6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  td.yes { color: var(--good); font-weight: 600; }
+  td.no  { color: var(--bad); }
+
+  /* Checklist */
+  .steps { list-style: none; padding: 0; margin: 1.2rem 0; }
+  .steps li {
+    display: grid; grid-template-columns: auto 1fr; gap: .8rem;
+    padding: .9rem 1rem; border: 1px solid var(--rule); border-radius: 10px;
+    margin-bottom: .6rem; transition: background .15s, border-color .15s;
+  }
+  .steps li:has(input:checked) { background: #e6f4ea; border-color: #b7dfc4; }
+  .steps li:has(input:checked) .step-body { color: var(--muted); }
+  .steps input[type="checkbox"] {
+    width: 1.25rem; height: 1.25rem; margin-top: .2rem; accent-color: var(--good); cursor: pointer;
+  }
+  .step-title { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; display: block; margin-bottom: .15rem; }
+  .step-body { font-size: .95rem; }
+  #progress {
+    font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem;
+    color: var(--muted); margin: .4rem 0 1rem;
+  }
+
+  /* Quiz */
+  .quiz { border: 1px solid var(--rule); border-radius: 12px; padding: 1.2rem 1.3rem; margin: 1.3rem 0; }
+  .quiz p.q { font-weight: bold; margin: 0 0 .7rem; }
+  .quiz button.opt {
+    display: block; width: 100%; text-align: left; font: inherit; font-size: .95rem;
+    background: var(--bg-soft); border: 1px solid var(--rule); border-radius: 8px;
+    padding: .6rem .9rem; margin-bottom: .5rem; cursor: pointer; color: var(--ink);
+  }
+  .quiz button.opt:hover { border-color: var(--accent); }
+  .quiz button.opt.correct { background: #e6f4ea; border-color: var(--good); }
+  .quiz button.opt.wrong { background: #fce8e6; border-color: var(--bad); }
+  .quiz .feedback { font-size: .92rem; margin-top: .6rem; padding: .6rem .8rem; border-radius: 8px; display: none; }
+  .quiz .feedback.show { display: block; }
+  .quiz .feedback.good { background: #e6f4ea; color: #11451f; }
+  .quiz .feedback.bad { background: #fce8e6; color: #5c1110; }
+
+  .teacher {
+    margin-top: 3rem; border: 2px dashed var(--accent); border-radius: 12px;
+    padding: 1.1rem 1.3rem; background: #eef5f0;
+  }
+  footer { margin-top: 3rem; color: var(--muted); font-size: .85rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+  @media print { .quiz button, #resetBtn { display: none; } }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Cron &amp; scheduling · Lesson 1</p>
+  <h1>Reading a cron expression</h1>
+  <p class="lede">Five fields, left to right, decide exactly when a job runs — learn to read any line at a glance.</p>
+  <p class="meta">⏱ ~12 min · Needs: terminal access · Nothing to install</p>
+
+  <h2><span class="n">1</span>The five fields</h2>
+  <p>A cron expression is five numbers separated by spaces. Position is everything: the scheduler reads them left to right.</p>
+  <p class="flow">
+    * &nbsp; * &nbsp; * &nbsp; * &nbsp; *
+    <span class="lbls">minute &nbsp;·&nbsp; hour &nbsp;·&nbsp; day of month &nbsp;·&nbsp; month &nbsp;·&nbsp; day of week</span>
+  </p>
+  <table>
+    <tr><th>Field</th><th>Range</th><th>Notes</th></tr>
+    <tr><td>minute</td><td><code>0–59</code></td><td></td></tr>
+    <tr><td>hour</td><td><code>0–23</code></td><td>24-hour clock</td></tr>
+    <tr><td>day of month</td><td><code>1–31</code></td><td></td></tr>
+    <tr><td>month</td><td><code>1–12</code></td><td></td></tr>
+    <tr><td>day of week</td><td><code>0–6</code></td><td><code>0</code> (and <code>7</code>) is Sunday</td></tr>
+  </table>
+  <p>A bare <code>*</code> means "every value of this field," so <code>* * * * *</code> means every minute of every hour of every day. The whole skill is narrowing those stars down.</p>
+  <div class="insight">
+    <strong>Key idea:</strong> cron checks the clock once a minute and runs every job whose five fields all match the current time. There is no field smaller than a minute.
+  </div>
+
+  <h2><span class="n">2</span>The four operators</h2>
+  <p>Four small operators turn a star into a real schedule. Each one acts inside a single field.</p>
+  <table>
+    <tr><th>Operator</th><th>Means</th><th>Example in the minute field</th></tr>
+    <tr><td><code>*</code></td><td>every value</td><td><code>*</code> → every minute</td></tr>
+    <tr><td><code>*/n</code></td><td>every n steps</td><td><code>*/15</code> → minute 0, 15, 30, 45</td></tr>
+    <tr><td><code>,</code></td><td>a list</td><td><code>0,30</code> → minute 0 and 30</td></tr>
+    <tr><td><code>-</code></td><td>a range</td><td><code>0-4</code> → minutes 0 through 4</td></tr>
+  </table>
+  <p>They combine. <code>0,30 9-17 * * *</code> runs on the hour and half-hour, but only between 9am and 5pm. Read it field by field and it falls open.</p>
+  <div class="callout">
+    <strong>Watch the slash.</strong> <code>*/15</code> in the <em>hour</em> field is every 15 hours, not every 15 minutes. The operator is the same; the field it sits in changes the unit.
+  </div>
+
+  <h2><span class="n">3</span>A worked example</h2>
+  <p>Here is a nightly backup. Open your user crontab with <code>crontab -e</code> and add a line:</p>
+<pre><span class="c"># ┌ minute  ┌ hour  ┌ day  ┌ month  ┌ weekday</span>
+<span class="c"># │         │       │      │        │</span>
+30 2 * * *  /usr/local/bin/backup.sh   <span class="c"># 02:30 every day</span>
+0 7 * * 1-5 /usr/local/bin/report.sh   <span class="c"># 07:00 Mon–Fri</span></pre>
+  <p>The editor <code>crontab -e</code> opens is usually vi: press <strong>Esc</strong>, type <code>:wq</code>, and hit <strong>Enter</strong> to save. List your jobs anytime with <code>crontab -l</code>.</p>
+  <div class="callout danger">
+    <strong>Timezone trap:</strong> system cron runs in the server's timezone, not yours. A job set for <code>30 2 * * *</code> fires at 2:30am <em>server</em> time — on a UTC server that may be the middle of your afternoon. Check <code>timedatectl</code> before you trust a schedule.
+  </div>
+
+  <h2><span class="n">4</span>Two ways to say "every 15 minutes"</h2>
+  <p>Beginners often reach for a comma list when a step would do. Both run at the same times, but one scales and one does not.</p>
+  <table>
+    <tr><th>Need</th><th><code>0,15,30,45 * * * *</code></th><th><code>*/15 * * * *</code></th></tr>
+    <tr><td>Reads clearly</td><td class="yes">yes</td><td class="yes">yes</td></tr>
+    <tr><td>Easy to change the interval</td><td class="no">no — rewrite the list</td><td class="yes">yes — edit one number</td></tr>
+    <tr><td>Stays short for fine intervals</td><td class="no">no</td><td class="yes">yes</td></tr>
+  </table>
+  <div class="insight">
+    <strong>Reach for <code>*/n</code>.</strong> The comma list works, but you hand-maintain it; change the interval and you rewrite the whole thing. The step form changes with one number.
+  </div>
+
+  <h2><span class="n">5</span>Hands-on: add a job</h2>
+  <p>Add the nightly backup yourself. Check off steps as you go — progress is saved in this page.</p>
+  <p id="progress"></p>
+  <ol class="steps" id="checklist">
+    <li><input type="checkbox" id="s1"><div><label for="s1" class="step-title">Open your crontab</label><span class="step-body">Run <code>crontab -e</code> in a terminal.</span></div></li>
+    <li><input type="checkbox" id="s2"><div><label for="s2" class="step-title">Add the backup line</label><span class="step-body">Type <code>30 2 * * * /usr/local/bin/backup.sh</code> on its own line.</span></div></li>
+    <li><input type="checkbox" id="s3"><div><label for="s3" class="step-title">Save and exit</label><span class="step-body"><strong>Esc</strong>, then <code>:wq</code>, then <strong>Enter</strong>.</span></div></li>
+    <li><input type="checkbox" id="s4"><div><label for="s4" class="step-title">Confirm it landed</label><span class="step-body">Run <code>crontab -l</code> and check your line is listed.</span></div></li>
+  </ol>
+  <button id="resetBtn" style="font: inherit; font-size:.85rem; padding:.3rem .8rem; border-radius:8px; border:1px solid var(--rule); background:#fff; cursor:pointer;">Reset checklist</button>
+
+  <h2><span class="n">6</span>Check yourself</h2>
+
+  <div class="quiz" data-answer="2">
+    <p class="q">1. What does <code>*/15 9-17 * * 1-5</code> run?</p>
+    <button class="opt">Every 15 minutes, all day, every day</button>
+    <button class="opt">At 9:15 and 5:15, on weekdays only</button>
+    <button class="opt">Every 15 minutes, 9am–5pm, Monday to Friday</button>
+    <div class="feedback"></div>
+    <template class="why-good">Right — read it field by field: every 15 min (minute), within hours 9–17, any day-of-month, any month, weekdays 1–5.</template>
+    <template class="why-bad">Read field by field. <code>*/15</code> is every 15 minutes within the hour (not a single :15 mark), and the hour and weekday fields are not stars — so it is neither all day nor every day.</template>
+  </div>
+
+  <div class="quiz" data-answer="1">
+    <p class="q">2. Which expression runs at exactly 6:00am every day?</p>
+    <button class="opt"><code>6 0 * * *</code></button>
+    <button class="opt"><code>0 6 * * *</code></button>
+    <button class="opt"><code>0 6 * * 0</code></button>
+    <div class="feedback"></div>
+    <template class="why-good">Right — minute 0, hour 6 is 6:00am, and the star in day-of-week means every day.</template>
+    <template class="why-bad">Order is minute then hour, so <code>6 0</code> is 12:06am. And <code>* * 0</code> in the weekday field restricts it to Sundays only — not every day.</template>
+  </div>
+
+  <div class="teacher">
+    <strong>🎓 Stuck or curious?</strong> Your teacher is the agent that made this. Ask it anything — "why is there no 'every second' field?", "how do I test a schedule without waiting?", "what does <code>0 0 1 * *</code> do?". Follow-up questions are the point, not an interruption.
+  </div>
+
+  <h2><span class="n">7</span>What you just earned</h2>
+  <p>You can read any standard five-field cron line, reach for <code>*/n</code> over hand-written lists, and you know to check the server timezone before trusting a schedule. Next lesson: the special strings (<code>@daily</code>, <code>@reboot</code>) and how environment differs under cron.</p>
+
+  <footer>
+    Sources: <a href="https://man7.org/linux/man-pages/man5/crontab.5.html">crontab(5) — Linux man page</a> ·
+    <a href="https://crontab.guru">crontab.guru</a> (paste an expression, read it back in English)<br>
+    Lesson 0001 · 2026-06-19
+  </footer>
+</main>
+
+<script>
+  // Checklist persistence
+  const boxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+  const progress = document.getElementById('progress');
+  const KEY = 'cron-lesson-0001-checklist';
+  const saved = JSON.parse(localStorage.getItem(KEY) || '{}');
+  boxes.forEach(b => {
+    b.checked = !!saved[b.id];
+    b.addEventListener('change', () => {
+      saved[b.id] = b.checked;
+      localStorage.setItem(KEY, JSON.stringify(saved));
+      render();
+    });
+  });
+  function render() {
+    const done = [...boxes].filter(b => b.checked).length;
+    progress.textContent = done === boxes.length
+      ? '✅ All ' + boxes.length + ' steps done — your backup is scheduled.'
+      : done + ' of ' + boxes.length + ' steps done';
+  }
+  render();
+  document.getElementById('resetBtn').addEventListener('click', () => {
+    localStorage.removeItem(KEY);
+    boxes.forEach(b => b.checked = false);
+    Object.keys(saved).forEach(k => delete saved[k]);
+    render();
+  });
+
+  // Quizzes
+  document.querySelectorAll('.quiz').forEach(quiz => {
+    const answer = parseInt(quiz.dataset.answer, 10);
+    const opts = quiz.querySelectorAll('button.opt');
+    const fb = quiz.querySelector('.feedback');
+    const good = quiz.querySelector('.why-good').innerHTML;
+    const bad = quiz.querySelector('.why-bad').innerHTML;
+    opts.forEach((btn, i) => btn.addEventListener('click', () => {
+      opts.forEach(b => b.classList.remove('correct', 'wrong'));
+      opts[answer].classList.add('correct');
+      if (i === answer) {
+        fb.className = 'feedback show good';
+        fb.innerHTML = '✔ ' + good;
+      } else {
+        btn.classList.add('wrong');
+        fb.className = 'feedback show bad';
+        fb.innerHTML = '✘ ' + bad;
+      }
+    }));
+  });
+</script>
+</body>
+</html>

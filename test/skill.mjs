@@ -7,8 +7,8 @@ const __dir = dirname(fileURLToPath(import.meta.url));
 const root = join(__dir, '..');
 
 const skill = readFileSync(join(root, 'SKILL.md'), 'utf8');
-const beforeHtml = readFileSync(join(root, 'demo/data-studio-0001-before.html'), 'utf8');
-const afterHtml  = readFileSync(join(root, 'demo/data-studio-0001-after.html'),  'utf8');
+const beforeHtml = readFileSync(join(root, 'demo/cron-0001-before.html'), 'utf8');
+const afterHtml  = readFileSync(join(root, 'demo/cron-0001-after.html'),  'utf8');
 
 // ── SKILL.md structure ─────────────────────────────────────────
 test('SKILL.md: Convert verb section present', () => {
@@ -40,12 +40,12 @@ test('SKILL.md: Convert mentions :root override for topic colors', () => {
 });
 
 // ── Demo conversion exercise files ────────────────────────────
-test('demo/data-studio-0001-before.html exists', () => {
-  expect(existsSync(join(root, 'demo/data-studio-0001-before.html'))).toBe(true);
+test('demo/cron-0001-before.html exists', () => {
+  expect(existsSync(join(root, 'demo/cron-0001-before.html'))).toBe(true);
 });
 
-test('demo/data-studio-0001-after.html exists', () => {
-  expect(existsSync(join(root, 'demo/data-studio-0001-after.html'))).toBe(true);
+test('demo/cron-0001-after.html exists', () => {
+  expect(existsSync(join(root, 'demo/cron-0001-after.html'))).toBe(true);
 });
 
 test('before: has inline <style>', () => {
@@ -76,7 +76,7 @@ test('after: no inline quiz JS', () => {
   expect(afterHtml).not.toMatch(/<script>\s*\/\*.*?quiz/s);
 });
 
-for (const cls of ['vt-kicker','vt-lede','vt-meta','vt-num','vt-callout','vt-pill','vt-checklist','vt-quiz','vt-sources']) {
+for (const cls of ['vt-kicker','vt-lede','vt-metabar','vt-num','vt-callout','vt-table','vt-code','vt-checklist','vt-quiz','vt-recap','vt-sources']) {
   test(`after: contains class ${cls}`, () => {
     expect(afterHtml).toContain(cls);
   });
@@ -91,12 +91,12 @@ test('after: sets --vt-accent token in :root', () => {
 });
 
 for (const phrase of [
-  'Reusable Data Sources',
-  'fix a field once',
-  'Open Data Sources',
-  'Fix field types',
-  'reusable data source',
-  'Looker Studio Help',
+  'Reading a cron expression',
+  'The five fields',
+  'every value of this field',
+  'Open your crontab',
+  'Timezone trap',
+  'crontab(5)',
 ]) {
   test(`after: preserves teaching phrase "${phrase}"`, () => {
     expect(afterHtml).toContain(phrase);

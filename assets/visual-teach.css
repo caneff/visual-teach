@@ -19,11 +19,13 @@
   --vt-soft:         color-mix(in srgb, var(--vt-ink) 4%, var(--vt-paper));
   --vt-stripe:       color-mix(in srgb, var(--vt-ink) 6%, var(--vt-paper));
   --vt-neutral-soft: color-mix(in srgb, var(--vt-ink) 12%, var(--vt-paper));
-  --vt-accent-dk:    color-mix(in srgb, var(--vt-accent) 78%, #000);
-  --vt-good-soft:    color-mix(in srgb, var(--vt-good) 12%, var(--vt-paper));
-  --vt-bad-soft:     color-mix(in srgb, var(--vt-bad) 12%, var(--vt-paper));
-  --vt-warn-soft:    color-mix(in srgb, var(--vt-warn) 14%, var(--vt-paper));
-  --vt-accent-soft:  color-mix(in srgb, var(--vt-accent) 8%, var(--vt-paper));
+  --vt-accent-dk:    color-mix(in oklch, var(--vt-accent) 78%, #000);
+  /* colored tints mix in oklch: mixing toward paper in srgb desaturates fast and
+     reads grey; oklch preserves chroma so the soft fills stay clean pastels. */
+  --vt-good-soft:    color-mix(in oklch, var(--vt-good) 12%, var(--vt-paper));
+  --vt-bad-soft:     color-mix(in oklch, var(--vt-bad) 12%, var(--vt-paper));
+  --vt-warn-soft:    color-mix(in oklch, var(--vt-warn) 14%, var(--vt-paper));
+  --vt-accent-soft:  color-mix(in oklch, var(--vt-accent) 8%, var(--vt-paper));
 }
 
 /* dark mode — override the 9 base tokens; derived tints + masked icons follow.
@@ -129,8 +131,16 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-no::before      { content: "✗"; }
 .vt-partial::before { content: "~"; }
 
-/* table — comparison highlight: recommended column via <col> background + .vt-th-pick header */
-.vt-col-pick { background: var(--vt-accent-soft); }
+/* table — comparison highlight: recommended column via <col> + .vt-th-pick header.
+   The soft background tints text-cell tables, but loses to zebra stripes and to
+   cell fills (.vt-ok/.vt-no) since <col> is the lowest paint layer. The accent
+   side+bottom rails are box-shadow, which paints ABOVE cell/row backgrounds, so
+   the column stays highlighted even when every cell is a status fill. Together
+   with .vt-th-pick's top border this frames the recommended column. */
+.vt-col-pick {
+  background: var(--vt-accent-soft);
+  box-shadow: inset 2px 0 var(--vt-accent), inset -2px 0 var(--vt-accent), inset 0 -2px var(--vt-accent);
+}
 /* .vt-th-pick on the <th> adds the top accent border (border on <col> is unreliable with border-collapse) */
 .vt-th-pick {
   background: var(--vt-accent-soft);
@@ -320,6 +330,8 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .token.punctuation, .token.operator { color: var(--vt-muted); }
 .token.keyword, .token.tag, .token.boolean, .token.atrule { color: var(--vt-accent); font-weight: 600; }
 .token.string, .token.attr-value, .token.char, .token.inserted { color: var(--vt-good); }
+/* token colors blend a chromatic color with ink/another hue — keep srgb: oklch
+   interpolates hue even toward near-neutral ink, rotating amber→maroon etc. */
 .token.number, .token.constant { color: color-mix(in srgb, var(--vt-warn) 70%, var(--vt-ink)); }
 .token.function, .token.class-name { color: color-mix(in srgb, var(--vt-accent) 50%, var(--vt-bad)); }
 .token.builtin, .token.property, .token.attr-name, .token.symbol { color: var(--vt-bad); }
@@ -535,6 +547,15 @@ code.vt-pcode {
   gap: .6rem;
   flex: 1 1 8rem;
 }
+
+/* row — keep items on one line (e.g. the five fields of a cron expression read
+   "* * * * *", never wrapped). Scrolls horizontally if it overflows. */
+.vt-row.nowrap {
+  flex-wrap: nowrap;
+  justify-content: center;
+  overflow-x: auto;
+}
+.vt-row.nowrap > .vt-col { flex: 0 0 auto; }
 
 .vt-col-label, .vt-split-label {
   font-family: 'Helvetica Neue', Arial, sans-serif;
