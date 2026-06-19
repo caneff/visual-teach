@@ -235,7 +235,7 @@ Vendor scripts (in `assets/prism/`): `prism-core`, `prism-clike`, `prism-javascr
 <script src="../assets/prism/prism-python.min.js"></script>
 <script src="../assets/prism/prism-sql.min.js"></script>
 <script src="../assets/prism/prism-bash.min.js"></script>
-<script src="../assets/visual-teach.js"></script>
+<script type="module" src="../assets/visual-teach.js"></script>
 ```
 
 ## Inline token emphasis (`.vt-pcode`) — spotlight one keyword
