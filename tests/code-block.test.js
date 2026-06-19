@@ -9,8 +9,9 @@ const JS_SRC = readFileSync(resolve(__dirname, '../assets/visual-teach.js'), 'ut
 
 function setup(html) {
   document.body.innerHTML = html;
+  // Strip ES module export keywords so new Function() can evaluate the script
   // eslint-disable-next-line no-new-func
-  new Function(JS_SRC)();
+  new Function(JS_SRC.replace(/^export\s+/gm, ''))();
 }
 
 beforeEach(() => {
