@@ -40,6 +40,16 @@ Authors (the `/teach` agent) rebuild this each time, and it drifts between lesso
 4. Stay an **add-on** to `/teach` — never fork it, never reimplement its pedagogy.
 5. No build step, no server, no dependency. Lessons keep opening from `file://`.
 
+## 3a. Design principle — richness is the point
+
+Minimalism applies to **plumbing** (no MCP, no build, no framework, no heavy
+runtime) — **not** to the visual blocks. The blocks are the product; they should
+be genuinely rich and beautiful, matching `/teach`'s "laziness OFF for
+deliverables" charter. "Rebuild ~10 CSS blocks, not a 42MB engine" rejects the
+heavyweight *runtime*, never visual quality — the two are separable (a rich CSS
+diagram vocabulary is cheap and dependency-free). When in doubt on a visual block,
+err toward expressive, not minimal.
+
 ## 4. Non-goals
 
 - **Not** a lesson *format/schema/validator.** visual-teach is a passive component
@@ -114,16 +124,56 @@ Core ships only **universal** teaching blocks. Topic-specific widgets (audio
 players, SQL sandboxes) and topic colors stay in the *workspace's* assets. Seam:
 core = topic-agnostic, workspace = topic-specific.
 
+**Inclusion bar (per §3a).** Every block is walked one at a time and must beat
+what `/teach` hand-rolls today on **at least one axis**: visual richness,
+**consistency** (a course reads as one course), DRY, **correctness once** (shared
+tested JS vs per-lesson bugs), **accessibility once**, print/no-JS degradation,
+author ergonomics (less to emit, more reliable), or themeability. A block is **cut
+only if it adds nothing on any axis** — a pointless wrapper identical to writing
+the HTML inline. Visually-plain blocks (callout, table) can fully earn their place
+on consistency + a11y + DRY; they need not be flashier. The verbatim-extracted
+blocks are starting points to *raise where it pays*, not finished. Walk + verdicts
+tracked below.
+
 **v1 (built, render-verified):** page shell (`vt-kicker`/`h1`/`vt-lede`/`vt-meta`/
 `h2>vt-num`), prose (auto-themed), `vt-callout` (+tones info/insight/success/risk/
 warn), table, `vt-pill`, `vt-checklist` (persisted, auto progress+reset),
 `vt-quiz` (reveal + feedback), `vt-teacher`, `vt-sources`, print rules.
 
-**v1 candidate — diagram.** Test trials invented `vt-diagram`/`vt-map` unprompted
-(2/5) → real demand. **Open decision (§12):** add a simple `.vt-diagram` panel to
-v1.
+**v1 — diagram vocabulary (locked).** Not a wrapper class — a real
+hand-composed CSS diagram system, tokenized to the 9 vars, degrades to styled HTML
+(prints, no JS). Borrowed from visual-plan's proven `.diagram-*` set. Primitives:
 
-**Deferred** (add on first real demand): annotated-code, tabs, **runnable-code**.
+- `.vt-diagram` — the panel/canvas
+- `.vt-node` / `.vt-box` — labeled boxes/cards (+ emphasis variants)
+- `.vt-flow` — row that auto-renders arrow connectors between children
+  (the "Connector → Data source → Report" staple)
+- `.vt-row` / `.vt-col` — lane / column layout
+- `.vt-split` — before/after two-panel layout
+- reuse `.vt-pill`
+
+**mermaid** is an opt-in escape hatch for *computed* graphs (sequence, state, ER)
+— one CDN `<script>`, only when a lesson needs real auto-layout. Not our code.
+
+**Deferred:** the sketch/hand-drawn aesthetic (rough.js + Excalifont — a JS dep,
+offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
+**cross-lesson score tracking** (stretch); **checklist expand-to-reveal hints**
+(v2 — concept approved, native `<details>` previewed, exact UI not settled).
+
+### Block-walk verdicts (per inclusion bar)
+
+| block | verdict | raise to |
+| --- | --- | --- |
+| diagram | KEEP + build rich | full CSS vocabulary (§8) + opt-in mermaid |
+| quiz | KEEP + RAISE | per-option misconception feedback, always-on why-correct, a11y (buttons/keyboard/`aria-live`/focus), opt-in multi-select + try-again. Stretch: cross-lesson score. |
+| checklist | KEEP + RAISE | progress *bar* (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2. |
+| callout | *pending* | |
+| table | *pending* | |
+| pill | *pending* | |
+| page shell | *pending* | |
+| teacher | *pending* | |
+| footer/sources | *pending* | |
+| prose base | *pending* | |
 
 ### Theming
 
@@ -169,7 +219,7 @@ sandbox or multi-language runner.
 - [x] v1 prototype built: `SKILL.md` + `assets/visual-teach.{css,js,md}`
 - [x] Render-verified: CSS tokens + `color-mix`, quiz reveal, checklist
       persistence all work from `file://`
-- [ ] **Diagram block** decision + build (§12.1)
+- [ ] Build the diagram vocabulary (decided §8: nodes/flow/lanes/split + mermaid)
 - [ ] Cheatsheet hardening: "tokens are not classes" (model misused `vt-ink`)
 - [ ] Exercise Convert + seed-only end-to-end on `data-studio/0001`
 - [ ] Gold-standard check: human runs real (flagged) `/teach` + visual-teach
@@ -177,8 +227,9 @@ sandbox or multi-language runner.
 
 ## 12. Risks & open questions
 
-1. **Diagram block in v1?** Evidence says yes (2/5 demand). Cheap `.vt-diagram`
-   panel. — *recommend add.*
+1. ~~Diagram block in v1?~~ **Resolved → full CSS diagram vocabulary** (`.vt-diagram`
+   /`.vt-node`/`.vt-flow`/`.vt-row`/`.vt-col`/`.vt-split`) + opt-in mermaid; sketch
+   look deferred. See §8 + §3a.
 2. **Auto-adoption in the real flagged `/teach`** — strong proxy evidence, not yet
    confirmed in a real session. Mitigated by the seed floor.
 3. **Same-model/session-context** in the 5/5 test — real-world variance unknown.

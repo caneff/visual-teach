@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>visual-teach · block showcase</title>
+<link rel="stylesheet" href="../assets/visual-teach.css">
+<style>
+/* showcase-only labels + v2-candidate styling (NOT part of the library) */
+.sc-label { font-family:'Helvetica Neue',Arial,sans-serif; font-size:.7rem; text-transform:uppercase;
+  letter-spacing:.1em; color:var(--vt-muted); margin:2.5rem 0 .4rem; border-top:1px dashed var(--vt-rule); padding-top:1.2rem; }
+.sc-v2 { opacity:.95; }
+.sc-v2-tag { display:inline-block; font-family:'Helvetica Neue',Arial,sans-serif; font-size:.68rem;
+  background:var(--vt-warn); color:#000; padding:.05rem .45rem; border-radius:999px; margin-left:.5rem; vertical-align:middle; }
+/* CANDIDATE hint styling (v2, not in visual-teach.css) */
+.vt-hint{margin-top:.5rem}
+.vt-hint>summary{font-family:'Helvetica Neue',Arial,sans-serif;font-size:.85rem;color:var(--vt-accent);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.3rem}
+.vt-hint>summary::-webkit-details-marker{display:none}
+.vt-hint>summary::before{content:"💡";font-size:.9em}
+.vt-hint>summary::after{content:"Need a hint?"}
+.vt-hint[open]>summary::after{content:"Hide hint"}
+.vt-hint>summary span{display:none}
+.vt-hint .vt-hint-body{margin-top:.5rem;padding:.7rem .9rem;font-size:.92rem;background:color-mix(in srgb,var(--vt-accent) 7%,var(--vt-paper));border-radius:8px}
+</style>
+</head><body><main>
+
+  <p class="vt-kicker">visual-teach · showcase</p>
+  <h1>Block showcase</h1>
+  <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>. This page grows as we walk the block set. Verdicts: <code>docs/PRD.md</code>.</p>
+  <p class="vt-meta">Living artifact · updated as blocks are built/raised</p>
+
+  <p class="sc-label">Page shell — kicker / h1 / lede / meta (above)</p>
+
+  <h2><span class="vt-num">1</span>Prose &amp; headings</h2>
+  <p>Plain <code>h2</code>/<code>p</code>/<code>code</code>/<code>a</code> are auto-themed. Body is Georgia; headings Helvetica. A <a href="#">link</a> uses the accent token. Lists:</p>
+  <ul><li>First point</li><li>Second point with <code>inline code</code></li></ul>
+
+  <p class="sc-label">Callout — 5 tones</p>
+  <div class="vt-callout">Default (warn) callout — a caution.</div>
+  <div class="vt-callout info">Info tone — neutral note.</div>
+  <div class="vt-callout insight"><strong>Insight:</strong> the durable idea worth remembering.</div>
+  <div class="vt-callout success">Success tone — you did the thing.</div>
+  <div class="vt-callout risk"><strong>Risk:</strong> the gotcha that bites.</div>
+
+  <p class="sc-label">Table &amp; pill</p>
+  <table>
+    <tr><th>Concept</th><th>Role</th></tr>
+    <tr><td>Dimension <span class="vt-pill">group-by</span></td><td>What you group by</td></tr>
+    <tr><td>Metric <span class="vt-pill">aggregate</span></td><td>What you aggregate</td></tr>
+  </table>
+
+  <h2><span class="vt-num">2</span>Checklist <span style="font-size:.8rem;color:var(--vt-muted)">(current floor — progress text + reset auto-injected, persisted)</span></h2>
+  <ol class="vt-checklist" data-key="showcase">
+    <li><input type="checkbox"><div><span class="vt-step-title">Open the editor</span><span class="vt-step-body">Sign in and create a report.</span></div></li>
+    <li><input type="checkbox"><div><span class="vt-step-title">Add a chart</span><span class="vt-step-body">Insert → Vertical bar chart.</span></div></li>
+    <li><input type="checkbox"><div><span class="vt-step-title">Add a control</span><span class="vt-step-body">Insert → Drop-down list.</span></div></li>
+  </ol>
+
+  <h2><span class="vt-num">3</span>Quiz <span style="font-size:.8rem;color:var(--vt-muted)">(current floor — single reveal, one feedback)</span></h2>
+  <div class="vt-quiz" data-answer="1">
+    <p class="q">Where do you fix a field type once so every report updates?</p>
+    <button class="opt">In each report's chart setup</button>
+    <button class="opt">In the reusable data source's schema</button>
+    <button class="opt">In the connector settings</button>
+    <div class="feedback"></div>
+    <template class="why-good">The data source owns the schema — fix once, all reports update.</template>
+    <template class="why-bad">Field types live in the data source layer, not the chart panel or connector.</template>
+  </div>
+
+  <p class="sc-label">Teacher box</p>
+  <div class="vt-teacher"><strong>🎓 Stuck or curious?</strong> Your teacher is the agent that made this — ask anything.</div>
+
+  <footer class="vt-sources">Sources: <a href="#">Primary doc</a> · <a href="#">Reference</a> · Showcase</footer>
+
+  <!-- ===================== v2 / candidate blocks ===================== -->
+  <p class="sc-label">v2 candidates — visible, not settled</p>
+
+  <div class="sc-v2">
+    <h2><span class="vt-num">★</span>Checklist hint <span class="sc-v2-tag">v2 concept</span></h2>
+    <p style="font-size:.92rem;color:var(--vt-muted)">Native <code>&lt;details&gt;</code>, zero JS — try-before-hint (desirable difficulty). UI not final.</p>
+    <ol class="vt-checklist" data-key="showcase-hint">
+      <li><input type="checkbox"><div>
+        <span class="vt-step-title">Add a bar chart — spot the aggregation trap</span>
+        <span class="vt-step-body">Insert → Vertical bar chart, Dimension = <code>Country</code>.</span>
+        <details class="vt-hint"><summary><span>Need a hint?</span></summary>
+          <div class="vt-hint-body">China shows ~13 <em>billion</em>? That's <code>SUM</code> across all years — every metric carries an aggregation.</div>
+        </details>
+      </div></li>
+    </ol>
+  </div>
+
+</main>
+<script src="../assets/visual-teach.js"></script>
+</body></html>
