@@ -46,7 +46,7 @@ describe('vt-code copy button', () => {
     expect(writeText).toHaveBeenCalledWith('print("hello")');
   });
 
-  it('changes button text to "Copied!" then reverts after 2s', async () => {
+  it('swaps to the check icon on copy then reverts to the copy icon after 2s', async () => {
     Object.defineProperty(navigator, 'clipboard', {
       value: { writeText: vi.fn(() => Promise.resolve()) },
       writable: true,
@@ -62,13 +62,16 @@ describe('vt-code copy button', () => {
     `);
 
     const btn = document.querySelector('.vt-code-copy');
+    // copy icon (two squares) has a <rect>; check icon does not
+    expect(btn.innerHTML).toContain('<rect');
     btn.click();
     await Promise.resolve(); // flush the writeText promise
 
-    expect(btn.textContent).toBe('Copied!');
+    expect(btn.innerHTML).not.toContain('<rect');
+    expect(btn.innerHTML).toContain('M20 6');
 
     vi.advanceTimersByTime(2000);
-    expect(btn.textContent).toBe('Copy');
+    expect(btn.innerHTML).toContain('<rect');
   });
 
   it('does nothing when clipboard API is unavailable (no throw)', () => {

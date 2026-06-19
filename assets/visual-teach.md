@@ -216,7 +216,7 @@ A "Check answer" button is auto-injected. Clicking options toggles selection (`a
 
 ```html
 <div class="vt-code">
-  <div class="vt-code-head"><span>filename.py</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code-head"><span>filename.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code class="language-python">def hello():
     return "world"</code></pre>
 </div>

@@ -14,7 +14,7 @@
   <p class="vt-lede">Highlighting uses --vt-* tokens, so it's on-brand and flips with dark mode. Toggle to see. Plain (no JS) shown first for the degraded baseline.</p>
 
   <p class="lbl">A — plain (degraded baseline, no JS)</p>
-  <div class="vt-code"><div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code"><div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code>def squares(n):
     # first n perfect squares
     return [i * i for i in range(n)]
@@ -23,7 +23,7 @@ result = squares(10)
 print(f"got {len(result)} squares")</code></pre></div>
 
   <p class="lbl">B — Prism (language-python), token-themed</p>
-  <div class="vt-code"><div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code"><div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code class="language-python">def squares(n):
     # first n perfect squares
     return [i * i for i in range(n)]
@@ -32,7 +32,7 @@ result = squares(10)
 print(f"got {len(result)} squares")</code></pre></div>
 
   <p class="lbl">C — SQL (language-sql)</p>
-  <div class="vt-code"><div class="vt-code-head"><span>query.sql</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code"><div class="vt-code-head"><span>query.sql</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code class="language-sql">SELECT country, SUM(population) AS total
 FROM census
 WHERE year = 2014
@@ -40,7 +40,7 @@ GROUP BY country
 ORDER BY total DESC;</code></pre></div>
 
   <p class="lbl">D — JavaScript (language-javascript)</p>
-  <div class="vt-code"><div class="vt-code-head"><span>utils.js</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code"><div class="vt-code-head"><span>utils.js</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code class="language-javascript">function greet(name) {
   const msg = `Hello, ${name}!`;
   console.log(msg);
@@ -50,7 +50,7 @@ ORDER BY total DESC;</code></pre></div>
 greet("world");</code></pre></div>
 
   <p class="lbl">E — Bash (language-bash)</p>
-  <div class="vt-code"><div class="vt-code-head"><span>deploy.sh</span><button class="vt-code-copy">Copy</button></div>
+  <div class="vt-code"><div class="vt-code-head"><span>deploy.sh</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
   <pre><code class="language-bash">#!/usr/bin/env bash
 set -euo pipefail
 
