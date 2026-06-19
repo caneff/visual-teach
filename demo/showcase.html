@@ -169,6 +169,18 @@
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
+  <h2><span class="vt-num">4</span>Code block <span style="font-size:.8rem;color:var(--vt-muted)">(filename header, copy button, Prism-highlighted)</span></h2>
+  <div class="vt-code">
+    <div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy">Copy</button></div>
+    <pre><code class="language-python">def squares(n):
+    # first n perfect squares
+    return [i * i for i in range(n)]
+
+result = squares(10)
+print(f"got {len(result)} squares")</code></pre>
+  </div>
+  <p>Inline token emphasis: use <code class="vt-pcode">return</code> to exit a function.</p>
+
   <!-- ── Quiz v1: multi-select ─────────────────────────────────────────── -->
   <p class="sc-label">Multi-select (data-multi, data-answer as comma list)</p>
   <div class="vt-quiz" data-answer="0,2" data-multi>
@@ -292,6 +304,9 @@
   </div>
 
 </main>
+<script src="../assets/prism/prism-core.min.js"></script>
+<script src="../assets/prism/prism-clike.min.js"></script>
+<script src="../assets/prism/prism-python.min.js"></script>
 <script type="module" src="../assets/visual-teach.js"></script>
 <script>
   document.getElementById('theme-toggle').addEventListener('click', function() {

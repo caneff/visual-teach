@@ -212,6 +212,42 @@ A "Check answer" button is auto-injected. Clicking options toggles selection (`a
 </div>
 ```
 
+## Code block (`.vt-code`) — filename header + copy button + optional Prism highlighting
+
+```html
+<div class="vt-code">
+  <div class="vt-code-head"><span>filename.py</span><button class="vt-code-copy">Copy</button></div>
+  <pre><code class="language-python">def hello():
+    return "world"</code></pre>
+</div>
+```
+
+Add the Prism vendor scripts **before** `visual-teach.js`. The copy button and
+Prism init are both wired automatically by `visual-teach.js`. Without Prism (or
+JS disabled) the block stays readable — it degrades to styled plain text.
+
+Vendor scripts (in `assets/prism/`): `prism-core`, `prism-clike`, `prism-javascript`,
+`prism-python`, `prism-sql`, `prism-bash`.
+
+```html
+<script src="../assets/prism/prism-core.min.js"></script>
+<script src="../assets/prism/prism-clike.min.js"></script>
+<script src="../assets/prism/prism-javascript.min.js"></script>
+<script src="../assets/prism/prism-python.min.js"></script>
+<script src="../assets/prism/prism-sql.min.js"></script>
+<script src="../assets/prism/prism-bash.min.js"></script>
+<script src="../assets/visual-teach.js"></script>
+```
+
+## Inline token emphasis (`.vt-pcode`) — spotlight one keyword
+
+```html
+<p>The <code class="vt-pcode">return</code> keyword exits a function.</p>
+```
+
+No JS required. Renders with accent background + border so it stands out from
+plain `<code>` without being syntax-highlighted.
+
 ## Footer / sources (numbered refs, source-type icons, companion slot, verified-date)
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```html
