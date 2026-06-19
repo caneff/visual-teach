@@ -176,9 +176,9 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | primary-source (new) | ADD | featured high-trust source card (`/teach` charter) |
 | recap + next-CTA (new) | ADD | "what you earned" + next-lesson call-to-action |
 | dark mode | **v1** (was deferred) | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle |
-| teacher | *pending* | |
-| footer/sources | *pending* | |
-| prose base | *pending* | |
+| teacher | KEEP + RAISE (**prototyped**) | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `demo/teacher-box.html`. |
+| footer/sources | KEEP + RAISE (**prototyped**) | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `demo/footer-sources.html`. |
+| prose base | KEEP + RAISE (**prototyped**) | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `demo/code-block.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern. |
 
 ### Theming
 
@@ -224,7 +224,12 @@ sandbox or multi-language runner.
 - [x] v1 prototype built: `SKILL.md` + `assets/visual-teach.{css,js,md}`
 - [x] Render-verified: CSS tokens + `color-mix`, quiz reveal, checklist
       persistence all work from `file://`
+- [x] Block-walk complete — all 9 walked + 4 new blocks + dark mode; verdicts below
 - [ ] Build the diagram vocabulary (decided §8: nodes/flow/lanes/split + mermaid)
+- [ ] Vendor Prism.js (core + curated langs: python/sql/clike/js/bash) + token theme into `assets/`
+- [ ] Fold prototyped blocks into `visual-teach.css` + `showcase.html` (table, pill,
+      shell+new blocks already dark via folded tokens; code block; teacher; footer)
+- [ ] Work the polish backlog (§11a)
 - [ ] Cheatsheet hardening: "tokens are not classes" (model misused `vt-ink`)
 - [ ] Exercise Convert + seed-only end-to-end on `data-studio/0001`
 - [ ] Gold-standard check: human runs real (flagged) `/teach` + visual-teach
@@ -243,6 +248,9 @@ sandbox or multi-language runner.
   contrast. Affects neutral pills, status-dot pills, possibly elsewhere.
 - **Primary-source card icon** (`demo/shell-blocks.html`): uses 📖 emoji — swap
   to a masked SVG (OS-independent) for consistency with callout tone icons.
+- **Teacher box size** (`demo/teacher-box.html`): the full stack (header + para +
+  chips + try-this + community) is tall. Find compaction wins — tighten spacing,
+  or make try-this/community optional/inline — without losing the affordances.
 
 ## 12. Risks & open questions
 

@@ -24,6 +24,21 @@
   --vt-accent-soft:color-mix(in srgb, var(--vt-accent) 8%, var(--vt-paper));
 }
 
+/* dark mode — override the 9 base tokens; derived tints + masked icons follow.
+   Auto via prefers-color-scheme; force with [data-theme="dark"]; opt out with [data-theme="light"]. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --vt-ink: #e6e9ee; --vt-muted: #97a2b2; --vt-accent: #5b9dff; --vt-accent-fg: #0b1220;
+    --vt-rule: #2b313b; --vt-paper: #13171d; --vt-good: #3ecf8e; --vt-bad: #ff6b6b; --vt-warn: #f5c451;
+    color-scheme: dark;
+  }
+}
+[data-theme="dark"] {
+  --vt-ink: #e6e9ee; --vt-muted: #97a2b2; --vt-accent: #5b9dff; --vt-accent-fg: #0b1220;
+  --vt-rule: #2b313b; --vt-paper: #13171d; --vt-good: #3ecf8e; --vt-bad: #ff6b6b; --vt-warn: #f5c451;
+  color-scheme: dark;
+}
+
 * { box-sizing: border-box; }
 body {
   font-family: Georgia, 'Times New Roman', serif;
