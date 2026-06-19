@@ -62,6 +62,13 @@ h2 {
   position: relative;
 }
 h2 .vt-num { color: var(--vt-accent); margin-right: .4rem; }
+/* section anchor: hidden until the heading is hovered or the link is focused */
+.vt-anchor {
+  margin-left: .35rem; color: var(--vt-muted); text-decoration: none; font-weight: 400;
+  opacity: 0; transition: opacity .15s;
+}
+h2:hover .vt-anchor, .vt-anchor:focus-visible { opacity: 1; }
+.vt-anchor:hover { color: var(--vt-accent); }
 a { color: var(--vt-accent); }
 code {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
@@ -276,6 +283,16 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   background: var(--vt-accent); color: var(--vt-accent-fg);
   padding: .5rem 1rem; border-radius: 8px;
 }
+
+/* prev / next lesson nav — prev left, next right, divider above */
+.vt-lessonnav {
+  display: flex; justify-content: space-between; align-items: center; gap: 2rem;
+  margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--vt-rule);
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .9rem;
+}
+.vt-lessonnav a { color: var(--vt-accent); text-decoration: none; }
+.vt-lessonnav a:last-child { text-align: right; margin-left: auto; }
+.vt-lessonnav a:hover { text-decoration: underline; }
 
 /* code block */
 .vt-code { border: 1px solid var(--vt-rule); border-radius: 10px; overflow: hidden; margin: 1.2rem 0; }

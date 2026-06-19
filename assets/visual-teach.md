@@ -61,7 +61,6 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
   <!-- Prev / next lesson nav -->
   <nav class="vt-lessonnav">
     <a href="…">← Lesson N · Prev title</a>
-    <span class="spacer"></span>
     <a href="…">Lesson N+2 · Next title →</a>
   </nav>
 </main>
