@@ -1,12 +1,5 @@
-/**
- * Tests for .vt-code block functionality in visual-teach.js
- * Covers: copy button, Prism init fallback, pcode inline variant.
- *
- * Uses vitest's built-in jsdom environment (set in vitest.config.js).
- * We eval the library source directly into the test's window to keep the
- * global scope consistent and avoid the cross-context issues of new JSDOM().
- */
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+// Tests for .vt-code copy button, Prism init, and pcode inline variant.
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -14,18 +7,19 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const JS_SRC = readFileSync(resolve(__dirname, '../assets/visual-teach.js'), 'utf8');
 
-/** Set body HTML and re-run the library init. */
 function setup(html) {
   document.body.innerHTML = html;
-  // Run the IIFE in the current jsdom window context
   // eslint-disable-next-line no-new-func
   new Function(JS_SRC)();
 }
 
 beforeEach(() => {
   vi.restoreAllMocks();
-  // Reset any Prism global between tests
   delete globalThis.Prism;
+});
+
+afterEach(() => {
+  vi.useRealTimers();
 });
 
 describe('vt-code copy button', () => {
@@ -74,8 +68,6 @@ describe('vt-code copy button', () => {
 
     vi.advanceTimersByTime(2000);
     expect(btn.textContent).toBe('Copy');
-
-    vi.useRealTimers();
   });
 
   it('does nothing when clipboard API is unavailable (no throw)', () => {
