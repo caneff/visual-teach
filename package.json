@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test": "node test/css-classes.test.mjs",
+    "typecheck": "node --input-type=module --eval 'import(\"./test/css-classes.test.mjs\")' 2>&1 | grep -v 'ExperimentalWarning' || true"
+  },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0"
   },

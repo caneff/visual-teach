@@ -31,7 +31,56 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 <div class="vt-callout insight"><strong>Why it matters:</strong> …</div>
 ```
 
-## Table — bare `<table>` or `.vt-table`. Pill — `<span class="vt-pill">label</span>`.
+## Table — bare `<table>` or `.vt-table`
+
+```html
+<!-- Responsive wrapper (always use for .vt-table) -->
+<div class="vt-table-wrap">
+  <table class="vt-table">
+    <!-- header column: th[scope="row"] on each data row -->
+    <thead><tr><th>Capability</th><th>Option A</th><th>Option B</th></tr></thead>
+    <tbody>
+      <tr><th scope="row">Scales</th><td class="vt-ok"></td><td class="vt-no"></td></tr>
+      <tr class="vt-row-key"><th scope="row">Key row</th><td class="vt-partial"></td><td class="vt-ok"></td></tr>
+    </tbody>
+  </table>
+</div>
+<!-- Compact density: add class="vt-table compact" -->
+<!-- Cell status: td.vt-ok (✓)  td.vt-no (✗)  td.vt-partial (~) -->
+<!-- Recommended column: <col class="vt-col-pick"> + <span class="vt-pick-badge">Recommended</span> in th -->
+```
+
+Key/value reference table (glossary, config keys):
+```html
+<table class="vt-kv">
+  <tr><th scope="row">Term</th><td>Definition</td></tr>
+</table>
+```
+
+## Pills + level badges + keyboard keys
+
+```html
+<!-- Fills: (default accent)  neutral  good  bad  warn -->
+<span class="vt-pill good">Done</span>
+<!-- Outline: add class="outline" -->
+<span class="vt-pill outline warn">Caution</span>
+<!-- Size: add class="sm" -->
+<!-- Status dot: add class="dot" -->
+<span class="vt-pill outline good dot">Required</span>
+<!-- Leading icon: add class="ic-check" or "ic-warn" -->
+<span class="vt-pill good ic-check">Verified</span>
+
+<!-- Difficulty pills -->
+<span class="vt-level beginner">Beginner</span>
+<span class="vt-level intermediate">Intermediate</span>
+<span class="vt-level advanced">Advanced</span>
+
+<!-- Step / count badge -->
+<span class="vt-badge">3</span>
+
+<!-- Keyboard keys -->
+<kbd class="vt-kbd">Ctrl</kbd> + <kbd class="vt-kbd">K</kbd>
+```
 
 ## Checklist (persists in localStorage; progress + reset auto-injected)
 `data-key` must be unique per lesson.
