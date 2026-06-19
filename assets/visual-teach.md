@@ -319,6 +319,32 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 </div>
 ```
 
+## Computed graphs — opt-in mermaid (sequence / state / ER only)
+
+**Default to the CSS diagram vocabulary** (`.vt-diagram`, `.vt-node`, `.vt-flow`,
+`.vt-row`, `.vt-col`, `.vt-split`) for anything you can compose by hand — it
+prints cleanly, works offline, and carries zero JS overhead.
+
+Use mermaid **only** when the graph must be auto-laid-out: sequence diagrams,
+state machines, ER diagrams.
+
+```html
+<!-- 1. Add the bridge script (after visual-teach.js, or just before </body>) -->
+<script src="../assets/mermaid.js"></script>
+
+<!-- 2. Write your diagram inside .vt-mermaid — mermaid CDN loads only if this
+     element is found on the page. -->
+<div class="vt-mermaid">
+sequenceDiagram
+  Client->>Server: Request
+  Server-->>Client: Response
+</div>
+```
+
+The bridge reads the 9 `--vt-*` tokens at render time and maps them to
+mermaid's `themeVariables`, so diagrams match the lesson palette and switch
+automatically with dark mode.
+
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
 ```html
 <style>:root{ --vt-accent:#0d7d4d; --vt-ink:#11181c; }</style>

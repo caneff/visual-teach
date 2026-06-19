@@ -500,6 +500,14 @@ code.vt-pcode {
 .vt-split-panel.before .vt-split-label { color: var(--vt-bad); }
 .vt-split-panel.after  .vt-split-label { color: var(--vt-good); }
 
+/* mermaid computed-graph container (populated by assets/mermaid.js) */
+.vt-mermaid {
+  margin: 1.4rem 0; overflow-x: auto; text-align: center;
+  background: var(--vt-soft); border: 1px solid var(--vt-rule); border-radius: 10px;
+  padding: 1rem;
+}
+.vt-mermaid svg { max-width: 100%; height: auto; }
+
 /* ====== print ====== */
 @media print {
   .vt-quiz button, .vt-reset { display: none; }
