@@ -167,15 +167,19 @@ export function wireChecklist(list) {
   var progress = document.createElement('p');
   progress.className = 'vt-progress';
 
-  list.parentNode.insertBefore(barWrap, list);
-  list.parentNode.insertBefore(progress, list);
-
   var reset = document.createElement('button');
   reset.className = 'vt-reset';
   reset.type = 'button';
-  reset.textContent = 'Reset checklist';
-  if (list.nextSibling) list.parentNode.insertBefore(reset, list.nextSibling);
-  else list.parentNode.appendChild(reset);
+  reset.textContent = 'Reset';
+
+  // count label + compact reset share one row above the bar
+  var head = document.createElement('div');
+  head.className = 'vt-progress-head';
+  head.appendChild(progress);
+  head.appendChild(reset);
+
+  list.parentNode.insertBefore(head, list);
+  list.parentNode.insertBefore(barWrap, list);
 
   function render() {
     var done = 0;
