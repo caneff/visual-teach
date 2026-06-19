@@ -238,14 +238,15 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   flex: 1 1 8rem;
 }
 
-.vt-col-label {
+.vt-col-label, .vt-split-label {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   font-size: .72rem;
   text-transform: uppercase;
   letter-spacing: .08em;
   color: var(--vt-muted);
-  margin-bottom: .2rem;
 }
+
+.vt-col-label { margin-bottom: .2rem; }
 
 /* split — before / after two-panel */
 .vt-split {
@@ -266,14 +267,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   padding: .9rem 1rem;
 }
 
-.vt-split-label {
-  font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .72rem;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: var(--vt-muted);
-  margin-bottom: .5rem;
-}
+.vt-split-label { margin-bottom: .5rem; }
 
 .vt-split-panel.before { border-color: var(--vt-bad); }
 .vt-split-panel.after  { border-color: var(--vt-good); }
