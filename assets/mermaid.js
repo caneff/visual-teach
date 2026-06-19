@@ -107,6 +107,11 @@
       // 'dark' + deep blue node fills (dark theme ignores primaryColor for
       // fills, so set mainBkg/secondary/tertiary too) + light text. mermaid
       // derives borders/edges from these.
+      // One token for every text element. mermaid pulls node text, titles,
+      // edge/transition labels, sequence actors/messages, and class members
+      // from separate vars; left unset they fall back to the dark theme's mix
+      // of white + grey, so pin them all to the same light grey.
+      var tx = '#e6e9ef';
       window.mermaid.initialize(dark
         ? { startOnLoad: false, theme: 'dark',
             themeVariables: { darkMode: true,
@@ -115,7 +120,10 @@
               // ER attribute rows: neutral grey (blue header only), mirroring
               // light's blue-header / white-rows. Same odd+even = no stripe.
               rowOdd: '#2b313b', rowEven: '#2b313b',
-              primaryTextColor: '#e6e9ef', edgeLabelBackground: labelBg } }
+              primaryTextColor: tx, secondaryTextColor: tx, tertiaryTextColor: tx,
+              textColor: tx, nodeTextColor: tx, titleColor: tx, classText: tx,
+              actorTextColor: tx, signalTextColor: tx, labelTextColor: tx, loopTextColor: tx,
+              edgeLabelBackground: labelBg } }
         : { startOnLoad: false, theme: 'base',
             themeVariables: { primaryColor: '#dbe9ff', edgeLabelBackground: labelBg } });
       window.mermaid.run({ nodes: list });

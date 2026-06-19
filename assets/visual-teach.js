@@ -245,10 +245,38 @@ export function wireThemeBridge(win) {
   });
 }
 
+function slugify(s) {
+  return s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+}
+
+/* Make every section heading linkable: slug -> id, inject a hover "#" anchor.
+   Skips headings that already carry an anchor (hand-authored demos). */
+function wireAnchors() {
+  var seen = {};
+  document.querySelectorAll('h2, h3').forEach(function (h) {
+    if (h.querySelector('.vt-anchor')) return;
+    var clone = h.cloneNode(true);
+    clone.querySelectorAll('.vt-num, .sc-sub, .vt-anchor').forEach(function (n) { n.remove(); });
+    var base = slugify(clone.textContent || '');
+    if (!base) return;
+    var slug = h.id || base, n = 1;
+    while (!h.id && seen[slug]) { n++; slug = base + '-' + n; }
+    seen[slug] = true;
+    if (!h.id) h.id = slug;
+    var a = document.createElement('a');
+    a.className = 'vt-anchor';
+    a.href = '#' + h.id;
+    a.setAttribute('aria-label', 'Link to this section');
+    a.textContent = '#';
+    h.appendChild(a);
+  });
+}
+
 function init() {
   document.querySelectorAll('.vt-quiz').forEach(wireQuiz);
   document.querySelectorAll('.vt-checklist').forEach(wireChecklist);
   document.querySelectorAll('.vt-code').forEach(wireCodeBlock);
+  wireAnchors();
   initPrism();
   if (typeof window !== 'undefined') wireThemeBridge(window);
 }

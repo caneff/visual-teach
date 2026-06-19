@@ -69,12 +69,13 @@ h2 .vt-num { color: var(--vt-accent); margin-right: .4rem; }
   margin-left: .35rem; color: var(--vt-muted); text-decoration: none; font-weight: 400;
   opacity: 0; transition: opacity .15s;
 }
-h2:hover .vt-anchor, .vt-anchor:focus-visible { opacity: 1; }
+h2:hover .vt-anchor, h3:hover .vt-anchor, .vt-anchor:focus-visible { opacity: 1; }
 .vt-anchor:hover { color: var(--vt-accent); }
 a { color: var(--vt-accent); }
 code {
   font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   font-size: .88em; background: var(--vt-soft); padding: .1em .35em; border-radius: 4px;
+  white-space: nowrap; /* inline code stays on one line — never break mid-token */
 }
 
 /* callout + tones (themeable SVG tone icons; ::before is decorative, aria-hidden by nature) */
@@ -314,6 +315,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-code pre code {
   display: block; padding: .9rem 1rem; font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
   font-size: .85rem; line-height: 1.55; background: none; color: var(--vt-ink); text-shadow: none;
+  white-space: pre; /* block code keeps its newlines + scrolls (overrides inline nowrap) */
 }
 
 /* Prism token theme — written entirely in --vt-* tokens; flips with dark mode automatically */
