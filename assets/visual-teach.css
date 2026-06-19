@@ -228,9 +228,14 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   height: 100%; background: var(--vt-good); border-radius: 3px; width: 0%;
   transition: width .3s ease;
 }
-.vt-progress { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem; color: var(--vt-muted); margin: .2rem 0 1rem; }
-.vt-reset { font: inherit; font-size: .85rem; padding: .3rem .8rem; border-radius: 8px; border: 1px solid var(--vt-rule); background: var(--vt-paper); cursor: pointer; }
-.vt-reset:focus-visible { outline: 3px solid var(--vt-accent); outline-offset: 2px; }
+.vt-progress-head { display: flex; align-items: baseline; justify-content: space-between; gap: .8rem; margin-top: 1rem; }
+.vt-progress { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem; color: var(--vt-muted); margin: 0; }
+.vt-reset {
+  font: inherit; font-size: .72rem; color: var(--vt-muted); padding: 0; border: 0; background: none;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 2px;
+}
+.vt-reset:hover { color: var(--vt-accent); }
+.vt-reset:focus-visible { outline: 3px solid var(--vt-accent); outline-offset: 2px; border-radius: 3px; }
 
 /* quiz */
 .vt-quiz { border: 1px solid var(--vt-rule); border-radius: 12px; padding: 1.2rem 1.3rem; margin: 1.3rem 0; }
