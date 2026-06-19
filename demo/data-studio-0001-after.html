@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesson 1 — Reusable Data Sources in Looker Studio</title>
+<link rel="stylesheet" href="../assets/visual-teach.css">
+<!-- Convert step 2: topic colors moved here; component styles removed -->
+<style>
+:root {
+  --vt-accent:    #4285F4;
+  --vt-accent-fg: #fff;
+  --vt-good:      #34a853;
+  --vt-bad:       #ea4335;
+  --vt-warn:      #fbbc04;
+}
+</style>
+</head>
+<body>
+
+  <p class="vt-kicker">Looker Studio · Lesson 1</p>
+  <h1>Reusable Data Sources</h1>
+  <p class="vt-lede">One data source, many reports — fix a field once, everywhere updates.</p>
+  <p class="vt-meta">⏱ ~20 min · Needs: a Looker Studio account, a Google Sheet or BigQuery table</p>
+
+  <h2><span class="vt-num">1</span>What is a data source?</h2>
+
+  <p>A <strong>data source</strong> is Looker Studio's metadata layer over your raw data. It
+  stores field names, types, and aggregation rules — not the data itself. Every report chart
+  draws from a data source, not directly from a spreadsheet or database.</p>
+
+  <div class="vt-callout info"><strong>Key idea:</strong> A data source is a <em>saved connection</em>
+  with a field schema on top. Change the schema once and every report that references it updates
+  automatically.</div>
+
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>What it holds</th><th>Who owns it</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Connector</td>
+        <td>Authentication + raw query</td>
+        <td>Sheets / BigQuery / etc.</td>
+      </tr>
+      <tr>
+        <td>Data Source <span class="vt-pill">reusable</span></td>
+        <td>Field types, names, calculated fields</td>
+        <td>Looker Studio</td>
+      </tr>
+      <tr>
+        <td>Report chart</td>
+        <td>Dimensions, metrics, filters for one viz</td>
+        <td>Report editor</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2><span class="vt-num">2</span>Creating a reusable data source</h2>
+
+  <p>A data source created inside a report is <em>embedded</em> — it belongs only to that report
+  and cannot be reused. To share it across reports, create it from the main Data Sources page.</p>
+
+  <div class="vt-callout risk"><strong>Common mistake:</strong> creating the data source from inside a
+  report. It looks the same, but it is embedded and invisible to other reports.</div>
+
+  <ol class="vt-checklist" data-key="ds-0001">
+    <li>
+      <input type="checkbox">
+      <div>
+        <span class="vt-step-title">Open Data Sources</span>
+        <span class="vt-step-body">Go to <a href="#">datastudio.google.com</a> → top-left menu → Data Sources.</span>
+      </div>
+    </li>
+    <li>
+      <input type="checkbox">
+      <div>
+        <span class="vt-step-title">Create → pick a connector</span>
+        <span class="vt-step-body">Click <strong>+</strong>, choose Google Sheets (or BigQuery), and authorise.</span>
+      </div>
+    </li>
+    <li>
+      <input type="checkbox">
+      <div>
+        <span class="vt-step-title">Fix field types</span>
+        <span class="vt-step-body">Change <code>Date</code> fields from Text → Date; set aggregation on numeric fields.</span>
+      </div>
+    </li>
+    <li>
+      <input type="checkbox">
+      <div>
+        <span class="vt-step-title">Click <strong>Done</strong></span>
+        <span class="vt-step-body">The data source is now available to any report in the same Google account.</span>
+      </div>
+    </li>
+  </ol>
+
+  <h2><span class="vt-num">3</span>Connecting a report to the shared source</h2>
+
+  <p>With your reusable data source saved, every new report can reference it instead of re-creating
+  a connection.</p>
+
+  <div class="vt-callout success"><strong>Payoff:</strong> if you later add a calculated field or fix a
+  type, every report using this source picks up the change automatically.</div>
+
+  <p>In the report editor: <strong>Resource → Manage added data sources → Add a data source</strong>,
+  then pick the one you created. Avoid <em>Create new data source</em> from this dialog — that
+  creates an embedded source.</p>
+
+  <h2><span class="vt-num">4</span>Check your understanding</h2>
+
+  <div class="vt-quiz" data-answer="1">
+    <p class="q">Where should you fix a field's data type so every report updates automatically?</p>
+    <button class="opt">In each report's chart configuration panel</button>
+    <button class="opt">In the reusable data source's field schema</button>
+    <button class="opt">In the Google Sheets column header</button>
+    <div class="feedback"></div>
+    <template class="why-good">The data source owns the field schema — change it once there, all charts that use it update.</template>
+    <template class="why-bad">Chart config and Sheets headers are downstream; changes there don't propagate to other reports.</template>
+  </div>
+
+  <footer class="vt-sources">
+    Sources: <a href="#">Looker Studio Help — Data sources</a> ·
+    <a href="#">Google Developers — Connector reference</a>
+  </footer>
+
+<script src="../assets/visual-teach.js"></script>
+</body>
+</html>

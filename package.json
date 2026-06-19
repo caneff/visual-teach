@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test": "node test/skill.mjs",
+    "typecheck": "node --input-type=module --eval \"import('./test/skill.mjs').then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); })\""
+  },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0"
   },
