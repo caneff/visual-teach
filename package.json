@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test": "node test/validate-css.mjs",
+    "typecheck": "echo 'No TypeScript in this project — OK'"
+  },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0"
   },
