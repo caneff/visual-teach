@@ -278,10 +278,12 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   padding: .4rem .8rem; background: var(--vt-soft); border-bottom: 1px solid var(--vt-rule);
 }
 .vt-code-copy {
-  font: inherit; font-size: .75rem; border: 1px solid var(--vt-rule); background: var(--vt-paper);
-  color: var(--vt-muted); border-radius: 6px; padding: .1rem .5rem; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--vt-rule); background: var(--vt-paper);
+  color: var(--vt-muted); border-radius: 6px; padding: .25rem; cursor: pointer;
   transition: color .15s, border-color .15s;
 }
+.vt-code-copy svg { width: 14px; height: 14px; display: block; }
 .vt-code-copy:hover { color: var(--vt-accent); border-color: var(--vt-accent); }
 .vt-code pre { margin: 0; overflow-x: auto; background: none; }
 .vt-code pre code {
