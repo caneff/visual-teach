@@ -167,10 +167,15 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | diagram | KEEP + build rich | full CSS vocabulary (§8) + opt-in mermaid |
 | quiz | KEEP + RAISE | per-option misconception feedback, always-on why-correct, a11y (buttons/keyboard/`aria-live`/focus), opt-in multi-select + try-again. Stretch: cross-lesson score. |
 | checklist | KEEP + RAISE | progress *bar* (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2. |
-| callout | *pending* | |
-| table | *pending* | |
-| pill | *pending* | |
-| page shell | *pending* | |
+| callout | KEEP + RAISE (**built**) | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted. |
+| table | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky. |
+| pill | KEEP + RAISE (**prototyped**) | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `demo/pill-variants.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting). |
+| page shell | KEEP + RAISE (**prototyping**) | meta bar (time/prereqs/difficulty/position), lesson-position + prev/next nav, CSS section-anchor links. Objectives/recap/mission/source split OUT to separate blocks (below). |
+| objectives (new) | ADD | "By the end you'll…" box |
+| mission-tie-in (new) | ADD | "why this matters for your goal" (grounds lesson in `/teach` mission) |
+| primary-source (new) | ADD | featured high-trust source card (`/teach` charter) |
+| recap + next-CTA (new) | ADD | "what you earned" + next-lesson call-to-action |
+| dark mode | **v1** (was deferred) | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle |
 | teacher | *pending* | |
 | footer/sources | *pending* | |
 | prose base | *pending* | |
@@ -225,6 +230,20 @@ sandbox or multi-language runner.
 - [ ] Gold-standard check: human runs real (flagged) `/teach` + visual-teach
 - [ ] Decide installation/release path (how a user installs the skill)
 
+## 11a. Polish backlog (prototyped, refine before folding)
+
+- **Table** (`demo/table-variants.html`): recommended-column interface,
+  comparison-matrix header labels, key/value formatting, zebra striping. Header
+  column / cell-status / row-emphasis / density look done; the four above need
+  another pass before folding into `visual-teach.css` + showcase.
+- **Pill count/step badge** (`demo/pill-variants.html`): badge sizing in general,
+  and the inline "Step 3 of 7" formatting. Rest of the pill set looks done.
+- **Neutral color** — the neutral pill/variant (`--vt-soft` bg + `--vt-muted`
+  text) reads washed out. Reevaluate: maybe a dedicated neutral token or more
+  contrast. Affects neutral pills, status-dot pills, possibly elsewhere.
+- **Primary-source card icon** (`demo/shell-blocks.html`): uses 📖 emoji — swap
+  to a masked SVG (OS-independent) for consistency with callout tone icons.
+
 ## 12. Risks & open questions
 
 1. ~~Diagram block in v1?~~ **Resolved → full CSS diagram vocabulary** (`.vt-diagram`
@@ -233,7 +252,7 @@ sandbox or multi-language runner.
 2. **Auto-adoption in the real flagged `/teach`** — strong proxy evidence, not yet
    confirmed in a real session. Mitigated by the seed floor.
 3. **Same-model/session-context** in the 5/5 test — real-world variance unknown.
-4. **Dark mode** — deferred; tokens make it cheap later.
+4. ~~Dark mode — deferred~~ **→ v1** (token overrides; prototyping).
 5. **Authors reach past the block set** (invented `vt-map`, misused token names) —
    inert, harmless, but informs which blocks to add next + cheatsheet wording.
 6. **Release/distribution** of the skill itself — undecided.
