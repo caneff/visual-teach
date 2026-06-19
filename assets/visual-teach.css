@@ -248,14 +248,86 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-quiz-check:focus-visible, .vt-quiz-try-again:focus-visible { outline: 3px solid var(--vt-accent); outline-offset: 2px; }
 .vt-quiz-live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
-/* teacher */
-.vt-teacher {
-  margin-top: 3rem; border: 2px dashed var(--vt-accent); border-radius: 12px;
-  padding: 1.1rem 1.3rem; background: var(--vt-accent-soft);
+/* recap + next-CTA */
+.vt-recap {
+  border-radius: 12px; border-left: 4px solid var(--vt-good);
+  background: var(--vt-good-soft); padding: 1rem 1.2rem; margin: 2rem 0 1rem;
+}
+.vt-recap .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .4rem; }
+.vt-cta {
+  display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .9rem; font-weight: 600; text-decoration: none;
+  background: var(--vt-accent); color: var(--vt-accent-fg);
+  padding: .5rem 1rem; border-radius: 8px;
 }
 
-/* footer */
-.vt-sources { margin-top: 3rem; color: var(--vt-muted); font-size: .85rem; border-top: 1px solid var(--vt-rule); padding-top: 1rem; }
+/* teacher box (raised: SVG cap, question chips, self-explanation prompt, community pointer) */
+.vt-teacher {
+  display: flex; gap: .9rem; align-items: flex-start;
+  border: 2px dashed var(--vt-accent); border-radius: 12px;
+  padding: 1.1rem 1.3rem; background: var(--vt-accent-soft); margin: 2.5rem 0;
+  --teacher-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMiA5TDEyIDVMMiA5bDEwIDRsMTAgLTR2NicvPjxwYXRoIGQ9J002IDEwLjZWMTZjMCAxLjcgMi43IDMgNiAzczYgLTEuMyA2IC0zdi01LjQnLz48L3N2Zz4=");
+}
+.vt-teacher::before {
+  content: ""; flex: 0 0 auto; width: 1.8rem; height: 1.8rem; margin-top: .1rem;
+  background-color: var(--vt-accent);
+  -webkit-mask: var(--teacher-icon) no-repeat center / contain;
+          mask: var(--teacher-icon) no-repeat center / contain;
+}
+.vt-teacher .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .35rem; }
+.vt-teacher p { margin: .35rem 0; font-size: .95rem; }
+.vt-asks { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 .2rem; }
+.vt-ask {
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .83rem;
+  border: 1px solid var(--vt-rule); border-radius: 999px;
+  padding: .25rem .7rem; background: var(--vt-paper); color: var(--vt-ink);
+}
+.vt-ask::before { content: "\201C"; opacity: .5; }
+.vt-ask::after  { content: "\201D"; opacity: .5; }
+.vt-teacher-try {
+  background: var(--vt-paper); border-left: 3px solid var(--vt-accent);
+  border-radius: 0 8px 8px 0; padding: .55rem .8rem; margin: .7rem 0 .3rem; font-size: .9rem;
+}
+.vt-teacher-try strong { font-family: 'Helvetica Neue', Arial, sans-serif; }
+.vt-teacher-community { font-size: .85rem; color: var(--vt-muted); margin-top: .5rem; }
+
+/* footer / sources (raised: numbered refs, source-type icons, companion slot, verified-date) */
+.vt-sources {
+  margin-top: 3rem; border-top: 1px solid var(--vt-rule); padding-top: 1rem;
+  color: var(--vt-muted); font-size: .85rem;
+}
+.vt-sources .lbl {
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .72rem;
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.vt-reflist { list-style: none; counter-reset: ref; margin: .6rem 0; padding: 0; }
+.vt-reflist li {
+  counter-increment: ref; display: flex; gap: .5rem; align-items: baseline;
+  margin: .4rem 0; line-height: 1.4;
+}
+.vt-reflist li::before {
+  content: "[" counter(ref) "]"; color: var(--vt-muted);
+  font-variant-numeric: tabular-nums; flex: 0 0 auto;
+}
+.vt-reflist .note { color: var(--vt-muted); }
+.vt-src-ic {
+  flex: 0 0 auto; width: .95rem; height: .95rem; align-self: center;
+  background-color: var(--vt-muted);
+  -webkit-mask: var(--src-icon) no-repeat center / contain;
+          mask: var(--src-icon) no-repeat center / contain;
+}
+.vt-src-ic[data-type='spec']  { --src-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J003IDhsLTQgNGw0IDQnLz48cGF0aCBkPSdNMTcgOGw0IDRsLTQgNCcvPjxwYXRoIGQ9J00xNCA0bC00IDE2Jy8+PC9zdmc+"); }
+.vt-src-ic[data-type='video'] { --src-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxyZWN0IHg9JzMnIHk9JzUnIHdpZHRoPScxOCcgaGVpZ2h0PScxNCcgcng9JzInLz48cGF0aCBkPSdNMTAgOWw1IDNsLTUgM3onLz48L3N2Zz4="); }
+.vt-src-ic[data-type='forum'] { --src-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMSAxNGEyIDIgMCAwIDEgLTIgMkg3bC00IDRWNmEyIDIgMCAwIDEgMiAtMmgxNGEyIDIgMCAwIDEgMiAyeicvPjwvc3ZnPg=="); }
+.vt-src-ic[data-type='doc']   { --src-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00xNCAzdjRhMSAxIDAgMCAwIDEgMWg0Jy8+PHBhdGggZD0nTTE3IDIxSDdhMiAyIDAgMCAxIC0yIC0yVjVhMiAyIDAgMCAxIDIgLTJoN2w1IDV2MTFhMiAyIDAgMCAxIC0yIDJ6Jy8+PHBhdGggZD0nTTkgMTNoNicvPjxwYXRoIGQ9J005IDE3aDYnLz48L3N2Zz4="); }
+.vt-src-ic[data-type='book']  { --src-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00zIDZhOSA5IDAgMCAxIDkgMGE5IDkgMCAwIDEgOSAwdjEzYTkgOSAwIDAgMCAtOSAwYTkgOSAwIDAgMCAtOSAweicvPjxwYXRoIGQ9J00xMiA2djEzJy8+PC9zdmc+"); }
+.vt-companion {
+  display: flex; gap: .5rem; align-items: center;
+  margin-top: .9rem; padding-top: .8rem; border-top: 1px dashed var(--vt-rule);
+}
+.vt-companion .vt-src-ic { width: 1.05rem; height: 1.05rem; background-color: var(--vt-accent); }
+.vt-companion a { font-weight: 600; }
+.vt-sources .meta { margin-top: .7rem; font-size: .78rem; color: var(--vt-muted); }
 
 @media print { .vt-quiz button, .vt-reset { display: none; } }
 
