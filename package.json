@@ -1,8 +1,17 @@
 {
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.10.0"
+    "@ai-hero/sandcastle": "^0.10.0",
+    "@vitest/browser": "^4.1.9",
+    "jsdom": "^29.1.1",
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "zod": "^4.4.3"
-  }
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "echo 'No TypeScript — skipping'"
+  },
+  "type": "module"
 }
