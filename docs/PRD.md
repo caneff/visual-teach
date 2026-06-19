@@ -170,7 +170,7 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | callout | KEEP + RAISE (**built**) | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted. |
 | table | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky. |
 | pill | KEEP + RAISE (**prototyped**) | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `demo/pill-variants.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting). |
-| page shell | KEEP + RAISE (**prototyping**) | meta bar (time/prereqs/difficulty/position), lesson-position + prev/next nav, CSS section-anchor links. Objectives/recap/mission/source split OUT to separate blocks (below). |
+| page shell | KEEP + RAISE (**prototyping**) | meta bar (time/prereqs/difficulty/position), CSS section-anchor links. (~~prev/next nav~~ and ~~`vt-cta` "Next" button~~ both dropped — lessons authored one at a time, so any forward link/button is a dead affordance; replaced by a plain `vt-upnext` text teaser.) Objectives/recap/mission/source split OUT to separate blocks (below). |
 | objectives (new) | ADD | "By the end you'll…" box |
 | mission-tie-in (new) | ADD | "why this matters for your goal" (grounds lesson in `/teach` mission) |
 | primary-source (new) | ADD | featured high-trust source card (`/teach` charter) |

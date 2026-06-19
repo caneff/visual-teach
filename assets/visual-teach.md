@@ -51,18 +51,12 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
       <a href="…">Source title</a> — one sentence on why this source.</div>
   </div>
 
-  <!-- Recap + next-lesson CTA -->
+  <!-- Recap + up-next teaser -->
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
     One sentence on what the learner can now do.
   </div>
-  <p><a class="vt-cta" href="…">Next: Lesson title →</a></p>
-
-  <!-- Prev / next lesson nav -->
-  <nav class="vt-lessonnav">
-    <a href="…">← Lesson N · Prev title</a>
-    <a href="…">Lesson N+2 · Next title →</a>
-  </nav>
+  <p class="vt-upnext"><em>Up next:</em> next topic.</p>
 </main>
 ```
 
@@ -190,13 +184,17 @@ Wrong clicks show feedback without revealing the answer or locking the quiz — 
 ```
 A "Check answer" button is auto-injected. Clicking options toggles selection (`aria-pressed`).
 
-## Recap + next-CTA
+## Recap + up-next teaser
+A forward *teaser* for the next topic — plain prose, **not** a link or button.
+Lessons are authored one at a time, so the next file doesn't exist at write
+time; a clickable "Next" button would always be a dead link. Just name what's
+coming.
 ```html
 <div class="vt-recap">
   <p class="h">✦ What you earned</p>
   One-sentence summary of what the learner can now do.
 </div>
-<p><a class="vt-cta" href="next-lesson.html">Next: Topic name →</a></p>
+<p class="vt-upnext"><em>Up next:</em> topic name.</p>
 ```
 
 ## Teacher box (SVG cap icon, question chips, self-explanation prompt, community pointer)
