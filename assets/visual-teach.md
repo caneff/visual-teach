@@ -194,7 +194,7 @@ coming.
 <p class="vt-upnext"><em>Up next:</em> topic name.</p>
 ```
 
-## Teacher box (SVG cap icon, question chips, self-explanation prompt, community pointer)
+## Teacher box (SVG cap icon, question chips) — one job: ask the agent
 ```html
 <div class="vt-teacher">
   <div>
@@ -205,9 +205,17 @@ coming.
       <span class="vt-ask">How does this map to Y?</span>
       <span class="vt-ask">Show me a harder example</span>
     </div>
-    <div class="vt-teacher-try"><strong>Try this:</strong> explain [concept] back to me in your own words — I'll tell you what you missed.</div>
-    <p class="vt-teacher-community">Practice with others: <a href="#">community link</a></p>
   </div>
+</div>
+```
+Self-explanation prompt → reuse an insight callout (works mid-lesson too):
+```html
+<div class="vt-callout insight"><strong>Try this:</strong> explain [concept] back to me in your own words — I'll tell you what you missed.</div>
+```
+Community pointer → a source block (lives with external references):
+```html
+<div class="vt-source">
+  <div><span class="h">Practice with others</span><a href="#">community link</a></div>
 </div>
 ```
 

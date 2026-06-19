@@ -95,11 +95,9 @@ test('primary-source card', () => {
   expect(beforeBlock.includes('mask:'),            'primary-source icon uses CSS mask (not emoji)').toBe(true);
 });
 
-test('teacher box compaction', () => {
-  expect(hasClass('.vt-asks'),               'question chips container present').toBe(true);
-  expect(hasClass('.vt-teacher-try'),        'try-this prompt present').toBe(true);
-  expect(hasClass('.vt-teacher-community'),  'community pointer present').toBe(true);
-  const tIdx = css.indexOf('.vt-teacher {');
-  const tBlock = css.slice(tIdx, tIdx + 300);
-  expect(tBlock.includes('1.1rem 1.3rem'), 'teacher box padding compacted from original 1.1rem 1.3rem').toBe(false);
+test('teacher box is ask-the-agent only', () => {
+  expect(hasClass('.vt-asks'),              'question chips container present').toBe(true);
+  // try-this prompt and community pointer split out into reusable blocks:
+  expect(hasClass('.vt-teacher-try'),       'try-this no longer a teacher-box class').toBe(false);
+  expect(hasClass('.vt-teacher-community'), 'community pointer no longer a teacher-box class').toBe(false);
 });

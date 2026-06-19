@@ -41,7 +41,7 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
 
   <h3><span class="vt-num">1.1</span>Headings, body &amp; lists</h3>
   <p>Plain <code>h2</code>/<code>p</code>/<code>code</code>/<code>a</code> are auto-themed. Body is Georgia; headings Helvetica. A <a href="#">link</a> uses the accent token. Lists:</p>
-  <ul><li>First point</li><li>Second point with <code>inline code</code></li></ul>
+  <ul><li>Create a branch off <code>main</code></li><li>Merge it back with <code>git merge</code></li></ul>
 
   <h3><span class="vt-num">1.2</span>Callouts <span class="sc-sub">(5 tones)</span></h3>
   <div class="vt-callout">Default (warn) callout — a caution.</div>
@@ -60,26 +60,26 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
       <th scope="col">Capability</th><th scope="col">Option A</th><th scope="col" class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Option B</th><th scope="col">Option C</th>
     </tr></thead>
     <tbody>
-      <tr><th scope="row">Handles &gt;1 M rows</th><td class="vt-no"></td><td class="vt-ok"></td><td class="vt-partial"></td></tr>
-      <tr class="vt-row-key"><th scope="row">Owns its schema</th><td class="vt-partial"></td><td class="vt-ok"></td><td class="vt-ok"></td></tr>
-      <tr><th scope="row">Zero setup</th><td class="vt-ok"></td><td class="vt-no"></td><td class="vt-ok"></td></tr>
+      <tr><th scope="row">Preserves branch history</th><td class="vt-no"></td><td class="vt-ok"></td><td class="vt-partial"></td></tr>
+      <tr class="vt-row-key"><th scope="row">Keeps a linear log</th><td class="vt-partial"></td><td class="vt-ok"></td><td class="vt-ok"></td></tr>
+      <tr><th scope="row">Safe on shared branches</th><td class="vt-ok"></td><td class="vt-no"></td><td class="vt-ok"></td></tr>
     </tbody>
   </table>
   </div>
 
   <h3><span class="vt-num">2.2</span>Key / value reference</h3>
   <table class="vt-kv">
-    <tr><th scope="row">Dimension</th><td>A <code>GROUP BY</code> column. Always green in the UI.</td></tr>
-    <tr><th scope="row">Metric</th><td>An aggregated expression — <code>SUM(x)</code>, <code>COUNT(*)</code>.</td></tr>
+    <tr><th scope="row">Branch</th><td>A movable pointer to a commit — <code>git branch feature</code>.</td></tr>
+    <tr><th scope="row">Merge</th><td>Joining two branch histories — <code>git merge feature</code>.</td></tr>
   </table>
 
   <h3><span class="vt-num">2.3</span>Compact density + zebra</h3>
   <table class="vt-table compact">
     <thead><tr><th>Step</th><th>Action</th><th>Result</th></tr></thead>
     <tbody>
-      <tr><td>1</td><td>Connect data source</td><td>Schema created</td></tr>
-      <tr><td>2</td><td>Add bar chart</td><td>Aggregation visible</td></tr>
-      <tr><td>3</td><td>Add control</td><td>Real numbers</td></tr>
+      <tr><td>1</td><td>Create a branch</td><td>Pointer at HEAD</td></tr>
+      <tr><td>2</td><td>Commit your work</td><td>Branch advances</td></tr>
+      <tr><td>3</td><td>Merge into main</td><td>Histories joined</td></tr>
     </tbody>
   </table>
 
@@ -122,8 +122,8 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
   <h3><span class="vt-num">3.4</span>Pills inline in a table <span class="sc-sub">(original baseline)</span></h3>
   <table>
     <tr><th>Concept</th><th>Role</th></tr>
-    <tr><td>Dimension <span class="vt-pill">group-by</span></td><td>What you group by</td></tr>
-    <tr><td>Metric <span class="vt-pill">aggregate</span></td><td>What you aggregate</td></tr>
+    <tr><td>Branch <span class="vt-pill">pointer</span></td><td>What you commit onto</td></tr>
+    <tr><td>Merge <span class="vt-pill">join</span></td><td>What brings histories together</td></tr>
   </table>
 
   <!-- ── Checklist v1 ──────────────────────────────────────────────────── -->
@@ -131,15 +131,15 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
   <ol class="vt-checklist" data-key="showcase">
     <li>
       <input type="checkbox">
-      <div><span class="vt-step-title">Open the editor</span><span class="vt-step-body">Sign in and create a report.</span></div>
+      <div><span class="vt-step-title">Create a branch</span><span class="vt-step-body">Run <code>git switch -c feature</code>.</span></div>
     </li>
     <li>
       <input type="checkbox">
-      <div><span class="vt-step-title">Add a chart</span><span class="vt-step-body">Insert → Vertical bar chart.</span></div>
+      <div><span class="vt-step-title">Commit your work</span><span class="vt-step-body">Stage changes, then <code>git commit</code>.</span></div>
     </li>
     <li>
       <input type="checkbox">
-      <div><span class="vt-step-title">Add a control</span><span class="vt-step-body">Insert → Drop-down list.</span></div>
+      <div><span class="vt-step-title">Merge into main</span><span class="vt-step-body">Switch to <code>main</code>, then <code>git merge feature</code>.</span></div>
     </li>
   </ol>
 
@@ -147,29 +147,29 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
   <h2><span class="vt-num">5</span>Quiz <span class="sc-sub">(per-option misconceptions · always-on correct · a11y)</span></h2>
   <h3><span class="vt-num">5.1</span>Single-answer <span class="sc-sub">(retry until correct)</span></h3>
   <div class="vt-quiz" data-answer="1">
-    <p class="q">Where do you fix a field type once so every report updates?</p>
-    <button class="opt">In each report's chart setup</button>
-    <button class="opt">In the reusable data source's schema</button>
-    <button class="opt">In the connector settings</button>
+    <p class="q">Which command creates a new branch and switches to it in one step?</p>
+    <button class="opt">git branch feature</button>
+    <button class="opt">git switch -c feature</button>
+    <button class="opt">git merge feature</button>
     <div class="feedback"></div>
-    <template class="why-good">The data source owns the schema — fix once, all reports update.</template>
-    <template class="why-bad">Field types live in the data source layer, not the chart panel or connector.</template>
-    <template data-opt="0">Chart setup is downstream — it reads the field type; it cannot define it.</template>
-    <template data-opt="2">Connector settings control how data is fetched, not how fields are typed.</template>
+    <template class="why-good"><code>git switch -c</code> creates the branch and checks it out together.</template>
+    <template class="why-bad">Only <code>git switch -c</code> both creates the branch and moves you onto it.</template>
+    <template data-opt="0"><code>git branch feature</code> creates the branch but leaves you on your current one.</template>
+    <template data-opt="2"><code>git merge feature</code> joins an existing branch in — it doesn't create one.</template>
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
   <!-- ── Quiz v1: multi-select ─────────────────────────────────────────── -->
   <h3><span class="vt-num">5.2</span>Multi-select <span class="sc-sub">(data-multi · comma-list answer)</span></h3>
   <div class="vt-quiz" data-answer="0,2" data-multi>
-    <p class="q">Which of the following are valid SQL aggregation functions? (select all that apply)</p>
-    <button class="opt">SUM</button>
-    <button class="opt">SORT</button>
-    <button class="opt">AVG</button>
-    <button class="opt">FILTER</button>
+    <p class="q">Which of the following are real Git commands for branching? (select all that apply)</p>
+    <button class="opt">git branch</button>
+    <button class="opt">git fork</button>
+    <button class="opt">git merge</button>
+    <button class="opt">git combine</button>
     <div class="feedback"></div>
-    <template class="why-good">SUM and AVG are standard SQL aggregation functions. SORT and FILTER are not — ORDER BY sorts, WHERE/HAVING filter.</template>
-    <template class="why-bad">Review the SQL aggregation function list — only SUM and AVG qualify here.</template>
+    <template class="why-good"><code>git branch</code> and <code>git merge</code> are real commands. <code>git fork</code> and <code>git combine</code> don't exist — forking is a host feature, and merging is done with <code>git merge</code>.</template>
+    <template class="why-bad">Review the Git command list — only <code>git branch</code> and <code>git merge</code> are genuine commands.</template>
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
@@ -190,14 +190,14 @@ print(f"got {len(result)} squares")</code></pre>
   <h3><span class="vt-num">7.1</span>Recap + up-next teaser</h3>
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
-    You can now derive new metrics without touching SQL, and you know which calculations are safe to aggregate.
+    You can now branch off main without fear, and you know which merge strategy keeps your history clean.
   </div>
-  <p class="vt-upnext"><em>Up next:</em> blends &amp; joins.</p>
+  <p class="vt-upnext"><em>Up next:</em> rebasing &amp; conflict resolution.</p>
 
   <h3><span class="vt-num">7.2</span>Meta bar <span class="sc-sub">(time · prereqs · difficulty · position)</span></h3>
   <div class="vt-metabar">
     <span class="item">⏱ <strong>~15 min</strong></span>
-    <span class="item">Needs: <strong>a report from Lesson 1</strong></span>
+    <span class="item">Needs: <strong>a repo from Lesson 1</strong></span>
     <span class="item"><span class="vt-level beginner">Beginner</span></span>
     <span class="item">Lesson <strong>1</strong> of 9</span>
   </div>
@@ -221,33 +221,31 @@ print(f"got {len(result)} squares")</code></pre>
   <div class="vt-objectives">
     <p class="h">By the end of this lesson you'll be able to:</p>
     <ul>
-      <li>Create a calculated field from two existing columns</li>
-      <li>Tell the difference between row-level and aggregate calculations</li>
-      <li>Spot when a ratio is computed at the wrong granularity</li>
+      <li>Create a feature branch from an existing commit</li>
+      <li>Tell the difference between a fast-forward and a three-way merge</li>
+      <li>Spot when a merge will produce a conflict before you run it</li>
     </ul>
   </div>
 
   <h3><span class="vt-num">7.5</span>Mission tie-in</h3>
-  <div class="vt-mission"><strong>Why this matters for your goal:</strong> your internal BI transfers need per-capita figures — those don't exist as columns, so you'll compute them here.</div>
+  <div class="vt-mission"><strong>Why this matters for your goal:</strong> your team ships features in parallel — without clean branching and merging, their work collides on <code>main</code>, so you'll practice it here.</div>
 
   <h3><span class="vt-num">7.6</span>Primary-source card <span class="sc-sub">(masked SVG book icon · follows --vt-accent)</span></h3>
   <div class="vt-source">
     <div><span class="h">Primary source</span>
-      <a href="#">Calculated fields — official reference</a> — the function list and row-vs-aggregate rules, straight from the docs.</div>
+      <a href="#">git merge — official reference</a> — the fast-forward and three-way merge rules, straight from the docs.</div>
   </div>
 
-  <h3><span class="vt-num">7.7</span>Teacher box <span class="sc-sub">(SVG cap · question chips · self-explanation prompt · community pointer)</span></h3>
+  <h3><span class="vt-num">7.7</span>Teacher box <span class="sc-sub">(SVG cap · question chips — ask-the-agent only)</span></h3>
   <div class="vt-teacher">
     <div>
       <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
       <p>Ask anything — follow-up questions are the point, not an interruption. Not sure where to start:</p>
       <div class="vt-asks">
-        <span class="vt-ask">Why did my time series come out empty?</span>
-        <span class="vt-ask">How does this map to Tableau?</span>
+        <span class="vt-ask">Why did my merge create a conflict?</span>
+        <span class="vt-ask">How does this differ from rebasing?</span>
         <span class="vt-ask">Show me a harder example</span>
       </div>
-      <div class="vt-teacher-try"><strong>Try this:</strong> explain calculated fields back to me in your own words — I'll tell you what you missed.</div>
-      <p class="vt-teacher-community">Practice with others: <a href="#">r/dataisbeautiful</a> · the Looker Studio community forum.</p>
     </div>
   </div>
 
@@ -255,12 +253,12 @@ print(f"got {len(result)} squares")</code></pre>
   <footer class="vt-sources">
     <span class="lbl">Sources</span>
     <ul class="vt-reflist">
-      <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial: create a new report</a> <span class="note">— the canonical walkthrough.</span></li>
-      <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Data source concepts</a> <span class="note">— connector → data source → report.</span></li>
+      <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial: branching workflows</a> <span class="note">— the canonical walkthrough.</span></li>
+      <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Branching &amp; merging concepts</a> <span class="note">— commit → branch → merge.</span></li>
       <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
-      <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Looker Studio community forum</a></li>
+      <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Git users community forum</a></li>
     </ul>
-    <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Data Studio glossary &amp; concept map</a></div>
+    <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Git glossary &amp; concept map</a></div>
     <div class="meta">Showcase · verified 2026-06-19</div>
   </footer>
 
@@ -270,9 +268,9 @@ print(f"got {len(result)} squares")</code></pre>
   <h3><span class="vt-num">8.1</span>Flow pipeline</h3>
   <div class="vt-diagram">
     <div class="vt-flow">
-      <span class="vt-node">Connector</span>
-      <span class="vt-node">Data source</span>
-      <span class="vt-node em">Report</span>
+      <span class="vt-node">Commit</span>
+      <span class="vt-node">Branch</span>
+      <span class="vt-node em">Merge</span>
     </div>
     <p class="vt-diagram-caption">Fig — auto arrows via CSS, no JS</p>
   </div>
@@ -281,18 +279,18 @@ print(f"got {len(result)} squares")</code></pre>
   <div class="vt-diagram">
     <div class="vt-row">
       <div class="vt-col">
-        <span class="vt-col-label">Input</span>
-        <span class="vt-node">CSV</span>
-        <span class="vt-node">API</span>
+        <span class="vt-col-label">Branch</span>
+        <span class="vt-node">feature</span>
+        <span class="vt-node">hotfix</span>
       </div>
       <div class="vt-col">
-        <span class="vt-col-label">Process</span>
-        <span class="vt-node em">Transform</span>
-        <span class="vt-node em">Aggregate</span>
+        <span class="vt-col-label">Integrate</span>
+        <span class="vt-node em">Merge</span>
+        <span class="vt-node em">Resolve</span>
       </div>
       <div class="vt-col">
-        <span class="vt-col-label">Output</span>
-        <span class="vt-node">Dashboard</span>
+        <span class="vt-col-label">Result</span>
+        <span class="vt-node">main</span>
       </div>
     </div>
   </div>
@@ -399,10 +397,10 @@ erDiagram
     <p style="font-size:.92rem;color:var(--vt-muted)">Native <code>&lt;details&gt;</code>, zero JS — try-before-hint (desirable difficulty). UI not final.</p>
     <ol class="vt-checklist" data-key="showcase-hint">
       <li><input type="checkbox"><div>
-        <span class="vt-step-title">Add a bar chart — spot the aggregation trap</span>
-        <span class="vt-step-body">Insert → Vertical bar chart, Dimension = <code>Country</code>.</span>
+        <span class="vt-step-title">Merge a stale branch — spot the conflict trap</span>
+        <span class="vt-step-body">Run <code>git merge feature</code> after <code>main</code> has moved on.</span>
         <details class="vt-hint"><summary><span>Need a hint?</span></summary>
-          <div class="vt-hint-body">China shows ~13 <em>billion</em>? That's <code>SUM</code> across all years — every metric carries an aggregation.</div>
+          <div class="vt-hint-body">Both branches edited the same lines? Git can't auto-merge — you'll get a conflict to resolve by hand before the merge completes.</div>
         </details>
       </div></li>
     </ol>
