@@ -96,6 +96,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 
 /* table — responsive wrapper + zebra + density */
 .vt-table-wrap { overflow-x: auto; margin: 1rem 0; }
+.vt-table-wrap > .vt-table, .vt-table-wrap > table { margin: 0; }
 .vt-table tbody tr:nth-child(even) { background: var(--vt-soft); }
 .vt-table.compact th, .vt-table.compact td { padding: .3rem .5rem; }
 

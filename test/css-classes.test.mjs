@@ -1,7 +1,4 @@
-/**
- * Validates that visual-teach.css contains all required class definitions
- * for the table variants and pill/kbd set (issue #2).
- */
+// Validates that visual-teach.css contains all class definitions for table variants and pill/kbd set.
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
