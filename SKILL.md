@@ -27,19 +27,42 @@ If you are authoring a lesson (the workspace has `MISSION.md`, `lessons/`, etc.)
 
 ## The Convert verb (explicit `/visual-teach`)
 
-This is visual-teach's only explicit action. Given existing lesson HTML:
+This is visual-teach's only explicit action. Before doing anything, read the
+workspace to determine which of the three modes applies:
 
-- **Lessons present** (`/visual-teach [file|all]`): retrofit each lesson — ensure
-  `./assets/` has the three files, strip the inline `<style>`/`<script>`, swap the
-  classes to `vt-*` per the cheatsheet, add the two asset links. Preserve all
-  content; this is a mechanical edit. Topic-specific colors → move into a
-  `:root` override in the lesson `<head>`, not into `visual-teach.css`.
-- **No lessons (seed-only):** just copy `./assets/visual-teach.{css,js,md}` into
-  the workspace and tell the user the workspace is seeded — now run `/teach`.
+**Decision tree:**
 
-## No `/teach` installed
+1. **Authoring from scratch, no `/teach`** — if the user asked you to write a
+   new lesson and `/teach` is not in the current skill context: do not author.
+   Point the user to install `/teach` (`mattpocock/skills`,
+   `skills/productivity/teach`) and stop. Converting existing lessons does not
+   require `/teach`; this mode is authoring-only.
 
-If asked to author a lesson from scratch and `/teach` is not available, do not
-reimplement teaching. Point the user to install it
-(`mattpocock/skills`, `skills/productivity/teach`), then return. (Converting
-existing lessons does not require `/teach`.)
+2. **No lessons present (seed-only)** — if no `lessons/` directory or `.html`
+   lesson files exist yet:
+   1. Copy `./assets/visual-teach.{css,js,md}` from this skill's `assets/`
+      directory into the workspace's `./assets/` (create if missing).
+   2. Tell the user the workspace is seeded and to now run `/teach`.
+   3. Stop.
+
+3. **Lessons present** (`/visual-teach [file|all]`) — one or more `.html`
+   lesson files exist. Retrofit each targeted file:
+   1. Ensure `./assets/visual-teach.{css,js,md}` exist; copy from skill if not.
+   2. In the lesson `<head>`, extract any topic-specific color variables from
+      the inline `<style>` and move them into a `<style>` `:root { }` override
+      block (keep only the custom token values, not component styles).
+   3. Remove the remaining inline `<style>` block entirely.
+   4. Remove any inline `<script>` block(s).
+   5. Add asset links (relative to the lesson's location, typically `lessons/`):
+      ```html
+      <link rel="stylesheet" href="../assets/visual-teach.css">
+      ```
+      and before `</body>`:
+      ```html
+      <script src="../assets/visual-teach.js"></script>
+      ```
+   6. Swap class names to their `vt-*` equivalents per `assets/visual-teach.md`.
+      Preserve all semantic content, headings, body text, `data-*` attributes,
+      and interactive markup — this is a mechanical class/asset edit, not a
+      content edit.
+   7. Report each file changed and confirm no content was removed.
