@@ -177,24 +177,21 @@ describe('quiz — try-again mode', () => {
     });
   });
 
-  it('shows try-again button after wrong click', () => {
+  it('does not reveal the correct answer after a wrong click in try-again mode', () => {
     const q = buildTryAgainQuiz();
     click(q.querySelectorAll('button.opt')[0]);
-    const tryBtn = q.querySelector('.vt-quiz-try-again');
-    expect(tryBtn).not.toBeNull();
+    // answer is index 1 — must stay hidden
+    expect(q.querySelectorAll('button.opt')[1].classList.contains('correct')).toBe(false);
+    expect(q.querySelector('.vt-fb-correct')).toBeNull();
   });
 
-  it('clicking try-again resets the quiz', () => {
+  it('clicking another answer after a wrong click clears the prior wrong state', () => {
     const q = buildTryAgainQuiz();
-    click(q.querySelectorAll('button.opt')[0]);
-    const tryBtn = q.querySelector('.vt-quiz-try-again');
-    click(tryBtn);
-    const fb = q.querySelector('.feedback');
-    expect(fb.classList.contains('show')).toBe(false);
-    q.querySelectorAll('button.opt').forEach(b => {
-      expect(b.classList.contains('correct')).toBe(false);
-      expect(b.classList.contains('wrong')).toBe(false);
-    });
+    const opts = q.querySelectorAll('button.opt');
+    click(opts[0]); // wrong
+    click(opts[1]); // correct
+    expect(opts[0].classList.contains('wrong')).toBe(false);
+    expect(opts[1].classList.contains('correct')).toBe(true);
   });
 
   it('locks quiz after correct click even in try-again mode', () => {

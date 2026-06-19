@@ -170,7 +170,7 @@ Keep every option the same length — no formatting tells.
   …same interior…
 </div>
 ```
-Wrong clicks show feedback and a "Try again" button without locking the quiz.
+Wrong clicks show feedback without revealing the answer or locking the quiz — the user keeps picking until correct.
 
 ### Multi-select — add `data-multi`, set `data-answer` to a comma-separated list
 ```html

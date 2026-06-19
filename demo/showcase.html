@@ -169,18 +169,6 @@
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
-  <h2><span class="vt-num">4</span>Code block <span style="font-size:.8rem;color:var(--vt-muted)">(filename header, copy button, Prism-highlighted)</span></h2>
-  <div class="vt-code">
-    <div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy">Copy</button></div>
-    <pre><code class="language-python">def squares(n):
-    # first n perfect squares
-    return [i * i for i in range(n)]
-
-result = squares(10)
-print(f"got {len(result)} squares")</code></pre>
-  </div>
-  <p>Inline token emphasis: use <code class="vt-pcode">return</code> to exit a function.</p>
-
   <!-- ── Quiz v1: multi-select ─────────────────────────────────────────── -->
   <p class="sc-label">Multi-select (data-multi, data-answer as comma list)</p>
   <div class="vt-quiz" data-answer="0,2" data-multi>
@@ -194,6 +182,18 @@ print(f"got {len(result)} squares")</code></pre>
     <template class="why-bad">Review the SQL aggregation function list — only SUM and AVG qualify here.</template>
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
+
+  <h2><span class="vt-num">4</span>Code block <span style="font-size:.8rem;color:var(--vt-muted)">(filename header, copy button, Prism-highlighted)</span></h2>
+  <div class="vt-code">
+    <div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy">Copy</button></div>
+    <pre><code class="language-python">def squares(n):
+    # first n perfect squares
+    return [i * i for i in range(n)]
+
+result = squares(10)
+print(f"got {len(result)} squares")</code></pre>
+  </div>
+  <p>Inline token emphasis: use <code class="vt-pcode">return</code> to exit a function.</p>
 
   <p class="sc-label">Recap + next-CTA</p>
   <div class="vt-recap">
