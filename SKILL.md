@@ -57,9 +57,10 @@ workspace to determine which of the three modes applies:
       ```html
       <link rel="stylesheet" href="../assets/visual-teach.css">
       ```
-      and before `</body>`:
+      and before `</body>` (visual-teach.js is an ES module — `type="module"`
+      is required, or it throws `Unexpected token 'export'` and nothing wires up):
       ```html
-      <script src="../assets/visual-teach.js"></script>
+      <script type="module" src="../assets/visual-teach.js"></script>
       ```
    6. Swap class names to their `vt-*` equivalents per `assets/visual-teach.md`.
       Preserve all semantic content, headings, body text, `data-*` attributes,
