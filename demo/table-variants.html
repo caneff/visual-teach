@@ -2,53 +2,6 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>visual-teach · table variants (candidate)</title>
 <link rel="stylesheet" href="../assets/visual-teach.css">
-<style>
-/* ===== CANDIDATE table variants — preview before folding into visual-teach.css ===== */
-
-/* table-stakes: responsive wrapper + zebra (--vt-stripe = 6% ink) + density */
-.vt-table-wrap { overflow-x: auto; margin: 1rem 0; }
-.vt-table tbody tr:nth-child(even) { background: var(--vt-stripe, color-mix(in srgb, var(--vt-ink) 6%, var(--vt-paper))); }
-.vt-table.compact th, .vt-table.compact td { padding: .3rem .5rem; }
-
-/* header column + subdue matrix row-label header */
-.vt-table th[scope="row"] {
-  text-align: left; text-transform: none; letter-spacing: 0; font-size: .9rem;
-  color: var(--vt-ink); font-weight: 600; white-space: nowrap;
-}
-.vt-table thead th:first-child { color: var(--vt-muted); font-weight: 400; }
-
-/* cell status: ✓ / ✗ / ~ auto-rendered, tinted, themeable */
-.vt-ok, .vt-no, .vt-partial { text-align: center; font-weight: 700; }
-.vt-ok      { color: var(--vt-good); background: var(--vt-good-soft); }
-.vt-no      { color: var(--vt-bad);  background: var(--vt-bad-soft); }
-.vt-partial { color: var(--vt-warn); background: var(--vt-warn-soft); }
-.vt-ok::before      { content: "✓"; }
-.vt-no::before      { content: "✗"; }
-.vt-partial::before { content: "~"; }
-
-/* comparison highlight: col background + th-level top border (border on <col> unreliable) */
-.vt-col-pick { background: var(--vt-accent-soft); }
-.vt-th-pick  { background: var(--vt-accent-soft); border-top: 3px solid var(--vt-accent); }
-.vt-pick-badge {
-  display: block; font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .63rem; text-transform: uppercase; letter-spacing: .07em;
-  color: var(--vt-accent); margin-bottom: .18rem;
-}
-
-/* row emphasis: the one key row */
-.vt-row-key { background: var(--vt-accent-soft); }
-.vt-row-key th[scope="row"], .vt-row-key td:first-child { box-shadow: inset 3px 0 0 var(--vt-accent); }
-
-/* key/value reference table — key column gets background + border-right separator */
-.vt-kv { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .95rem; }
-.vt-kv th[scope="row"] {
-  text-align: left; text-transform: none; letter-spacing: 0; font-size: .92rem;
-  color: var(--vt-ink); font-weight: 600; width: 30%; padding: .5rem .7rem .5rem .6rem;
-  border-bottom: 1px solid var(--vt-rule); border-right: 1px solid var(--vt-rule);
-  background: var(--vt-soft); vertical-align: top; white-space: nowrap;
-}
-.vt-kv td { padding: .5rem .7rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
-</style>
 </head><body><main>
   <p class="vt-kicker">visual-teach · candidate</p>
   <h1>Table variants</h1>
