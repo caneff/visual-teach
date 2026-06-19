@@ -301,11 +301,26 @@ code.vt-pcode {
   padding: .1em .4em; border-radius: 4px;
 }
 
+/* primary-source card — masked SVG book icon (follows --vt-accent; swapped from emoji for OS-independence) */
+.vt-source {
+  display: flex; gap: .65rem; align-items: flex-start;
+  border-left: 3px solid var(--vt-accent); border-radius: 0 8px 8px 0;
+  background: var(--vt-accent-soft); padding: .7rem .9rem; margin: 1.2rem 0; font-size: .95rem;
+  --src-book: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00zIDZhOSA5IDAgMCAxIDkgMGE5IDkgMCAwIDEgOSAwdjEzYTkgOSAwIDAgMCAtOSAwYTkgOSAwIDAgMCAtOSAweicvPjxwYXRoIGQ9J00xMiA2djEzJy8+PC9zdmc+");
+}
+.vt-source::before {
+  content: ""; flex: 0 0 auto; width: 1.15rem; height: 1.15rem; margin-top: .18rem;
+  background-color: var(--vt-accent);
+  -webkit-mask: var(--src-book) no-repeat center / contain;
+          mask: var(--src-book) no-repeat center / contain;
+}
+.vt-source .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; display: block; margin-bottom: .2rem; }
+
 /* teacher box (raised: SVG cap, question chips, self-explanation prompt, community pointer) */
 .vt-teacher {
-  display: flex; gap: .9rem; align-items: flex-start;
+  display: flex; gap: .75rem; align-items: flex-start;
   border: 2px dashed var(--vt-accent); border-radius: 12px;
-  padding: 1.1rem 1.3rem; background: var(--vt-accent-soft); margin: 2.5rem 0;
+  padding: .85rem 1.1rem; background: var(--vt-accent-soft); margin: 2rem 0;
   --teacher-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMiA5TDEyIDVMMiA5bDEwIDRsMTAgLTR2NicvPjxwYXRoIGQ9J002IDEwLjZWMTZjMCAxLjcgMi43IDMgNiAzczYgLTEuMyA2IC0zdi01LjQnLz48L3N2Zz4=");
 }
 .vt-teacher::before {
@@ -314,22 +329,22 @@ code.vt-pcode {
   -webkit-mask: var(--teacher-icon) no-repeat center / contain;
           mask: var(--teacher-icon) no-repeat center / contain;
 }
-.vt-teacher .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .35rem; }
-.vt-teacher p { margin: .35rem 0; font-size: .95rem; }
-.vt-asks { display: flex; flex-wrap: wrap; gap: .4rem; margin: .6rem 0 .2rem; }
+.vt-teacher .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .3rem; }
+.vt-teacher p { margin: .2rem 0; font-size: .95rem; }
+.vt-asks { display: flex; flex-wrap: wrap; gap: .4rem; margin: .4rem 0 .1rem; }
 .vt-ask {
   font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .83rem;
   border: 1px solid var(--vt-rule); border-radius: 999px;
-  padding: .25rem .7rem; background: var(--vt-paper); color: var(--vt-ink);
+  padding: .2rem .6rem; background: var(--vt-paper); color: var(--vt-ink);
 }
 .vt-ask::before { content: "\201C"; opacity: .5; }
 .vt-ask::after  { content: "\201D"; opacity: .5; }
 .vt-teacher-try {
   background: var(--vt-paper); border-left: 3px solid var(--vt-accent);
-  border-radius: 0 8px 8px 0; padding: .55rem .8rem; margin: .7rem 0 .3rem; font-size: .9rem;
+  border-radius: 0 8px 8px 0; padding: .4rem .75rem; margin: .45rem 0 .15rem; font-size: .9rem;
 }
 .vt-teacher-try strong { font-family: 'Helvetica Neue', Arial, sans-serif; }
-.vt-teacher-community { font-size: .85rem; color: var(--vt-muted); margin-top: .5rem; }
+.vt-teacher-community { font-size: .85rem; color: var(--vt-muted); margin-top: .3rem; }
 
 /* footer / sources (raised: numbered refs, source-type icons, companion slot, verified-date) */
 .vt-sources {
