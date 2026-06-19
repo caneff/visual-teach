@@ -49,34 +49,6 @@ describe('vtMermaid.init', () => {
   })
 })
 
-describe('vtMermaid.readTokens', () => {
-  it('returns fallback values when CSS vars are empty', () => {
-    const mockGcs = () => ({ getPropertyValue: () => '' })
-    const tokens = vtm.readTokens({}, mockGcs)
-    expect(tokens.primaryColor).toBe('#1a73e8')
-    expect(tokens.background).toBe('#ffffff')
-    expect(tokens.mainBkg).toBe('#ffffff')
-    expect(tokens.textColor).toBe('#1a1f2b')
-    expect(tokens.lineColor).toBe('#5b6472')
-  })
-
-  it('returns CSS custom property values when set', () => {
-    const vals = { '--vt-accent': '#ff4500', '--vt-paper': '#0a0a0a', '--vt-ink': '#eee' }
-    const mockGcs = () => ({ getPropertyValue: (k) => vals[k] || '' })
-    const tokens = vtm.readTokens({}, mockGcs)
-    expect(tokens.primaryColor).toBe('#ff4500')
-    expect(tokens.background).toBe('#0a0a0a')
-    expect(tokens.mainBkg).toBe('#0a0a0a')
-    expect(tokens.textColor).toBe('#eee')
-  })
-
-  it('trims whitespace from CSS var values', () => {
-    const mockGcs = () => ({ getPropertyValue: () => '  #abc  ' })
-    const tokens = vtm.readTokens({}, mockGcs)
-    expect(tokens.primaryColor).toBe('#abc')
-  })
-})
-
 describe('vtMermaid.isDark', () => {
   it('returns true when data-theme is "dark"', () => {
     expect(vtm.isDark({ dataset: { theme: 'dark' } })).toBe(true)

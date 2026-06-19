@@ -32,22 +32,33 @@
 
   var CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
 
-  // Map vt-* CSS custom properties to mermaid themeVariables.
-  function readTokens(docEl, gcs) {
+  // Walk up from a node to the first element with a non-transparent background.
+  // Used to match mermaid's edge-label boxes to the card the diagram sits on.
+  function bgBehind(node, gcs) {
     gcs = gcs || (typeof window !== 'undefined' ? window.getComputedStyle.bind(window) : null);
-    var s = gcs ? gcs(docEl) : { getPropertyValue: function () { return ''; } };
-    function get(v) { return s.getPropertyValue(v).trim(); }
-    return {
-      primaryColor:       get('--vt-accent')     || '#1a73e8',
-      primaryTextColor:   get('--vt-accent-fg')  || '#ffffff',
-      primaryBorderColor: get('--vt-rule')        || '#e3e6ea',
-      lineColor:          get('--vt-muted')       || '#5b6472',
-      textColor:          get('--vt-ink')         || '#1a1f2b',
-      background:         get('--vt-paper')       || '#ffffff',
-      mainBkg:            get('--vt-paper')       || '#ffffff',
-      edgeLabelBackground: get('--vt-paper')       || '#ffffff',
-      nodeBorder:         get('--vt-rule')        || '#e3e6ea',
-    };
+    if (!gcs || !node) return null;
+    for (var el = node; el; el = el.parentElement) {
+      var c = gcs(el).backgroundColor;
+      if (c && c !== 'transparent' && c !== 'rgba(0, 0, 0, 0)') return toRgb(c);
+    }
+    return null;
+  }
+
+  // Normalize any CSS color (incl. color-mix's color(srgb ...) form) to plain
+  // rgb()/hex via canvas — mermaid's color lib throws on the color(srgb ...)
+  // syntax, which breaks flowchart rendering.
+  function toRgb(c) {
+    if (typeof document === 'undefined') return c;
+    var cv = document.createElement('canvas');
+    cv.width = cv.height = 1;
+    var ctx = cv.getContext('2d');
+    if (!ctx) return c;
+    ctx.fillStyle = c;
+    ctx.fillRect(0, 0, 1, 1);
+    var d = ctx.getImageData(0, 0, 1, 1).data;
+    return d[3] === 255
+      ? 'rgb(' + d[0] + ',' + d[1] + ',' + d[2] + ')'
+      : 'rgba(' + d[0] + ',' + d[1] + ',' + d[2] + ',' + (d[3] / 255) + ')';
   }
 
   // Detect dark mode from [data-theme] attribute, falling back to matchMedia.
@@ -70,19 +81,58 @@
     options = options || {};
     var src = options.cdn || CDN;
 
+    var list = Array.from(nodes);
+    // Stash each diagram's source now; mermaid.run() replaces it with SVG, so we
+    // need the original text to re-render when the theme flips.
+    var sources = list.map(function (n) { return n.textContent; });
+
+    function render() {
+      // Use mermaid's native themes — coherent, tested palettes readable across
+      // every diagram type. Hand-mapping vt-* tokens onto 'base' produced a
+      // monochromatic look and white-on-white state-node labels (primaryTextColor
+      // bled into node text), so we let mermaid own the palette on both sides.
+      var dark = isDark(doc.documentElement, options.matchMedia);
+      list.forEach(function (n, i) { n.removeAttribute('data-processed'); n.innerHTML = sources[i]; });
+      // Match the edge/transition-label background to whatever the diagram
+      // actually sits on (a card, not necessarily --vt-paper), so labels never
+      // get a muddy mismatched box. Read it live rather than hardcode.
+      var labelBg = bgBehind(list[0], options.getComputedStyle) || (dark ? '#13171d' : '#ffffff');
+      // mermaid paints .labelBkg at 50% alpha (a baked-in CSS rule, no themeVar
+      // for it) — over an ER relationship line that leaves the line showing
+      // through and a faint tint. Force it opaque and card-matched.
+      var styleEl = doc.getElementById('vt-mermaid-style');
+      if (!styleEl) { styleEl = doc.createElement('style'); styleEl.id = 'vt-mermaid-style'; doc.head.appendChild(styleEl); }
+      styleEl.textContent = '.vt-mermaid .labelBkg{background-color:' + labelBg + ' !important}';
+      // Brand-blue tint both sides. Light: 'base' + soft blue primary. Dark:
+      // 'dark' + deep blue node fills (dark theme ignores primaryColor for
+      // fills, so set mainBkg/secondary/tertiary too) + light text. mermaid
+      // derives borders/edges from these.
+      window.mermaid.initialize(dark
+        ? { startOnLoad: false, theme: 'dark',
+            themeVariables: { darkMode: true,
+              primaryColor: '#1e3a5f', mainBkg: '#1e3a5f',
+              secondaryColor: '#1e3a5f', tertiaryColor: '#1e3a5f',
+              // ER attribute rows: neutral grey (blue header only), mirroring
+              // light's blue-header / white-rows. Same odd+even = no stripe.
+              rowOdd: '#2b313b', rowEven: '#2b313b',
+              primaryTextColor: '#e6e9ef', edgeLabelBackground: labelBg } }
+        : { startOnLoad: false, theme: 'base',
+            themeVariables: { primaryColor: '#dbe9ff', edgeLabelBackground: labelBg } });
+      window.mermaid.run({ nodes: list });
+    }
+
     var script = doc.createElement('script');
     script.src = src;
     script.onload = function () {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        darkMode: isDark(doc.documentElement, options.matchMedia),
-        themeVariables: readTokens(doc.documentElement, options.getComputedStyle),
-      });
-      window.mermaid.run({ nodes: Array.from(nodes) });
+      render();
+      // Re-render on data-theme toggle so diagrams follow the page palette.
+      if (typeof MutationObserver !== 'undefined') {
+        new MutationObserver(render).observe(doc.documentElement,
+          { attributes: true, attributeFilter: ['data-theme'] });
+      }
     };
     doc.head.appendChild(script);
   }
 
-  return { init: init, readTokens: readTokens, isDark: isDark };
+  return { init: init, isDark: isDark };
 });

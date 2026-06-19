@@ -333,8 +333,8 @@ print(f"got {len(result)} squares")</code></pre>
   </div>
 
   <!-- ===================== mermaid opt-in ===================== -->
-  <p class="sc-label">Computed graphs — opt-in mermaid (sequence / state / ER only)</p>
-  <div class="vt-callout info"><strong>When to use:</strong> mermaid is for graphs that must be auto-laid-out (sequence, state machine, ER). For anything you can hand-compose, use the CSS diagram vocabulary instead — it prints cleanly and has zero JS overhead.</div>
+  <p class="sc-label">Computed graphs — opt-in mermaid (box-and-arrow types: sequence / state / flowchart / class / ER)</p>
+  <div class="vt-callout info"><strong>When to use:</strong> mermaid is for graphs that must be auto-laid-out (sequence, state machine, flowchart, class, ER). The brand-blue theme is tuned for these box-and-arrow types; multi-series charts (pie, xy) come out mono-blue and should use a native theme instead. For anything you can hand-compose, use the CSS diagram vocabulary — it prints cleanly with zero JS overhead.</div>
 
   <h2><span class="vt-num">4</span>Sequence diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in — CDN loads only on this page)</span></h2>
   <div class="vt-mermaid">
@@ -357,6 +357,40 @@ stateDiagram-v2
   Review --> Published: approve
   Published --> Archived: archive
   Archived --> [*]
+  </div>
+
+  <h2><span class="vt-num">6</span>Flowchart <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <div class="vt-mermaid">
+flowchart TD
+  A[Request] --> B{Authenticated?}
+  B -->|yes| C[Handle]
+  B -->|no| D[401 Unauthorized]
+  C --> E[Respond]
+  </div>
+
+  <h2><span class="vt-num">7</span>Class diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <div class="vt-mermaid">
+classDiagram
+  class User {
+    +int id
+    +string name
+    +login()
+  }
+  class Admin {
+    +revoke()
+  }
+  User <|-- Admin
+  </div>
+
+  <h2><span class="vt-num">8</span>ER diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <div class="vt-mermaid">
+erDiagram
+  USER ||--o{ ORDER : places
+  ORDER ||--|{ ITEM : contains
+  USER {
+    int id
+    string email
+  }
   </div>
 
   <!-- ===================== v2 / candidate blocks ===================== -->
