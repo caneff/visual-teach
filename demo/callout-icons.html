@@ -3,15 +3,7 @@
 <title>visual-teach · callout tone icons (candidate)</title>
 <link rel="stylesheet" href="../assets/visual-teach.css">
 <style>
-.vt-callout { display:flex; gap:.7rem; align-items:flex-start; }
-.vt-callout::before { content:""; flex:0 0 auto; width:1.3rem; height:1.3rem; margin-top:.05rem;
-  background-color: var(--cal-color, var(--vt-warn));
-  -webkit-mask: var(--cal-icon) no-repeat center / contain; mask: var(--cal-icon) no-repeat center / contain; }
-.vt-callout { --cal-color: var(--vt-warn); --cal-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00xMiA5djQnLz48cGF0aCBkPSdNMTIgMTdoLjAxJy8+PHBhdGggZD0nTTEwLjMgNC4zIDEuOCAxOWEyIDIgMCAwIDAgMS43IDNoMTYuOWEyIDIgMCAwIDAgMS43IC0zTDEzLjcgNC4zYTIgMiAwIDAgMCAtMy40IDB6Jy8+PC9zdmc+"); }
-.vt-callout.info { --cal-color: var(--vt-accent); --cal-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxjaXJjbGUgY3g9JzEyJyBjeT0nMTInIHI9JzknLz48cGF0aCBkPSdNMTIgOGguMDEnLz48cGF0aCBkPSdNMTEgMTJoMXY0aDEnLz48L3N2Zz4="); }
-.vt-callout.insight { --cal-color: var(--vt-accent); --cal-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J005IDE4aDYnLz48cGF0aCBkPSdNMTAgMjFoNCcvPjxwYXRoIGQ9J00xMiAzYTYgNiAwIDAgMSA0IDEwLjVjLS42LjYtMSAxLjUtMSAyLjVIOWMwLTEtLjQtMS45LTEtMi41QTYgNiAwIDAgMSAxMiAzeicvPjwvc3ZnPg=="); }
-.vt-callout.success { --cal-color: var(--vt-good); --cal-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxjaXJjbGUgY3g9JzEyJyBjeT0nMTInIHI9JzknLz48cGF0aCBkPSdNOSAxMmwyIDJsNCAtNCcvPjwvc3ZnPg=="); }
-.vt-callout.risk { --cal-color: var(--vt-bad); --cal-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J004LjMgM0gxNS43TDIxIDguM1YxNS43TDE1LjcgMjFIOC4zTDMgMTUuN1Y4LjNaJy8+PHBhdGggZD0nTTEyIDh2NCcvPjxwYXRoIGQ9J00xMiAxNmguMDEnLz48L3N2Zz4="); }
+/* demo-only: theme override to show callout tones re-tint from tokens */
 .themed { --vt-accent:#7c3aed; }
 </style></head><body><main>
   <p class="vt-kicker">visual-teach · candidate</p>
