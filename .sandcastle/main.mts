@@ -10,8 +10,9 @@
 //                               reviewer runs in the same sandbox on the same
 //                               branch (1 iteration). All issue pipelines run
 //                               concurrently via Promise.allSettled().
-//   Phase 3 (Merge):            A single agent merges all completed branches
-//                               into the current branch.
+//   Phase 3 (Open PRs):         A single agent pushes each completed branch
+//                               and opens a PR into the current branch for
+//                               manual review (no auto-merge).
 //
 // The outer loop repeats up to MAX_ITERATIONS times so that newly unblocked
 // issues are picked up after each round of merges.
@@ -197,21 +198,21 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   }
 
   // -------------------------------------------------------------------------
-  // Phase 3: Merge
+  // Phase 3: Open PRs
   //
-  // One agent merges all completed branches into the current branch,
-  // resolving any conflicts and running tests to confirm everything works.
+  // One agent pushes each completed branch and opens a PR into the current
+  // branch for manual review. Nothing is merged automatically.
   //
   // The {{BRANCHES}} and {{ISSUES}} prompt arguments are lists that the agent
-  // uses to know which branches to merge and which issues to close.
+  // uses to know which branches to open PRs for; issues are reference only.
   // -------------------------------------------------------------------------
   await sandcastle.run({
     hooks,
     sandbox: docker(),
-    name: "merger",
+    name: "pr-opener",
     maxIterations: 1,
     agent: sandcastle.claudeCode("claude-sonnet-4-6"),
-    promptFile: "./.sandcastle/merge-prompt.md",
+    promptFile: "./.sandcastle/pr-prompt.md",
     promptArgs: {
       // A markdown list of branch names, one per line.
       BRANCHES: completedBranches.map((b) => `- ${b}`).join("\n"),
@@ -220,7 +221,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     },
   });
 
-  console.log("\nBranches merged.");
+  console.log("\nPRs opened.");
 }
 
 console.log("\nAll done.");
