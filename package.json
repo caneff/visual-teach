@@ -1,6 +1,8 @@
 {
   "scripts": {
-    "test": "node test/css-classes.test.mjs"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "echo 'No TypeScript — skipping'"
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
@@ -10,11 +12,6 @@
   },
   "dependencies": {
     "zod": "^4.4.3"
-  },
-  "scripts": {
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "typecheck": "echo 'No TypeScript — skipping'"
   },
   "type": "module"
 }

@@ -1,79 +1,13 @@
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>visual-teach · shell + new blocks + dark mode (candidate)</title>
+<title>visual-teach · shell + new blocks (folded into visual-teach.css)</title>
 <link rel="stylesheet" href="../assets/visual-teach.css">
 <style>
-/* ===== CANDIDATE: dark tokens, shell raises, new blocks — preview before folding ===== */
-
-/* dark mode: override the 9 base tokens; everything (incl. color-mix tints + masked icons) follows */
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { color-scheme: dark; } }
-[data-theme="dark"], @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --vt-ink:#e6e9ee; --vt-muted:#97a2b2; --vt-accent:#5b9dff; --vt-accent-fg:#0b1220;
-    --vt-rule:#2b313b; --vt-paper:#13171d; --vt-good:#3ecf8e; --vt-bad:#ff6b6b; --vt-warn:#f5c451;
-  }
-}
-[data-theme="dark"] {
-  --vt-ink:#e6e9ee; --vt-muted:#97a2b2; --vt-accent:#5b9dff; --vt-accent-fg:#0b1220;
-  --vt-rule:#2b313b; --vt-paper:#13171d; --vt-good:#3ecf8e; --vt-bad:#ff6b6b; --vt-warn:#f5c451;
-  color-scheme: dark;
-}
-
-/* theme toggle button (optional, lesson/teacher may include it) */
+/* All shell + new-block styles now live in visual-teach.css — this demo uses them as-is. */
+/* theme toggle (demo-only helper) */
 .vt-theme-toggle { position: fixed; top: 1rem; right: 1rem; font: inherit; font-size:.8rem;
   font-family:'Helvetica Neue',Arial,sans-serif; padding:.35rem .7rem; border-radius:999px;
   border:1px solid var(--vt-rule); background:var(--vt-paper); color:var(--vt-ink); cursor:pointer; }
-
-/* difficulty + badge (reused from pill prototype) */
-.vt-level { display:inline-flex; align-items:center; padding:.07rem .6rem; border-radius:999px;
-  font-family:'Helvetica Neue',Arial,sans-serif; font-size:.75rem; font-weight:600; }
-.vt-level::before{content:"●"; margin-right:.4em; font-size:.85em;}
-.vt-level.intermediate{ background:var(--vt-warn-soft); color: color-mix(in srgb, var(--vt-warn) 70%, var(--vt-ink)); }
-
-/* META BAR */
-.vt-metabar { display:flex; flex-wrap:wrap; gap:.4rem 1.3rem; align-items:center;
-  font-family:'Helvetica Neue',Arial,sans-serif; font-size:.85rem; color:var(--vt-muted);
-  margin:-.5rem 0 2.5rem; padding:.7rem 0; border-top:1px solid var(--vt-rule); border-bottom:1px solid var(--vt-rule); }
-.vt-metabar .item { display:inline-flex; align-items:center; gap:.35rem; }
-.vt-metabar .item strong { color:var(--vt-ink); font-weight:600; }
-
-/* SECTION ANCHOR (CSS-only, hover to reveal) */
-h2 { position:relative; }
-h2 .vt-anchor { opacity:0; text-decoration:none; color:var(--vt-muted); margin-left:.4rem; font-weight:400; transition:opacity .12s; }
-h2:hover .vt-anchor { opacity:1; }
-
-/* OBJECTIVES block */
-.vt-objectives { border:1px solid var(--vt-rule); border-radius:12px; padding:1rem 1.2rem 1.1rem;
-  background:var(--vt-accent-soft); margin:1.5rem 0; }
-.vt-objectives .h { font-family:'Helvetica Neue',Arial,sans-serif; font-weight:600; font-size:.95rem; margin:0 0 .5rem; }
-.vt-objectives ul { list-style:none; margin:0; padding:0; }
-.vt-objectives li { padding-left:1.5rem; position:relative; margin:.3rem 0; }
-.vt-objectives li::before { content:"✓"; position:absolute; left:0; color:var(--vt-accent); font-weight:700; }
-
-/* MISSION TIE-IN */
-.vt-mission { border-left:3px solid var(--vt-accent); padding:.4rem 0 .4rem 1rem; margin:1.4rem 0;
-  font-style:italic; color:var(--vt-muted); }
-.vt-mission strong { color:var(--vt-ink); font-style:normal; }
-
-/* PRIMARY SOURCE card */
-.vt-source { display:flex; gap:.8rem; align-items:flex-start; border:1px solid var(--vt-rule);
-  border-radius:12px; padding:.9rem 1.1rem; margin:1.4rem 0; background:var(--vt-soft); }
-.vt-source::before { content:"📖"; font-size:1.2rem; line-height:1; flex:0 0 auto; }
-.vt-source .h { font-family:'Helvetica Neue',Arial,sans-serif; font-size:.72rem; text-transform:uppercase;
-  letter-spacing:.06em; color:var(--vt-muted); display:block; margin-bottom:.15rem; }
-
-/* RECAP + next-CTA */
-.vt-recap { border-radius:12px; border-left:4px solid var(--vt-good); background:var(--vt-good-soft);
-  padding:1rem 1.2rem; margin:2rem 0 1rem; }
-.vt-recap .h { font-family:'Helvetica Neue',Arial,sans-serif; font-weight:600; margin:0 0 .4rem; }
-.vt-cta { display:inline-block; font-family:'Helvetica Neue',Arial,sans-serif; font-size:.9rem; font-weight:600;
-  text-decoration:none; background:var(--vt-accent); color:var(--vt-accent-fg); padding:.5rem 1rem; border-radius:8px; }
-
-/* LESSON NAV (prev/next) */
-.vt-lessonnav { display:flex; justify-content:space-between; gap:1rem; margin:2.5rem 0 1rem;
-  font-family:'Helvetica Neue',Arial,sans-serif; font-size:.9rem; }
-.vt-lessonnav a { text-decoration:none; color:var(--vt-accent); }
-.vt-lessonnav .spacer { flex:1; }
 </style>
 </head><body>
 <button class="vt-theme-toggle" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">◐ theme</button>

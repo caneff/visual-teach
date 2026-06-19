@@ -20,10 +20,57 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
   <p class="vt-kicker">Topic · Lesson 1</p>
   <h1>Lesson title</h1>
   <p class="vt-lede">One-sentence promise of the lesson.</p>
-  <p class="vt-meta">⏱ ~15 min · Needs: …</p>
-  <h2><span class="vt-num">1</span>Section heading</h2>
+
+  <!-- Meta bar: time / prereqs / difficulty / lesson position -->
+  <div class="vt-metabar">
+    <span class="item">⏱ <strong>~15 min</strong></span>
+    <span class="item">Needs: <strong>Lesson 1 complete</strong></span>
+    <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
+    <span class="item">Lesson <strong>3</strong> of 9</span>
+  </div>
+
+  <!-- Objectives block -->
+  <div class="vt-objectives">
+    <p class="h">By the end of this lesson you'll be able to:</p>
+    <ul>
+      <li>First learning outcome</li>
+      <li>Second learning outcome</li>
+    </ul>
+  </div>
+
+  <!-- Mission tie-in -->
+  <div class="vt-mission"><strong>Why this matters for your goal:</strong> …</div>
+
+  <!-- Section heading with CSS-only hover anchor -->
+  <h2><span class="vt-num">1</span>Section heading<a class="vt-anchor" href="#slug" aria-label="anchor">#</a></h2>
   …prose: plain p / ul / code / a, auto-themed…
+
+  <!-- Primary-source card -->
+  <div class="vt-source">
+    <div><span class="h">Primary source</span>
+      <a href="…">Source title</a> — one sentence on why this source.</div>
+  </div>
+
+  <!-- Recap + next-lesson CTA -->
+  <div class="vt-recap">
+    <p class="h">✦ What you earned</p>
+    One sentence on what the learner can now do.
+  </div>
+  <p><a class="vt-cta" href="…">Next: Lesson title →</a></p>
+
+  <!-- Prev / next lesson nav -->
+  <nav class="vt-lessonnav">
+    <a href="…">← Lesson N · Prev title</a>
+    <span class="spacer"></span>
+    <a href="…">Lesson N+2 · Next title →</a>
+  </nav>
 </main>
+```
+
+## Difficulty pill — `vt-level` (use inside `.vt-metabar` or standalone)
+Modifier classes: `beginner` `intermediate` `advanced`
+```html
+<span class="vt-level intermediate">Intermediate</span>
 ```
 
 ## Callout — `tone` via class: (default warn) `info` `insight` `success` `risk`
