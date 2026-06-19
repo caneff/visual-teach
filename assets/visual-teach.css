@@ -152,12 +152,13 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   display: flex; gap: .9rem; align-items: flex-start;
   border: 2px dashed var(--vt-accent); border-radius: 12px;
   padding: 1.1rem 1.3rem; background: var(--vt-accent-soft); margin: 2.5rem 0;
+  --teacher-icon: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMiA5TDEyIDVMMiA5bDEwIDRsMTAgLTR2NicvPjxwYXRoIGQ9J002IDEwLjZWMTZjMCAxLjcgMi43IDMgNiAzczYgLTEuMyA2IC0zdi01LjQnLz48L3N2Zz4=");
 }
 .vt-teacher::before {
   content: ""; flex: 0 0 auto; width: 1.8rem; height: 1.8rem; margin-top: .1rem;
   background-color: var(--vt-accent);
-  -webkit-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMiA5TDEyIDVMMiA5bDEwIDRsMTAgLTR2NicvPjxwYXRoIGQ9J002IDEwLjZWMTZjMCAxLjcgMi43IDMgNiAzczYgLTEuMyA2IC0zdi01LjQnLz48L3N2Zz4=") no-repeat center / contain;
-          mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00yMiA5TDEyIDVMMiA5bDEwIDRsMTAgLTR2NicvPjxwYXRoIGQ9J002IDEwLjZWMTZjMCAxLjcgMi43IDMgNiAzczYgLTEuMyA2IC0zdi01LjQnLz48L3N2Zz4=") no-repeat center / contain;
+  -webkit-mask: var(--teacher-icon) no-repeat center / contain;
+          mask: var(--teacher-icon) no-repeat center / contain;
 }
 .vt-teacher .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .35rem; }
 .vt-teacher p { margin: .35rem 0; font-size: .95rem; }
@@ -183,7 +184,7 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 }
 .vt-sources .lbl {
   font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .72rem;
-  text-transform: uppercase; letter-spacing: .08em; color: var(--vt-muted);
+  text-transform: uppercase; letter-spacing: .08em;
 }
 .vt-reflist { list-style: none; counter-reset: ref; margin: .6rem 0; padding: 0; }
 .vt-reflist li {
