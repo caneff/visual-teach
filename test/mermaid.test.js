@@ -1,7 +1,20 @@
-import { describe, it, expect } from 'vitest'
-import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
-const vtm = require('../assets/mermaid.js')
+import { describe, it, expect, beforeEach } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
+
+const __dir = dirname(fileURLToPath(import.meta.url))
+const SRC = readFileSync(join(__dir, '../assets/mermaid.js'), 'utf8')
+
+// Execute the UMD module: in new Function() scope, `module` is not defined so
+// the browser branch runs and assigns vtMermaid onto globalThis.
+function loadVtm() {
+  // eslint-disable-next-line no-new-func
+  new Function(SRC)()
+  return globalThis.vtMermaid
+}
+
+const vtm = loadVtm()
 
 function makeDoc(mermaidCount = 0) {
   const nodes = Array.from({ length: mermaidCount }, () => ({ tagName: 'div' }))
