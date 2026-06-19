@@ -1,5 +1,4 @@
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
+import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -14,127 +13,124 @@ const diagramDemo = readFileSync(join(root, 'demo', 'diagram-blocks.html'), 'utf
 
 describe('diagram CSS selectors', () => {
   it('.vt-diagram panel selector exists', () => {
-    assert.match(css, /\.vt-diagram/);
+    expect(css).toMatch(/\.vt-diagram/);
   });
 
   it('.vt-node selector exists', () => {
-    assert.match(css, /\.vt-node/);
+    expect(css).toMatch(/\.vt-node/);
   });
 
   it('.vt-box selector exists', () => {
-    assert.match(css, /\.vt-box/);
+    expect(css).toMatch(/\.vt-box/);
   });
 
   it('.vt-flow selector exists', () => {
-    assert.match(css, /\.vt-flow/);
+    expect(css).toMatch(/\.vt-flow/);
   });
 
   it('.vt-row selector exists', () => {
-    assert.match(css, /\.vt-row/);
+    expect(css).toMatch(/\.vt-row/);
   });
 
   it('.vt-col selector exists', () => {
-    assert.match(css, /\.vt-col/);
+    expect(css).toMatch(/\.vt-col/);
   });
 
   it('.vt-split selector exists', () => {
-    assert.match(css, /\.vt-split/);
+    expect(css).toMatch(/\.vt-split/);
   });
 });
 
 describe('diagram CSS tokenization', () => {
   it('.vt-diagram uses --vt-* tokens (no raw hex colours)', () => {
-    // Extract the .vt-diagram rule block
     const match = css.match(/\.vt-diagram\s*\{([^}]*)\}/);
-    assert.ok(match, '.vt-diagram rule not found');
-    // Any color-like values (3/6/8-digit hex) should be absent in the block
-    assert.doesNotMatch(match[1], /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
+    expect(match).not.toBeNull();
+    expect(match[1]).not.toMatch(/#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
   });
 
   it('.vt-node / .vt-box use --vt-* tokens for color properties', () => {
     const match = css.match(/\.vt-node,\s*\.vt-box\s*\{([^}]*)\}/) ||
                   css.match(/\.vt-node\s*\{([^}]*)\}/);
-    assert.ok(match, '.vt-node rule not found');
-    assert.doesNotMatch(match[1], /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
+    expect(match).not.toBeNull();
+    expect(match[1]).not.toMatch(/#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
   });
 
   it('.vt-flow connector uses --vt-* tokens', () => {
     const match = css.match(/\.vt-flow\s*\{([^}]*)\}/);
-    assert.ok(match, '.vt-flow rule not found');
-    assert.doesNotMatch(match[1], /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
+    expect(match).not.toBeNull();
+    expect(match[1]).not.toMatch(/#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/);
   });
 });
 
 describe('diagram emphasis variants', () => {
   it('.vt-node.em or .vt-box.em selector exists', () => {
-    assert.match(css, /\.vt-(?:node|box)\.em/);
+    expect(css).toMatch(/\.vt-(?:node|box)\.em/);
   });
 });
 
 describe('diagram flow arrows', () => {
   it('.vt-flow has auto arrow connector (::before or content on child)', () => {
-    // Arrow connectors via ::before on subsequent children
-    assert.match(css, /\.vt-flow\s*>.*::before|\.vt-flow.*content/);
+    expect(css).toMatch(/\.vt-flow\s*>.*::before|\.vt-flow.*content/);
   });
 });
 
 describe('print rules for diagram blocks', () => {
   it('@media print rule covers diagram blocks', () => {
     const printBlocks = css.match(/@media print\s*\{([^}]*(?:\{[^}]*\}[^}]*)*)\}/);
-    assert.ok(printBlocks, '@media print not found');
+    expect(printBlocks).not.toBeNull();
   });
 });
 
 describe('cheatsheet updated', () => {
   it('cheatsheet has .vt-diagram example', () => {
-    assert.match(cheatsheet, /vt-diagram/);
+    expect(cheatsheet).toMatch(/vt-diagram/);
   });
 
   it('cheatsheet has .vt-flow example', () => {
-    assert.match(cheatsheet, /vt-flow/);
+    expect(cheatsheet).toMatch(/vt-flow/);
   });
 
   it('cheatsheet has .vt-split example', () => {
-    assert.match(cheatsheet, /vt-split/);
+    expect(cheatsheet).toMatch(/vt-split/);
   });
 });
 
 describe('showcase updated', () => {
   it('showcase includes .vt-diagram section', () => {
-    assert.match(showcase, /vt-diagram/);
+    expect(showcase).toMatch(/vt-diagram/);
   });
 
   it('showcase includes .vt-flow', () => {
-    assert.match(showcase, /vt-flow/);
+    expect(showcase).toMatch(/vt-flow/);
   });
 
   it('showcase includes .vt-split', () => {
-    assert.match(showcase, /vt-split/);
+    expect(showcase).toMatch(/vt-split/);
   });
 });
 
 describe('diagram demo file', () => {
   it('demo/diagram-blocks.html links visual-teach.css', () => {
-    assert.match(diagramDemo, /visual-teach\.css/);
+    expect(diagramDemo).toMatch(/visual-teach\.css/);
   });
 
   it('demo has .vt-diagram', () => {
-    assert.match(diagramDemo, /vt-diagram/);
+    expect(diagramDemo).toMatch(/vt-diagram/);
   });
 
   it('demo has .vt-flow', () => {
-    assert.match(diagramDemo, /vt-flow/);
+    expect(diagramDemo).toMatch(/vt-flow/);
   });
 
   it('demo has .vt-node or .vt-box', () => {
-    assert.match(diagramDemo, /vt-node|vt-box/);
+    expect(diagramDemo).toMatch(/vt-node|vt-box/);
   });
 
   it('demo has .vt-split', () => {
-    assert.match(diagramDemo, /vt-split/);
+    expect(diagramDemo).toMatch(/vt-split/);
   });
 
   it('demo has .vt-row or .vt-col', () => {
-    assert.match(diagramDemo, /vt-row|vt-col/);
+    expect(diagramDemo).toMatch(/vt-row|vt-col/);
   });
 });
