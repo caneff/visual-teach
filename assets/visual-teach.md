@@ -93,7 +93,10 @@ Modifier classes: `beginner` `intermediate` `advanced`
 </div>
 <!-- Compact density: add class="vt-table compact" -->
 <!-- Cell status: td.vt-ok (✓)  td.vt-no (✗)  td.vt-partial (~) -->
-<!-- Recommended column: <col class="vt-col-pick"> + <span class="vt-pick-badge">Recommended</span> in th -->
+<!-- Recommended column: <col class="vt-col-pick"> tints the column;
+     <th class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Name</th>
+     draws the accent top border + badge (the th class is required — a border on
+     <col> is unreliable with border-collapse) -->
 ```
 
 Key/value reference table (glossary, config keys):
