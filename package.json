@@ -1,6 +1,11 @@
 {
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "echo 'No TypeScript sources to check' && exit 0"
+  },
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.10.0"
+    "@ai-hero/sandcastle": "^0.10.0",
+    "vitest": "^4.1.9"
   },
   "dependencies": {
     "zod": "^4.4.3"

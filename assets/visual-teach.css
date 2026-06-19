@@ -143,4 +143,12 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 /* footer */
 .vt-sources { margin-top: 3rem; color: var(--vt-muted); font-size: .85rem; border-top: 1px solid var(--vt-rule); padding-top: 1rem; }
 
+/* mermaid computed-graph container (populated by assets/mermaid.js) */
+.vt-mermaid {
+  margin: 1.4rem 0; overflow-x: auto; text-align: center;
+  background: var(--vt-soft); border: 1px solid var(--vt-rule); border-radius: 10px;
+  padding: 1rem;
+}
+.vt-mermaid svg { max-width: 100%; height: auto; }
+
 @media print { .vt-quiz button, .vt-reset { display: none; } }
