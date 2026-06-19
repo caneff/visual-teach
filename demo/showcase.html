@@ -9,6 +9,10 @@
 .sc-v2 { opacity:.95; }
 .sc-v2-tag { display:inline-block; font-family:'Helvetica Neue',Arial,sans-serif; font-size:.68rem;
   background:var(--vt-warn); color:#000; padding:.05rem .45rem; border-radius:999px; margin-left:.5rem; vertical-align:middle; }
+/* theme toggle (showcase-only) */
+.vt-theme-toggle { position: fixed; top: 1rem; right: 1rem; font: inherit; font-size:.8rem;
+  font-family:'Helvetica Neue',Arial,sans-serif; padding:.35rem .7rem; border-radius:999px;
+  border:1px solid var(--vt-rule); background:var(--vt-paper); color:var(--vt-ink); cursor:pointer; }
 /* CANDIDATE hint styling (v2, not in visual-teach.css) */
 .vt-hint{margin-top:.5rem}
 .vt-hint>summary{font-family:'Helvetica Neue',Arial,sans-serif;font-size:.85rem;color:var(--vt-accent);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.3rem}
@@ -26,11 +30,7 @@
   <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>. This page grows as we walk the block set. Verdicts: <code>docs/PRD.md</code>.</p>
   <p class="vt-meta">Living artifact · updated as blocks are built/raised</p>
 
-  <!-- theme toggle (showcase-only) -->
-  <button style="position:fixed;top:1rem;right:1rem;font:inherit;font-size:.8rem;
-    font-family:'Helvetica Neue',Arial,sans-serif;padding:.35rem .7rem;border-radius:999px;
-    border:1px solid var(--vt-rule);background:var(--vt-paper);color:var(--vt-ink);cursor:pointer"
-    onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">◐ theme</button>
+  <button class="vt-theme-toggle" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">◐ theme</button>
 
   <p class="sc-label">Page shell — kicker / h1 / lede / meta (above)</p>
 

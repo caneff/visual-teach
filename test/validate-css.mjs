@@ -8,7 +8,6 @@ const css = readFileSync(resolve(__dirname, '../assets/visual-teach.css'), 'utf8
 
 // Checks for selector as whole word (followed by space, {, :, ,, or end of non-word char)
 function hasSelector(css, selector) {
-  // Escape special regex chars, then match selector at word boundary or followed by CSS char
   const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(escaped + '(?=[\\s{:,>+~])').test(css);
 }

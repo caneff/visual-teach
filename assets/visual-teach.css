@@ -57,6 +57,7 @@ h1 { font-size: 2.1rem; line-height: 1.2; margin: .3rem 0 .5rem; letter-spacing:
 h2 {
   font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 1.25rem;
   margin-top: 2.8rem; padding-bottom: .3rem; border-bottom: 2px solid var(--vt-rule);
+  position: relative;
 }
 h2 .vt-num { color: var(--vt-accent); margin-right: .4rem; }
 a { color: var(--vt-accent); }
@@ -168,7 +169,6 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-metabar .item strong { color: var(--vt-ink); font-weight: 600; }
 
 /* section anchor — CSS-only, hover to reveal the # link */
-h2 { position: relative; }
 h2 .vt-anchor {
   opacity: 0; text-decoration: none; color: var(--vt-muted);
   margin-left: .4rem; font-weight: 400; transition: opacity .12s;
