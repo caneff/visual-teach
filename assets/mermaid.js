@@ -33,7 +33,6 @@
   var CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
 
   // Map vt-* CSS custom properties to mermaid themeVariables.
-  // gcs — optional getComputedStyle-compatible fn (injectable for tests).
   function readTokens(docEl, gcs) {
     gcs = gcs || (typeof window !== 'undefined' ? window.getComputedStyle.bind(window) : null);
     var s = gcs ? gcs(docEl) : { getPropertyValue: function () { return ''; } };
@@ -46,13 +45,12 @@
       textColor:          get('--vt-ink')         || '#1a1f2b',
       background:         get('--vt-paper')       || '#ffffff',
       mainBkg:            get('--vt-paper')       || '#ffffff',
-      edgeLabelBackground:get('--vt-paper')       || '#ffffff',
+      edgeLabelBackground: get('--vt-paper')       || '#ffffff',
       nodeBorder:         get('--vt-rule')        || '#e3e6ea',
     };
   }
 
   // Detect dark mode from [data-theme] attribute, falling back to matchMedia.
-  // mm — optional matchMedia-compatible fn (injectable for tests).
   function isDark(docEl, mm) {
     var t = docEl.dataset && docEl.dataset.theme;
     if (t === 'dark') return true;
@@ -61,13 +59,8 @@
     return !!(mq && mq('(prefers-color-scheme: dark)').matches);
   }
 
-  // Lazy-load mermaid and render all .vt-mermaid elements.
   // No-ops when no .vt-mermaid elements are found — zero CDN cost for lessons
   // that don't use computed graphs.
-  //
-  // options.cdn — CDN URL override (used in tests).
-  // options.getComputedStyle — injectable for tests.
-  // options.matchMedia — injectable for tests.
   function init(doc, options) {
     doc = doc || (typeof document !== 'undefined' ? document : null);
     if (!doc) return;
@@ -80,13 +73,11 @@
     var script = doc.createElement('script');
     script.src = src;
     script.onload = function () {
-      var gcs = options.getComputedStyle || null;
-      var mm  = options.matchMedia || null;
       window.mermaid.initialize({
         startOnLoad: false,
         theme: 'base',
-        darkMode: isDark(doc.documentElement, mm),
-        themeVariables: readTokens(doc.documentElement, gcs),
+        darkMode: isDark(doc.documentElement, options.matchMedia),
+        themeVariables: readTokens(doc.documentElement, options.getComputedStyle),
       });
       window.mermaid.run({ nodes: Array.from(nodes) });
     };
