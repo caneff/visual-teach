@@ -11,7 +11,7 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 ```html
 <link rel="stylesheet" href="../assets/visual-teach.css">
 <!-- ... -->
-<script src="../assets/visual-teach.js"></script>
+<script type="module" src="../assets/visual-teach.js"></script>
 ```
 
 ## Page shell
@@ -33,7 +33,7 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 
 ## Table — bare `<table>` or `.vt-table`. Pill — `<span class="vt-pill">label</span>`.
 
-## Checklist (persists in localStorage; progress + reset auto-injected)
+## Checklist (v1 — persists in localStorage; progress bar + count + reset auto-injected)
 `data-key` must be unique per lesson.
 ```html
 <ol class="vt-checklist" data-key="topic-0001">
@@ -43,19 +43,52 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
   </div></li>
 </ol>
 ```
+A11y: label association and `aria-valuenow` on the progress bar are auto-injected.
 
-## Quiz (reveals correct/wrong + feedback). `data-answer` = 0-based index.
+## Quiz (v1)
+`data-answer` = 0-based index of the correct option.
 Keep every option the same length — no formatting tells.
+
+### Single-answer (default) — immediate reveal with per-option misconceptions
 ```html
 <div class="vt-quiz" data-answer="1">
   <p class="q">Question?</p>
   <button class="opt">Option A</button>
-  <button class="opt">Option B</button>
+  <button class="opt">Option B — correct</button>
+  <button class="opt">Option C</button>
   <div class="feedback"></div>
-  <template class="why-good">Shown when correct.</template>
-  <template class="why-bad">Shown when wrong — explain the misconception.</template>
+  <template class="why-good">Shown after any answer — explains why correct.</template>
+  <template class="why-bad">Fallback shown when wrong, no per-option template.</template>
+  <template data-opt="0">Misconception for option A specifically.</template>
+  <template data-opt="2">Misconception for option C specifically.</template>
+  <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
 </div>
 ```
+- `template[data-opt="N"]` — per-option misconception (0-indexed). Falls back to `template.why-bad`.
+- `template.why-good` — always shown after answering (correct or wrong).
+- `div.vt-quiz-live` — hidden aria-live region; include for screen-reader feedback.
+
+### Try-again mode — add `data-try-again`
+```html
+<div class="vt-quiz" data-answer="1" data-try-again>
+  …same interior…
+</div>
+```
+Wrong clicks show feedback and a "Try again" button without locking the quiz.
+
+### Multi-select — add `data-multi`, set `data-answer` to a comma-separated list
+```html
+<div class="vt-quiz" data-answer="0,2" data-multi>
+  <p class="q">Pick all correct options.</p>
+  <button class="opt">Correct A</button>
+  <button class="opt">Wrong B</button>
+  <button class="opt">Correct C</button>
+  <div class="feedback"></div>
+  <template class="why-good">A and C are correct because…</template>
+  <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
+</div>
+```
+A "Check answer" button is auto-injected. Clicking options toggles selection (`aria-pressed`).
 
 ## Teacher box / sources footer
 ```html
