@@ -94,6 +94,8 @@ th {
   text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .75rem;
   text-transform: uppercase; letter-spacing: .06em; color: var(--vt-muted);
   padding: .45rem .6rem; border-bottom: 2px solid var(--vt-rule);
+  /* bottom-align so the recommended column's badge sits above without shoving its label out of line */
+  vertical-align: bottom;
 }
 td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-align: top; }
 
