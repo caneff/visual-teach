@@ -33,20 +33,36 @@
   var CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
 
   // Map vt-* CSS custom properties to mermaid themeVariables.
+  // Includes sequence/state-specific vars so diagrams stay readable in dark
+  // mode — the generic core vars alone leave actor boxes, signals, and notes
+  // on mermaid's light-theme defaults.
   function readTokens(docEl, gcs) {
     gcs = gcs || (typeof window !== 'undefined' ? window.getComputedStyle.bind(window) : null);
     var s = gcs ? gcs(docEl) : { getPropertyValue: function () { return ''; } };
-    function get(v) { return s.getPropertyValue(v).trim(); }
+    function get(v, fallback) { return s.getPropertyValue(v).trim() || fallback; }
+
+    var ink    = get('--vt-ink', '#1a1f2b');
+    var muted  = get('--vt-muted', '#5b6472');
+    var accent = get('--vt-accent', '#1a73e8');
+    var accFg  = get('--vt-accent-fg', '#ffffff');
+    var rule   = get('--vt-rule', '#e3e6ea');
+    var paper  = get('--vt-paper', '#ffffff');
+    var soft   = get('--vt-soft', paper);
+    var noteBg = get('--vt-warn-soft', paper);
+
     return {
-      primaryColor:       get('--vt-accent')     || '#1a73e8',
-      primaryTextColor:   get('--vt-accent-fg')  || '#ffffff',
-      primaryBorderColor: get('--vt-rule')        || '#e3e6ea',
-      lineColor:          get('--vt-muted')       || '#5b6472',
-      textColor:          get('--vt-ink')         || '#1a1f2b',
-      background:         get('--vt-paper')       || '#ffffff',
-      mainBkg:            get('--vt-paper')       || '#ffffff',
-      edgeLabelBackground: get('--vt-paper')       || '#ffffff',
-      nodeBorder:         get('--vt-rule')        || '#e3e6ea',
+      // core
+      primaryColor: accent, primaryTextColor: accFg, primaryBorderColor: rule,
+      lineColor: muted, textColor: ink, background: paper, mainBkg: paper,
+      edgeLabelBackground: soft, nodeBorder: rule,
+      // sequence: actors, signals, labels, notes, activations
+      actorBkg: soft, actorBorder: rule, actorTextColor: ink, actorLineColor: muted,
+      signalColor: muted, signalTextColor: ink,
+      labelBoxBkgColor: soft, labelBoxBorderColor: rule, labelTextColor: ink,
+      loopTextColor: ink,
+      noteBkgColor: noteBg, noteTextColor: ink, noteBorderColor: rule,
+      activationBkgColor: soft, activationBorderColor: rule,
+      sequenceNumberColor: accFg,
     };
   }
 
@@ -70,15 +86,19 @@
     options = options || {};
     var src = options.cdn || CDN;
 
+    var dark = isDark(doc.documentElement, options.matchMedia);
+
     var script = doc.createElement('script');
     script.src = src;
     script.onload = function () {
-      window.mermaid.initialize({
-        startOnLoad: false,
-        theme: 'base',
-        darkMode: isDark(doc.documentElement, options.matchMedia),
-        themeVariables: readTokens(doc.documentElement, options.getComputedStyle),
-      });
+      // Dark mode: use mermaid's native 'dark' theme — a coherent, tested
+      // palette that's readable across every diagram type. Light mode: brand it
+      // via 'base' + our vt-* tokens. Hand-mapping dark themeVariables proved
+      // fragile (sequence-only coverage, and pinning derived colors broke base).
+      window.mermaid.initialize(dark
+        ? { startOnLoad: false, theme: 'dark' }
+        : { startOnLoad: false, theme: 'base',
+            themeVariables: readTokens(doc.documentElement, options.getComputedStyle) });
       window.mermaid.run({ nodes: Array.from(nodes) });
     };
     doc.head.appendChild(script);
