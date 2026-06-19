@@ -134,6 +134,46 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-quiz .feedback.good { background: var(--vt-good-soft); }
 .vt-quiz .feedback.bad  { background: var(--vt-bad-soft); }
 
+/* code block */
+.vt-code { border: 1px solid var(--vt-rule); border-radius: 10px; overflow: hidden; margin: 1.2rem 0; }
+.vt-code-head {
+  display: flex; align-items: center; justify-content: space-between;
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .78rem; color: var(--vt-muted);
+  padding: .4rem .8rem; background: var(--vt-soft); border-bottom: 1px solid var(--vt-rule);
+}
+.vt-code-copy {
+  font: inherit; font-size: .75rem; border: 1px solid var(--vt-rule); background: var(--vt-paper);
+  color: var(--vt-muted); border-radius: 6px; padding: .1rem .5rem; cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.vt-code-copy:hover { color: var(--vt-accent); border-color: var(--vt-accent); }
+.vt-code pre { margin: 0; overflow-x: auto; background: none; }
+.vt-code pre code {
+  display: block; padding: .9rem 1rem; font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  font-size: .85rem; line-height: 1.55; background: none; color: var(--vt-ink); text-shadow: none;
+}
+
+/* Prism token theme — written entirely in --vt-* tokens; flips with dark mode automatically */
+.token.comment, .token.prolog, .token.doctype, .token.cdata { color: var(--vt-muted); font-style: italic; }
+.token.punctuation, .token.operator { color: var(--vt-muted); }
+.token.keyword, .token.tag, .token.boolean, .token.atrule { color: var(--vt-accent); font-weight: 600; }
+.token.string, .token.attr-value, .token.char, .token.inserted { color: var(--vt-good); }
+.token.number, .token.constant { color: color-mix(in srgb, var(--vt-warn) 70%, var(--vt-ink)); }
+.token.function, .token.class-name { color: color-mix(in srgb, var(--vt-accent) 50%, var(--vt-bad)); }
+.token.builtin, .token.property, .token.attr-name, .token.symbol { color: var(--vt-bad); }
+.token.deleted { color: var(--vt-bad); text-decoration: line-through; }
+.token.selector, .token.important, .token.bold { font-weight: bold; }
+.token.italic { font-style: italic; }
+.token.entity, .token.url { color: var(--vt-good); text-decoration: underline; }
+.token.regex { color: color-mix(in srgb, var(--vt-good) 60%, var(--vt-accent)); }
+
+/* manual token-emphasis inline variant (pcode) */
+code.vt-pcode {
+  background: var(--vt-accent-soft); color: var(--vt-accent);
+  font-weight: 600; border: 1px solid color-mix(in srgb, var(--vt-accent) 25%, transparent);
+  padding: .1em .4em; border-radius: 4px;
+}
+
 /* teacher */
 .vt-teacher {
   margin-top: 3rem; border: 2px dashed var(--vt-accent); border-radius: 12px;

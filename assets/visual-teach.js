@@ -75,9 +75,32 @@
     render();
   }
 
+  function wireCodeBlock(block) {
+    var btn = block.querySelector('.vt-code-copy');
+    var pre = block.querySelector('pre');
+    if (!btn || !pre) return;
+    btn.addEventListener('click', function () {
+      var text = pre.textContent || '';
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          btn.textContent = 'Copied!';
+          setTimeout(function () { btn.textContent = 'Copy'; }, 2000);
+        }).catch(function () {});
+      }
+    });
+  }
+
+  function initPrism() {
+    if (typeof Prism === 'undefined') return;
+    if (!document.querySelector('.vt-code code[class*="language-"]')) return;
+    try { Prism.highlightAll(); } catch (e) {}
+  }
+
   function init() {
     document.querySelectorAll('.vt-quiz').forEach(wireQuiz);
     document.querySelectorAll('.vt-checklist').forEach(wireChecklist);
+    document.querySelectorAll('.vt-code').forEach(wireCodeBlock);
+    initPrism();
   }
 
   if (document.readyState === 'loading') {
