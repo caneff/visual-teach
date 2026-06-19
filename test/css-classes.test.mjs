@@ -2,56 +2,49 @@
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { test, expect } from 'vitest';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const css = readFileSync(resolve(__dir, '../assets/visual-teach.css'), 'utf8');
 
-let passed = 0;
-let failed = 0;
-
-function expect(selector, description) {
-  if (css.includes(selector)) {
-    console.log(`  ✓  ${description}`);
-    passed++;
-  } else {
-    console.error(`  ✗  ${description}  [missing: ${selector}]`);
-    failed++;
-  }
+function hasClass(selector) {
+  return css.includes(selector);
 }
 
-console.log('\n=== Table variants ===');
-expect('.vt-table-wrap',           'responsive overflow wrapper');
-expect('.vt-table tbody tr:nth-child(even)', 'zebra rows');
-expect('.vt-table.compact',        'compact density');
-expect('th[scope="row"]',          'header column (th scope=row)');
-expect('.vt-ok',                   'cell-status: ok (✓)');
-expect('.vt-no',                   'cell-status: no (✗)');
-expect('.vt-partial',              'cell-status: partial (~)');
-expect('.vt-col-pick',             'comparison highlight column');
-expect('.vt-pick-badge',           'recommended badge');
-expect('.vt-row-key',              'row emphasis');
-expect('.vt-kv',                   'key/value table');
+test('table variants', () => {
+  expect(hasClass('.vt-table-wrap'),                       'responsive overflow wrapper').toBe(true);
+  expect(hasClass('.vt-table tbody tr:nth-child(even)'),   'zebra rows').toBe(true);
+  expect(hasClass('.vt-table.compact'),                    'compact density').toBe(true);
+  expect(hasClass('th[scope="row"]'),                      'header column (th scope=row)').toBe(true);
+  expect(hasClass('.vt-ok'),                               'cell-status: ok (✓)').toBe(true);
+  expect(hasClass('.vt-no'),                               'cell-status: no (✗)').toBe(true);
+  expect(hasClass('.vt-partial'),                          'cell-status: partial (~)').toBe(true);
+  expect(hasClass('.vt-col-pick'),                         'comparison highlight column').toBe(true);
+  expect(hasClass('.vt-pick-badge'),                       'recommended badge').toBe(true);
+  expect(hasClass('.vt-row-key'),                          'row emphasis').toBe(true);
+  expect(hasClass('.vt-kv'),                               'key/value table').toBe(true);
+});
 
-console.log('\n=== Pill variants ===');
-expect('.vt-pill.neutral',         'pill neutral fill');
-expect('.vt-pill.good',            'pill good fill');
-expect('.vt-pill.bad',             'pill bad fill');
-expect('.vt-pill.warn',            'pill warn fill');
-expect('.vt-pill.outline',         'pill outline variant');
-expect('.vt-pill.sm',              'pill small size');
-expect('.vt-pill.dot',             'pill status dot');
-expect('.vt-pill.ic-check',        'pill leading icon check');
-expect('.vt-pill.ic-warn',         'pill leading icon warn');
+test('pill variants', () => {
+  expect(hasClass('.vt-pill.neutral'),  'pill neutral fill').toBe(true);
+  expect(hasClass('.vt-pill.good'),     'pill good fill').toBe(true);
+  expect(hasClass('.vt-pill.bad'),      'pill bad fill').toBe(true);
+  expect(hasClass('.vt-pill.warn'),     'pill warn fill').toBe(true);
+  expect(hasClass('.vt-pill.outline'),  'pill outline variant').toBe(true);
+  expect(hasClass('.vt-pill.sm'),       'pill small size').toBe(true);
+  expect(hasClass('.vt-pill.dot'),      'pill status dot').toBe(true);
+  expect(hasClass('.vt-pill.ic-check'), 'pill leading icon check').toBe(true);
+  expect(hasClass('.vt-pill.ic-warn'),  'pill leading icon warn').toBe(true);
+});
 
-console.log('\n=== Difficulty / level pills ===');
-expect('.vt-level',                'level pill base');
-expect('.vt-level.beginner',       'level beginner');
-expect('.vt-level.intermediate',   'level intermediate');
-expect('.vt-level.advanced',       'level advanced');
+test('difficulty / level pills', () => {
+  expect(hasClass('.vt-level'),              'level pill base').toBe(true);
+  expect(hasClass('.vt-level.beginner'),     'level beginner').toBe(true);
+  expect(hasClass('.vt-level.intermediate'), 'level intermediate').toBe(true);
+  expect(hasClass('.vt-level.advanced'),     'level advanced').toBe(true);
+});
 
-console.log('\n=== Badge + kbd ===');
-expect('.vt-badge',                'count/step badge');
-expect('.vt-kbd',                  'keyboard keycap');
-
-console.log(`\n${passed + failed} checks: ${passed} passed, ${failed} failed\n`);
-if (failed > 0) process.exit(1);
+test('badge + kbd', () => {
+  expect(hasClass('.vt-badge'), 'count/step badge').toBe(true);
+  expect(hasClass('.vt-kbd'),   'keyboard keycap').toBe(true);
+});
