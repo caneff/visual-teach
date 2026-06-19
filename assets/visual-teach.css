@@ -69,7 +69,7 @@ h2 .vt-num { color: var(--vt-accent); margin-right: .4rem; }
   margin-left: .35rem; color: var(--vt-muted); text-decoration: none; font-weight: 400;
   opacity: 0; transition: opacity .15s;
 }
-h2:hover .vt-anchor, .vt-anchor:focus-visible { opacity: 1; }
+h2:hover .vt-anchor, h3:hover .vt-anchor, .vt-anchor:focus-visible { opacity: 1; }
 .vt-anchor:hover { color: var(--vt-accent); }
 a { color: var(--vt-accent); }
 code {

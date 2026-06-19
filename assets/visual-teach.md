@@ -41,8 +41,8 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
   <!-- Mission tie-in -->
   <div class="vt-mission"><strong>Why this matters for your goal:</strong> …</div>
 
-  <!-- Section heading with CSS-only hover anchor -->
-  <h2><span class="vt-num">1</span>Section heading<a class="vt-anchor" href="#slug" aria-label="anchor">#</a></h2>
+  <!-- Section heading. JS auto-adds id (slug of text) + hover "#" anchor — just write the h2. -->
+  <h2><span class="vt-num">1</span>Section heading</h2>
   …prose: plain p / ul / code / a, auto-themed…
 
   <!-- Primary-source card -->

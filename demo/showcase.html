@@ -7,6 +7,10 @@
 .sc-label { font-family:'Helvetica Neue',Arial,sans-serif; font-size:.7rem; text-transform:uppercase;
   letter-spacing:.1em; color:var(--vt-muted); margin:2.5rem 0 .4rem; border-top:1px dashed var(--vt-rule); padding-top:1.2rem; }
 .sc-v2 { opacity:.95; }
+/* showcase-only sub-demo headings (h3) + muted sub-caption */
+h3 { font-family:'Helvetica Neue',Arial,sans-serif; font-size:1.02rem; margin:1.8rem 0 .4rem; }
+h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
+.sc-sub { font-weight:400; font-size:.8rem; color:var(--vt-muted); }
 .sc-v2-tag { display:inline-block; font-family:'Helvetica Neue',Arial,sans-serif; font-size:.68rem;
   background:var(--vt-warn); color:#000; padding:.05rem .45rem; border-radius:999px; margin-left:.5rem; vertical-align:middle; }
 /* theme toggle (showcase-only) */
@@ -22,9 +26,6 @@
 .vt-hint[open]>summary::after{content:"Hide hint"}
 .vt-hint>summary span{display:none}
 .vt-hint .vt-hint-body{margin-top:.5rem;padding:.7rem .9rem;font-size:.92rem;background:color-mix(in srgb,var(--vt-accent) 7%,var(--vt-paper));border-radius:8px}
-.vt-theme-toggle { position:fixed; top:1rem; right:1rem; font:inherit; font-size:.8rem;
-  font-family:'Helvetica Neue',Arial,sans-serif; padding:.35rem .7rem; border-radius:999px;
-  border:1px solid var(--vt-rule); background:var(--vt-paper); color:var(--vt-ink); cursor:pointer; }
 </style>
 </head><body>
 <button class="vt-theme-toggle" id="theme-toggle">◐ theme</button>
@@ -35,22 +36,24 @@
   <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>. This page grows as we walk the block set. Verdicts: <code>docs/PRD.md</code>.</p>
   <p class="vt-meta">Living artifact · updated as blocks are built/raised</p>
 
-  <button class="vt-theme-toggle" onclick="var r=document.documentElement;r.dataset.theme=r.dataset.theme==='dark'?'light':'dark'">◐ theme</button>
-
   <p class="sc-label">Page shell — kicker / h1 / lede / meta (above)</p>
 
-  <h2><span class="vt-num">1</span>Prose &amp; headings</h2>
+  <h2><span class="vt-num">1</span>Prose &amp; text</h2>
+
+  <h3><span class="vt-num">1.1</span>Headings, body &amp; lists</h3>
   <p>Plain <code>h2</code>/<code>p</code>/<code>code</code>/<code>a</code> are auto-themed. Body is Georgia; headings Helvetica. A <a href="#">link</a> uses the accent token. Lists:</p>
   <ul><li>First point</li><li>Second point with <code>inline code</code></li></ul>
 
-  <p class="sc-label">Callout — 5 tones</p>
+  <h3><span class="vt-num">1.2</span>Callouts <span class="sc-sub">(5 tones)</span></h3>
   <div class="vt-callout">Default (warn) callout — a caution.</div>
   <div class="vt-callout info">Info tone — neutral note.</div>
   <div class="vt-callout insight"><strong>Insight:</strong> the durable idea worth remembering.</div>
   <div class="vt-callout success">Success tone — you did the thing.</div>
   <div class="vt-callout risk"><strong>Risk:</strong> the gotcha that bites.</div>
 
-  <p class="sc-label">Table — comparison matrix: cell status + header col + recommended col + row emphasis</p>
+  <h2><span class="vt-num">2</span>Tables</h2>
+
+  <h3><span class="vt-num">2.1</span>Comparison matrix <span class="sc-sub">(cell status · recommended col · row emphasis)</span></h3>
   <div class="vt-table-wrap">
   <table class="vt-table">
     <colgroup><col><col><col class="vt-col-pick"><col></colgroup>
@@ -65,13 +68,13 @@
   </table>
   </div>
 
-  <p class="sc-label">Table — key/value reference</p>
+  <h3><span class="vt-num">2.2</span>Key / value reference</h3>
   <table class="vt-kv">
     <tr><th scope="row">Dimension</th><td>A <code>GROUP BY</code> column. Always green in the UI.</td></tr>
     <tr><th scope="row">Metric</th><td>An aggregated expression — <code>SUM(x)</code>, <code>COUNT(*)</code>.</td></tr>
   </table>
 
-  <p class="sc-label">Table — compact density + zebra</p>
+  <h3><span class="vt-num">2.3</span>Compact density + zebra</h3>
   <table class="vt-table compact">
     <thead><tr><th>Step</th><th>Action</th><th>Result</th></tr></thead>
     <tbody>
@@ -81,7 +84,9 @@
     </tbody>
   </table>
 
-  <p class="sc-label">Pills — semantic fills + outline + size + dot + icon</p>
+  <h2><span class="vt-num">3</span>Pills, badges &amp; keys</h2>
+
+  <h3><span class="vt-num">3.1</span>Semantic pills <span class="sc-sub">(fills · outline · size · dot · icon)</span></h3>
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
     <span class="vt-pill">accent</span>
     <span class="vt-pill neutral">neutral</span>
@@ -100,14 +105,14 @@
     <span class="vt-pill warn ic-warn">Careful</span>
   </div>
 
-  <p class="sc-label">Difficulty / level pills</p>
+  <h3><span class="vt-num">3.2</span>Difficulty / level pills</h3>
   <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
     <span class="vt-level beginner">Beginner</span>
     <span class="vt-level intermediate">Intermediate</span>
     <span class="vt-level advanced">Advanced</span>
   </div>
 
-  <p class="sc-label">Badge + keyboard keys</p>
+  <h3><span class="vt-num">3.3</span>Badges &amp; keyboard keys</h3>
   <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
     <span class="vt-badge">1</span><span class="vt-badge">2</span><span class="vt-badge">3</span>
     <span style="margin-left:.5rem"><kbd class="vt-kbd">Ctrl</kbd> + <kbd class="vt-kbd">K</kbd></span>
@@ -115,7 +120,7 @@
     <span><kbd class="vt-kbd">Enter</kbd></span>
   </div>
 
-  <p class="sc-label">Table + pill inline (original baseline)</p>
+  <h3><span class="vt-num">3.4</span>Pills inline in a table <span class="sc-sub">(original baseline)</span></h3>
   <table>
     <tr><th>Concept</th><th>Role</th></tr>
     <tr><td>Dimension <span class="vt-pill">group-by</span></td><td>What you group by</td></tr>
@@ -123,7 +128,7 @@
   </table>
 
   <!-- ── Checklist v1 ──────────────────────────────────────────────────── -->
-  <h2><span class="vt-num">2</span>Checklist <span style="font-size:.8rem;color:var(--vt-muted)">(v1 — progress bar + a11y label association)</span></h2>
+  <h2><span class="vt-num">4</span>Checklist <span class="sc-sub">(progress bar · a11y label association)</span></h2>
   <ol class="vt-checklist" data-key="showcase">
     <li>
       <input type="checkbox">
@@ -140,8 +145,8 @@
   </ol>
 
   <!-- ── Quiz v1: single-answer ────────────────────────────────────────── -->
-  <h2><span class="vt-num">3</span>Quiz <span style="font-size:.8rem;color:var(--vt-muted)">(v1 — per-option misconceptions, always-on correct, a11y)</span></h2>
-  <p class="sc-label">Single-answer (retry until correct)</p>
+  <h2><span class="vt-num">5</span>Quiz <span class="sc-sub">(per-option misconceptions · always-on correct · a11y)</span></h2>
+  <h3><span class="vt-num">5.1</span>Single-answer <span class="sc-sub">(retry until correct)</span></h3>
   <div class="vt-quiz" data-answer="1">
     <p class="q">Where do you fix a field type once so every report updates?</p>
     <button class="opt">In each report's chart setup</button>
@@ -156,7 +161,7 @@
   </div>
 
   <!-- ── Quiz v1: multi-select ─────────────────────────────────────────── -->
-  <p class="sc-label">Multi-select (data-multi, data-answer as comma list)</p>
+  <h3><span class="vt-num">5.2</span>Multi-select <span class="sc-sub">(data-multi · comma-list answer)</span></h3>
   <div class="vt-quiz" data-answer="0,2" data-multi>
     <p class="q">Which of the following are valid SQL aggregation functions? (select all that apply)</p>
     <button class="opt">SUM</button>
@@ -169,7 +174,7 @@
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 
-  <h2><span class="vt-num">4</span>Code block <span style="font-size:.8rem;color:var(--vt-muted)">(filename header, copy button, Prism-highlighted)</span></h2>
+  <h2><span class="vt-num">6</span>Code <span class="sc-sub">(filename header · copy button · Prism-highlighted)</span></h2>
   <div class="vt-code">
     <div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
     <pre><code class="language-python">def squares(n):
@@ -181,14 +186,16 @@ print(f"got {len(result)} squares")</code></pre>
   </div>
   <p>Inline token emphasis: use <code class="vt-pcode">return</code> to exit a function.</p>
 
-  <p class="sc-label">Recap + up-next teaser</p>
+  <h2><span class="vt-num">7</span>Lesson shell</h2>
+
+  <h3><span class="vt-num">7.1</span>Recap + up-next teaser</h3>
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
     You can now derive new metrics without touching SQL, and you know which calculations are safe to aggregate.
   </div>
   <p class="vt-upnext"><em>Up next:</em> blends &amp; joins.</p>
 
-  <p class="sc-label">Shell — meta bar (time / prereqs / difficulty / position)</p>
+  <h3><span class="vt-num">7.2</span>Meta bar <span class="sc-sub">(time · prereqs · difficulty · position)</span></h3>
   <div class="vt-metabar">
     <span class="item">⏱ <strong>~15 min</strong></span>
     <span class="item">Needs: <strong>a report from Lesson 1</strong></span>
@@ -208,10 +215,10 @@ print(f"got {len(result)} squares")</code></pre>
     <span class="item">Lesson <strong>7</strong> of 9</span>
   </div>
 
-  <p class="sc-label">Shell — section anchor (CSS-only, hover h2 to reveal #)</p>
-  <h2><span class="vt-num">★</span>Hover this heading<a class="vt-anchor" href="#anchor-demo" aria-label="anchor">#</a></h2>
+  <h3><span class="vt-num">7.3</span>Section anchor <span class="sc-sub">(auto-injected by JS — hover the h2 below to reveal #)</span></h3>
+  <h2>Hover this heading</h2>
 
-  <p class="sc-label">Objectives block</p>
+  <h3><span class="vt-num">7.4</span>Objectives block</h3>
   <div class="vt-objectives">
     <p class="h">By the end of this lesson you'll be able to:</p>
     <ul>
@@ -221,23 +228,16 @@ print(f"got {len(result)} squares")</code></pre>
     </ul>
   </div>
 
-  <p class="sc-label">Mission tie-in</p>
+  <h3><span class="vt-num">7.5</span>Mission tie-in</h3>
   <div class="vt-mission"><strong>Why this matters for your goal:</strong> your internal BI transfers need per-capita figures — those don't exist as columns, so you'll compute them here.</div>
 
-  <p class="sc-label">Primary-source card (masked SVG book icon, follows --vt-accent token)</p>
+  <h3><span class="vt-num">7.6</span>Primary-source card <span class="sc-sub">(masked SVG book icon · follows --vt-accent)</span></h3>
   <div class="vt-source">
     <div><span class="h">Primary source</span>
       <a href="#">Calculated fields — official reference</a> — the function list and row-vs-aggregate rules, straight from the docs.</div>
   </div>
 
-  <p class="sc-label">Recap + next-lesson CTA</p>
-  <div class="vt-recap">
-    <p class="h">✦ What you earned</p>
-    You can now derive new metrics without touching SQL, and you know which calculations are safe to aggregate.
-  </div>
-  <p class="vt-upnext"><em>Up next:</em> blends &amp; joins.</p>
-
-  <p class="sc-label">Teacher box (SVG cap · question chips · self-explanation prompt · community pointer)</p>
+  <h3><span class="vt-num">7.7</span>Teacher box <span class="sc-sub">(SVG cap · question chips · self-explanation prompt · community pointer)</span></h3>
   <div class="vt-teacher">
     <div>
       <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
@@ -252,7 +252,7 @@ print(f"got {len(result)} squares")</code></pre>
     </div>
   </div>
 
-  <p class="sc-label">Footer / sources (numbered refs · source-type icons · companion slot · verified-date)</p>
+  <h3><span class="vt-num">7.8</span>Footer / sources <span class="sc-sub">(numbered refs · source-type icons · companion slot · verified-date)</span></h3>
   <footer class="vt-sources">
     <span class="lbl">Sources</span>
     <ul class="vt-reflist">
@@ -266,9 +266,9 @@ print(f"got {len(result)} squares")</code></pre>
   </footer>
 
   <!-- ===================== diagram vocabulary ===================== -->
-  <p class="sc-label">Diagram vocabulary — panel / node / flow / row+col / split (Issue #6)</p>
+  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split — Issue #6)</span></h2>
 
-  <h2><span class="vt-num">4</span>Diagram — flow pipeline</h2>
+  <h3><span class="vt-num">8.1</span>Flow pipeline</h3>
   <div class="vt-diagram">
     <div class="vt-flow">
       <span class="vt-node">Connector</span>
@@ -278,7 +278,7 @@ print(f"got {len(result)} squares")</code></pre>
     <p class="vt-diagram-caption">Fig — auto arrows via CSS, no JS</p>
   </div>
 
-  <h2><span class="vt-num">5</span>Diagram — row / col lanes</h2>
+  <h3><span class="vt-num">8.2</span>Row / col lanes</h3>
   <div class="vt-diagram">
     <div class="vt-row">
       <div class="vt-col">
@@ -298,7 +298,7 @@ print(f"got {len(result)} squares")</code></pre>
     </div>
   </div>
 
-  <h2><span class="vt-num">6</span>Diagram — before / after split</h2>
+  <h3><span class="vt-num">8.3</span>Before / after split</h3>
   <div class="vt-diagram">
     <div class="vt-split">
       <div class="vt-split-panel before">
@@ -313,10 +313,10 @@ print(f"got {len(result)} squares")</code></pre>
   </div>
 
   <!-- ===================== mermaid opt-in ===================== -->
-  <p class="sc-label">Computed graphs — opt-in mermaid (box-and-arrow types: sequence / state / flowchart / class / ER)</p>
+  <h2><span class="vt-num">9</span>Mermaid <span class="sc-sub">(opt-in computed graphs — CDN loads only on this page)</span></h2>
   <div class="vt-callout info"><strong>When to use:</strong> mermaid is for graphs that must be auto-laid-out (sequence, state machine, flowchart, class, ER). The brand-blue theme is tuned for these box-and-arrow types; multi-series charts (pie, xy) come out mono-blue and should use a native theme instead. For anything you can hand-compose, use the CSS diagram vocabulary — it prints cleanly with zero JS overhead.</div>
 
-  <h2><span class="vt-num">4</span>Sequence diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in — CDN loads only on this page)</span></h2>
+  <h3><span class="vt-num">9.1</span>Sequence diagram</h3>
   <div class="vt-mermaid">
 sequenceDiagram
   participant Client
@@ -328,7 +328,7 @@ sequenceDiagram
   Server-->>Client: 200 OK + JWT
   </div>
 
-  <h2><span class="vt-num">5</span>State machine <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <h3><span class="vt-num">9.2</span>State machine</h3>
   <div class="vt-mermaid">
 stateDiagram-v2
   [*] --> Draft
@@ -339,7 +339,7 @@ stateDiagram-v2
   Archived --> [*]
   </div>
 
-  <h2><span class="vt-num">6</span>Flowchart <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <h3><span class="vt-num">9.3</span>Flowchart</h3>
   <div class="vt-mermaid">
 flowchart TD
   A[Request] --> B{Authenticated?}
@@ -348,7 +348,7 @@ flowchart TD
   C --> E[Respond]
   </div>
 
-  <h2><span class="vt-num">7</span>Class diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <h3><span class="vt-num">9.4</span>Class diagram</h3>
   <div class="vt-mermaid">
 classDiagram
   class User {
@@ -362,7 +362,7 @@ classDiagram
   User <|-- Admin
   </div>
 
-  <h2><span class="vt-num">8</span>ER diagram <span style="font-size:.8rem;color:var(--vt-muted)">(mermaid opt-in)</span></h2>
+  <h3><span class="vt-num">9.5</span>ER diagram</h3>
   <div class="vt-mermaid">
 erDiagram
   USER ||--o{ ORDER : places
@@ -374,10 +374,10 @@ erDiagram
   </div>
 
   <!-- ===================== v2 / candidate blocks ===================== -->
-  <p class="sc-label">v2 candidates — visible, not settled</p>
+  <h2><span class="vt-num">10</span>v2 candidates <span class="sc-sub">(visible, not settled)</span></h2>
 
   <div class="sc-v2">
-    <h2><span class="vt-num">★</span>Checklist hint <span class="sc-v2-tag">v2 concept</span></h2>
+    <h3><span class="vt-num">10.1</span>Checklist hint <span class="sc-v2-tag">v2 concept</span></h3>
     <p style="font-size:.92rem;color:var(--vt-muted)">Native <code>&lt;details&gt;</code>, zero JS — try-before-hint (desirable difficulty). UI not final.</p>
     <ol class="vt-checklist" data-key="showcase-hint">
       <li><input type="checkbox"><div>
