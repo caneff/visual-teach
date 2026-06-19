@@ -141,7 +141,7 @@
 
   <!-- ── Quiz v1: single-answer ────────────────────────────────────────── -->
   <h2><span class="vt-num">3</span>Quiz <span style="font-size:.8rem;color:var(--vt-muted)">(v1 — per-option misconceptions, always-on correct, a11y)</span></h2>
-  <p class="sc-label">Single-answer (default)</p>
+  <p class="sc-label">Single-answer (retry until correct)</p>
   <div class="vt-quiz" data-answer="1">
     <p class="q">Where do you fix a field type once so every report updates?</p>
     <button class="opt">In each report's chart setup</button>
@@ -152,20 +152,6 @@
     <template class="why-bad">Field types live in the data source layer, not the chart panel or connector.</template>
     <template data-opt="0">Chart setup is downstream — it reads the field type; it cannot define it.</template>
     <template data-opt="2">Connector settings control how data is fetched, not how fields are typed.</template>
-    <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
-  </div>
-
-  <!-- ── Quiz v1: try-again ────────────────────────────────────────────── -->
-  <p class="sc-label">Single-answer with try-again (data-try-again)</p>
-  <div class="vt-quiz" data-answer="2" data-try-again>
-    <p class="q">Which SQL clause filters rows <em>after</em> grouping?</p>
-    <button class="opt">WHERE</button>
-    <button class="opt">ORDER BY</button>
-    <button class="opt">HAVING</button>
-    <div class="feedback"></div>
-    <template class="why-good">HAVING filters on aggregated groups; WHERE filters individual rows before grouping.</template>
-    <template data-opt="0">WHERE runs before GROUP BY — it never sees grouped results.</template>
-    <template data-opt="1">ORDER BY sorts output rows; it does not filter anything.</template>
     <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
   </div>
 

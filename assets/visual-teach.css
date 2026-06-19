@@ -130,6 +130,10 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 .vt-ok::before      { content: "✓"; }
 .vt-no::before      { content: "✗"; }
 .vt-partial::before { content: "~"; }
+/* optional flavor under an icon cell: e.g. ✗ / "rewrite the list" */
+.vt-ok .note, .vt-no .note, .vt-partial .note {
+  display: block; font-weight: 400; font-size: .82rem; color: var(--vt-muted); margin-top: .15rem;
+}
 
 /* table — comparison highlight: recommended column via <col> + .vt-th-pick header.
    The soft background tints text-cell tables, but loses to zebra stripes and to

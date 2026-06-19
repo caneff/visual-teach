@@ -165,7 +165,7 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | block | verdict | raise to |
 | --- | --- | --- |
 | diagram | KEEP + build rich | full CSS vocabulary (§8) + opt-in mermaid |
-| quiz | KEEP + RAISE | per-option misconception feedback, always-on why-correct, a11y (buttons/keyboard/`aria-live`/focus), opt-in multi-select + try-again. Stretch: cross-lesson score. |
+| quiz | KEEP + RAISE | per-option misconception feedback, a11y (buttons/keyboard/`aria-live`/focus), single-answer always retries (no answer reveal/lock until correct), opt-in multi-select. Stretch: cross-lesson score. |
 | checklist | KEEP + RAISE | progress *bar* (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2. |
 | callout | KEEP + RAISE (**built**) | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted. |
 | table | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky. |

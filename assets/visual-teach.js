@@ -2,7 +2,7 @@
    Quizzes: <div class="vt-quiz" data-answer="N"> with button.opt + .feedback +
             optional <template data-opt="N"> per-option feedback +
             <template class="why-good"> / <template class="why-bad">.
-            Flags: data-multi (multi-select), data-try-again (retry mode).
+            Flag: data-multi (multi-select). Single-answer always retries.
    Checklists: <ol class="vt-checklist" data-key="unique-key"> with li>input.
    Persistence keys off data-key; progress bar + count label + reset auto-injected. */
 
@@ -12,7 +12,6 @@ function announce(liveRegion, text) {
 
 export function wireQuiz(quiz) {
   var isMulti = quiz.hasAttribute('data-multi');
-  var tryAgain = quiz.hasAttribute('data-try-again');
 
   var answers = quiz.dataset.answer
     ? quiz.dataset.answer.split(',').map(function (s) { return parseInt(s.trim(), 10); })
@@ -32,17 +31,19 @@ export function wireQuiz(quiz) {
   if (isMulti) {
     _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion);
   } else {
-    _wireSingle(quiz, answers[0], opts, fb, goodT, badT, liveRegion, tryAgain);
+    _wireSingle(quiz, answers[0], opts, fb, goodT, badT, liveRegion);
   }
 }
 
-function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) {
+function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion) {
+  // Single-answer never locks: a wrong pick shows feedback without revealing the
+  // answer, and the learner keeps picking until correct. Buttons stay clickable
+  // even after a correct pick, so they can browse the wrong-answer explanations.
   function reveal(chosen) {
     opts.forEach(function (b) { b.classList.remove('correct', 'wrong'); });
 
     var isCorrect = chosen === answer;
-    // In try-again mode a wrong pick must not reveal the answer.
-    if (!(tryAgain && !isCorrect) && opts[answer]) opts[answer].classList.add('correct');
+    if (isCorrect && opts[answer]) opts[answer].classList.add('correct');
 
     var whyGood = goodT ? goodT.innerHTML : 'Correct.';
 
@@ -50,21 +51,14 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) 
       fb.className = 'feedback show good';
       fb.innerHTML = '<span class="vt-fb-verdict">&#10004;</span> ' + whyGood;
       announce(liveRegion, fb.textContent);
-      opts.forEach(function (b) { b.disabled = true; });
     } else {
       var perOptT = quiz.querySelector('template[data-opt="' + chosen + '"]');
       var whyBad = perOptT ? perOptT.innerHTML : (badT ? badT.innerHTML : 'Not quite.');
       opts[chosen].classList.add('wrong');
       fb.className = 'feedback show bad';
-      fb.innerHTML = '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad +
-        (tryAgain ? '' :
-          '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>');
+      fb.innerHTML = '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad;
       announce(liveRegion, fb.textContent);
-
-      // try-again mode: leave buttons enabled; user clicks other answers until correct.
-      if (!tryAgain) {
-        opts.forEach(function (b) { b.disabled = true; });
-      }
+      // leave buttons enabled — learner keeps trying until correct.
     }
   }
 
