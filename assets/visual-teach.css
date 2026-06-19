@@ -287,22 +287,9 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
   background: var(--vt-good-soft); padding: 1rem 1.2rem; margin: 2rem 0 1rem;
 }
 .vt-recap .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .4rem; }
-.vt-cta {
-  display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .9rem; font-weight: 600; text-decoration: none;
-  background: var(--vt-accent); color: var(--vt-accent-fg);
-  padding: .5rem 1rem; border-radius: 8px;
-}
-
-/* prev / next lesson nav — prev left, next right, divider above */
-.vt-lessonnav {
-  display: flex; justify-content: space-between; align-items: center; gap: 2rem;
-  margin: 2.5rem 0 1rem; padding-top: 1rem; border-top: 1px solid var(--vt-rule);
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .9rem;
-}
-.vt-lessonnav a { color: var(--vt-accent); text-decoration: none; }
-.vt-lessonnav a:last-child { text-align: right; margin-left: auto; }
-.vt-lessonnav a:hover { text-decoration: underline; }
+/* up-next teaser — plain forward pointer, deliberately NOT a button/link */
+.vt-upnext { color: var(--vt-muted); font-size: .9rem; margin: 1.5rem 0 1rem; }
+.vt-upnext em { font-style: italic; color: var(--vt-ink); }
 
 /* code block */
 .vt-code { border: 1px solid var(--vt-rule); border-radius: 10px; overflow: hidden; margin: 1.2rem 0; }
