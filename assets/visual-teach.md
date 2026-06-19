@@ -57,10 +57,46 @@ Keep every option the same length — no formatting tells.
 </div>
 ```
 
-## Teacher box / sources footer
+## Recap + next-CTA
 ```html
-<div class="vt-teacher"><strong>🎓 Stuck?</strong> Ask your teacher (the agent) …</div>
-<footer class="vt-sources">Sources: <a href="…">…</a> · Lesson 0001</footer>
+<div class="vt-recap">
+  <p class="h">✦ What you earned</p>
+  One-sentence summary of what the learner can now do.
+</div>
+<p><a class="vt-cta" href="next-lesson.html">Next: Topic name →</a></p>
+```
+
+## Teacher box (SVG cap icon, question chips, self-explanation prompt, community pointer)
+```html
+<div class="vt-teacher">
+  <div>
+    <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
+    <p>Ask anything — follow-up questions are the point, not an interruption. Not sure where to start:</p>
+    <div class="vt-asks">
+      <span class="vt-ask">Why did X happen?</span>
+      <span class="vt-ask">How does this map to Y?</span>
+      <span class="vt-ask">Show me a harder example</span>
+    </div>
+    <div class="vt-teacher-try"><strong>Try this:</strong> explain [concept] back to me in your own words — I'll tell you what you missed.</div>
+    <p class="vt-teacher-community">Practice with others: <a href="#">community link</a></p>
+  </div>
+</div>
+```
+
+## Footer / sources (numbered refs, source-type icons, companion slot, verified-date)
+Source types for `data-type`: `spec` `doc` `video` `forum` `book`
+```html
+<footer class="vt-sources">
+  <span class="lbl">Sources</span>
+  <ol class="vt-reflist">
+    <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial</a> <span class="note">— one-line note.</span></li>
+    <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Reference docs</a></li>
+    <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
+    <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Community forum</a></li>
+  </ol>
+  <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Glossary &amp; concept map</a></div>
+  <div class="meta">Lesson 0001 · verified 2026-06-19</div>
+</footer>
 ```
 
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
