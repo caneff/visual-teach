@@ -143,4 +143,147 @@ td { padding: .5rem .6rem; border-bottom: 1px solid var(--vt-rule); vertical-ali
 /* footer */
 .vt-sources { margin-top: 3rem; color: var(--vt-muted); font-size: .85rem; border-top: 1px solid var(--vt-rule); padding-top: 1rem; }
 
-@media print { .vt-quiz button, .vt-reset { display: none; } }
+/* ====== diagram vocabulary ====== */
+
+/* panel / canvas */
+.vt-diagram {
+  background: var(--vt-soft);
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.4rem 0;
+  overflow-x: auto;
+}
+
+.vt-diagram-caption {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .8rem;
+  color: var(--vt-muted);
+  text-align: center;
+  margin-top: .9rem;
+  letter-spacing: .02em;
+}
+
+/* node / box — labeled card */
+.vt-node, .vt-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--vt-paper);
+  border: 1.5px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: .55rem 1rem;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .88rem;
+  text-align: center;
+  min-width: 5.5rem;
+  line-height: 1.35;
+}
+
+/* emphasis variants */
+.vt-node.em, .vt-box.em {
+  background: var(--vt-accent-soft);
+  border-color: var(--vt-accent);
+  font-weight: 600;
+  color: var(--vt-accent);
+}
+
+.vt-node.muted, .vt-box.muted {
+  background: var(--vt-soft);
+  border-color: var(--vt-rule);
+  color: var(--vt-muted);
+}
+
+/* flow — row with auto arrow connectors between direct children */
+.vt-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  margin: 1rem 0;
+}
+
+/* arrow before every child that follows another child */
+.vt-flow > * + * {
+  position: relative;
+  margin-left: 1.6rem;
+}
+
+.vt-flow > * + *::before {
+  content: "→";
+  position: absolute;
+  left: -1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--vt-muted);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* row / col — lane layout */
+.vt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  align-items: flex-start;
+  margin: .8rem 0;
+}
+
+.vt-col {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  flex: 1 1 8rem;
+}
+
+.vt-col-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--vt-muted);
+  margin-bottom: .2rem;
+}
+
+/* split — before / after two-panel */
+.vt-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+@media (max-width: 480px) {
+  .vt-split { grid-template-columns: 1fr; }
+}
+
+.vt-split-panel {
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: .9rem 1rem;
+}
+
+.vt-split-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--vt-muted);
+  margin-bottom: .5rem;
+}
+
+.vt-split-panel.before { border-color: var(--vt-bad); }
+.vt-split-panel.after  { border-color: var(--vt-good); }
+.vt-split-panel.before .vt-split-label { color: var(--vt-bad); }
+.vt-split-panel.after  .vt-split-label { color: var(--vt-good); }
+
+/* ====== print ====== */
+@media print {
+  .vt-quiz button, .vt-reset { display: none; }
+  .vt-diagram { border: 1px solid #ccc; background: none; }
+  .vt-node, .vt-box { border: 1px solid #ccc; }
+  .vt-split { grid-template-columns: 1fr 1fr; }
+}

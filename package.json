@@ -1,4 +1,9 @@
 {
+  "type": "module",
+  "scripts": {
+    "test": "node --test 'test/*.test.js'",
+    "typecheck": "echo 'no TypeScript sources in assets'"
+  },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0"
   },

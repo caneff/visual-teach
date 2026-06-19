@@ -63,6 +63,61 @@ Keep every option the same length — no formatting tells.
 <footer class="vt-sources">Sources: <a href="…">…</a> · Lesson 0001</footer>
 ```
 
+## Diagram vocabulary (all CSS, no JS, prints, light + dark)
+
+### Panel
+```html
+<div class="vt-diagram">
+  <!-- nodes, flow, rows, splits go here -->
+  <p class="vt-diagram-caption">Optional figure caption.</p>
+</div>
+```
+
+### Node / box — labeled card. Add `.em` for accent emphasis, `.muted` for secondary.
+```html
+<span class="vt-node">Step</span>
+<span class="vt-node em">Key step</span>
+<span class="vt-box muted">Optional</span>
+```
+
+### Flow — auto `→` connectors between direct children
+```html
+<div class="vt-flow">
+  <span class="vt-node">Source</span>
+  <span class="vt-node">Transform</span>
+  <span class="vt-node em">Output</span>
+</div>
+```
+
+### Row / col — lane layout
+```html
+<div class="vt-row">
+  <div class="vt-col">
+    <span class="vt-col-label">Input</span>
+    <span class="vt-node">CSV</span>
+    <span class="vt-node">API</span>
+  </div>
+  <div class="vt-col">
+    <span class="vt-col-label">Process</span>
+    <span class="vt-node em">Transform</span>
+  </div>
+</div>
+```
+
+### Split — before / after. Add `.before` / `.after` on panels for colour cues.
+```html
+<div class="vt-split">
+  <div class="vt-split-panel before">
+    <div class="vt-split-label">Before</div>
+    …
+  </div>
+  <div class="vt-split-panel after">
+    <div class="vt-split-label">After</div>
+    …
+  </div>
+</div>
+```
+
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
 ```html
 <style>:root{ --vt-accent:#0d7d4d; --vt-ink:#11181c; }</style>

@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>visual-teach · diagram blocks</title>
+<link rel="stylesheet" href="../assets/visual-teach.css">
+</head><body><main>
+
+  <p class="vt-kicker">visual-teach · demo</p>
+  <h1>Diagram vocabulary</h1>
+  <p class="vt-lede">All diagram primitives: panel, node/box, flow, row/col lanes, split.</p>
+  <p class="vt-meta">Pure CSS · no JS · prints · light + dark</p>
+
+  <h2><span class="vt-num">1</span>.vt-diagram panel</h2>
+  <p>Wraps any diagram in a soft-background canvas with a rounded border.</p>
+  <div class="vt-diagram">
+    <span class="vt-node">A node</span>
+    <p class="vt-diagram-caption">Fig 1 — plain panel with one node</p>
+  </div>
+
+  <h2><span class="vt-num">2</span>.vt-node / .vt-box — cards</h2>
+  <div class="vt-diagram">
+    <div class="vt-flow">
+      <span class="vt-node">Default</span>
+      <span class="vt-node em">Emphasis</span>
+      <span class="vt-node muted">Muted</span>
+      <span class="vt-box">Box alias</span>
+      <span class="vt-box em">Box em</span>
+    </div>
+  </div>
+
+  <h2><span class="vt-num">3</span>.vt-flow — auto arrow connectors</h2>
+  <p>Each direct child after the first gets a <code>→</code> prepended automatically.</p>
+  <div class="vt-diagram">
+    <div class="vt-flow">
+      <span class="vt-node">Connector</span>
+      <span class="vt-node">Data source</span>
+      <span class="vt-node em">Report</span>
+    </div>
+    <p class="vt-diagram-caption">Fig 2 — three-step pipeline with auto arrows</p>
+  </div>
+
+  <div class="vt-diagram">
+    <div class="vt-flow">
+      <span class="vt-node">Raw CSV</span>
+      <span class="vt-node">Transform</span>
+      <span class="vt-node">Dedupe</span>
+      <span class="vt-node">Validate</span>
+      <span class="vt-node em">Load</span>
+    </div>
+    <p class="vt-diagram-caption">Fig 3 — five-step ETL pipeline</p>
+  </div>
+
+  <h2><span class="vt-num">4</span>.vt-row / .vt-col — lane layout</h2>
+  <p>Use <code>.vt-row</code> for a horizontal row of lanes; <code>.vt-col</code> for a vertical stack within a lane.</p>
+  <div class="vt-diagram">
+    <div class="vt-row">
+      <div class="vt-col">
+        <span class="vt-col-label">Input</span>
+        <span class="vt-node">CSV file</span>
+        <span class="vt-node">API feed</span>
+      </div>
+      <div class="vt-col">
+        <span class="vt-col-label">Process</span>
+        <span class="vt-node em">Transform</span>
+        <span class="vt-node em">Aggregate</span>
+      </div>
+      <div class="vt-col">
+        <span class="vt-col-label">Output</span>
+        <span class="vt-node">Dashboard</span>
+        <span class="vt-node">Export</span>
+      </div>
+    </div>
+    <p class="vt-diagram-caption">Fig 4 — three-lane pipeline with stacked nodes</p>
+  </div>
+
+  <h2><span class="vt-num">5</span>.vt-split — before / after</h2>
+  <p>Two-panel comparison. Add <code>.before</code> / <code>.after</code> to panels for colour cues.</p>
+  <div class="vt-diagram">
+    <div class="vt-split">
+      <div class="vt-split-panel before">
+        <div class="vt-split-label">Before</div>
+        <p style="margin:0;font-size:.92rem">Inline CSS duplicated in every lesson — ~107 lines per file, drifts between lessons.</p>
+      </div>
+      <div class="vt-split-panel after">
+        <div class="vt-split-label">After</div>
+        <p style="margin:0;font-size:.92rem">Link <code>visual-teach.css</code> once. Delete all inline styles. All lessons consistent.</p>
+      </div>
+    </div>
+    <p class="vt-diagram-caption">Fig 5 — before/after split panel</p>
+  </div>
+
+  <div class="vt-diagram">
+    <div class="vt-split">
+      <div class="vt-split-panel">
+        <div class="vt-split-label">Option A</div>
+        <span class="vt-node">Neutral panel</span>
+      </div>
+      <div class="vt-split-panel">
+        <div class="vt-split-label">Option B</div>
+        <span class="vt-node em">Neutral panel em</span>
+      </div>
+    </div>
+    <p class="vt-diagram-caption">Fig 6 — neutral split (no before/after colouring)</p>
+  </div>
+
+  <h2><span class="vt-num">6</span>Combined — flow inside diagram with lanes</h2>
+  <div class="vt-diagram">
+    <div class="vt-row">
+      <div class="vt-col">
+        <span class="vt-col-label">Sources</span>
+        <div class="vt-flow" style="flex-direction:column;align-items:flex-start">
+          <span class="vt-node">DB</span>
+          <span class="vt-node">Sheets</span>
+        </div>
+      </div>
+      <div class="vt-col" style="flex:0 0 auto;align-self:center;font-size:1.5rem;color:var(--vt-muted)">→</div>
+      <div class="vt-col">
+        <span class="vt-col-label">Blend</span>
+        <span class="vt-node em">Data Studio</span>
+      </div>
+      <div class="vt-col" style="flex:0 0 auto;align-self:center;font-size:1.5rem;color:var(--vt-muted)">→</div>
+      <div class="vt-col">
+        <span class="vt-col-label">Output</span>
+        <span class="vt-node">Report</span>
+      </div>
+    </div>
+    <p class="vt-diagram-caption">Fig 7 — lanes + manual arrows for non-linear layout</p>
+  </div>
+
+  <footer class="vt-sources">Issue #6 · diagram vocabulary demo · visual-teach</footer>
+
+</main>
+<script src="../assets/visual-teach.js"></script>
+</body></html>
