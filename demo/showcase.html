@@ -33,8 +33,7 @@ h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
 
   <p class="vt-kicker">visual-teach · showcase</p>
   <h1>Block showcase</h1>
-  <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>. This page grows as we walk the block set. Verdicts: <code>docs/PRD.md</code>.</p>
-  <p class="vt-meta">Living artifact · updated as blocks are built/raised</p>
+  <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>.</p>
 
   <p class="sc-label">Page shell — kicker / h1 / lede / meta (above)</p>
 
@@ -266,7 +265,7 @@ print(f"got {len(result)} squares")</code></pre>
   </footer>
 
   <!-- ===================== diagram vocabulary ===================== -->
-  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split — Issue #6)</span></h2>
+  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split)</span></h2>
 
   <h3><span class="vt-num">8.1</span>Flow pipeline</h3>
   <div class="vt-diagram">
@@ -308,6 +307,25 @@ print(f"got {len(result)} squares")</code></pre>
       <div class="vt-split-panel after">
         <div class="vt-split-label">After</div>
         <p style="margin:0;font-size:.92rem">One shared stylesheet — link once, delete inline styles.</p>
+      </div>
+    </div>
+  </div>
+
+  <h3><span class="vt-num">8.4</span>Node states &amp; nowrap lanes <span class="sc-sub">(plain · em · muted · .vt-box alias · .vt-row.nowrap)</span></h3>
+  <div class="vt-diagram">
+    <div class="vt-flow">
+      <span class="vt-node">plain</span>
+      <span class="vt-node em">em</span>
+      <span class="vt-node muted">muted</span>
+      <span class="vt-box">box alias</span>
+    </div>
+    <p class="sc-sub" style="margin:.2rem 0">Narrowed to 320px to force overflow — lanes scroll horizontally instead of wrapping:</p>
+    <div style="max-width:320px;overflow-x:auto;border:1px dashed var(--vt-rule);padding:.4rem">
+      <div class="vt-row nowrap">
+        <div class="vt-col"><span class="vt-col-label">Lane A</span><span class="vt-node">won't wrap</span></div>
+        <div class="vt-col"><span class="vt-col-label">Lane B</span><span class="vt-node">scrolls instead</span></div>
+        <div class="vt-col"><span class="vt-col-label">Lane C</span><span class="vt-node">stays in a row</span></div>
+        <div class="vt-col"><span class="vt-col-label">Lane D</span><span class="vt-node">on narrow screens</span></div>
       </div>
     </div>
   </div>
