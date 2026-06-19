@@ -127,6 +127,34 @@ describe('vt-code Prism init', () => {
     `);
     // No Prism global — should not throw
   });
+
+  it('warns to console when a language-X block has no grammar loaded', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    globalThis.Prism = { highlightAll: vi.fn(), languages: { css: undefined } };
+
+    setup(`
+      <div class="vt-code">
+        <pre><code class="language-css">body { color: red; }</code></pre>
+      </div>
+    `);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('css'));
+    warnSpy.mockRestore();
+  });
+
+  it('does not warn when every language-X block has a grammar loaded', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    globalThis.Prism = { highlightAll: vi.fn(), languages: { javascript: {} } };
+
+    setup(`
+      <div class="vt-code">
+        <pre><code class="language-javascript">const x = 1;</code></pre>
+      </div>
+    `);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
 });
 
 describe('vt-pcode inline token emphasis', () => {

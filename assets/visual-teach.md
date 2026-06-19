@@ -233,18 +233,38 @@ Add the Prism vendor scripts **before** `visual-teach.js`. The copy button and
 Prism init are both wired automatically by `visual-teach.js`. Without Prism (or
 JS disabled) the block stays readable — it degrades to styled plain text.
 
-Vendor scripts (in `assets/prism/`): `prism-core`, `prism-clike`, `prism-javascript`,
-`prism-python`, `prism-sql`, `prism-bash`.
+**Bundled grammars** (in `assets/prism/`) — default web set:
+
+| File | Languages covered |
+|---|---|
+| `prism-core.min.js` | Prism engine (always required first) |
+| `prism-markup.min.js` | HTML, XML, SVG |
+| `prism-css.min.js` | CSS |
+| `prism-clike.min.js` | Shared C-style token rules (required by JS) |
+| `prism-javascript.min.js` | JavaScript |
+| `prism-python.min.js` | Python |
+| `prism-sql.min.js` | SQL |
+| `prism-bash.min.js` | Bash / shell |
+
+Default web snippet (covers HTML/CSS/JS — the most common web lesson languages):
 
 ```html
 <script src="../assets/prism/prism-core.min.js"></script>
+<script src="../assets/prism/prism-markup.min.js"></script>
+<script src="../assets/prism/prism-css.min.js"></script>
 <script src="../assets/prism/prism-clike.min.js"></script>
 <script src="../assets/prism/prism-javascript.min.js"></script>
-<script src="../assets/prism/prism-python.min.js"></script>
-<script src="../assets/prism/prism-sql.min.js"></script>
-<script src="../assets/prism/prism-bash.min.js"></script>
 <script type="module" src="../assets/visual-teach.js"></script>
 ```
+
+Add extra grammars for non-web lessons (e.g. Python, SQL, Bash) by appending
+the relevant `<script>` tags before `visual-teach.js`. If a `language-X` class
+is used but no grammar is loaded, `visual-teach.js` logs a `console.warn` at
+runtime naming the missing file so you can catch it immediately in DevTools.
+
+To add a new language not yet in `assets/prism/`, copy the `.min.js` file from
+`node_modules/prismjs/components/` into `assets/prism/` and add the `<script>`
+tag to your lesson HTML.
 
 ## Inline token emphasis (`.vt-pcode`) — spotlight one keyword
 
