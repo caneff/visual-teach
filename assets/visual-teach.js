@@ -6,6 +6,10 @@
    Checklists: <ol class="vt-checklist" data-key="unique-key"> with li>input.
    Persistence keys off data-key; progress bar + count label + reset auto-injected. */
 
+function announce(liveRegion, text) {
+  if (liveRegion) liveRegion.textContent = text;
+}
+
 export function wireQuiz(quiz) {
   var isMulti = quiz.hasAttribute('data-multi');
   var tryAgain = quiz.hasAttribute('data-try-again');
@@ -20,56 +24,42 @@ export function wireQuiz(quiz) {
   var badT = quiz.querySelector('template.why-bad');
   var liveRegion = quiz.querySelector('[aria-live]');
 
-  // a11y: mark as group, ensure buttons are type=button
   quiz.setAttribute('role', 'group');
   opts.forEach(function (btn) {
     btn.setAttribute('type', 'button');
   });
 
   if (isMulti) {
-    _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion, tryAgain);
+    _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion);
   } else {
     _wireSingle(quiz, answers[0], opts, fb, goodT, badT, liveRegion, tryAgain);
   }
 }
 
 function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) {
-  function announce(text) {
-    if (liveRegion) liveRegion.textContent = text;
-  }
-
   function reveal(chosen) {
-    // mark correct option always
     opts.forEach(function (b) { b.classList.remove('correct', 'wrong'); });
     if (opts[answer]) opts[answer].classList.add('correct');
 
     var isCorrect = chosen === answer;
     var whyGood = goodT ? goodT.innerHTML : 'Correct.';
 
-    // per-option template for wrong options; fallback to why-bad
-    var perOptT = quiz.querySelector('template[data-opt="' + chosen + '"]');
-    var whyBad = perOptT
-      ? perOptT.innerHTML
-      : (badT ? badT.innerHTML : 'Not quite.');
-
     if (isCorrect) {
-      opts[chosen].classList.add('correct');
       fb.className = 'feedback show good';
       fb.innerHTML = '<span class="vt-fb-verdict">&#10004;</span> ' + whyGood;
-      announce(fb.textContent);
-      // lock
+      announce(liveRegion, fb.textContent);
       opts.forEach(function (b) { b.disabled = true; });
     } else {
+      var perOptT = quiz.querySelector('template[data-opt="' + chosen + '"]');
+      var whyBad = perOptT ? perOptT.innerHTML : (badT ? badT.innerHTML : 'Not quite.');
       opts[chosen].classList.add('wrong');
       fb.className = 'feedback show bad';
-      // Show per-option misconception + always-on correct explanation
       fb.innerHTML =
         '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad +
         '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>';
-      announce(fb.textContent);
+      announce(liveRegion, fb.textContent);
 
       if (tryAgain) {
-        // leave buttons enabled; add Try again button
         var existingTry = quiz.querySelector('.vt-quiz-try-again');
         if (!existingTry) {
           var tryBtn = document.createElement('button');
@@ -83,7 +73,7 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) 
             });
             fb.className = 'feedback';
             fb.innerHTML = '';
-            announce('');
+            announce(liveRegion, '');
             tryBtn.remove();
           });
           fb.parentNode.insertBefore(tryBtn, fb.nextSibling);
@@ -99,14 +89,9 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) 
   });
 }
 
-function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion, tryAgain) {
+function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion) {
   var selected = new Set();
 
-  function announce(text) {
-    if (liveRegion) liveRegion.textContent = text;
-  }
-
-  // Toggle aria-pressed per option click (no immediate reveal)
   opts.forEach(function (btn, i) {
     btn.setAttribute('aria-pressed', 'false');
     btn.addEventListener('click', function () {
@@ -124,7 +109,6 @@ function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion, tryAgain) 
     });
   });
 
-  // "Check answer" button
   var checkBtn = document.createElement('button');
   checkBtn.type = 'button';
   checkBtn.className = 'vt-quiz-check';
@@ -142,7 +126,7 @@ function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion, tryAgain) 
       if (selected.has(i)) {
         btn.classList.add(isAnswer ? 'correct' : 'wrong');
       } else if (isAnswer) {
-        btn.classList.add('correct'); // show missed correct answer
+        btn.classList.add('correct');
       }
       btn.disabled = true;
     });
@@ -157,7 +141,7 @@ function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion, tryAgain) 
         '<span class="vt-fb-verdict">&#10008;</span> ' + (badT ? badT.innerHTML : 'Not quite.') +
         '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>';
     }
-    announce(fb.textContent);
+    announce(liveRegion, fb.textContent);
     checkBtn.remove();
   });
 }
@@ -167,16 +151,12 @@ export function wireChecklist(list) {
   var boxes = list.querySelectorAll('input[type="checkbox"]');
   var total = boxes.length;
 
-  // Give each box a stable id + associate a label
   boxes.forEach(function (b, i) {
     if (!b.dataset.i) b.dataset.i = String(i);
-    // Assign id if missing
     if (!b.id) b.id = 'vt-cl-' + (list.dataset.key || 'x') + '-' + i;
-    // Wrap or create label if no associated label exists
     if (!b.labels || b.labels.length === 0) {
       var lbl = document.createElement('label');
       lbl.setAttribute('for', b.id);
-      // Move sibling content (the div with step-title/body) into label
       var sibling = b.nextElementSibling;
       if (sibling && sibling.tagName !== 'LABEL') {
         lbl.appendChild(sibling);
@@ -188,7 +168,6 @@ export function wireChecklist(list) {
   var saved = {};
   try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
 
-  // Progress bar container (with aria progressbar role)
   var barWrap = document.createElement('div');
   barWrap.className = 'vt-progress-bar';
   barWrap.setAttribute('role', 'progressbar');
@@ -201,15 +180,12 @@ export function wireChecklist(list) {
   barFill.style.width = '0%';
   barWrap.appendChild(barFill);
 
-  // Progress text label
   var progress = document.createElement('p');
   progress.className = 'vt-progress';
 
-  // Insert bar then text above the list
   list.parentNode.insertBefore(barWrap, list);
   list.parentNode.insertBefore(progress, list);
 
-  // Reset button after list
   var reset = document.createElement('button');
   reset.className = 'vt-reset';
   reset.type = 'button';
