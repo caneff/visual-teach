@@ -369,90 +369,141 @@ code.vt-pcode {
 .vt-companion a { font-weight: 600; }
 .vt-sources .meta { margin-top: .7rem; font-size: .78rem; color: var(--vt-muted); }
 
-@media print { .vt-quiz button, .vt-reset { display: none; } }
+/* ====== diagram vocabulary ====== */
 
-/* ── Shell raises ───────────────────────────────────────────── */
-
-/* difficulty / level pill (used inside .vt-metabar or standalone) */
-.vt-level {
-  display: inline-flex; align-items: center; padding: .07rem .6rem; border-radius: 999px;
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .75rem; font-weight: 600;
-}
-.vt-level::before { content: "●"; margin-right: .4em; font-size: .85em; }
-.vt-level.beginner     { background: var(--vt-good-soft);   color: color-mix(in srgb, var(--vt-good)   70%, var(--vt-ink)); }
-.vt-level.intermediate { background: var(--vt-warn-soft);   color: color-mix(in srgb, var(--vt-warn)   70%, var(--vt-ink)); }
-.vt-level.advanced     { background: var(--vt-bad-soft);    color: color-mix(in srgb, var(--vt-bad)    70%, var(--vt-ink)); }
-
-/* meta bar — time / prereqs / difficulty / lesson position */
-.vt-metabar {
-  display: flex; flex-wrap: wrap; gap: .4rem 1.3rem; align-items: center;
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem; color: var(--vt-muted);
-  margin: -.5rem 0 2.5rem; padding: .7rem 0;
-  border-top: 1px solid var(--vt-rule); border-bottom: 1px solid var(--vt-rule);
-}
-.vt-metabar .item { display: inline-flex; align-items: center; gap: .35rem; }
-.vt-metabar .item strong { color: var(--vt-ink); font-weight: 600; }
-
-/* section anchor — CSS-only, hover to reveal the # link */
-h2 .vt-anchor {
-  opacity: 0; text-decoration: none; color: var(--vt-muted);
-  margin-left: .4rem; font-weight: 400; transition: opacity .12s;
-}
-h2:hover .vt-anchor { opacity: 1; }
-
-/* prev / next lesson nav */
-.vt-lessonnav {
-  display: flex; justify-content: space-between; gap: 1rem;
-  margin: 2.5rem 0 1rem;
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .9rem;
-}
-.vt-lessonnav a { text-decoration: none; color: var(--vt-accent); }
-.vt-lessonnav .spacer { flex: 1; }
-
-/* ── New blocks ─────────────────────────────────────────────── */
-
-/* objectives — "By the end you'll be able to…" */
-.vt-objectives {
-  border: 1px solid var(--vt-rule); border-radius: 12px;
-  padding: 1rem 1.2rem 1.1rem; background: var(--vt-accent-soft); margin: 1.5rem 0;
-}
-.vt-objectives .h {
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600;
-  font-size: .95rem; margin: 0 0 .5rem;
-}
-.vt-objectives ul { list-style: none; margin: 0; padding: 0; }
-.vt-objectives li { padding-left: 1.5rem; position: relative; margin: .3rem 0; }
-.vt-objectives li::before { content: "✓"; position: absolute; left: 0; color: var(--vt-accent); font-weight: 700; }
-
-/* mission tie-in — "why this matters for your goal" */
-.vt-mission {
-  border-left: 3px solid var(--vt-accent); padding: .4rem 0 .4rem 1rem;
-  margin: 1.4rem 0; font-style: italic; color: var(--vt-muted);
-}
-.vt-mission strong { color: var(--vt-ink); font-style: normal; }
-
-/* primary-source card */
-.vt-source {
-  display: flex; gap: .8rem; align-items: flex-start;
-  border: 1px solid var(--vt-rule); border-radius: 12px;
-  padding: .9rem 1.1rem; margin: 1.4rem 0; background: var(--vt-soft);
-}
-.vt-source::before { content: "📖"; font-size: 1.2rem; line-height: 1; flex: 0 0 auto; }
-.vt-source .h {
-  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .72rem;
-  text-transform: uppercase; letter-spacing: .06em;
-  color: var(--vt-muted); display: block; margin-bottom: .15rem;
+/* panel / canvas */
+.vt-diagram {
+  background: var(--vt-soft);
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.4rem 0;
+  overflow-x: auto;
 }
 
-/* recap + next-lesson CTA */
-.vt-recap {
-  border-radius: 12px; border-left: 4px solid var(--vt-good);
-  background: var(--vt-good-soft); padding: 1rem 1.2rem; margin: 2rem 0 1rem;
+.vt-diagram-caption {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .8rem;
+  color: var(--vt-muted);
+  text-align: center;
+  margin-top: .9rem;
+  letter-spacing: .02em;
 }
-.vt-recap .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .4rem; }
-.vt-cta {
-  display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif;
-  font-size: .9rem; font-weight: 600; text-decoration: none;
-  background: var(--vt-accent); color: var(--vt-accent-fg);
-  padding: .5rem 1rem; border-radius: 8px;
+
+/* node / box — labeled card */
+.vt-node, .vt-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--vt-paper);
+  border: 1.5px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: .55rem 1rem;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .88rem;
+  text-align: center;
+  min-width: 5.5rem;
+  line-height: 1.35;
+}
+
+/* emphasis variants */
+.vt-node.em, .vt-box.em {
+  background: var(--vt-accent-soft);
+  border-color: var(--vt-accent);
+  font-weight: 600;
+  color: var(--vt-accent);
+}
+
+.vt-node.muted, .vt-box.muted {
+  background: var(--vt-soft);
+  border-color: var(--vt-rule);
+  color: var(--vt-muted);
+}
+
+/* flow — row with auto arrow connectors between direct children */
+.vt-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .3rem;
+  margin: 1rem 0;
+}
+
+/* arrow before every child that follows another child */
+.vt-flow > * + * {
+  position: relative;
+  margin-left: 1.6rem;
+}
+
+.vt-flow > * + *::before {
+  content: "→";
+  position: absolute;
+  left: -1.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--vt-muted);
+  pointer-events: none;
+  line-height: 1;
+}
+
+/* row / col — lane layout */
+.vt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  align-items: flex-start;
+  margin: .8rem 0;
+}
+
+.vt-col {
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  flex: 1 1 8rem;
+}
+
+.vt-col-label, .vt-split-label {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--vt-muted);
+}
+
+.vt-col-label { margin-bottom: .2rem; }
+
+/* split — before / after two-panel */
+.vt-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+@media (max-width: 480px) {
+  .vt-split { grid-template-columns: 1fr; }
+}
+
+.vt-split-panel {
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: .9rem 1rem;
+}
+
+.vt-split-label { margin-bottom: .5rem; }
+
+.vt-split-panel.before { border-color: var(--vt-bad); }
+.vt-split-panel.after  { border-color: var(--vt-good); }
+.vt-split-panel.before .vt-split-label { color: var(--vt-bad); }
+.vt-split-panel.after  .vt-split-label { color: var(--vt-good); }
+
+/* ====== print ====== */
+@media print {
+  .vt-quiz button, .vt-reset { display: none; }
+  .vt-diagram { border: 1px solid #ccc; background: none; }
+  .vt-node, .vt-box { border: 1px solid #ccc; }
+  .vt-split { grid-template-columns: 1fr 1fr; }
 }

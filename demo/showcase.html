@@ -286,6 +286,53 @@ print(f"got {len(result)} squares")</code></pre>
     <div class="meta">Showcase · verified 2026-06-19</div>
   </footer>
 
+  <!-- ===================== diagram vocabulary ===================== -->
+  <p class="sc-label">Diagram vocabulary — panel / node / flow / row+col / split (Issue #6)</p>
+
+  <h2><span class="vt-num">4</span>Diagram — flow pipeline</h2>
+  <div class="vt-diagram">
+    <div class="vt-flow">
+      <span class="vt-node">Connector</span>
+      <span class="vt-node">Data source</span>
+      <span class="vt-node em">Report</span>
+    </div>
+    <p class="vt-diagram-caption">Fig — auto arrows via CSS, no JS</p>
+  </div>
+
+  <h2><span class="vt-num">5</span>Diagram — row / col lanes</h2>
+  <div class="vt-diagram">
+    <div class="vt-row">
+      <div class="vt-col">
+        <span class="vt-col-label">Input</span>
+        <span class="vt-node">CSV</span>
+        <span class="vt-node">API</span>
+      </div>
+      <div class="vt-col">
+        <span class="vt-col-label">Process</span>
+        <span class="vt-node em">Transform</span>
+        <span class="vt-node em">Aggregate</span>
+      </div>
+      <div class="vt-col">
+        <span class="vt-col-label">Output</span>
+        <span class="vt-node">Dashboard</span>
+      </div>
+    </div>
+  </div>
+
+  <h2><span class="vt-num">6</span>Diagram — before / after split</h2>
+  <div class="vt-diagram">
+    <div class="vt-split">
+      <div class="vt-split-panel before">
+        <div class="vt-split-label">Before</div>
+        <p style="margin:0;font-size:.92rem">~107 lines inline CSS per lesson — drifts, duplicated.</p>
+      </div>
+      <div class="vt-split-panel after">
+        <div class="vt-split-label">After</div>
+        <p style="margin:0;font-size:.92rem">One shared stylesheet — link once, delete inline styles.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== v2 / candidate blocks ===================== -->
   <p class="sc-label">v2 candidates — visible, not settled</p>
 
