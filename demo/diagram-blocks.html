@@ -31,22 +31,22 @@
   <p>Each direct child after the first gets a <code>→</code> prepended automatically.</p>
   <div class="vt-diagram">
     <div class="vt-flow">
-      <span class="vt-node">Connector</span>
-      <span class="vt-node">Data source</span>
-      <span class="vt-node em">Report</span>
+      <span class="vt-node">Client</span>
+      <span class="vt-node">Server</span>
+      <span class="vt-node em">Response</span>
     </div>
     <p class="vt-diagram-caption">Fig 2 — three-step pipeline with auto arrows</p>
   </div>
 
   <div class="vt-diagram">
     <div class="vt-flow">
-      <span class="vt-node">Raw CSV</span>
-      <span class="vt-node">Transform</span>
-      <span class="vt-node">Dedupe</span>
-      <span class="vt-node">Validate</span>
-      <span class="vt-node em">Load</span>
+      <span class="vt-node">Client</span>
+      <span class="vt-node">DNS</span>
+      <span class="vt-node">Router</span>
+      <span class="vt-node">Handler</span>
+      <span class="vt-node em">Response</span>
     </div>
-    <p class="vt-diagram-caption">Fig 3 — five-step ETL pipeline</p>
+    <p class="vt-diagram-caption">Fig 3 — five-step request lifecycle</p>
   </div>
 
   <h2><span class="vt-num">4</span>.vt-row / .vt-col — lane layout</h2>
@@ -54,19 +54,19 @@
   <div class="vt-diagram">
     <div class="vt-row">
       <div class="vt-col">
-        <span class="vt-col-label">Input</span>
-        <span class="vt-node">CSV file</span>
-        <span class="vt-node">API feed</span>
+        <span class="vt-col-label">Request</span>
+        <span class="vt-node">Browser</span>
+        <span class="vt-node">Mobile app</span>
       </div>
       <div class="vt-col">
         <span class="vt-col-label">Process</span>
-        <span class="vt-node em">Transform</span>
-        <span class="vt-node em">Aggregate</span>
+        <span class="vt-node em">Router</span>
+        <span class="vt-node em">Handler</span>
       </div>
       <div class="vt-col">
-        <span class="vt-col-label">Output</span>
-        <span class="vt-node">Dashboard</span>
-        <span class="vt-node">Export</span>
+        <span class="vt-col-label">Response</span>
+        <span class="vt-node">Render</span>
+        <span class="vt-node">Cache</span>
       </div>
     </div>
     <p class="vt-diagram-caption">Fig 4 — three-lane pipeline with stacked nodes</p>
@@ -106,21 +106,21 @@
   <div class="vt-diagram">
     <div class="vt-row">
       <div class="vt-col">
-        <span class="vt-col-label">Sources</span>
+        <span class="vt-col-label">Clients</span>
         <div class="vt-flow" style="flex-direction:column;align-items:flex-start">
-          <span class="vt-node">DB</span>
-          <span class="vt-node">Sheets</span>
+          <span class="vt-node">Browser</span>
+          <span class="vt-node">Mobile</span>
         </div>
       </div>
       <div class="vt-col" style="flex:0 0 auto;align-self:center;font-size:1.5rem;color:var(--vt-muted)">→</div>
       <div class="vt-col">
-        <span class="vt-col-label">Blend</span>
-        <span class="vt-node em">Data Studio</span>
+        <span class="vt-col-label">Handle</span>
+        <span class="vt-node em">Server</span>
       </div>
       <div class="vt-col" style="flex:0 0 auto;align-self:center;font-size:1.5rem;color:var(--vt-muted)">→</div>
       <div class="vt-col">
-        <span class="vt-col-label">Output</span>
-        <span class="vt-node">Report</span>
+        <span class="vt-col-label">Store</span>
+        <span class="vt-node">Database</span>
       </div>
     </div>
     <p class="vt-diagram-caption">Fig 7 — lanes + manual arrows for non-linear layout</p>
