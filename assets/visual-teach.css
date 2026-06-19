@@ -351,6 +351,32 @@ code.vt-pcode {
 }
 .vt-source .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; display: block; margin-bottom: .2rem; }
 
+/* shell — meta bar: time / prereqs / difficulty / lesson position */
+.vt-metabar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem;
+  font-family: 'Helvetica Neue', Arial, sans-serif; font-size: .85rem;
+  color: var(--vt-muted); margin: 0 0 2rem;
+}
+.vt-metabar .item { display: inline-flex; align-items: center; gap: .3rem; }
+.vt-metabar .item + .item { border-left: 1px solid var(--vt-rule); padding-left: .9rem; }
+.vt-metabar strong { color: var(--vt-ink); font-weight: 600; }
+
+/* shell — objectives card */
+.vt-objectives {
+  border-left: 3px solid var(--vt-accent); border-radius: 0 8px 8px 0;
+  background: var(--vt-accent-soft); padding: .8rem 1.1rem; margin: 1.5rem 0;
+}
+.vt-objectives .h { font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 600; margin: 0 0 .4rem; }
+.vt-objectives ul { margin: 0; padding-left: 1.2rem; }
+.vt-objectives li { margin: .25rem 0; }
+
+/* shell — mission tie-in */
+.vt-mission {
+  border-left: 3px solid var(--vt-accent); border-radius: 0 8px 8px 0;
+  background: var(--vt-soft); padding: .7rem .9rem; margin: 1.5rem 0; font-size: .95rem;
+}
+.vt-mission strong { color: var(--vt-accent-dk); }
+
 /* teacher box (raised: SVG cap, question chips, self-explanation prompt, community pointer) */
 .vt-teacher {
   display: flex; gap: .75rem; align-items: flex-start;
