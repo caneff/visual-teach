@@ -39,9 +39,11 @@ export function wireQuiz(quiz) {
 function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) {
   function reveal(chosen) {
     opts.forEach(function (b) { b.classList.remove('correct', 'wrong'); });
-    if (opts[answer]) opts[answer].classList.add('correct');
 
     var isCorrect = chosen === answer;
+    // In try-again mode a wrong pick must not reveal the answer.
+    if (!(tryAgain && !isCorrect) && opts[answer]) opts[answer].classList.add('correct');
+
     var whyGood = goodT ? goodT.innerHTML : 'Correct.';
 
     if (isCorrect) {
@@ -54,31 +56,13 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion, tryAgain) 
       var whyBad = perOptT ? perOptT.innerHTML : (badT ? badT.innerHTML : 'Not quite.');
       opts[chosen].classList.add('wrong');
       fb.className = 'feedback show bad';
-      fb.innerHTML =
-        '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad +
-        '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>';
+      fb.innerHTML = '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad +
+        (tryAgain ? '' :
+          '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>');
       announce(liveRegion, fb.textContent);
 
-      if (tryAgain) {
-        var existingTry = quiz.querySelector('.vt-quiz-try-again');
-        if (!existingTry) {
-          var tryBtn = document.createElement('button');
-          tryBtn.type = 'button';
-          tryBtn.className = 'vt-quiz-try-again';
-          tryBtn.textContent = 'Try again';
-          tryBtn.addEventListener('click', function () {
-            opts.forEach(function (b) {
-              b.classList.remove('correct', 'wrong');
-              b.disabled = false;
-            });
-            fb.className = 'feedback';
-            fb.innerHTML = '';
-            announce(liveRegion, '');
-            tryBtn.remove();
-          });
-          fb.parentNode.insertBefore(tryBtn, fb.nextSibling);
-        }
-      } else {
+      // try-again mode: leave buttons enabled; user clicks other answers until correct.
+      if (!tryAgain) {
         opts.forEach(function (b) { b.disabled = true; });
       }
     }
