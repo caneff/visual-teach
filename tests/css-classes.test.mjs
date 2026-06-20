@@ -176,3 +176,16 @@ test("vt-eq centers and sizes display equations without inline style", () => {
   expect(rule).toContain("text-align: center");
   expect(rule).toContain("font-size");
 });
+
+test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {
+  const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
+  expect(
+    nodeRule,
+    "flex-direction:column collapses sup/sub to a second line"
+  ).not.toContain("flex-direction: column");
+});
+
+test("vt-node uses text-align:center so label text is horizontally centred without flex-column", () => {
+  const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
+  expect(nodeRule).toContain("text-align: center");
+});
