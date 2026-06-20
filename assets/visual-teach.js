@@ -313,16 +313,22 @@ export var BLOCKS = [
   { sel: '.vt-code',      wire: wireCodeBlock },
 ];
 
-export function init() {
+function wireBlocks() {
   BLOCKS.forEach(function (b) {
     document.querySelectorAll(b.sel).forEach(function (el) {
       try { b.wire(el); }
       catch (e) { console.warn('visual-teach: ' + b.sel + ' failed to wire, left inert', e); }
     });
   });
-  try { wireAnchors(); } catch (e) { console.warn('visual-teach: wireAnchors failed', e); }
-  initPrism();
-  if (typeof window !== 'undefined') wireThemeBridge(window);
+}
+
+export function init() {
+  // Each step runs isolated — one failing step never blocks the rest.
+  [wireBlocks, wireAnchors, initPrism, function () {
+    if (typeof window !== 'undefined') wireThemeBridge(window);
+  }].forEach(function (step) {
+    try { step(); } catch (e) { console.warn('visual-teach: init step failed', e); }
+  });
 }
 
 if (typeof document !== 'undefined') {
