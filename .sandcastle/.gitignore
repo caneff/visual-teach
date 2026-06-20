@@ -1,4 +1,5 @@
 .env
 logs/
 worktrees/
+worktree
 proof/**/*.png
