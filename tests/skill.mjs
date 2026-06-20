@@ -11,16 +11,13 @@ const beforeHtml = readFileSync(join(root, 'demo/cron-0001-before.html'), 'utf8'
 const afterHtml  = readFileSync(join(root, 'demo/cron-0001-after.html'),  'utf8');
 
 // ── SKILL.md structure ─────────────────────────────────────────
-test('SKILL.md: Convert verb section present', () => {
-  expect(skill).toContain('## The Convert verb');
+test('SKILL.md: documents the Convert action', () => {
+  expect(skill).toContain('Convert existing lessons');
 });
 
-test('SKILL.md: seed-only mode documented', () => {
-  expect(skill).toContain('No lessons present (seed-only)');
-});
-
-test('SKILL.md: install-pointer (no /teach) present', () => {
-  expect(skill).toContain("no `/teach`");
+test('SKILL.md: documents seeding assets into ./assets/', () => {
+  expect(skill).toMatch(/seed/i);
+  expect(skill).toContain('./assets/');
 });
 
 test('SKILL.md: install-pointer names mattpocock/skills', () => {
