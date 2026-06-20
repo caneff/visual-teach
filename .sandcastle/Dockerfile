@@ -15,6 +15,11 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   && apt-get update && apt-get install -y gh \
   && rm -rf /var/lib/apt/lists/*
 
+# Chromium system libs for Playwright (demo/shot.mjs visual proof). Needs root,
+# so install the apt deps here; the browser binary itself is fetched per-user below.
+RUN npx -y playwright@1.61.0 install-deps chromium \
+  && rm -rf /var/lib/apt/lists/*
+
 # Build-args for UID/GID alignment: sandcastle docker build-image
 # defaults these to the host user's UID/GID so image-built files
 # and bind-mounted files share an owner without runtime chown.
@@ -27,6 +32,10 @@ USER ${AGENT_UID}:${AGENT_GID}
 
 # Install Claude Code CLI
 RUN curl -fsSL https://claude.ai/install.sh | bash
+
+# Chromium browser binary for Playwright. Installed as the agent user so it lands
+# in /home/agent/.cache/ms-playwright, where shot.mjs (run as agent) finds it.
+RUN npx -y playwright@1.61.0 install chromium
 
 # Add Claude to PATH
 ENV PATH="/home/agent/.local/bin:$PATH"
