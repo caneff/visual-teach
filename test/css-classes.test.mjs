@@ -101,3 +101,24 @@ test('teacher box is ask-the-agent only', () => {
   expect(hasClass('.vt-teacher-try'),       'try-this no longer a teacher-box class').toBe(false);
   expect(hasClass('.vt-teacher-community'), 'community pointer no longer a teacher-box class').toBe(false);
 });
+
+test('flex playground block — vt-flex', () => {
+  // container
+  expect(hasClass('.vt-flex'),              'vt-flex container defined').toBe(true);
+  // must be display:flex with no injected arrow content
+  const flexRule = css.match(/\.vt-flex\s*\{[^}]+\}/)?.[0] ?? '';
+  expect(flexRule.includes('display: flex') || flexRule.includes('display:flex'),
+    'vt-flex is a real flex container').toBe(true);
+  // no arrow pseudo-element on children (that belongs to vt-flow, not vt-flex)
+  expect(!css.includes('.vt-flex > * + *::before'),
+    'vt-flex must NOT inject arrow separators between children').toBe(true);
+  // child item
+  expect(hasClass('.vt-flex-item'),         'vt-flex-item child style defined').toBe(true);
+  // justify-content modifiers
+  expect(hasClass('.vt-flex.jc-start'),    'jc-start modifier').toBe(true);
+  expect(hasClass('.vt-flex.jc-end'),      'jc-end modifier').toBe(true);
+  expect(hasClass('.vt-flex.jc-center'),   'jc-center modifier').toBe(true);
+  expect(hasClass('.vt-flex.jc-between'),  'jc-between modifier').toBe(true);
+  expect(hasClass('.vt-flex.jc-around'),   'jc-around modifier').toBe(true);
+  expect(hasClass('.vt-flex.jc-evenly'),   'jc-evenly modifier').toBe(true);
+});

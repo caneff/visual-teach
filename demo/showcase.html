@@ -263,7 +263,7 @@ print(f"got {len(result)} squares")</code></pre>
   </footer>
 
   <!-- ===================== diagram vocabulary ===================== -->
-  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split)</span></h2>
+  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split · flex)</span></h2>
 
   <h3><span class="vt-num">8.1</span>Flow pipeline</h3>
   <div class="vt-diagram">
@@ -326,6 +326,47 @@ print(f"got {len(result)} squares")</code></pre>
         <div class="vt-col"><span class="vt-col-label">Lane D</span><span class="vt-node">on narrow screens</span></div>
       </div>
     </div>
+  </div>
+
+  <h3><span class="vt-num">8.5</span>Flex playground <span class="sc-sub">(vt-flex + jc-* — no injected arrows; use for layout demos, not vt-flow)</span></h3>
+  <div class="vt-diagram">
+    <p class="sc-sub" style="margin:.1rem 0 .3rem">jc-start</p>
+    <div class="vt-flex jc-start">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-center</p>
+    <div class="vt-flex jc-center">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-between</p>
+    <div class="vt-flex jc-between">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-around</p>
+    <div class="vt-flex jc-around">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-evenly</p>
+    <div class="vt-flex jc-evenly">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-end</p>
+    <div class="vt-flex jc-end">
+      <span class="vt-flex-item">A</span>
+      <span class="vt-flex-item">B</span>
+      <span class="vt-flex-item">C</span>
+    </div>
+    <p class="vt-diagram-caption">Fig — six justify-content values; rendered by real flex, no injected margins</p>
   </div>
 
   <!-- ===================== mermaid opt-in ===================== -->
