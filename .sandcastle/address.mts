@@ -41,7 +41,15 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
       const top = Number(
         sh(`gh api repos/${slug}/issues/${n}/comments --jq 'length'`)
       );
-      return inline + top > 0;
+      // Review summaries (a "Comment"/"Request changes" review with a body) live
+      // in pulls/reviews, not the two comment endpoints above — count the ones
+      // that carry text so a review-only PR isn't skipped as comment-free.
+      const reviews = Number(
+        sh(
+          `gh api repos/${slug}/pulls/${n}/reviews --jq '[.[] | select(.body | length > 0)] | length'`
+        )
+      );
+      return inline + top + reviews > 0;
     });
     if (list.length === 0) {
       console.log("No open sandcastle PRs with comments to address.");
