@@ -15,6 +15,9 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 ```
 
 ## Page shell
+**Starting a new lesson? Copy this `<main>` block plus the asset link/script
+snippet above as your skeleton, then fill it in and add the blocks below —
+delete any part you don't need.**
 ```html
 <main>
   <p class="vt-kicker">Topic · Lesson 1</p>
@@ -88,12 +91,9 @@ Modifier classes: `beginner` `intermediate` `advanced`
 <!-- Compact density: add class="vt-table compact" -->
 <!-- Cell status: td.vt-ok (✓)  td.vt-no (✗)  td.vt-partial (~) -->
 <!-- Optional flavor under the icon: <td class="vt-no"><span class="note">rewrite the list</span></td> -->
-<!-- Recommended column: <col class="vt-col-pick"> frames the column with accent
-     side+bottom rails (box-shadow, so they survive zebra stripes and cell fills
-     like .vt-ok/.vt-no) plus a soft tint for text cells;
-     <th class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Name</th>
-     closes the frame with the accent top border + badge (the th class is required
-     — a plain border on <col> is unreliable with border-collapse) -->
+<!-- Recommended column: <col class="vt-col-pick"> on the column + matching header
+     <th class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Name</th>.
+     Both classes required — col frames the sides, th closes the top. -->
 ```
 
 Key/value reference table (glossary, config keys):
@@ -163,10 +163,8 @@ child and leaves the block inert.
   <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
 </div>
 ```
-A wrong pick shows feedback **without** revealing the answer or locking — the
-learner keeps picking until correct (the only single-answer behavior; no flag).
-Buttons never lock, even after a correct pick, so the learner can click the
-wrong options afterward to read their explanations.
+Wrong pick shows feedback but never reveals the answer or locks — learner retries
+until correct, and can still click wrong options afterward to read their explanations.
 Optional: `template[data-opt="N"]` per-option misconception (falls back to `template.why-bad`),
 `template.why-good`, `template.why-bad`, `div[aria-live]` for screen-reader feedback.
 
@@ -185,10 +183,8 @@ Optional: `template[data-opt="N"]` per-option misconception (falls back to `temp
 A "Check answer" button is auto-injected. Clicking options toggles selection (`aria-pressed`).
 
 ## Recap + up-next teaser
-A forward *teaser* for the next topic — plain prose, **not** a link or button.
-Lessons are authored one at a time, so the next file doesn't exist at write
-time; a clickable "Next" button would always be a dead link. Just name what's
-coming.
+A forward *teaser* — plain prose, **not** a link/button (the next lesson isn't
+written yet, so a "Next" link would be dead). Just name what's coming.
 ```html
 <div class="vt-recap">
   <p class="h">✦ What you earned</p>
@@ -312,10 +308,8 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 ### Flow — auto `→` connectors between direct children
-**Sequence only.** `vt-flow` adds `margin-left` and a `→` glyph before every
-sibling, so it is only correct for step-by-step pipelines. Do **not** use it
-to demo flex layout — the forced margins break `justify-content` spacing demos.
-Use `vt-flex` instead (see below).
+**Sequence only** — injects a `→` before each sibling. For layout demos
+(`justify-content` / `align-items`) use `vt-flex` below, not this.
 ```html
 <div class="vt-flow">
   <span class="vt-node">Source</span>
@@ -325,10 +319,8 @@ Use `vt-flex` instead (see below).
 ```
 
 ### Flex playground — `vt-flex` / `vt-flex-item` (layout behavior demos)
-A pure `display:flex` container with **no** injected separators. Use this
-whenever you need to show how `justify-content` or `align-items` behaves.
-Modifier classes control the flex property directly so the rendered result
-matches exactly what a learner would write in their own CSS.
+Pure `display:flex`, no injected separators — modifier classes set the flex
+property directly, so the demo matches what a learner would write.
 
 `justify-content` modifiers: `jc-start` `jc-end` `jc-center` `jc-between` `jc-around` `jc-evenly`
 `align-items` modifiers: `ai-start` `ai-end` `ai-center` `ai-stretch`
@@ -393,12 +385,8 @@ unit, e.g. the five positional fields of a cron expression `* * * * *`:
 
 ## Computed graphs — opt-in mermaid (sequence / state / ER only)
 
-**Default to the CSS diagram vocabulary** (`.vt-diagram`, `.vt-node`, `.vt-flow`,
-`.vt-row`, `.vt-col`, `.vt-split`, `.vt-flex`) for anything you can compose by
-hand — it prints cleanly, works offline, and carries zero JS overhead.
-
-Use mermaid **only** when the graph must be auto-laid-out: sequence diagrams,
-state machines, ER diagrams.
+**Default to the CSS diagram vocabulary above** — prints, offline, zero JS. Use
+mermaid **only** when the graph needs auto-layout: sequence, state, ER.
 
 ```html
 <!-- 1. Add the bridge script (after visual-teach.js, or just before </body>) -->
