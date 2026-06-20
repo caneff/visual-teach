@@ -237,11 +237,9 @@ export function wireChecklist(list) {
 var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
 var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
 
-function wireCodeBlock(block) {
-  if (!ensure(block, ['.vt-code-copy', 'pre'])) return;
-
-  var btn = block.querySelector('.vt-code-copy');
-  var pre = block.querySelector('pre');
+function wireCopyButton(container) {
+  var btn = container.querySelector('.vt-code-copy');
+  var pre = container.querySelector('pre');
   btn.innerHTML = COPY_ICON;
   if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label', 'Copy code');
   btn.addEventListener('click', function () {
@@ -255,9 +253,21 @@ function wireCodeBlock(block) {
   });
 }
 
+function wireCodeBlock(block) {
+  if (!ensure(block, ['.vt-code-copy', 'pre'])) return;
+  wireCopyButton(block);
+}
+
+function wireIO(block) {
+  if (!ensure(block, ['.vt-io-input', '.vt-io-output'])) return;
+  var input = block.querySelector('.vt-io-input');
+  if (!ensure(input, ['.vt-code-copy', 'pre'])) return;
+  wireCopyButton(input);
+}
+
 function initPrism() {
   if (typeof Prism === 'undefined') return;
-  var blocks = document.querySelectorAll('.vt-code code[class*="language-"]');
+  var blocks = document.querySelectorAll('.vt-code code[class*="language-"], .vt-io-input code[class*="language-"]');
   if (!blocks.length) return;
   blocks.forEach(function (el) {
     var langClass = Array.from(el.classList).find(function (cls) { return cls.startsWith('language-'); });
@@ -311,6 +321,7 @@ export var BLOCKS = [
   { sel: '.vt-quiz',      wire: wireQuiz },
   { sel: '.vt-checklist', wire: wireChecklist },
   { sel: '.vt-code',      wire: wireCodeBlock },
+  { sel: '.vt-io',        wire: wireIO },
 ];
 
 function wireBlocks() {

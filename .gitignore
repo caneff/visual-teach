@@ -9,3 +9,6 @@ node_modules/
 .env.*
 !.env.example
 probe-adoption.sh
+
+# Generated stress-test courses (local only for now)
+course-tests/
