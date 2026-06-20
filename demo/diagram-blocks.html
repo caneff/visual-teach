@@ -182,6 +182,28 @@
         </p>
       </div>
 
+      <h2><span class="vt-num">8</span>.vt-flow — long pipeline (wrap test)</h2>
+      <p>
+        A 9-stage pipeline that wraps onto multiple rows. Without the fix, rows
+        2+ open with a stray <code>→</code>.
+      </p>
+      <div class="vt-diagram" id="wrap-test">
+        <div class="vt-flow">
+          <span class="vt-node">Autolyse</span>
+          <span class="vt-node">Mix leaven</span>
+          <span class="vt-node">Fold #1</span>
+          <span class="vt-node">Fold #2</span>
+          <span class="vt-node">Fold #3</span>
+          <span class="vt-node">Bulk ferment</span>
+          <span class="vt-node em">Pre-shape</span>
+          <span class="vt-node em">Final shape</span>
+          <span class="vt-node em">Bake covered</span>
+        </div>
+        <p class="vt-diagram-caption">
+          Fig 9 — 9-stage bake-day pipeline; row 2+ must have no leading arrow
+        </p>
+      </div>
+
       <h2><span class="vt-num">7</span>.vt-node with inline sup / sub</h2>
       <p>
         Superscripts and subscripts must stay on the same baseline line, not
