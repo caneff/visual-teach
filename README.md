@@ -49,16 +49,16 @@ Link the assets in each lesson (paths relative to `lessons/`):
 ```html
 <link rel="stylesheet" href="../assets/visual-teach.css" />
 <!-- ... lesson body ... -->
-<script type="module" src="../assets/visual-teach.js"></script>
+<script src="../assets/visual-teach.js"></script>
 ```
 
-`visual-teach.js` is an ES module, so `type="module"` is required, and the page
-must be served over HTTP. ES modules do not load over `file://`, so until you
-serve the page the quizzes and checklists stay inert.
+`visual-teach.js` is a plain script (no `type="module"`), so a lesson opens
+straight from disk — double-click the `.html` or `open lessons/<file>.html`.
+Quizzes, checklists, and theming wire up over `file://` with no server.
 
 ```sh
+# optional: serve over HTTP if you prefer a localhost URL
 npm run serve   # python3 -m http.server 8000, from the repo root
-# then open http://localhost:8000/<path>/lessons/<file>.html
 ```
 
 ### Two modes
