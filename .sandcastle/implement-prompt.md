@@ -71,9 +71,11 @@ affected block.
      (repeat for `after.png`). The URL is then
      `https://github.com/caneff/visual-teach/releases/download/visual-proof/issue-{{TASK_ID}}-before.png`.
 6. **Write `.sandcastle/proof/issue-{{TASK_ID}}/PROOF.md`** (text, committed — the
-   PNGs are gitignored) holding the embed block the PR step will paste verbatim:
+   PNGs are gitignored) holding the embed block the PR step will paste verbatim.
+   Head it with a per-issue subheading (NOT `## Visual proof` — the PR's Visual
+   proof section supplies that heading once; a second one here double-prints it):
    ```
-   ## Visual proof
+   ### #{{TASK_ID}}
    | Before | After |
    |---|---|
    | ![before](<before-url>) | ![after](<after-url>) |
@@ -82,7 +84,7 @@ affected block.
 
 Skip ONLY if the change has no visual surface at all (pure docs, comments, or
 build tooling). If you skip, write `.sandcastle/proof/issue-{{TASK_ID}}/PROOF.md`
-containing just `## Visual proof` and a line `No visual change (docs/tooling only).`
+containing just `### #{{TASK_ID}}` and a line `No visual change (docs/tooling only).`
 
 # COMMIT
 
