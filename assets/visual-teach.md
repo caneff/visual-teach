@@ -144,6 +144,10 @@ A11y: label association and `aria-valuenow` on the progress bar are auto-injecte
 `data-answer` = 0-based index of the correct option.
 Keep every option the same length — no formatting tells.
 
+Required children (`button.opt`, `.feedback`) are declared in `wireQuiz` in
+`visual-teach.js` and enforced at runtime — a console warning names any missing
+child and leaves the block inert.
+
 ### Single-answer — retry until correct, with per-option misconceptions
 ```html
 <div class="vt-quiz" data-answer="1">
@@ -163,9 +167,8 @@ A wrong pick shows feedback **without** revealing the answer or locking — the
 learner keeps picking until correct (the only single-answer behavior; no flag).
 Buttons never lock, even after a correct pick, so the learner can click the
 wrong options afterward to read their explanations.
-- `template[data-opt="N"]` — per-option misconception (0-indexed). Falls back to `template.why-bad`.
-- `template.why-good` — shown when the learner answers correctly.
-- `div.vt-quiz-live` — hidden aria-live region; include for screen-reader feedback.
+Optional: `template[data-opt="N"]` per-option misconception (falls back to `template.why-bad`),
+`template.why-good`, `template.why-bad`, `div[aria-live]` for screen-reader feedback.
 
 ### Multi-select — add `data-multi`, set `data-answer` to a comma-separated list
 ```html

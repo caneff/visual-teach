@@ -1,13 +1,24 @@
 /* visual-teach — lesson behaviour. Auto-inits on DOMContentLoaded.
-   Quizzes: <div class="vt-quiz" data-answer="N"> with button.opt + .feedback +
-            optional <template data-opt="N"> per-option feedback +
-            <template class="why-good"> / <template class="why-bad">.
-            Flag: data-multi (multi-select). Single-answer always retries.
-   Checklists: <ol class="vt-checklist" data-key="unique-key"> with li>input.
+   Required children for each block are declared via the requires arrays in each
+   wirer function; see wireQuiz / wireChecklist / wireCodeBlock below.
    Persistence keys off data-key; progress bar + count label + reset auto-injected. */
 
 function announce(liveRegion, text) {
   if (liveRegion) liveRegion.textContent = text;
+}
+
+// Check that block contains every required child selector. Warns for each
+// missing one and returns false if any are absent so the wirer can bail out.
+function ensure(block, selectors) {
+  var blockClass = Array.from(block.classList).find(function (c) { return c.startsWith('vt-'); }) || block.className;
+  var ok = true;
+  selectors.forEach(function (sel) {
+    if (!block.querySelector(sel)) {
+      console.warn('visual-teach: ' + blockClass + ' missing required ' + sel + ' — left inert');
+      ok = false;
+    }
+  });
+  return ok;
 }
 
 // Feedback line: a verdict glyph (✔ / ✘) followed by the explanation HTML.
@@ -16,6 +27,9 @@ function verdict(ok, html) {
 }
 
 export function wireQuiz(quiz) {
+  // Optional: template.why-good, template.why-bad, template[data-opt="N"], [aria-live].
+  if (!ensure(quiz, ['button.opt', '.feedback'])) return;
+
   var answers = quiz.dataset.answer
     ? quiz.dataset.answer.split(',').map(function (s) { return parseInt(s.trim(), 10); })
     : [0];
@@ -135,6 +149,8 @@ function _wireMulti(ctx, answers) {
 }
 
 export function wireChecklist(list) {
+  if (!ensure(list, ['input[type="checkbox"]'])) return;
+
   var key = 'vt-checklist:' + (list.dataset.key || location.pathname);
   var boxes = list.querySelectorAll('input[type="checkbox"]');
   var total = boxes.length;
@@ -222,9 +238,10 @@ var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
 
 function wireCodeBlock(block) {
+  if (!ensure(block, ['.vt-code-copy', 'pre'])) return;
+
   var btn = block.querySelector('.vt-code-copy');
   var pre = block.querySelector('pre');
-  if (!btn || !pre) return;
   btn.innerHTML = COPY_ICON;
   if (!btn.getAttribute('aria-label')) btn.setAttribute('aria-label', 'Copy code');
   btn.addEventListener('click', function () {
