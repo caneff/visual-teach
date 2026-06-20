@@ -148,11 +148,49 @@ describe('vt-code Prism init', () => {
 
     setup(`
       <div class="vt-code">
+        <div class="vt-code-head"><button class="vt-code-copy" aria-label="Copy code"></button></div>
         <pre><code class="language-javascript">const x = 1;</code></pre>
       </div>
     `);
 
     expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+});
+
+describe('vt-code missing required children', () => {
+  it('warns with selector name when .vt-code-copy button is missing', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    setup(`
+      <div class="vt-code">
+        <pre><code>x = 1</code></pre>
+      </div>
+    `);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('.vt-code-copy'));
+    warnSpy.mockRestore();
+  });
+
+  it('warns with selector name when pre is missing', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    setup(`
+      <div class="vt-code">
+        <div class="vt-code-head"><button class="vt-code-copy" aria-label="Copy code"></button></div>
+      </div>
+    `);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('pre'));
+    warnSpy.mockRestore();
+  });
+
+  it('includes the block class in the warning message', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    setup(`<div class="vt-code"></div>`);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('vt-code'));
     warnSpy.mockRestore();
   });
 });

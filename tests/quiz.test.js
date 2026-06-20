@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { wireQuiz } from '../assets/visual-teach.js';
 
 function makeQuiz(html) {
@@ -14,6 +14,53 @@ function click(el) {
 
 beforeEach(() => {
   document.body.innerHTML = '';
+});
+
+// ── Missing required children ────────────────────────────────────────────────
+
+describe('quiz — missing required children', () => {
+  it('warns with selector name when .feedback is missing', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const q = makeQuiz(`
+      <div class="vt-quiz" data-answer="0">
+        <button class="opt">A</button>
+      </div>
+    `);
+    wireQuiz(q);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('.feedback'));
+    warn.mockRestore();
+  });
+
+  it('warns with selector name when button.opt is missing', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const q = makeQuiz(`
+      <div class="vt-quiz" data-answer="0">
+        <div class="feedback"></div>
+      </div>
+    `);
+    wireQuiz(q);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('button.opt'));
+    warn.mockRestore();
+  });
+
+  it('includes the block class in the warning message', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const q = makeQuiz(`
+      <div class="vt-quiz" data-answer="0">
+        <button class="opt">A</button>
+      </div>
+    `);
+    wireQuiz(q);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('vt-quiz'));
+    warn.mockRestore();
+  });
+
+  it('does not throw when required children are missing', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const q = makeQuiz(`<div class="vt-quiz" data-answer="0"></div>`);
+    expect(() => wireQuiz(q)).not.toThrow();
+    warn.mockRestore();
+  });
 });
 
 // ── Single-answer (default mode) ──────────────────────────────────────────────

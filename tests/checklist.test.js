@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { wireChecklist } from '../assets/visual-teach.js';
 
 function makeChecklist(html) {
@@ -15,6 +15,33 @@ function click(el) {
 beforeEach(() => {
   document.body.innerHTML = '';
   localStorage.clear();
+});
+
+// ── Missing required children ────────────────────────────────────────────────
+
+describe('checklist — missing required children', () => {
+  it('warns with selector name when no input[type="checkbox"] is present', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const cl = makeChecklist(`<ol class="vt-checklist" data-key="empty"></ol>`);
+    wireChecklist(cl);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('input[type="checkbox"]'));
+    warn.mockRestore();
+  });
+
+  it('includes the block class in the warning message', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const cl = makeChecklist(`<ol class="vt-checklist" data-key="empty"></ol>`);
+    wireChecklist(cl);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('vt-checklist'));
+    warn.mockRestore();
+  });
+
+  it('does not throw when required children are missing', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const cl = makeChecklist(`<ol class="vt-checklist" data-key="empty"></ol>`);
+    expect(() => wireChecklist(cl)).not.toThrow();
+    warn.mockRestore();
+  });
 });
 
 // ── Progress bar ──────────────────────────────────────────────────────────────
