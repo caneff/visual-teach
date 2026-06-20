@@ -278,6 +278,9 @@ add the `<script>` tag to your lesson HTML.
 No JS required. Renders with accent background + border so it stands out from
 plain `<code>` without being syntax-highlighted.
 
+Inline `<code>` nested inside an `<a>` automatically loses its pill background
+and side padding so it reads as normal link text without gap artifacts.
+
 ## Footer / sources (source-type icons, companion slot, verified-date)
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```html
