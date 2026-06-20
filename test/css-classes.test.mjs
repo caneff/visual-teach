@@ -107,11 +107,10 @@ test('flex playground block — vt-flex', () => {
   expect(hasClass('.vt-flex'),              'vt-flex container defined').toBe(true);
   // must be display:flex with no injected arrow content
   const flexRule = css.match(/\.vt-flex\s*\{[^}]+\}/)?.[0] ?? '';
-  expect(flexRule.includes('display: flex') || flexRule.includes('display:flex'),
-    'vt-flex is a real flex container').toBe(true);
+  expect(flexRule.includes('display: flex'), 'vt-flex is a real flex container').toBe(true);
   // no arrow pseudo-element on children (that belongs to vt-flow, not vt-flex)
-  expect(!css.includes('.vt-flex > * + *::before'),
-    'vt-flex must NOT inject arrow separators between children').toBe(true);
+  expect(css.includes('.vt-flex > * + *::before'),
+    'vt-flex must NOT inject arrow separators between children').toBe(false);
   // child item
   expect(hasClass('.vt-flex-item'),         'vt-flex-item child style defined').toBe(true);
   // justify-content modifiers
@@ -121,4 +120,9 @@ test('flex playground block — vt-flex', () => {
   expect(hasClass('.vt-flex.jc-between'),  'jc-between modifier').toBe(true);
   expect(hasClass('.vt-flex.jc-around'),   'jc-around modifier').toBe(true);
   expect(hasClass('.vt-flex.jc-evenly'),   'jc-evenly modifier').toBe(true);
+  // align-items modifiers
+  expect(hasClass('.vt-flex.ai-start'),    'ai-start modifier').toBe(true);
+  expect(hasClass('.vt-flex.ai-end'),      'ai-end modifier').toBe(true);
+  expect(hasClass('.vt-flex.ai-center'),   'ai-center modifier').toBe(true);
+  expect(hasClass('.vt-flex.ai-stretch'),  'ai-stretch modifier').toBe(true);
 });
