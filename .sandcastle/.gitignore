@@ -3,3 +3,4 @@ logs/
 worktrees/
 worktree
 proof/**/*.png
+review-attempts.json
