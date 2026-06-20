@@ -440,6 +440,39 @@ function wireAnchors() {
   });
 }
 
+/* KaTeX math rendering: processes .vt-math display blocks and inline math
+   delimiters (\(...\) and \[...\]) in the document body.
+   Silently skips when katex global is absent (no network, no KaTeX loaded). */
+function initKatex() {
+  if (typeof katex === "undefined") return;
+
+  document.querySelectorAll(".vt-math").forEach(function (el) {
+    var tex = el.textContent.trim();
+    try {
+      el.innerHTML = katex.renderToString(tex, {
+        displayMode: true,
+        throwOnError: false,
+      });
+    } catch (e) {
+      // leave raw text intact on parse error
+    }
+  });
+
+  if (typeof renderMathInElement === "function") {
+    try {
+      renderMathInElement(document.body, {
+        delimiters: [
+          { left: "\\(", right: "\\)", display: false },
+          { left: "\\[", right: "\\]", display: true },
+        ],
+        throwOnError: false,
+      });
+    } catch (e) {
+      // leave inline math as-is on failure
+    }
+  }
+}
+
 var BLOCKS = [
   { sel: ".vt-quiz", wire: wireQuiz },
   { sel: ".vt-checklist", wire: wireChecklist },
@@ -468,6 +501,7 @@ function init() {
     wireBlocks,
     wireAnchors,
     initPrism,
+    initKatex,
     function () {
       if (typeof window !== "undefined") {
         wireThemeBridge(window);

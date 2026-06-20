@@ -6,6 +6,7 @@ export default [
     ignores: [
       "node_modules/**",
       "assets/prism/**", // vendored, minified
+      "assets/katex/**", // vendored, minified
       "course-tests/**",
       ".sandcastle/**", // includes .mts (TypeScript), not linted here
     ],
@@ -24,7 +25,13 @@ export default [
     files: ["assets/**/*.js"],
     languageOptions: {
       sourceType: "module",
-      globals: { ...globals.browser, Prism: "readonly", module: "readonly" },
+      globals: {
+        ...globals.browser,
+        Prism: "readonly",
+        module: "readonly",
+        katex: "readonly",
+        renderMathInElement: "readonly",
+      },
     },
   },
   {
