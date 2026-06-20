@@ -177,6 +177,20 @@ test("vt-eq centers and sizes display equations without inline style", () => {
   expect(rule).toContain("font-size");
 });
 
+test("vt-row-start suppresses arrow and margin so wrapped rows have no leading arrow", () => {
+  expect(css).toContain(".vt-row-start");
+  const marginRule = ruleBody(/\.vt-flow\s*>\s*\.vt-row-start\s*\{[^}]*\}/);
+  expect(marginRule, "vt-row-start rule must reset margin-left").toContain(
+    "margin-left: 0"
+  );
+  const beforeRule = ruleBody(
+    /\.vt-flow\s*>\s*\.vt-row-start::before\s*\{[^}]*\}/
+  );
+  expect(beforeRule, "vt-row-start::before must clear content").toContain(
+    "content: none"
+  );
+});
+
 test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {
   const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
   expect(

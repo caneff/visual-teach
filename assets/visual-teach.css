@@ -1135,6 +1135,15 @@ code.vt-pcode {
   line-height: 1;
 }
 
+/* first item on a wrapped row has no predecessor to its left — JS marks it
+   with vt-row-start so the injected arrow and its reserved margin are removed */
+.vt-flow > .vt-row-start {
+  margin-left: 0;
+}
+.vt-flow > .vt-row-start::before {
+  content: none;
+}
+
 /* flex playground — pure display:flex container, no injected separators.
    Use for layout demos (justify-content, align-items). vt-flow is for
    sequences; vt-flex is for showing flex behavior. */
