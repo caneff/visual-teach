@@ -519,6 +519,45 @@ code.vt-pcode {
   line-height: 1;
 }
 
+/* flex playground — pure display:flex container, no injected separators.
+   Use for layout demos (justify-content, align-items). vt-flow is for
+   sequences; vt-flex is for showing flex behavior. */
+.vt-flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  align-items: center;
+  margin: .8rem 0;
+  padding: .6rem;
+  border: 1px dashed var(--vt-rule);
+  border-radius: 8px;
+  min-height: 3.2rem;
+}
+
+.vt-flex-item {
+  padding: .4rem .85rem;
+  background: var(--vt-soft);
+  border: 1px solid var(--vt-rule);
+  border-radius: 6px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+/* justify-content modifiers */
+.vt-flex.jc-start   { justify-content: flex-start; }
+.vt-flex.jc-end     { justify-content: flex-end; }
+.vt-flex.jc-center  { justify-content: center; }
+.vt-flex.jc-between { justify-content: space-between; }
+.vt-flex.jc-around  { justify-content: space-around; }
+.vt-flex.jc-evenly  { justify-content: space-evenly; }
+
+/* align-items modifiers */
+.vt-flex.ai-start   { align-items: flex-start; }
+.vt-flex.ai-end     { align-items: flex-end; }
+.vt-flex.ai-center  { align-items: center; }
+.vt-flex.ai-stretch { align-items: stretch; }
+
 /* row / col — lane layout */
 .vt-row {
   display: flex;

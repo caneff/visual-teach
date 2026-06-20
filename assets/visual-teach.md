@@ -289,11 +289,47 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 ### Flow — auto `→` connectors between direct children
+**Sequence only.** `vt-flow` adds `margin-left` and a `→` glyph before every
+sibling, so it is only correct for step-by-step pipelines. Do **not** use it
+to demo flex layout — the forced margins break `justify-content` spacing demos.
+Use `vt-flex` instead (see below).
 ```html
 <div class="vt-flow">
   <span class="vt-node">Source</span>
   <span class="vt-node">Transform</span>
   <span class="vt-node em">Output</span>
+</div>
+```
+
+### Flex playground — `vt-flex` / `vt-flex-item` (layout behavior demos)
+A pure `display:flex` container with **no** injected separators. Use this
+whenever you need to show how `justify-content` or `align-items` behaves.
+Modifier classes control the flex property directly so the rendered result
+matches exactly what a learner would write in their own CSS.
+
+`justify-content` modifiers: `jc-start` `jc-end` `jc-center` `jc-between` `jc-around` `jc-evenly`
+`align-items` modifiers: `ai-start` `ai-end` `ai-center` `ai-stretch`
+
+```html
+<div class="vt-flex jc-between">
+  <span class="vt-flex-item">A</span>
+  <span class="vt-flex-item">B</span>
+  <span class="vt-flex-item">C</span>
+</div>
+```
+Stack several labeled blocks to compare values side by side:
+```html
+<p class="sc-sub">jc-between</p>
+<div class="vt-flex jc-between">
+  <span class="vt-flex-item">A</span>
+  <span class="vt-flex-item">B</span>
+  <span class="vt-flex-item">C</span>
+</div>
+<p class="sc-sub">jc-evenly</p>
+<div class="vt-flex jc-evenly">
+  <span class="vt-flex-item">A</span>
+  <span class="vt-flex-item">B</span>
+  <span class="vt-flex-item">C</span>
 </div>
 ```
 
@@ -335,8 +371,8 @@ unit, e.g. the five positional fields of a cron expression `* * * * *`:
 ## Computed graphs — opt-in mermaid (sequence / state / ER only)
 
 **Default to the CSS diagram vocabulary** (`.vt-diagram`, `.vt-node`, `.vt-flow`,
-`.vt-row`, `.vt-col`, `.vt-split`) for anything you can compose by hand — it
-prints cleanly, works offline, and carries zero JS overhead.
+`.vt-row`, `.vt-col`, `.vt-split`, `.vt-flex`) for anything you can compose by
+hand — it prints cleanly, works offline, and carries zero JS overhead.
 
 Use mermaid **only** when the graph must be auto-laid-out: sequence diagrams,
 state machines, ER diagrams.
