@@ -576,6 +576,14 @@ automatically with dark mode.
 
 ## Figure / photo (`.vt-figure`, `.vt-figure-pair`)
 
+**Rule: images must be local files, never remote URLs.** Download every photo
+into the workspace (e.g. `./assets/img/`) and reference it by relative path —
+never hotlink `https://images.unsplash.com/...` or any other remote `src`.
+Lessons are viewed offline and proof screenshots are captured in a no-network
+sandbox, so a remote `src` renders as a broken-image glyph. The only allowed
+non-local `src` is a deliberate broken-state demo (`data:image/png;base64,...`),
+and that one should be labelled as intentional.
+
 ### Single image
 
 ```html
