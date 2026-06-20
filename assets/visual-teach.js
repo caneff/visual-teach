@@ -10,32 +10,40 @@ function announce(liveRegion, text) {
   if (liveRegion) liveRegion.textContent = text;
 }
 
-export function wireQuiz(quiz) {
-  var isMulti = quiz.hasAttribute('data-multi');
+// Feedback line: a verdict glyph (✔ / ✘) followed by the explanation HTML.
+function verdict(ok, html) {
+  return '<span class="vt-fb-verdict">' + (ok ? '&#10004;' : '&#10008;') + '</span> ' + html;
+}
 
+export function wireQuiz(quiz) {
   var answers = quiz.dataset.answer
     ? quiz.dataset.answer.split(',').map(function (s) { return parseInt(s.trim(), 10); })
     : [0];
 
-  var opts = quiz.querySelectorAll('button.opt');
-  var fb = quiz.querySelector('.feedback');
-  var goodT = quiz.querySelector('template.why-good');
-  var badT = quiz.querySelector('template.why-bad');
-  var liveRegion = quiz.querySelector('[aria-live]');
+  var ctx = {
+    quiz: quiz,
+    opts: quiz.querySelectorAll('button.opt'),
+    fb: quiz.querySelector('.feedback'),
+    goodT: quiz.querySelector('template.why-good'),
+    badT: quiz.querySelector('template.why-bad'),
+    liveRegion: quiz.querySelector('[aria-live]'),
+  };
 
   quiz.setAttribute('role', 'group');
-  opts.forEach(function (btn) {
+  ctx.opts.forEach(function (btn) {
     btn.setAttribute('type', 'button');
   });
 
-  if (isMulti) {
-    _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion);
+  if (quiz.hasAttribute('data-multi')) {
+    _wireMulti(ctx, answers);
   } else {
-    _wireSingle(quiz, answers[0], opts, fb, goodT, badT, liveRegion);
+    _wireSingle(ctx, answers[0]);
   }
 }
 
-function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion) {
+function _wireSingle(ctx, answer) {
+  var quiz = ctx.quiz, opts = ctx.opts, fb = ctx.fb,
+    goodT = ctx.goodT, badT = ctx.badT, liveRegion = ctx.liveRegion;
   // Single-answer never locks: a wrong pick shows feedback without revealing the
   // answer, and the learner keeps picking until correct. Buttons stay clickable
   // even after a correct pick, so they can browse the wrong-answer explanations.
@@ -49,14 +57,14 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion) {
 
     if (isCorrect) {
       fb.className = 'feedback show good';
-      fb.innerHTML = '<span class="vt-fb-verdict">&#10004;</span> ' + whyGood;
+      fb.innerHTML = verdict(true, whyGood);
       announce(liveRegion, fb.textContent);
     } else {
       var perOptT = quiz.querySelector('template[data-opt="' + chosen + '"]');
       var whyBad = perOptT ? perOptT.innerHTML : (badT ? badT.innerHTML : 'Not quite.');
       opts[chosen].classList.add('wrong');
       fb.className = 'feedback show bad';
-      fb.innerHTML = '<span class="vt-fb-verdict">&#10008;</span> ' + whyBad;
+      fb.innerHTML = verdict(false, whyBad);
       announce(liveRegion, fb.textContent);
       // leave buttons enabled — learner keeps trying until correct.
     }
@@ -67,7 +75,9 @@ function _wireSingle(quiz, answer, opts, fb, goodT, badT, liveRegion) {
   });
 }
 
-function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion) {
+function _wireMulti(ctx, answers) {
+  var opts = ctx.opts, fb = ctx.fb,
+    goodT = ctx.goodT, badT = ctx.badT, liveRegion = ctx.liveRegion;
   var selected = new Set();
 
   opts.forEach(function (btn, i) {
@@ -112,12 +122,12 @@ function _wireMulti(quiz, answers, opts, fb, goodT, badT, liveRegion) {
     var whyGood = goodT ? goodT.innerHTML : 'Correct.';
     if (allCorrect) {
       fb.className = 'feedback show good';
-      fb.innerHTML = '<span class="vt-fb-verdict">&#10004;</span> ' + whyGood;
+      fb.innerHTML = verdict(true, whyGood);
     } else {
       fb.className = 'feedback show bad';
       fb.innerHTML =
-        '<span class="vt-fb-verdict">&#10008;</span> ' + (badT ? badT.innerHTML : 'Not quite.') +
-        '<div class="vt-fb-correct"><span class="vt-fb-verdict">&#10004;</span> ' + whyGood + '</div>';
+        verdict(false, badT ? badT.innerHTML : 'Not quite.') +
+        '<div class="vt-fb-correct">' + verdict(true, whyGood) + '</div>';
     }
     announce(liveRegion, fb.textContent);
     checkBtn.remove();

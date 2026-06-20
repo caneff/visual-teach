@@ -32,6 +32,36 @@
 
   var CDN = 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js';
 
+  // mermaid.initialize() config, brand-blue tint both sides. We use mermaid's
+  // native 'base'/'dark' themes (coherent, tested palettes) rather than hand-
+  // mapping vt-* tokens onto 'base' — that produced a monochromatic look and
+  // white-on-white state-node labels. labelBg matches the card the diagram sits
+  // on; see bgBehind().
+  function darkTheme(labelBg) {
+    // dark theme ignores primaryColor for node fills, so set mainBkg/secondary/
+    // tertiary too. One light-grey token (tx) pins every text element: mermaid
+    // pulls node text, titles, edge/transition labels, sequence actors/messages,
+    // and class members from separate vars; left unset they fall back to the
+    // dark theme's mix of white + grey.
+    var tx = '#e6e9ef';
+    return { startOnLoad: false, theme: 'dark',
+      themeVariables: { darkMode: true,
+        primaryColor: '#1e3a5f', mainBkg: '#1e3a5f',
+        secondaryColor: '#1e3a5f', tertiaryColor: '#1e3a5f',
+        // ER attribute rows: neutral grey (blue header only), mirroring light's
+        // blue-header / white-rows. Same odd+even = no stripe.
+        rowOdd: '#2b313b', rowEven: '#2b313b',
+        primaryTextColor: tx, secondaryTextColor: tx, tertiaryTextColor: tx,
+        textColor: tx, nodeTextColor: tx, titleColor: tx, classText: tx,
+        actorTextColor: tx, signalTextColor: tx, labelTextColor: tx, loopTextColor: tx,
+        edgeLabelBackground: labelBg } };
+  }
+
+  function lightTheme(labelBg) {
+    return { startOnLoad: false, theme: 'base',
+      themeVariables: { primaryColor: '#dbe9ff', edgeLabelBackground: labelBg } };
+  }
+
   // Walk up from a node to the first element with a non-transparent background.
   // Used to match mermaid's edge-label boxes to the card the diagram sits on.
   function bgBehind(node, gcs) {
@@ -87,10 +117,6 @@
     var sources = list.map(function (n) { return n.textContent; });
 
     function render() {
-      // Use mermaid's native themes — coherent, tested palettes readable across
-      // every diagram type. Hand-mapping vt-* tokens onto 'base' produced a
-      // monochromatic look and white-on-white state-node labels (primaryTextColor
-      // bled into node text), so we let mermaid own the palette on both sides.
       var dark = isDark(doc.documentElement, options.matchMedia);
       list.forEach(function (n, i) { n.removeAttribute('data-processed'); n.innerHTML = sources[i]; });
       // Match the edge/transition-label background to whatever the diagram
@@ -103,29 +129,7 @@
       var styleEl = doc.getElementById('vt-mermaid-style');
       if (!styleEl) { styleEl = doc.createElement('style'); styleEl.id = 'vt-mermaid-style'; doc.head.appendChild(styleEl); }
       styleEl.textContent = '.vt-mermaid .labelBkg{background-color:' + labelBg + ' !important}';
-      // Brand-blue tint both sides. Light: 'base' + soft blue primary. Dark:
-      // 'dark' + deep blue node fills (dark theme ignores primaryColor for
-      // fills, so set mainBkg/secondary/tertiary too) + light text. mermaid
-      // derives borders/edges from these.
-      // One token for every text element. mermaid pulls node text, titles,
-      // edge/transition labels, sequence actors/messages, and class members
-      // from separate vars; left unset they fall back to the dark theme's mix
-      // of white + grey, so pin them all to the same light grey.
-      var tx = '#e6e9ef';
-      window.mermaid.initialize(dark
-        ? { startOnLoad: false, theme: 'dark',
-            themeVariables: { darkMode: true,
-              primaryColor: '#1e3a5f', mainBkg: '#1e3a5f',
-              secondaryColor: '#1e3a5f', tertiaryColor: '#1e3a5f',
-              // ER attribute rows: neutral grey (blue header only), mirroring
-              // light's blue-header / white-rows. Same odd+even = no stripe.
-              rowOdd: '#2b313b', rowEven: '#2b313b',
-              primaryTextColor: tx, secondaryTextColor: tx, tertiaryTextColor: tx,
-              textColor: tx, nodeTextColor: tx, titleColor: tx, classText: tx,
-              actorTextColor: tx, signalTextColor: tx, labelTextColor: tx, loopTextColor: tx,
-              edgeLabelBackground: labelBg } }
-        : { startOnLoad: false, theme: 'base',
-            themeVariables: { primaryColor: '#dbe9ff', edgeLabelBackground: labelBg } });
+      window.mermaid.initialize(dark ? darkTheme(labelBg) : lightTheme(labelBg));
       window.mermaid.run({ nodes: list });
     }
 
