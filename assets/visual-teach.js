@@ -384,8 +384,8 @@ function wireThemeToggle(win) {
   btn.setAttribute("aria-label", "Toggle dark or light theme");
   btn.style.cssText =
     "position:fixed;top:1rem;right:1rem;z-index:99;font:inherit;font-size:.8rem;" +
-    "padding:.35rem .7rem;border-radius:999px;cursor:pointer;border:1px solid var(--vt-line);" +
-    "background:var(--vt-soft);color:var(--vt-fg);";
+    "padding:.35rem .7rem;border-radius:999px;cursor:pointer;border:1px solid var(--vt-rule);" +
+    "background:var(--vt-soft);color:var(--vt-ink);";
   btn.addEventListener("click", function () {
     var dark =
       doc.documentElement.dataset.theme === "dark" ||
