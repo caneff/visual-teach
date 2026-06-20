@@ -467,7 +467,9 @@ function initKatex() {
         ],
         throwOnError: false,
       });
-    } catch (e) {}
+    } catch (e) {
+      // leave inline math as-is on failure
+    }
   }
 }
 
