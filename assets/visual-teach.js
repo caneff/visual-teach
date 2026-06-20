@@ -496,14 +496,15 @@ function markFlowRows(flow) {
 
 function initFlows() {
   var flows = Array.from(document.querySelectorAll(".vt-flow"));
-  flows.forEach(markFlowRows);
-  if (typeof ResizeObserver !== "undefined") {
-    flows.forEach(function (flow) {
+  var hasResizeObserver = typeof ResizeObserver !== "undefined";
+  flows.forEach(function (flow) {
+    markFlowRows(flow);
+    if (hasResizeObserver) {
       new ResizeObserver(function () {
         markFlowRows(flow);
       }).observe(flow);
-    });
-  }
+    }
+  });
 }
 
 var BLOCKS = [

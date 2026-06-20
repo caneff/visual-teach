@@ -73,7 +73,10 @@ describe("markFlowRows", () => {
     const flow = makeFlow(9);
     // Row 1: 0-2 (top:0), Row 2: 3-5 (top:40), Row 3: 6-8 (top:80)
     Array.from(flow.children).forEach((child, i) => {
-      const top = i < 3 ? 0 : i < 6 ? 40 : 80;
+      let top;
+      if (i < 3) top = 0;
+      else if (i < 6) top = 40;
+      else top = 80;
       Object.defineProperty(child, "offsetTop", {
         get: () => top,
         configurable: true,
