@@ -25,6 +25,7 @@
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { execSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
@@ -33,7 +34,10 @@ import { z } from "zod";
 //   ready-for-agent → fresh, plannable. The planner only ever selects these.
 //   in-review       → implemented AND reviewed OK; PR pending a human merge.
 //   needs-review    → implemented, but the reviewer errored. The branch keeps
-//                     its commits; a later pass re-runs ONLY the reviewer.
+//                     its commits; a later pass merges current main into the
+//                     branch and re-runs ONLY the reviewer. After
+//                     REVIEW_RETRY_CAP failed re-reviews it escalates back to
+//                     ready-for-agent for a full re-implement.
 //
 // Transitioning out of ready-for-agent the moment an outcome is known (rather
 // than at the very end of the run) is what stops a finished issue from being
@@ -63,6 +67,24 @@ function listIssues(label: string): { number: number; title: string }[] {
 function relabel(id: string, add: string, remove: string[]): void {
   gh(`issue edit ${id} --add-label "${add}"`);
   for (const label of remove) gh(`issue edit ${id} --remove-label "${label}"`);
+}
+
+// Review-retry cap. A needs-review issue is re-reviewed (cheaply, on its
+// existing branch) up to this many times before we give up on review-only and
+// escalate to a full re-implement. Without a cap, a deterministically-broken
+// branch would re-review and re-fail every run forever.
+const REVIEW_RETRY_CAP = 2;
+const ATTEMPTS_FILE = ".sandcastle/review-attempts.json";
+
+function readAttempts(): Record<string, number> {
+  try {
+    return JSON.parse(readFileSync(ATTEMPTS_FILE, "utf8"));
+  } catch {
+    return {};
+  }
+}
+function writeAttempts(a: Record<string, number>): void {
+  writeFileSync(ATTEMPTS_FILE, JSON.stringify(a, null, 2));
 }
 
 // Ensure the lifecycle labels exist (idempotent — gh errors if present, swallowed).
@@ -180,10 +202,30 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 
   const settled = await Promise.allSettled(
     work.map(async (issue) => {
+      // A pre-existing branch (a review-only re-review, or a ready-for-agent
+      // issue whose stale worktree lingers from an earlier run) was built
+      // against an older main. Merge current main into the worktree before the
+      // agent runs so upstream fixes (e.g. the katex-diff .gitattributes that
+      // blew up #57's reviewer) take effect, and so the reviewer's
+      // `main...branch` diff is based on current main. For a brand-new branch
+      // cut from main this is a harmless no-op. Best-effort: abort on conflict
+      // and proceed; the retry cap escalates a branch that can't be salvaged.
+      const sandboxHooks = {
+        ...hooks,
+        host: {
+          onWorktreeReady: [
+            {
+              command:
+                "git fetch origin main && (git merge --no-edit origin/main || git merge --abort)",
+            },
+          ],
+        },
+      };
+
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
         sandbox: docker(),
-        hooks,
+        hooks: sandboxHooks,
         copyToWorktree,
       });
 
@@ -258,21 +300,36 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   //   needs-review → needs-review (drop ready-for-agent; keep branch commits)
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
+  const attempts = readAttempts();
   const completedIssues: { id: string; title: string; branch: string }[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
     const { issue, kind } = outcome.value;
     if (kind === "done") {
       relabel(issue.id, "in-review", ["ready-for-agent", "needs-review"]);
+      delete attempts[issue.id]; // reviewed clean — reset the retry counter
       completedIssues.push({
         id: issue.id,
         title: issue.title,
         branch: issue.branch,
       });
     } else if (kind === "needs-review") {
-      relabel(issue.id, "needs-review", ["ready-for-agent"]);
+      attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
+      if (attempts[issue.id] >= REVIEW_RETRY_CAP) {
+        // Cheap re-review failed REVIEW_RETRY_CAP times — the branch can't be
+        // salvaged by review alone. Escalate to a full implement pass (which
+        // can actually change the code) against current main.
+        relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
+        delete attempts[issue.id];
+        console.warn(
+          `  ${issue.id} hit review-retry cap (${REVIEW_RETRY_CAP}); back to ready-for-agent for a full re-implement`
+        );
+      } else {
+        relabel(issue.id, "needs-review", ["ready-for-agent"]);
+      }
     }
   }
+  writeAttempts(attempts);
 
   console.log(
     `\nExecution complete. ${completedIssues.length} issue(s) reviewed and ready for PR:`
