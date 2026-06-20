@@ -1074,13 +1074,13 @@ code.vt-pcode {
   letter-spacing: 0.02em;
 }
 
-/* node / box — labeled card */
+/* node / box — labeled card.
+   inline-block (not inline-flex column) so <sup>/<sub> stay as baseline-
+   shifted inline text rather than collapsing onto a separate flex-item row. */
 .vt-node,
 .vt-box {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  display: inline-block;
+  vertical-align: middle;
   background: var(--vt-paper);
   border: 1.5px solid var(--vt-rule);
   border-radius: 8px;
