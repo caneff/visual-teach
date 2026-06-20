@@ -25,7 +25,12 @@
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  appendFileSync,
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+} from "node:fs";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
@@ -73,22 +78,42 @@ function git(args: string): string | null {
   }
 }
 
-// Verbose logging: append every raw agent stdout line (incl. lines the stream
-// parser drops — tool-use blocks etc.) to each run's log file, for debugging
-// stuck/looping agents. On by default; set SANDCASTLE_VERBOSE=0 to quiet.
-const VERBOSE = process.env.SANDCASTLE_VERBOSE !== "0";
+// Log verbosity, three tiers via SANDCASTLE_VERBOSE:
+//   0       quiet  — parsed human-readable log only (drops tool-use blocks)
+//   1/unset tools  — quiet + each tool call appended (the missing signal,
+//                    without the raw-JSON flood). Default.
+//   2/full  raw    — every raw stdout line verbatim (full firehose, interleaved)
+const LOG_LEVEL =
+  process.env.SANDCASTLE_VERBOSE === "0"
+    ? 0
+    : process.env.SANDCASTLE_VERBOSE === "2" ||
+        process.env.SANDCASTLE_VERBOSE === "full"
+      ? 2
+      : 1;
 mkdirSync(".sandcastle/logs", { recursive: true });
 
 // Build the per-run logging option, mirroring sandcastle's default filename
 // (<sanitized-branch>-<name>.log under .sandcastle/logs/) so existing
-// `tail -f` paths keep working, plus the verbose flag.
+// `tail -f` paths keep working, plus the chosen verbosity.
 function logging(name: string, branch: string) {
   const sanitized = branch.replace(/[/\\:*?"<>|]/g, "-");
   const suffix = name.toLowerCase().replace(/[^a-z0-9_.-]/g, "-");
+  const path = `.sandcastle/logs/${sanitized}-${suffix}.log`;
   return {
     type: "file" as const,
-    path: `.sandcastle/logs/${sanitized}-${suffix}.log`,
-    verbose: VERBOSE,
+    path,
+    verbose: LOG_LEVEL === 2,
+    // Middle tier: append just the tool calls the parser otherwise drops.
+    onAgentStreamEvent:
+      LOG_LEVEL === 1
+        ? (event: sandcastle.AgentStreamEvent) => {
+            if (event.type !== "toolCall") return;
+            appendFileSync(
+              path,
+              `[tool] ${event.name} ${event.formattedArgs}\n`
+            );
+          }
+        : undefined,
   };
 }
 

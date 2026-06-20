@@ -456,10 +456,15 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 
 ### Node / box — labeled card. Add `.em` for accent emphasis, `.muted` for secondary.
 
+Inline `<sup>` and `<sub>` are safe inside a node and render as raised/lowered
+exponents on the baseline (e.g. `β<sup>2</sup>`, `H<sub>2</sub>O`).
+
 ```html
 <span class="vt-node">Step</span>
 <span class="vt-node em">Key step</span>
 <span class="vt-box muted">Optional</span>
+<span class="vt-node">β<sup>2</sup></span>
+<span class="vt-node">H<sub>2</sub>O</span>
 ```
 
 ### Flow — auto `→` connectors between direct children
