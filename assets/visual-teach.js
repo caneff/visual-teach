@@ -7,8 +7,8 @@ function announce(liveRegion, text) {
   if (liveRegion) liveRegion.textContent = text;
 }
 
-// Check that block contains every required child selector. Warns and returns
-// false on the first missing one so the wirer can bail out gracefully.
+// Check that block contains every required child selector. Warns for each
+// missing one and returns false if any are absent so the wirer can bail out.
 function ensure(block, selectors) {
   var blockClass = Array.from(block.classList).find(function (c) { return c.startsWith('vt-'); }) || block.className;
   var ok = true;
@@ -27,7 +27,6 @@ function verdict(ok, html) {
 }
 
 export function wireQuiz(quiz) {
-  // Required children: button.opt (options), .feedback (result display).
   // Optional: template.why-good, template.why-bad, template[data-opt="N"], [aria-live].
   if (!ensure(quiz, ['button.opt', '.feedback'])) return;
 
@@ -150,7 +149,6 @@ function _wireMulti(ctx, answers) {
 }
 
 export function wireChecklist(list) {
-  // Required children: at least one input[type="checkbox"] (the list items).
   if (!ensure(list, ['input[type="checkbox"]'])) return;
 
   var key = 'vt-checklist:' + (list.dataset.key || location.pathname);
@@ -240,7 +238,6 @@ var COPY_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stro
 var CHECK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
 
 function wireCodeBlock(block) {
-  // Required children: .vt-code-copy (copy button), pre (code container).
   if (!ensure(block, ['.vt-code-copy', 'pre'])) return;
 
   var btn = block.querySelector('.vt-code-copy');
