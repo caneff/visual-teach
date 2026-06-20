@@ -15,6 +15,11 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   && apt-get update && apt-get install -y gh \
   && rm -rf /var/lib/apt/lists/*
 
+# Cloudflare wrangler CLI — uploads visual-proof PNGs to an R2 bucket (durable
+# public CDN URLs). Installed globally as root so it lands on PATH for the agent.
+# ponytail: pinned to major v4; bump when R2 upload flags change.
+RUN npm install -g wrangler@4
+
 # Chromium system libs for Playwright (demo/shot.mjs visual proof). Needs root,
 # so install the apt deps here; the browser binary itself is fetched per-user below.
 RUN npx -y playwright@1.61.0 install-deps chromium \

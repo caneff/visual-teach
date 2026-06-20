@@ -61,15 +61,20 @@ affected block.
    (`python3 -m http.server 8000 &`) and shot a `http://localhost:8000/...` URL
    instead, so the after shot shows the wired result.
 
-5. **Upload the PNGs as GitHub release assets** (durable CDN URLs, no binaries in
-   git history). Use one shared holding-pen release named `visual-proof`:
-   - Ensure it exists once: `gh release view visual-proof >/dev/null 2>&1 || gh release create visual-proof --title "Visual proof assets" --notes "Holding pen for PR before/after screenshots. Not a real release." --prerelease`
-   - Asset names are global to a release, so namespace by issue and upload with
-     `--clobber` (so re-runs overwrite):
-     `cp .sandcastle/proof/issue-{{TASK_ID}}/before.png /tmp/issue-{{TASK_ID}}-before.png`
-     `gh release upload visual-proof /tmp/issue-{{TASK_ID}}-before.png --clobber`
-     (repeat for `after.png`). The URL is then
-     `https://github.com/caneff/visual-teach/releases/download/visual-proof/issue-{{TASK_ID}}-before.png`.
+5. **Upload the PNGs to Cloudflare R2** (object storage — durable public CDN URLs,
+   no binaries in git history). `wrangler` is preinstalled and authenticates from
+   `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID`; the bucket is `$R2_BUCKET`.
+   Namespace each object by issue so re-runs overwrite in place:
+   ```
+   wrangler r2 object put "$R2_BUCKET/issue-{{TASK_ID}}-before.png" \
+     --file=.sandcastle/proof/issue-{{TASK_ID}}/before.png \
+     --content-type=image/png --remote
+   ```
+   (repeat for `after.png`). `--remote` is required — without it wrangler writes a
+   local simulation, not the real bucket; `--content-type=image/png` makes the
+   browser render the image inline instead of downloading it. The public URL is
+   then `$R2_PUBLIC_BASE/issue-{{TASK_ID}}-before.png` (resolve `$R2_PUBLIC_BASE`
+   from the env — e.g. `https://pub-<hash>.r2.dev`).
 6. **Write `.sandcastle/proof/issue-{{TASK_ID}}/PROOF.md`** (text, committed — the
    PNGs are gitignored) holding the embed block the PR step will paste verbatim.
    Head it with a per-issue subheading (NOT `## Visual proof` — the PR's Visual
