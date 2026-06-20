@@ -1,4 +1,5 @@
 {
+  "name": "visual-teach",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
