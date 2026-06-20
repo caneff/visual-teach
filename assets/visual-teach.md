@@ -15,6 +15,9 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 ```
 
 ## Page shell
+**Starting a new lesson? Copy this `<main>` block plus the asset link/script
+snippet above as your skeleton, then fill it in and add the blocks below —
+delete any part you don't need.**
 ```html
 <main>
   <p class="vt-kicker">Topic · Lesson 1</p>

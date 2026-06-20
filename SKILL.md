@@ -16,6 +16,13 @@ consistent. No `/teach` installed → there's nothing to enrich; install it firs
 The authoring reference is **`assets/visual-teach.md`** (the cheatsheet). Read it
 before emitting blocks.
 
+**Authoring a new lesson:** don't assemble from scratch — start from the **Page
+shell** block near the top of the cheatsheet (the canonical `<main>` skeleton:
+metabar, objectives, sections, recap) plus the asset `<link>`/`<script>` snippet
+above it, then fill it in and add blocks per the cheatsheet, deleting any you
+don't need. Cloning a known-good shell avoids the common misses (wrong asset
+paths, missing `type="module"`, dropped wrapper divs).
+
 ## How it reaches `/teach`
 
 The reliable channel is the **filesystem**, not skill auto-invocation: once
