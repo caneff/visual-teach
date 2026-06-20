@@ -619,6 +619,49 @@ code.vt-pcode {
 .vt-split-panel.before .vt-split-label { color: var(--vt-bad); }
 .vt-split-panel.after  .vt-split-label { color: var(--vt-good); }
 
+/* io — paired input→output code block */
+.vt-io {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+
+@media (max-width: 600px) {
+  .vt-io { grid-template-columns: 1fr; }
+}
+
+.vt-io-input,
+.vt-io-output {
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
+  overflow: hidden;
+  min-width: 0; /* allow grid children to shrink so long lines scroll, not clip */
+}
+
+.vt-io-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  font-size: .78rem;
+  color: var(--vt-muted);
+  padding: .4rem .8rem;
+  background: var(--vt-soft);
+  border-bottom: 1px solid var(--vt-rule);
+}
+
+.vt-io-output .vt-io-head { background: var(--vt-good-soft); }
+
+.vt-io pre { margin: 0; overflow-x: auto; background: none; }
+
+.vt-io pre code {
+  display: block; padding: .9rem 1rem;
+  font-family: ui-monospace, 'Cascadia Code', Menlo, monospace;
+  font-size: .85rem; line-height: 1.55; background: none; color: var(--vt-ink);
+  text-shadow: none; white-space: pre;
+}
+
 /* mermaid computed-graph container (populated by assets/mermaid.js) */
 .vt-mermaid {
   margin: 1.4rem 0; overflow-x: auto; text-align: center;

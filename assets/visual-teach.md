@@ -265,6 +265,33 @@ To add a new language not yet in `assets/prism/`, download the `.min.js` file
 from `https://cdn.jsdelivr.net/npm/prismjs/components/` into `assets/prism/` and
 add the `<script>` tag to your lesson HTML.
 
+## Input → output pair (`.vt-io`) — code beside its result
+
+Side-by-side on wide viewports, stacked below 600 px. Copy button on the
+input only — the output panel is not copyable. Prism highlighting applies to
+the input slot; include the relevant `<script>` tags before `visual-teach.js`.
+Long lines in either slot scroll horizontally within the block.
+
+Required children (enforced at runtime): `.vt-io-input` and `.vt-io-output`;
+inside `.vt-io-input`: `.vt-code-copy` and `pre`.
+
+```html
+<div class="vt-io">
+  <div class="vt-io-input">
+    <div class="vt-io-head">
+      <span>pattern.py</span>
+      <button class="vt-code-copy" aria-label="Copy code"></button>
+    </div>
+    <pre><code class="language-python">import re
+print(re.findall(r'\d+', 'abc 123 def 456'))</code></pre>
+  </div>
+  <div class="vt-io-output">
+    <div class="vt-io-head"><span>Output</span></div>
+    <pre><code>['123', '456']</code></pre>
+  </div>
+</div>
+```
+
 ## Inline token emphasis (`.vt-pcode`) — spotlight one keyword
 
 ```html
