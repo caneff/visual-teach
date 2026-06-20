@@ -290,11 +290,20 @@ function wireAnchors() {
   });
 }
 
-function init() {
-  document.querySelectorAll('.vt-quiz').forEach(wireQuiz);
-  document.querySelectorAll('.vt-checklist').forEach(wireChecklist);
-  document.querySelectorAll('.vt-code').forEach(wireCodeBlock);
-  wireAnchors();
+export var BLOCKS = [
+  { sel: '.vt-quiz',      wire: wireQuiz },
+  { sel: '.vt-checklist', wire: wireChecklist },
+  { sel: '.vt-code',      wire: wireCodeBlock },
+];
+
+export function init() {
+  BLOCKS.forEach(function (b) {
+    document.querySelectorAll(b.sel).forEach(function (el) {
+      try { b.wire(el); }
+      catch (e) { console.warn('visual-teach: ' + b.sel + ' failed to wire, left inert', e); }
+    });
+  });
+  try { wireAnchors(); } catch (e) {}
   initPrism();
   if (typeof window !== 'undefined') wireThemeBridge(window);
 }
