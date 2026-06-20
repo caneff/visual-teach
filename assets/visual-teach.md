@@ -386,6 +386,7 @@ unit, e.g. the five positional fields of a cron expression `* * * * *`:
   </div>
 </div>
 ```
+`vt-code` is safe inside `vt-split` panels — long lines scroll horizontally within the block.
 
 ## Computed graphs — opt-in mermaid (sequence / state / ER only)
 

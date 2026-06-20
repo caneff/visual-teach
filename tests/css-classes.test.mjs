@@ -91,3 +91,13 @@ test('teacher box is ask-the-agent only — try-this / community split out', () 
   expect(css.includes('.vt-teacher-try')).toBe(false);
   expect(css.includes('.vt-teacher-community')).toBe(false);
 });
+
+test('vt-split-panel has min-width:0 so grid items can shrink and vt-code inside scrolls', () => {
+  const panelRule = ruleBody(/\.vt-split-panel\s*\{[^}]*\}/);
+  expect(panelRule).toContain('min-width: 0');
+});
+
+test('vt-code pre has overflow-x:auto so long lines scroll inside any container', () => {
+  const preRule = ruleBody(/\.vt-code pre\s*\{[^}]*\}/);
+  expect(preRule).toContain('overflow-x: auto');
+});
