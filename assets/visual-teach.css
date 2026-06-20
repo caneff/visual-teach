@@ -1237,6 +1237,7 @@ code.vt-pcode {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--vt-muted);
+  overflow-wrap: break-word; /* prevent long labels from clipping at the panel edge */
 }
 
 .vt-col-label {
