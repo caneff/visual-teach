@@ -91,3 +91,10 @@ test('teacher box is ask-the-agent only — try-this / community split out', () 
   expect(css.includes('.vt-teacher-try')).toBe(false);
   expect(css.includes('.vt-teacher-community')).toBe(false);
 });
+
+test('inline code nested in a link loses its pill background and side padding', () => {
+  const rule = ruleBody(/a\s+code\s*\{[^}]+\}/);
+  expect(rule, 'a code rule must exist').toBeTruthy();
+  expect(rule).toContain('background');
+  expect(rule).toContain('padding-inline');
+});

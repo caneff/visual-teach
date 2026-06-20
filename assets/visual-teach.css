@@ -77,6 +77,7 @@ code {
   font-size: .88em; background: var(--vt-soft); padding: .1em .35em; border-radius: 4px;
   white-space: nowrap; /* inline code stays on one line — never break mid-token */
 }
+a code { background: none; padding-inline: .1em; }
 
 /* callout + tones (themeable SVG tone icons; ::before is decorative, aria-hidden by nature) */
 .vt-callout {
