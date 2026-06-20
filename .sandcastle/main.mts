@@ -25,12 +25,7 @@
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { execSync } from "node:child_process";
-import {
-  appendFileSync,
-  mkdirSync,
-  readFileSync,
-  writeFileSync,
-} from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
@@ -78,18 +73,12 @@ function git(args: string): string | null {
   }
 }
 
-// Log verbosity, three tiers via SANDCASTLE_VERBOSE:
-//   0       quiet  — parsed human-readable log only (drops tool-use blocks)
-//   1/unset tools  — quiet + each tool call appended (the missing signal,
-//                    without the raw-JSON flood). Default.
-//   2/full  raw    — every raw stdout line verbatim (full firehose, interleaved)
-const LOG_LEVEL =
-  process.env.SANDCASTLE_VERBOSE === "0"
-    ? 0
-    : process.env.SANDCASTLE_VERBOSE === "2" ||
-        process.env.SANDCASTLE_VERBOSE === "full"
-      ? 2
-      : 1;
+// Log verbosity via SANDCASTLE_VERBOSE:
+//   unset/0  quiet — parsed human-readable log only (drops tool-use blocks). Default.
+//   1/2/full raw   — every raw stdout line verbatim (full firehose, interleaved)
+const VERBOSE =
+  process.env.SANDCASTLE_VERBOSE != null &&
+  process.env.SANDCASTLE_VERBOSE !== "0";
 mkdirSync(".sandcastle/logs", { recursive: true });
 
 // Build the per-run logging option, mirroring sandcastle's default filename
@@ -102,18 +91,7 @@ function logging(name: string, branch: string) {
   return {
     type: "file" as const,
     path,
-    verbose: LOG_LEVEL === 2,
-    // Middle tier: append just the tool calls the parser otherwise drops.
-    onAgentStreamEvent:
-      LOG_LEVEL === 1
-        ? (event: sandcastle.AgentStreamEvent) => {
-            if (event.type !== "toolCall") return;
-            appendFileSync(
-              path,
-              `[tool] ${event.name} ${event.formattedArgs}\n`
-            );
-          }
-        : undefined,
+    verbose: VERBOSE,
   };
 }
 
