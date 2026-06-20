@@ -142,7 +142,11 @@ A11y: label association and `aria-valuenow` on the progress bar are auto-injecte
 
 ## Quiz (v1)
 `data-answer` = 0-based index of the correct option.
-Keep every option the same length — no formatting tells.
+
+**Option text rules** — the goal is that no option visually singles itself out as the answer:
+- Keep the visible text of each option roughly the same length.
+- Inline code (`<code>` or `vt-pcode`) is fine **as long as it is used uniformly across all options** — the rule guards against only the correct answer having special formatting, not against formatting itself.
+- Never spell out punctuation as words: write `re.findall`, not "re dot findall".
 
 Required children (`button.opt`, `.feedback`) are declared in `wireQuiz` in
 `visual-teach.js` and enforced at runtime — a console warning names any missing
