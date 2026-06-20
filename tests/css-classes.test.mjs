@@ -163,6 +163,21 @@ test("vt-code pre has overflow-x:auto so long lines scroll inside any container"
   expect(preRule).toContain("overflow-x: auto");
 });
 
+test("vt-io pre has overflow-x:auto so long lines scroll inside a split panel", () => {
+  const preRule = ruleBody(/\.vt-io pre\s*\{[^}]*\}/);
+  expect(preRule).toContain("overflow-x: auto");
+});
+
+test("vt-io-input and vt-io-output have min-width:0 so grid items shrink inside a split panel", () => {
+  const itemRule = ruleBody(/\.vt-io-input,\s*\.vt-io-output\s*\{[^}]*\}/);
+  expect(itemRule).toContain("min-width: 0");
+});
+
+test("vt-split-label has overflow-wrap:break-word so long labels wrap instead of clipping at the panel edge", () => {
+  const labelRule = ruleBody(/\.vt-split-label\s*\{[^}]*\}/);
+  expect(labelRule).toContain("overflow-wrap: break-word");
+});
+
 test("vt-math block exists and uses --vt-ink token for dark/light theming", () => {
   const rule = ruleBody(/\.vt-math\s*\{[^}]+\}/);
   expect(rule, "vt-math rule must exist").toBeTruthy();
