@@ -98,3 +98,13 @@ test('inline code nested in a link loses its pill background and side padding', 
   expect(rule).toContain('background');
   expect(rule).toContain('padding-inline');
 });
+
+test('vt-split-panel has min-width:0 so grid items can shrink and vt-code inside scrolls', () => {
+  const panelRule = ruleBody(/\.vt-split-panel\s*\{[^}]*\}/);
+  expect(panelRule).toContain('min-width: 0');
+});
+
+test('vt-code pre has overflow-x:auto so long lines scroll inside any container', () => {
+  const preRule = ruleBody(/\.vt-code pre\s*\{[^}]*\}/);
+  expect(preRule).toContain('overflow-x: auto');
+});

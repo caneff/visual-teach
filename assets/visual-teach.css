@@ -611,6 +611,7 @@ code.vt-pcode {
   border: 1px solid var(--vt-rule);
   border-radius: 8px;
   padding: .9rem 1rem;
+  min-width: 0; /* grid items default to min-width:auto; 0 lets them shrink so inner vt-code scrolls */
 }
 
 .vt-split-label { margin-bottom: .5rem; font-weight: 700; }
