@@ -40,7 +40,7 @@ function verdict(ok, html) {
   );
 }
 
-export function wireQuiz(quiz) {
+function wireQuiz(quiz) {
   // Optional: template.why-good, template.why-bad, template[data-opt="N"], [aria-live].
   if (!ensure(quiz, ["button.opt", ".feedback"])) return;
 
@@ -186,7 +186,7 @@ function _wireMulti(ctx, answers) {
   });
 }
 
-export function wireChecklist(list) {
+function wireChecklist(list) {
   if (!ensure(list, ['input[type="checkbox"]'])) return;
 
   var key = "vt-checklist:" + (list.dataset.key || location.pathname);
@@ -351,7 +351,7 @@ function initPrism() {
    compare page) set the lesson theme via postMessage({vtTheme:'dark'|'light'}).
    Cross-origin-safe, so it works even when lessons are opened over file://,
    where the parent cannot reach contentDocument. */
-export function wireThemeBridge(win) {
+function wireThemeBridge(win) {
   win.addEventListener("message", function (e) {
     var t = e.data && e.data.vtTheme;
     if (t === "dark" || t === "light")
@@ -363,7 +363,7 @@ export function wireThemeBridge(win) {
    opening a lesson on its own. Skipped when (a) the page already has a
    .vt-theme-toggle (hand-built demos) or (b) the page is iframed — there the
    embedding parent owns the theme via postMessage (wireThemeBridge). */
-export function wireThemeToggle(win) {
+function wireThemeToggle(win) {
   var doc = win.document;
   if (doc.querySelector(".vt-theme-toggle")) return;
   try {
@@ -440,7 +440,7 @@ function wireAnchors() {
   });
 }
 
-export var BLOCKS = [
+var BLOCKS = [
   { sel: ".vt-quiz", wire: wireQuiz },
   { sel: ".vt-checklist", wire: wireChecklist },
   { sel: ".vt-code", wire: wireCodeBlock },
@@ -462,7 +462,7 @@ function wireBlocks() {
   });
 }
 
-export function init() {
+function init() {
   // Each step runs isolated — one failing step never blocks the rest.
   [
     wireBlocks,
@@ -481,6 +481,23 @@ export function init() {
       console.warn("visual-teach: init step failed", e);
     }
   });
+}
+
+// UMD: expose the public API for tests (CommonJS) and as a browser global.
+// Plain-script export (no ESM `export`) lets lessons load this with a classic
+// <script src> that works from file:// — no module CORS, no local server.
+var vtVisualTeach = {
+  wireQuiz: wireQuiz,
+  wireChecklist: wireChecklist,
+  wireThemeBridge: wireThemeBridge,
+  wireThemeToggle: wireThemeToggle,
+  BLOCKS: BLOCKS,
+  init: init,
+};
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = vtVisualTeach;
+} else if (typeof window !== "undefined") {
+  window.vtVisualTeach = vtVisualTeach;
 }
 
 if (typeof document !== "undefined") {

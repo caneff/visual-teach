@@ -9,15 +9,17 @@ hex.
 Link in `<head>` / before `</body>` (relative to `lessons/`):
 
 ```html
-<link rel="stylesheet" href="../assets/visual-teach.css">
+<link rel="stylesheet" href="../assets/visual-teach.css" />
 <!-- ... -->
-<script type="module" src="../assets/visual-teach.js"></script>
+<script src="../assets/visual-teach.js"></script>
 ```
 
 ## Page shell
+
 **Starting a new lesson? Copy this `<main>` block plus the asset link/script
 snippet above as your skeleton, then fill it in and add the blocks below —
 delete any part you don't need.**
+
 ```html
 <main>
   <p class="vt-kicker">Topic · Lesson 1</p>
@@ -28,7 +30,9 @@ delete any part you don't need.**
   <div class="vt-metabar">
     <span class="item">⏱ <strong>~15 min</strong></span>
     <span class="item">Needs: <strong>Lesson 1 complete</strong></span>
-    <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
+    <span class="item"
+      ><span class="vt-level intermediate">Intermediate</span></span
+    >
     <span class="item">Lesson <strong>3</strong> of 9</span>
   </div>
 
@@ -42,7 +46,9 @@ delete any part you don't need.**
   </div>
 
   <!-- Mission tie-in -->
-  <div class="vt-mission"><strong>Why this matters for your goal:</strong> …</div>
+  <div class="vt-mission">
+    <strong>Why this matters for your goal:</strong> …
+  </div>
 
   <!-- Section heading. JS auto-adds id (slug of text) + hover "#" anchor — just write the h2. -->
   <h2><span class="vt-num">1</span>Section heading</h2>
@@ -50,8 +56,10 @@ delete any part you don't need.**
 
   <!-- Primary-source card -->
   <div class="vt-source">
-    <div><span class="h">Primary source</span>
-      <a href="…">Source title</a> — one sentence on why this source.</div>
+    <div>
+      <span class="h">Primary source</span> <a href="…">Source title</a> — one
+      sentence on why this source.
+    </div>
   </div>
 
   <!-- Recap + up-next teaser -->
@@ -64,12 +72,15 @@ delete any part you don't need.**
 ```
 
 ## Difficulty pill — `vt-level` (use inside `.vt-metabar` or standalone)
+
 Modifier classes: `beginner` `intermediate` `advanced`
+
 ```html
 <span class="vt-level intermediate">Intermediate</span>
 ```
 
 ## Callout — `tone` via class: (default warn) `info` `insight` `success` `risk`
+
 ```html
 <div class="vt-callout insight"><strong>Why it matters:</strong> …</div>
 ```
@@ -81,10 +92,24 @@ Modifier classes: `beginner` `intermediate` `advanced`
 <div class="vt-table-wrap">
   <table class="vt-table">
     <!-- header column: th[scope="row"] on each data row -->
-    <thead><tr><th>Capability</th><th>Option A</th><th>Option B</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Capability</th>
+        <th>Option A</th>
+        <th>Option B</th>
+      </tr>
+    </thead>
     <tbody>
-      <tr><th scope="row">Scales</th><td class="vt-ok"></td><td class="vt-no"></td></tr>
-      <tr class="vt-row-key"><th scope="row">Key row</th><td class="vt-partial"></td><td class="vt-ok"></td></tr>
+      <tr>
+        <th scope="row">Scales</th>
+        <td class="vt-ok"></td>
+        <td class="vt-no"></td>
+      </tr>
+      <tr class="vt-row-key">
+        <th scope="row">Key row</th>
+        <td class="vt-partial"></td>
+        <td class="vt-ok"></td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -97,9 +122,13 @@ Modifier classes: `beginner` `intermediate` `advanced`
 ```
 
 Key/value reference table (glossary, config keys):
+
 ```html
 <table class="vt-kv">
-  <tr><th scope="row">Term</th><td>Definition</td></tr>
+  <tr>
+    <th scope="row">Term</th>
+    <td>Definition</td>
+  </tr>
 </table>
 ```
 
@@ -129,21 +158,29 @@ Key/value reference table (glossary, config keys):
 ```
 
 ## Checklist (v1 — persists in localStorage; progress bar + count + reset auto-injected)
+
 `data-key` must be unique per lesson.
+
 ```html
 <ol class="vt-checklist" data-key="topic-0001">
-  <li><input type="checkbox"><div>
-    <span class="vt-step-title">Step title</span>
-    <span class="vt-step-body">What to do.</span>
-  </div></li>
+  <li>
+    <input type="checkbox" />
+    <div>
+      <span class="vt-step-title">Step title</span>
+      <span class="vt-step-body">What to do.</span>
+    </div>
+  </li>
 </ol>
 ```
+
 A11y: label association and `aria-valuenow` on the progress bar are auto-injected.
 
 ## Quiz (v1)
+
 `data-answer` = 0-based index of the correct option.
 
 **Option text rules** — the goal is that no option visually singles itself out as the answer:
+
 - Keep the visible text of each option roughly the same length.
 - Inline code (`<code>` or `vt-pcode`) is fine **as long as it is used uniformly across all options** — the rule guards against only the correct answer having special formatting, not against formatting itself.
 - Never spell out punctuation as words: write `re.findall`, not "re dot findall".
@@ -153,6 +190,7 @@ Required children (`button.opt`, `.feedback`) are declared in `wireQuiz` in
 child and leaves the block inert.
 
 ### Single-answer — retry until correct, with per-option misconceptions
+
 ```html
 <div class="vt-quiz" data-answer="1">
   <p class="q">Question?</p>
@@ -161,18 +199,22 @@ child and leaves the block inert.
   <button class="opt">Option C</button>
   <div class="feedback"></div>
   <template class="why-good">Shown once the learner picks correctly.</template>
-  <template class="why-bad">Fallback shown when wrong, no per-option template.</template>
+  <template class="why-bad"
+    >Fallback shown when wrong, no per-option template.</template
+  >
   <template data-opt="0">Misconception for option A specifically.</template>
   <template data-opt="2">Misconception for option C specifically.</template>
   <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
 </div>
 ```
+
 Wrong pick shows feedback but never reveals the answer or locks — learner retries
 until correct, and can still click wrong options afterward to read their explanations.
 Optional: `template[data-opt="N"]` per-option misconception (falls back to `template.why-bad`),
 `template.why-good`, `template.why-bad`, `div[aria-live]` for screen-reader feedback.
 
 ### Multi-select — add `data-multi`, set `data-answer` to a comma-separated list
+
 ```html
 <div class="vt-quiz" data-answer="0,2" data-multi>
   <p class="q">Pick all correct options.</p>
@@ -184,11 +226,14 @@ Optional: `template[data-opt="N"]` per-option misconception (falls back to `temp
   <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
 </div>
 ```
+
 A "Check answer" button is auto-injected. Clicking options toggles selection (`aria-pressed`).
 
 ## Recap + up-next teaser
-A forward *teaser* — plain prose, **not** a link/button (the next lesson isn't
+
+A forward _teaser_ — plain prose, **not** a link/button (the next lesson isn't
 written yet, so a "Next" link would be dead). Just name what's coming.
+
 ```html
 <div class="vt-recap">
   <p class="h">✦ What you earned</p>
@@ -198,11 +243,15 @@ written yet, so a "Next" link would be dead). Just name what's coming.
 ```
 
 ## Teacher box (SVG cap icon, question chips) — one job: ask the agent
+
 ```html
 <div class="vt-teacher">
   <div>
     <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
-    <p>Ask anything — follow-up questions are the point, not an interruption. Not sure where to start:</p>
+    <p>
+      Ask anything — follow-up questions are the point, not an interruption. Not
+      sure where to start:
+    </p>
     <div class="vt-asks">
       <span class="vt-ask">Why did X happen?</span>
       <span class="vt-ask">How does this map to Y?</span>
@@ -211,14 +260,23 @@ written yet, so a "Next" link would be dead). Just name what's coming.
   </div>
 </div>
 ```
+
 Self-explanation prompt → reuse an insight callout (works mid-lesson too):
+
 ```html
-<div class="vt-callout insight"><strong>Try this:</strong> explain [concept] back to me in your own words — I'll tell you what you missed.</div>
+<div class="vt-callout insight">
+  <strong>Try this:</strong> explain [concept] back to me in your own words —
+  I'll tell you what you missed.
+</div>
 ```
+
 Community pointer → a source block (lives with external references):
+
 ```html
 <div class="vt-source">
-  <div><span class="h">Practice with others</span><a href="#">community link</a></div>
+  <div>
+    <span class="h">Practice with others</span><a href="#">community link</a>
+  </div>
 </div>
 ```
 
@@ -226,7 +284,10 @@ Community pointer → a source block (lives with external references):
 
 ```html
 <div class="vt-code">
-  <div class="vt-code-head"><span>filename.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
+  <div class="vt-code-head">
+    <span>filename.py</span
+    ><button class="vt-code-copy" aria-label="Copy code"></button>
+  </div>
   <pre><code class="language-python">def hello():
     return "world"</code></pre>
 </div>
@@ -238,16 +299,16 @@ JS disabled) the block stays readable — it degrades to styled plain text.
 
 **Bundled grammars** (in `assets/prism/`) — default web set:
 
-| File | Languages covered |
-|---|---|
-| `prism-core.min.js` | Prism engine (always required first) |
-| `prism-markup.min.js` | HTML, XML, SVG |
-| `prism-css.min.js` | CSS |
-| `prism-clike.min.js` | Shared C-style token rules (required by JS) |
-| `prism-javascript.min.js` | JavaScript |
-| `prism-python.min.js` | Python |
-| `prism-sql.min.js` | SQL |
-| `prism-bash.min.js` | Bash / shell |
+| File                      | Languages covered                           |
+| ------------------------- | ------------------------------------------- |
+| `prism-core.min.js`       | Prism engine (always required first)        |
+| `prism-markup.min.js`     | HTML, XML, SVG                              |
+| `prism-css.min.js`        | CSS                                         |
+| `prism-clike.min.js`      | Shared C-style token rules (required by JS) |
+| `prism-javascript.min.js` | JavaScript                                  |
+| `prism-python.min.js`     | Python                                      |
+| `prism-sql.min.js`        | SQL                                         |
+| `prism-bash.min.js`       | Bash / shell                                |
 
 Default web snippet (covers HTML/CSS/JS — the most common web lesson languages):
 
@@ -257,7 +318,7 @@ Default web snippet (covers HTML/CSS/JS — the most common web lesson languages
 <script src="../assets/prism/prism-css.min.js"></script>
 <script src="../assets/prism/prism-clike.min.js"></script>
 <script src="../assets/prism/prism-javascript.min.js"></script>
-<script type="module" src="../assets/visual-teach.js"></script>
+<script src="../assets/visual-teach.js"></script>
 ```
 
 Add extra grammars for non-web lessons (e.g. Python, SQL, Bash) by appending
@@ -309,17 +370,35 @@ Inline `<code>` nested inside an `<a>` automatically loses its pill background
 and side padding so it reads as normal link text without gap artifacts.
 
 ## Footer / sources (source-type icons, companion slot, verified-date)
+
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
+
 ```html
 <footer class="vt-sources">
   <span class="lbl">Sources</span>
   <ul class="vt-reflist">
-    <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial</a> <span class="note">— one-line note.</span></li>
-    <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Reference docs</a></li>
-    <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
-    <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Community forum</a></li>
+    <li>
+      <span class="vt-src-ic" data-type="spec"></span
+      ><a href="#">Official tutorial</a>
+      <span class="note">— one-line note.</span>
+    </li>
+    <li>
+      <span class="vt-src-ic" data-type="doc"></span
+      ><a href="#">Reference docs</a>
+    </li>
+    <li>
+      <span class="vt-src-ic" data-type="video"></span
+      ><a href="#">Quick-start (video)</a>
+    </li>
+    <li>
+      <span class="vt-src-ic" data-type="forum"></span
+      ><a href="#">Community forum</a>
+    </li>
   </ul>
-  <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Glossary &amp; concept map</a></div>
+  <div class="vt-companion">
+    <span class="vt-src-ic" data-type="book"></span>Companion reference:
+    <a href="#">Glossary &amp; concept map</a>
+  </div>
   <div class="meta">Lesson 0001 · verified 2026-06-19</div>
 </footer>
 ```
@@ -327,6 +406,7 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ## Diagram vocabulary (all CSS, no JS, prints, light + dark)
 
 ### Panel
+
 ```html
 <div class="vt-diagram">
   <!-- nodes, flow, rows, splits go here -->
@@ -335,6 +415,7 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 ### Node / box — labeled card. Add `.em` for accent emphasis, `.muted` for secondary.
+
 ```html
 <span class="vt-node">Step</span>
 <span class="vt-node em">Key step</span>
@@ -342,8 +423,10 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 ### Flow — auto `→` connectors between direct children
+
 **Sequence only** — injects a `→` before each sibling. For layout demos
 (`justify-content` / `align-items`) use `vt-flex` below, not this.
+
 ```html
 <div class="vt-flow">
   <span class="vt-node">Source</span>
@@ -353,6 +436,7 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 ### Flex playground — `vt-flex` / `vt-flex-item` (layout behavior demos)
+
 Pure `display:flex`, no injected separators — modifier classes set the flex
 property directly, so the demo matches what a learner would write.
 
@@ -366,7 +450,9 @@ property directly, so the demo matches what a learner would write.
   <span class="vt-flex-item">C</span>
 </div>
 ```
+
 Stack several labeled blocks to compare values side by side:
+
 ```html
 <p class="sc-sub">jc-between</p>
 <div class="vt-flex jc-between">
@@ -383,6 +469,7 @@ Stack several labeled blocks to compare values side by side:
 ```
 
 ### Row / col — lane layout
+
 ```html
 <div class="vt-row">
   <div class="vt-col">
@@ -396,14 +483,17 @@ Stack several labeled blocks to compare values side by side:
   </div>
 </div>
 ```
+
 `vt-row` wraps by default. Add `.nowrap` to keep the columns on one line (and
 scroll horizontally if they overflow) — for a row that must read as a single
 unit, e.g. the five positional fields of a cron expression `* * * * *`:
+
 ```html
-<div class="vt-row nowrap"> … </div>
+<div class="vt-row nowrap">…</div>
 ```
 
 ### Split — before / after. Add `.before` / `.after` on panels for colour cues.
+
 ```html
 <div class="vt-split">
   <div class="vt-split-panel before">
@@ -416,6 +506,7 @@ unit, e.g. the five positional fields of a cron expression `* * * * *`:
   </div>
 </div>
 ```
+
 `vt-code` is safe inside `vt-split` panels — long lines scroll horizontally within the block.
 
 ## Computed graphs — opt-in mermaid (sequence / state / ER only)
@@ -430,9 +521,7 @@ mermaid **only** when the graph needs auto-layout: sequence, state, ER.
 <!-- 2. Write your diagram inside .vt-mermaid — mermaid CDN loads only if this
      element is found on the page. -->
 <div class="vt-mermaid">
-sequenceDiagram
-  Client->>Server: Request
-  Server-->>Client: Response
+  sequenceDiagram Client->>Server: Request Server-->>Client: Response
 </div>
 ```
 
@@ -441,9 +530,16 @@ mermaid's `themeVariables`, so diagrams match the lesson palette and switch
 automatically with dark mode.
 
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
+
 ```html
-<style>:root{ --vt-accent:#0d7d4d; --vt-ink:#11181c; }</style>
+<style>
+  :root {
+    --vt-accent: #0d7d4d;
+    --vt-ink: #11181c;
+  }
+</style>
 ```
+
 Tokens: `--vt-ink --vt-muted --vt-accent --vt-accent-fg --vt-rule --vt-paper
 --vt-good --vt-bad --vt-warn`. Topic-specific colors (e.g. a product's own UI
 palette) belong here, not in `visual-teach.css`.
