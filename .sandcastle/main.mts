@@ -25,7 +25,7 @@
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { execSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
 
 // ---------------------------------------------------------------------------
@@ -71,6 +71,25 @@ function git(args: string): string | null {
   } catch {
     return null;
   }
+}
+
+// Verbose logging: append every raw agent stdout line (incl. lines the stream
+// parser drops — tool-use blocks etc.) to each run's log file, for debugging
+// stuck/looping agents. On by default; set SANDCASTLE_VERBOSE=0 to quiet.
+const VERBOSE = process.env.SANDCASTLE_VERBOSE !== "0";
+mkdirSync(".sandcastle/logs", { recursive: true });
+
+// Build the per-run logging option, mirroring sandcastle's default filename
+// (<sanitized-branch>-<name>.log under .sandcastle/logs/) so existing
+// `tail -f` paths keep working, plus the verbose flag.
+function logging(name: string, branch: string) {
+  const sanitized = branch.replace(/[/\\:*?"<>|]/g, "-");
+  const suffix = name.toLowerCase().replace(/[^a-z0-9_.-]/g, "-");
+  return {
+    type: "file" as const,
+    path: `.sandcastle/logs/${sanitized}-${suffix}.log`,
+    verbose: VERBOSE,
+  };
 }
 
 // Whether a branch carries real changes vs main — i.e. there is something to
@@ -152,6 +171,9 @@ const copyToWorktree = ["node_modules"];
 // and open a single consolidated PR at the end, instead of one PR per issue.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const runBranch = `sandcastle/run-${runId}`;
+// Branch the top-level runs (planner, PR consolidator) report against — used
+// only to name their log files the way sandcastle would by default.
+const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 const allCompleted: { id: string; title: string; branch: string }[] = [];
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
@@ -170,6 +192,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     hooks,
     sandbox: docker(),
     name: "planner",
+    logging: logging("planner", headBranch),
     // One iteration is enough: the planner just needs to read and reason,
     // not write code. (Structured output requires maxIterations: 1.)
     maxIterations: 1,
@@ -257,6 +280,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         if (issue.mode === "full") {
           const implement = await sandbox.run({
             name: "implementer",
+            logging: logging("implementer", issue.branch),
             maxIterations: 100,
             agent: sandcastle.claudeCode("claude-sonnet-4-6"),
             promptFile: "./.sandcastle/implement-prompt.md",
@@ -284,6 +308,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         try {
           const review = await sandbox.run({
             name: "reviewer",
+            logging: logging("reviewer", issue.branch),
             maxIterations: 1,
             agent: sandcastle.claudeCode("claude-sonnet-4-6"),
             promptFile: "./.sandcastle/review-prompt.md",
@@ -393,6 +418,7 @@ if (allCompleted.length === 0) {
     hooks,
     sandbox: docker(),
     name: "pr-consolidator",
+    logging: logging("pr-consolidator", headBranch),
     maxIterations: 1,
     agent: sandcastle.claudeCode("claude-sonnet-4-6"),
     promptFile: "./.sandcastle/pr-prompt.md",
