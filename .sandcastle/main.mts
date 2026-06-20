@@ -24,7 +24,76 @@
 
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
+import { execSync } from "node:child_process";
+import { readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
+
+// ---------------------------------------------------------------------------
+// Issue lifecycle labels (managed host-side, never by the agents)
+//
+//   ready-for-agent → fresh, plannable. The planner only ever selects these.
+//   in-review       → implemented AND reviewed OK; PR pending a human merge.
+//   needs-review    → implemented, but the reviewer errored. The branch keeps
+//                     its commits; a later pass merges current main into the
+//                     branch and re-runs ONLY the reviewer. After
+//                     REVIEW_RETRY_CAP failed re-reviews it escalates back to
+//                     ready-for-agent for a full re-implement.
+//
+// Transitioning out of ready-for-agent the moment an outcome is known (rather
+// than at the very end of the run) is what stops a finished issue from being
+// re-planned on the next iteration / next run.
+// ---------------------------------------------------------------------------
+function gh(args: string): string | null {
+  try {
+    return execSync(`gh ${args}`, {
+      stdio: ["pipe", "pipe", "pipe"],
+    })
+      .toString()
+      .trim();
+  } catch {
+    // Non-fatal: label already exists, label not on issue, transient API error.
+    return null;
+  }
+}
+
+function listIssues(label: string): { number: number; title: string }[] {
+  const out = gh(
+    `issue list --state open --label "${label}" --limit 100 --json number,title`
+  );
+  return out ? JSON.parse(out) : [];
+}
+
+// add/remove as separate calls so a no-op remove never blocks the add.
+function relabel(id: string, add: string, remove: string[]): void {
+  gh(`issue edit ${id} --add-label "${add}"`);
+  for (const label of remove) gh(`issue edit ${id} --remove-label "${label}"`);
+}
+
+// Review-retry cap. A needs-review issue is re-reviewed (cheaply, on its
+// existing branch) up to this many times before we give up on review-only and
+// escalate to a full re-implement. Without a cap, a deterministically-broken
+// branch would re-review and re-fail every run forever.
+const REVIEW_RETRY_CAP = 2;
+const ATTEMPTS_FILE = ".sandcastle/review-attempts.json";
+
+function readAttempts(): Record<string, number> {
+  try {
+    return JSON.parse(readFileSync(ATTEMPTS_FILE, "utf8"));
+  } catch {
+    return {};
+  }
+}
+function writeAttempts(a: Record<string, number>): void {
+  writeFileSync(ATTEMPTS_FILE, JSON.stringify(a, null, 2));
+}
+
+// Ensure the lifecycle labels exist (idempotent — gh errors if present, swallowed).
+gh(
+  `label create in-review --color FBCA04 --description "Implemented + reviewed by sandcastle; PR pending human merge"`
+);
+gh(
+  `label create needs-review --color D93F0B --description "Implemented but sandcastle review failed; re-review only"`
+);
 
 // The planner emits its plan as JSON inside <plan> tags; Output.object extracts
 // and validates it against this schema. We use Zod here, but any Standard
@@ -93,19 +162,32 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     output: sandcastle.Output.object({ tag: "plan", schema: planSchema }),
   });
 
-  const issues = plan.output.issues;
+  // Fresh, unblocked issues from the planner run the full implement→review
+  // pipeline. Issues labelled needs-review (implemented earlier, review errored)
+  // skip the implementer and re-run ONLY the reviewer on their existing branch.
+  const fresh = plan.output.issues.map((i) => ({
+    ...i,
+    mode: "full" as const,
+  }));
+  const needsReview = listIssues("needs-review").map((i) => ({
+    id: String(i.number),
+    title: i.title,
+    branch: `sandcastle/issue-${i.number}`,
+    mode: "review-only" as const,
+  }));
+  const work = [...fresh, ...needsReview];
 
-  if (issues.length === 0) {
-    // No unblocked work — either everything is done or everything is blocked.
-    console.log("No unblocked issues to work on. Exiting.");
+  if (work.length === 0) {
+    // No unblocked work and nothing awaiting re-review — done or all blocked.
+    console.log("No unblocked or review-pending issues. Exiting.");
     break;
   }
 
   console.log(
-    `Planning complete. ${issues.length} issue(s) to work in parallel:`
+    `Planning complete. ${fresh.length} to implement, ${needsReview.length} to re-review:`
   );
-  for (const issue of issues) {
-    console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
+  for (const w of work) {
+    console.log(`  [${w.mode}] ${w.id}: ${w.title} → ${w.branch}`);
   }
 
   // -------------------------------------------------------------------------
@@ -119,100 +201,155 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // -------------------------------------------------------------------------
 
   const settled = await Promise.allSettled(
-    issues.map(async (issue) => {
+    work.map(async (issue) => {
+      // A pre-existing branch (a review-only re-review, or a ready-for-agent
+      // issue whose stale worktree lingers from an earlier run) was built
+      // against an older main. Merge current main into the worktree before the
+      // agent runs so upstream fixes (e.g. the katex-diff .gitattributes that
+      // blew up #57's reviewer) take effect, and so the reviewer's
+      // `main...branch` diff is based on current main. For a brand-new branch
+      // cut from main this is a harmless no-op. Best-effort: abort on conflict
+      // and proceed; the retry cap escalates a branch that can't be salvaged.
+      const sandboxHooks = {
+        ...hooks,
+        host: {
+          onWorktreeReady: [
+            {
+              command:
+                "git fetch origin main && (git merge --no-edit origin/main || git merge --abort)",
+            },
+          ],
+        },
+      };
+
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
         sandbox: docker(),
-        hooks,
+        hooks: sandboxHooks,
         copyToWorktree,
       });
 
       try {
-        // Run the implementer
-        const implement = await sandbox.run({
-          name: "implementer",
-          maxIterations: 100,
-          agent: sandcastle.claudeCode("claude-sonnet-4-6"),
-          promptFile: "./.sandcastle/implement-prompt.md",
-          promptArgs: {
-            TASK_ID: issue.id,
-            ISSUE_TITLE: issue.title,
-            BRANCH: issue.branch,
-          },
-        });
+        let implementCommits: string[] = [];
 
-        // Only review if the implementer produced commits
-        if (implement.commits.length > 0) {
+        // Implement (full mode only). review-only issues already have commits
+        // on their branch from an earlier run.
+        if (issue.mode === "full") {
+          const implement = await sandbox.run({
+            name: "implementer",
+            maxIterations: 100,
+            agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+            promptFile: "./.sandcastle/implement-prompt.md",
+            promptArgs: {
+              TASK_ID: issue.id,
+              ISSUE_TITLE: issue.title,
+              BRANCH: issue.branch,
+            },
+          });
+          implementCommits = implement.commits;
+
+          // Nothing implemented — leave the issue ready-for-agent for a clean
+          // retry; don't review an empty branch.
+          if (implementCommits.length === 0) {
+            return { issue, kind: "nothing" as const, commits: [] };
+          }
+        }
+
+        // Review. A reviewer error (e.g. context blow-up) must NOT discard the
+        // implementer's commits — catch it and flag the issue needs-review so a
+        // later pass re-reviews the existing branch instead of re-implementing.
+        try {
           const review = await sandbox.run({
             name: "reviewer",
             maxIterations: 1,
             agent: sandcastle.claudeCode("claude-sonnet-4-6"),
             promptFile: "./.sandcastle/review-prompt.md",
-            promptArgs: {
-              BRANCH: issue.branch,
-            },
+            promptArgs: { BRANCH: issue.branch },
           });
-
-          // Merge commits from both runs so the merge phase sees all of them.
-          // Each sandbox.run() only returns commits from its own run.
           return {
-            ...review,
-            commits: [...implement.commits, ...review.commits],
+            issue,
+            kind: "done" as const,
+            commits: [...implementCommits, ...review.commits],
+          };
+        } catch (e) {
+          console.error(`  ⚠ ${issue.id} review failed, will re-review: ${e}`);
+          return {
+            issue,
+            kind: "needs-review" as const,
+            commits: implementCommits,
           };
         }
-
-        return implement;
       } finally {
         await sandbox.close();
       }
     })
   );
 
-  // Log any agents that threw (network error, sandbox crash, etc.).
+  // Log any pipelines that threw outright (sandbox crash, network, etc.).
   for (const [i, outcome] of settled.entries()) {
     if (outcome.status === "rejected") {
       console.error(
-        `  ✗ ${issues[i]!.id} (${issues[i]!.branch}) failed: ${outcome.reason}`
+        `  ✗ ${work[i]!.id} (${work[i]!.branch}) failed: ${outcome.reason}`
       );
     }
   }
 
-  // Only pass branches that actually produced commits to the merge phase.
-  // An agent that ran successfully but made no commits has nothing to merge.
-  const completedIssues = settled
-    .map((outcome, i) => ({ outcome, issue: issues[i]! }))
-    .filter(
-      (entry) =>
-        entry.outcome.status === "fulfilled" &&
-        entry.outcome.value.commits.length > 0
-    )
-    .map((entry) => entry.issue);
-
-  const completedBranches = completedIssues.map((i) => i.branch);
+  // Transition each issue's label the moment its outcome is known, so the NEXT
+  // iteration's planner (and any future run) sees the right state:
+  //   done         → in-review  (drop ready-for-agent + needs-review)
+  //   needs-review → needs-review (drop ready-for-agent; keep branch commits)
+  //   nothing      → left ready-for-agent for a clean retry
+  // Only `done` issues are accumulated into the consolidated PR.
+  const attempts = readAttempts();
+  const completedIssues: { id: string; title: string; branch: string }[] = [];
+  for (const outcome of settled) {
+    if (outcome.status !== "fulfilled") continue;
+    const { issue, kind } = outcome.value;
+    if (kind === "done") {
+      relabel(issue.id, "in-review", ["ready-for-agent", "needs-review"]);
+      delete attempts[issue.id]; // reviewed clean — reset the retry counter
+      completedIssues.push({
+        id: issue.id,
+        title: issue.title,
+        branch: issue.branch,
+      });
+    } else if (kind === "needs-review") {
+      attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
+      if (attempts[issue.id] >= REVIEW_RETRY_CAP) {
+        // Cheap re-review failed REVIEW_RETRY_CAP times — the branch can't be
+        // salvaged by review alone. Escalate to a full implement pass (which
+        // can actually change the code) against current main.
+        relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
+        delete attempts[issue.id];
+        console.warn(
+          `  ${issue.id} hit review-retry cap (${REVIEW_RETRY_CAP}); back to ready-for-agent for a full re-implement`
+        );
+      } else {
+        relabel(issue.id, "needs-review", ["ready-for-agent"]);
+      }
+    }
+  }
+  writeAttempts(attempts);
 
   console.log(
-    `\nExecution complete. ${completedBranches.length} branch(es) with commits:`
+    `\nExecution complete. ${completedIssues.length} issue(s) reviewed and ready for PR:`
   );
-  for (const branch of completedBranches) {
-    console.log(`  ${branch}`);
+  for (const issue of completedIssues) {
+    console.log(`  ${issue.branch}`);
   }
 
-  if (completedBranches.length === 0) {
-    // All agents ran but none made commits — nothing to merge this cycle.
-    console.log("No commits produced. Nothing to merge.");
+  if (completedIssues.length === 0) {
+    console.log("Nothing newly completed this iteration.");
     continue;
   }
 
   // -------------------------------------------------------------------------
-  // Accumulate, do NOT open PRs yet.
-  //
-  // Each completed issue is collected into allCompleted. The single
-  // consolidated PR is opened after the outer loop ends (Phase 3 below), so a
-  // whole run produces one PR, not one per issue per iteration.
+  // Accumulate, do NOT open PRs yet. The single consolidated PR is opened after
+  // the outer loop ends (Phase 3), so a whole run produces one PR.
   // -------------------------------------------------------------------------
   allCompleted.push(...completedIssues);
   console.log(
-    `Accumulated ${completedBranches.length} branch(es) this iteration; ${allCompleted.length} total so far.`
+    `Accumulated ${completedIssues.length} issue(s) this iteration; ${allCompleted.length} total so far.`
   );
 }
 
