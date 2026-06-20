@@ -63,6 +63,26 @@ function listIssues(label: string): { number: number; title: string }[] {
   return out ? JSON.parse(out) : [];
 }
 
+function git(args: string): string | null {
+  try {
+    return execSync(`git ${args}`, { stdio: ["pipe", "pipe", "pipe"] })
+      .toString()
+      .trim();
+  } catch {
+    return null;
+  }
+}
+
+// Whether a branch carries real changes vs main — i.e. there is something to
+// review and to put in a PR. Keyed on the diff, NOT on how many commits a given
+// run produced: an implementer that resumes an already-complete branch makes
+// zero new commits but the branch still has work. Three-dot diffs from the
+// merge-base, so a "merge main in" commit alone doesn't count as work.
+function branchHasWork(branch: string): boolean {
+  const out = git(`diff --name-only main...${branch}`);
+  return out !== null && out.length > 0;
+}
+
 // add/remove as separate calls so a no-op remove never blocks the add.
 function relabel(id: string, add: string, remove: string[]): void {
   gh(`issue edit ${id} --add-label "${add}"`);
@@ -247,12 +267,15 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             },
           });
           implementCommits = implement.commits;
+        }
 
-          // Nothing implemented — leave the issue ready-for-agent for a clean
-          // retry; don't review an empty branch.
-          if (implementCommits.length === 0) {
-            return { issue, kind: "nothing" as const, commits: [] };
-          }
+        // Decide whether to review by what's ON THE BRANCH, not by this run's
+        // commit count. A resumed branch that's already complete yields zero
+        // new commits but still has work to review; gating on this-run commits
+        // there left the issue ready-for-agent and re-planned it every
+        // iteration. Only a branch with no diff vs main is truly "nothing".
+        if (implementCommits.length === 0 && !branchHasWork(issue.branch)) {
+          return { issue, kind: "nothing" as const, commits: [] };
         }
 
         // Review. A reviewer error (e.g. context blow-up) must NOT discard the
