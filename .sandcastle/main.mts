@@ -24,6 +24,7 @@
 
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
+import { addressOpenPRs } from "./address.mts";
 import { execSync } from "node:child_process";
 import {
   appendFileSync,
@@ -200,6 +201,15 @@ const runBranch = `sandcastle/run-${runId}`;
 // only to name their log files the way sandcastle would by default.
 const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 const allCompleted: { id: string; title: string; branch: string }[] = [];
+
+// Phase 0: clear pending review comments on open sandcastle PRs before taking
+// on new issue work. Once per run — humans don't comment mid-run, so a
+// per-iteration sweep would only re-scan the same set. Set SANDCASTLE_SKIP_ADDRESS=1
+// for an issues-only run.
+if (process.env.SANDCASTLE_SKIP_ADDRESS !== "1") {
+  console.log("\n=== Phase 0: Address open sandcastle PR comments ===\n");
+  await addressOpenPRs();
+}
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);

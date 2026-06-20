@@ -1,7 +1,6 @@
-// Address PR review comments — a focused, on-demand sandcastle runner.
+// Address PR review comments — reusable from main.mts and as a CLI.
 //
-// Unlike main.mts (which is issue-driven), this takes one or more PR numbers
-// and, for each, spins up a sandbox that checks out the PR branch, addresses
+// For each PR it spins up a sandbox that checks out the PR branch, addresses
 // the unresolved review comments, pushes the fixes back to the same branch
 // (updating the open PR in place), and replies to each thread.
 //
@@ -10,7 +9,8 @@
 //
 // Usage:
 //   npx tsx .sandcastle/address.mts <pr-number> [<pr-number> ...]  # specific PRs
-//   npx tsx .sandcastle/address.mts                                # all open PRs with comments
+//   npx tsx .sandcastle/address.mts                                # sweep open sandcastle PRs with comments
+// Or import { addressOpenPRs } and call it (main.mts does this at run start).
 
 import { execSync } from "node:child_process";
 import * as sandcastle from "@ai-hero/sandcastle";
@@ -18,55 +18,67 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 
 const sh = (cmd: string) => execSync(cmd, { encoding: "utf8" }).trim();
 
-let prs = process.argv.slice(2);
+// Address review comments on the given PRs. With no explicit numbers, sweep
+// every open PR that (a) sits on a `sandcastle/*` branch — the runner's own
+// work, never hand-authored PRs — and (b) actually has comments to address
+// (skipped otherwise so we don't burn a sandbox finding nothing).
+//
+// Explicit PR numbers bypass the branch filter: you asked for those specifically.
+export async function addressOpenPRs(prs?: string[]): Promise<void> {
+  let list = prs ?? [];
 
-if (prs.length === 0) {
-  // No args: sweep every open PR that actually has comments to address.
-  // Skip comment-free PRs so we don't burn a sandbox finding nothing.
-  const slug = sh(`gh repo view --json nameWithOwner --jq .nameWithOwner`);
-  const open = sh(`gh pr list --state open --json number --jq '.[].number'`)
-    .split("\n")
-    .filter(Boolean);
-  prs = open.filter((n) => {
-    const inline = Number(
-      sh(`gh api repos/${slug}/pulls/${n}/comments --jq 'length'`)
-    );
-    const top = Number(
-      sh(`gh api repos/${slug}/issues/${n}/comments --jq 'length'`)
-    );
-    return inline + top > 0;
-  });
-  if (prs.length === 0) {
-    console.log("No open PRs with comments to address.");
-    process.exit(0);
+  if (list.length === 0) {
+    const slug = sh(`gh repo view --json nameWithOwner --jq .nameWithOwner`);
+    const open = sh(
+      `gh pr list --state open --json number,headRefName --jq '.[] | select(.headRefName | startswith("sandcastle/")) | .number'`
+    )
+      .split("\n")
+      .filter(Boolean);
+    list = open.filter((n) => {
+      const inline = Number(
+        sh(`gh api repos/${slug}/pulls/${n}/comments --jq 'length'`)
+      );
+      const top = Number(
+        sh(`gh api repos/${slug}/issues/${n}/comments --jq 'length'`)
+      );
+      return inline + top > 0;
+    });
+    if (list.length === 0) {
+      console.log("No open sandcastle PRs with comments to address.");
+      return;
+    }
+    console.log(`Open sandcastle PR(s) with comments: ${list.join(", ")}`);
   }
-  console.log(`Open PR(s) with comments: ${prs.join(", ")}`);
+
+  const hooks = {
+    sandbox: { onSandboxReady: [{ command: "npm install" }] },
+  };
+
+  // Sequential: each run pushes to a branch, so we avoid concurrent pushes and
+  // keep token spend predictable. `branchStrategy: branch` fetches that branch
+  // into an isolated git worktree — it never touches your current checkout.
+  for (const pr of list) {
+    const branch = sh(`gh pr view ${pr} --json headRefName --jq .headRefName`);
+    console.log(
+      `\n=== Addressing review comments on PR #${pr} (${branch}) ===\n`
+    );
+    await sandcastle.run({
+      hooks,
+      copyToWorktree: ["node_modules"],
+      sandbox: docker(),
+      branchStrategy: { type: "branch", branch },
+      name: `address-pr-${pr}`,
+      maxIterations: 30,
+      agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+      promptFile: "./.sandcastle/address-comments-prompt.md",
+      promptArgs: { PR_NUMBER: pr },
+    });
+  }
+
+  console.log("\nAll done.");
 }
 
-const hooks = {
-  sandbox: { onSandboxReady: [{ command: "npm install" }] },
-};
-
-// Sequential: each run pushes to a branch, so we avoid concurrent pushes and
-// keep the token spend predictable. We resolve each PR's head branch and use
-// `branchStrategy: branch`, which fetches that branch into an isolated git
-// worktree — it never touches your current checkout, so no stashing needed.
-for (const pr of prs) {
-  const branch = sh(`gh pr view ${pr} --json headRefName --jq .headRefName`);
-  console.log(
-    `\n=== Addressing review comments on PR #${pr} (${branch}) ===\n`
-  );
-  await sandcastle.run({
-    hooks,
-    copyToWorktree: ["node_modules"],
-    sandbox: docker(),
-    branchStrategy: { type: "branch", branch },
-    name: `address-pr-${pr}`,
-    maxIterations: 30,
-    agent: sandcastle.claudeCode("claude-sonnet-4-6"),
-    promptFile: "./.sandcastle/address-comments-prompt.md",
-    promptArgs: { PR_NUMBER: pr },
-  });
+// CLI entry: run directly with `npx tsx .sandcastle/address.mts [pr ...]`.
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await addressOpenPRs(process.argv.slice(2));
 }
-
-console.log("\nAll done.");
