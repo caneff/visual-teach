@@ -230,7 +230,15 @@ function wireCodeBlock(block) {
 
 function initPrism() {
   if (typeof Prism === 'undefined') return;
-  if (!document.querySelector('.vt-code code[class*="language-"]')) return;
+  var blocks = document.querySelectorAll('.vt-code code[class*="language-"]');
+  if (!blocks.length) return;
+  blocks.forEach(function (el) {
+    var langClass = Array.from(el.classList).find(function (cls) { return cls.startsWith('language-'); });
+    var lang = langClass ? langClass.slice('language-'.length) : null;
+    if (lang && Prism.languages && !Prism.languages[lang]) {
+      console.warn('visual-teach: no Prism grammar loaded for language-' + lang + '. Add prism-' + lang + '.min.js before visual-teach.js.');
+    }
+  });
   try { Prism.highlightAll(); } catch (e) {}
 }
 

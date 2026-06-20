@@ -57,11 +57,39 @@ set -euo pipefail
 echo "Deploying..."
 npm run build && rsync -av dist/ user@host:/var/www/app/</code></pre></div>
 
-  <p class="lbl">F — manual token-emphasis inline (vt-pcode)</p>
+  <p class="lbl">F — CSS (language-css)</p>
+  <div class="vt-code"><div class="vt-code-head"><span>styles.css</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
+  <pre><code class="language-css">body {
+  font-family: 'Helvetica Neue', sans-serif;
+  color: #333;
+}
+
+.card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+}</code></pre></div>
+
+  <p class="lbl">G — HTML markup (language-markup)</p>
+  <div class="vt-code"><div class="vt-code-head"><span>index.html</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
+  <pre><code class="language-markup">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Hello&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Hello, world!&lt;/h1&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+
+  <p class="lbl">H — manual token-emphasis inline (vt-pcode)</p>
   <p>The <code class="vt-pcode">return</code> keyword exits a function and optionally passes a value back to the caller.
      Compare with <code class="vt-pcode">yield</code>, which suspends execution in a generator.</p>
 </main>
 <script src="../assets/prism/prism-core.min.js"></script>
+<script src="../assets/prism/prism-markup.min.js"></script>
+<script src="../assets/prism/prism-css.min.js"></script>
 <script src="../assets/prism/prism-clike.min.js"></script>
 <script src="../assets/prism/prism-javascript.min.js"></script>
 <script src="../assets/prism/prism-python.min.js"></script>
