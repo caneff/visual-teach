@@ -68,12 +68,10 @@ cover. Examples of the right altitude (adapt to the real changes):
 
 # AFTER OPENING
 
-For every issue folded into the PR, remove the `ready-for-agent` label so the
-planner stops re-selecting it while the PR is open:
-`gh issue edit <id> --remove-label ready-for-agent`
-
-Do NOT push to `main`. Do NOT merge the PR. Do NOT close the issues — the
-`Closes #<id>` lines close them when I squash-merge manually.
+Do NOT push to `main`. Do NOT merge the PR. Do NOT touch issue labels — the
+orchestrator manages issue lifecycle state (ready-for-agent → in-review →
+closed) host-side. The `Closes #<id>` lines close each issue when I
+squash-merge the PR manually.
 
 # ISSUES (reference)
 
