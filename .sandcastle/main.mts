@@ -32,7 +32,7 @@ import { z } from "zod";
 // https://standardschema.dev.
 const planSchema = z.object({
   issues: z.array(
-    z.object({ id: z.string(), title: z.string(), branch: z.string() }),
+    z.object({ id: z.string(), title: z.string(), branch: z.string() })
   ),
 });
 
@@ -58,6 +58,12 @@ const copyToWorktree = ["node_modules"];
 // ---------------------------------------------------------------------------
 // Main loop
 // ---------------------------------------------------------------------------
+
+// One run = one PR. We accumulate every completed issue across all iterations
+// and open a single consolidated PR at the end, instead of one PR per issue.
+const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+const runBranch = `sandcastle/run-${runId}`;
+const allCompleted: { id: string; title: string; branch: string }[] = [];
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);
@@ -96,7 +102,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   }
 
   console.log(
-    `Planning complete. ${issues.length} issue(s) to work in parallel:`,
+    `Planning complete. ${issues.length} issue(s) to work in parallel:`
   );
   for (const issue of issues) {
     console.log(`  ${issue.id}: ${issue.title} → ${issue.branch}`);
@@ -159,14 +165,14 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       } finally {
         await sandbox.close();
       }
-    }),
+    })
   );
 
   // Log any agents that threw (network error, sandbox crash, etc.).
   for (const [i, outcome] of settled.entries()) {
     if (outcome.status === "rejected") {
       console.error(
-        `  ✗ ${issues[i]!.id} (${issues[i]!.branch}) failed: ${outcome.reason}`,
+        `  ✗ ${issues[i]!.id} (${issues[i]!.branch}) failed: ${outcome.reason}`
       );
     }
   }
@@ -178,14 +184,14 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     .filter(
       (entry) =>
         entry.outcome.status === "fulfilled" &&
-        entry.outcome.value.commits.length > 0,
+        entry.outcome.value.commits.length > 0
     )
     .map((entry) => entry.issue);
 
   const completedBranches = completedIssues.map((i) => i.branch);
 
   console.log(
-    `\nExecution complete. ${completedBranches.length} branch(es) with commits:`,
+    `\nExecution complete. ${completedBranches.length} branch(es) with commits:`
   );
   for (const branch of completedBranches) {
     console.log(`  ${branch}`);
@@ -198,30 +204,49 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   }
 
   // -------------------------------------------------------------------------
-  // Phase 3: Open PRs
+  // Accumulate, do NOT open PRs yet.
   //
-  // One agent pushes each completed branch and opens a PR into the current
-  // branch for manual review. Nothing is merged automatically.
-  //
-  // The {{BRANCHES}} and {{ISSUES}} prompt arguments are lists that the agent
-  // uses to know which branches to open PRs for; issues are reference only.
+  // Each completed issue is collected into allCompleted. The single
+  // consolidated PR is opened after the outer loop ends (Phase 3 below), so a
+  // whole run produces one PR, not one per issue per iteration.
   // -------------------------------------------------------------------------
+  allCompleted.push(...completedIssues);
+  console.log(
+    `Accumulated ${completedBranches.length} branch(es) this iteration; ${allCompleted.length} total so far.`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3: One consolidated PR for the whole run
+//
+// A single agent creates the run branch off main, merges every completed issue
+// branch into it, pushes it, and opens ONE PR. The PR body lists all changes
+// grouped by issue and includes a QA checklist for manual review before merge.
+// ---------------------------------------------------------------------------
+if (allCompleted.length === 0) {
+  console.log("\nNo completed issues across the run. No PR to open.");
+} else {
+  console.log(
+    `\nOpening one consolidated PR for ${allCompleted.length} issue(s) on ${runBranch}.`
+  );
   await sandcastle.run({
     hooks,
     sandbox: docker(),
-    name: "pr-opener",
+    name: "pr-consolidator",
     maxIterations: 1,
     agent: sandcastle.claudeCode("claude-sonnet-4-6"),
     promptFile: "./.sandcastle/pr-prompt.md",
     promptArgs: {
-      // A markdown list of branch names, one per line.
-      BRANCHES: completedBranches.map((b) => `- ${b}`).join("\n"),
-      // A markdown list of issue IDs and titles, one per line.
-      ISSUES: completedIssues.map((i) => `- ${i.id}: ${i.title}`).join("\n"),
+      RUN_BRANCH: runBranch,
+      // One markdown line per issue: id, title, branch.
+      ISSUES: allCompleted
+        .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
+        .join("\n"),
+      // Just the branch names, for the merge step.
+      BRANCHES: allCompleted.map((i) => `- ${i.branch}`).join("\n"),
     },
   });
-
-  console.log("\nPRs opened.");
+  console.log("\nConsolidated PR opened.");
 }
 
 console.log("\nAll done.");
