@@ -19,9 +19,6 @@ beforeEach(() => {
   delete globalThis.Prism;
 });
 
-afterEach(() => {
-  vi.useRealTimers();
-});
 
 const VALID_IO = `
   <div class="vt-io">
