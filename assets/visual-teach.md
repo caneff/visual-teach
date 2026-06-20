@@ -265,9 +265,9 @@ the relevant `<script>` tags before `visual-teach.js`. If a `language-X` class
 is used but no grammar is loaded, `visual-teach.js` logs a `console.warn` at
 runtime naming the missing file so you can catch it immediately in DevTools.
 
-To add a new language not yet in `assets/prism/`, copy the `.min.js` file from
-`node_modules/prismjs/components/` into `assets/prism/` and add the `<script>`
-tag to your lesson HTML.
+To add a new language not yet in `assets/prism/`, download the `.min.js` file
+from `https://cdn.jsdelivr.net/npm/prismjs/components/` into `assets/prism/` and
+add the `<script>` tag to your lesson HTML.
 
 ## Inline token emphasis (`.vt-pcode`) — spotlight one keyword
 
