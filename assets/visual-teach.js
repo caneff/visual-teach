@@ -303,7 +303,7 @@ export function init() {
       catch (e) { console.warn('visual-teach: ' + b.sel + ' failed to wire, left inert', e); }
     });
   });
-  try { wireAnchors(); } catch (e) {}
+  try { wireAnchors(); } catch (e) { console.warn('visual-teach: wireAnchors failed', e); }
   initPrism();
   if (typeof window !== 'undefined') wireThemeBridge(window);
 }
