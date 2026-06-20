@@ -6,6 +6,8 @@ import { dirname, join } from 'path';
 const __dir = dirname(fileURLToPath(import.meta.url));
 const root = join(__dir, '..');
 
+const cheatsheet = readFileSync(join(root, 'assets/visual-teach.md'), 'utf8');
+
 const skill = readFileSync(join(root, 'SKILL.md'), 'utf8');
 const beforeHtml = readFileSync(join(root, 'demo/cron-0001-before.html'), 'utf8');
 const afterHtml  = readFileSync(join(root, 'demo/cron-0001-after.html'),  'utf8');
@@ -99,3 +101,16 @@ for (const phrase of [
     expect(afterHtml).toContain(phrase);
   });
 }
+
+// ── visual-teach.md quiz option guidance ──────────────────────
+test('cheatsheet: quiz section allows uniform inline code in options', () => {
+  expect(cheatsheet).toMatch(/uniform/i);
+});
+
+test('cheatsheet: quiz section forbids spelling out punctuation', () => {
+  expect(cheatsheet).toMatch(/spell.*punct|punct.*spell|don.t spell/i);
+});
+
+test('cheatsheet: quiz section retains equal-length visible text guidance', () => {
+  expect(cheatsheet).toMatch(/same length|equal length|roughly.*length|length.*roughly/i);
+});
