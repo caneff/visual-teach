@@ -1,30 +1,30 @@
 # visual-teach
 
 A passive component library for teaching lessons: one stylesheet
-(`assets/visual-teach.css`) and one script (`assets/visual-teach.js`) that give
+([`assets/visual-teach.css`](./assets/visual-teach.css)) and one script ([`assets/visual-teach.js`](./assets/visual-teach.js)) that give
 lesson HTML a consistent look and interactive behavior through `vt-*` CSS
 classes. Think Bootstrap for lessons, not a renderer or a framework.
 
 It does not own a lesson format, a schema, or any pedagogy. That is the job of
-the [`/teach`](https://github.com/mattpocock/skills) skill
-(`skills/productivity/teach`), which visual-teach is an add-on to. visual-teach
+the [/teach](https://github.com/mattpocock/skills) skill,
+which visual-teach is an add-on to. visual-teach
 only supplies the look and the interactive behavior for the lesson HTML that
 `/teach` produces. With no `/teach` installed there is nothing to enrich, so
 install it first.
 
 ## What you get
 
-- `assets/visual-teach.css` styles every `vt-*` block from 9 themeable color
+- [`assets/visual-teach.css`](./assets/visual-teach.css) styles every `vt-*` block from 9 themeable color
   tokens. It works in light and dark, and prints cleanly.
-- `assets/visual-teach.js` is an ES module that wires up the interactive blocks:
+- [`assets/visual-teach.js`](./assets/visual-teach.js) is an ES module that wires up the interactive blocks:
   quizzes with per-option feedback, checklists that persist to `localStorage`,
   copy buttons on code blocks, auto-injected section anchors, and Prism syntax
   highlighting.
-- `assets/visual-teach.md` is the authoring cheatsheet, the single source of
+- [`assets/visual-teach.md`](./assets/visual-teach.md) is the authoring cheatsheet, the single source of
   truth for which blocks exist and how to write them. Read it before authoring.
-- `assets/prism/` holds the bundled Prism grammars (HTML, CSS, JS, Python, SQL,
+- [`assets/prism/`](./assets/prism/) holds the bundled Prism grammars (HTML, CSS, JS, Python, SQL,
   Bash) used for code highlighting.
-- `assets/mermaid.js` is an opt-in bridge for computed graphs (sequence, state,
+- [`assets/mermaid.js`](./assets/mermaid.js) is an opt-in bridge for computed graphs (sequence, state,
   ER) that inherit the lesson's theme.
 
 ## Blocks
@@ -65,7 +65,7 @@ npm run serve   # python3 -m http.server 8000, from the repo root
 
 - **Compose**: visual-teach is active in the agent's context during a `/teach`
   authoring run, so the lesson is born using `vt-*` blocks. This is triggered by
-  model auto-invocation and is not guaranteed (see `docs/adr/`).
+  model auto-invocation and is not guaranteed (see [`docs/adr/`](./docs/adr/)).
 - **Convert** (`/visual-teach [file|all]`): retrofit an existing lesson's HTML to
   `vt-*` blocks and shared assets. It seeds the assets, strips inline
   `<style>`/`<script>`, swaps class names, and links the assets. A mechanical
@@ -80,16 +80,16 @@ npm test   # vitest run: quiz, checklist, code block, mermaid,
 
 ## Repository layout
 
-- `assets/` — the shipped library (CSS, JS, cheatsheet, Prism, mermaid bridge).
-- `tests/` — vitest suites for the interactive blocks.
-- `docs/PRD.md` — the project spec; `docs/adr/` — architectural decisions.
-- `CONTEXT.md` — the glossary, the project's shared vocabulary.
-- `AGENTS.md` — the contributor guide. One rule to flag: a block change must
+- [`assets/`](./assets/) — the shipped library (CSS, JS, cheatsheet, Prism, mermaid bridge).
+- [`tests/`](./tests/) — vitest suites for the interactive blocks.
+- [`docs/PRD.md`](./docs/PRD.md) — the project spec; [`docs/adr/`](./docs/adr/) — architectural decisions.
+- [`CONTEXT.md`](./CONTEXT.md) — the glossary, the project's shared vocabulary.
+- [`AGENTS.md`](./AGENTS.md) — the contributor guide. One rule to flag: a block change must
   update the cheatsheet in the same change.
 
 ## Keeping the cheatsheet in sync
 
-`assets/visual-teach.md` is the contract authors read. When you add, rename, or
+[`assets/visual-teach.md`](./assets/visual-teach.md) is the contract authors read. When you add, rename, or
 change the markup of a block in the CSS or JS, update the cheatsheet in the same
 change. A block that ships without a cheatsheet entry does not exist as far as
 lesson authors are concerned.
