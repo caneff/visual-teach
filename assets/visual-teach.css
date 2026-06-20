@@ -1331,8 +1331,7 @@ code.vt-pcode {
 }
 
 /* ====== math (KaTeX) ====== */
-/* Display math block — authors wrap LaTeX in class="vt-math".
-   Color inherits currentColor so dark/light theming is automatic. */
+/* Display math block — uses --vt-ink so dark/light theming is automatic. */
 .vt-math {
   margin: 1.2rem 0;
   overflow-x: auto;
@@ -1346,7 +1345,7 @@ code.vt-pcode {
   font-size: 1.35rem;
 }
 
-/* Inline math rendered by KaTeX auto-render inside prose paragraphs */
+/* KaTeX defaults to 1.21em; reset to match surrounding prose */
 .katex {
   font-size: 1em;
 }

@@ -74,6 +74,9 @@ const DEFINED = [
   ".vt-source",
   ".vt-source::before",
   ".vt-asks",
+  // math (KaTeX)
+  ".vt-math",
+  ".vt-eq",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
