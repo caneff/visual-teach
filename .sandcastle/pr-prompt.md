@@ -47,10 +47,13 @@ One subsection per issue that made it in. For each:
 
 ## Visual proof
 
-For each issue, paste its `.sandcastle/proof/issue-<id>/PROOF.md` verbatim (the
+This `## Visual proof` heading is the ONLY one — emit it exactly once. For each
+issue, paste the body of its `.sandcastle/proof/issue-<id>/PROOF.md` (the
 implementer uploaded the before/after screenshots as `visual-proof` release
-assets and committed the embed block). If an issue has no `PROOF.md`, note
-"#<id>: no visual change (docs/tooling only)".
+assets and committed the embed block). Each PROOF.md should start with a
+`### #<id>` subheading; if an older one instead starts with its own
+`## Visual proof` line, drop that line so the heading isn't printed twice. If an
+issue has no `PROOF.md`, note "#<id>: no visual change (docs/tooling only)".
 
 ## QA checklist
 
