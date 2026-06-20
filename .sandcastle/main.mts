@@ -202,25 +202,25 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 
   const settled = await Promise.allSettled(
     work.map(async (issue) => {
-      // review-only branches were built against an older main. Merge current
-      // main into the worktree before reviewing so upstream fixes (e.g. the
-      // katex-diff .gitattributes that caused #57's reviewer to blow up) take
-      // effect. Best-effort: abort the merge on conflict and review as-is —
-      // the retry cap below escalates a branch that can't be salvaged.
-      const sandboxHooks =
-        issue.mode === "review-only"
-          ? {
-              ...hooks,
-              host: {
-                onWorktreeReady: [
-                  {
-                    command:
-                      "git fetch origin main && (git merge --no-edit origin/main || git merge --abort)",
-                  },
-                ],
-              },
-            }
-          : hooks;
+      // A pre-existing branch (a review-only re-review, or a ready-for-agent
+      // issue whose stale worktree lingers from an earlier run) was built
+      // against an older main. Merge current main into the worktree before the
+      // agent runs so upstream fixes (e.g. the katex-diff .gitattributes that
+      // blew up #57's reviewer) take effect, and so the reviewer's
+      // `main...branch` diff is based on current main. For a brand-new branch
+      // cut from main this is a harmless no-op. Best-effort: abort on conflict
+      // and proceed; the retry cap escalates a branch that can't be salvaged.
+      const sandboxHooks = {
+        ...hooks,
+        host: {
+          onWorktreeReady: [
+            {
+              command:
+                "git fetch origin main && (git merge --no-edit origin/main || git merge --abort)",
+            },
+          ],
+        },
+      };
 
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
