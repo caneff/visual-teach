@@ -574,6 +574,52 @@ The bridge reads the 9 `--vt-*` tokens at render time and maps them to
 mermaid's `themeVariables`, so diagrams match the lesson palette and switch
 automatically with dark mode.
 
+## Figure / photo (`.vt-figure`, `.vt-figure-pair`)
+
+### Single image
+
+```html
+<figure class="vt-figure">
+  <img src="photo.jpg" alt="Describe the photo" width="800" height="533" />
+  <figcaption>Fig 1 — caption text (smaller, muted, italic)</figcaption>
+</figure>
+```
+
+- Image is responsive: scales down on narrow viewports, never overflows.
+- Caption is visually distinct from body prose (smaller, muted, italic).
+- Broken/missing image: the alt text shows inside the themed frame (soft
+  background, muted text) — correct in both light and dark mode.
+
+### Before/after pair
+
+Two captioned figures side-by-side on wide viewports; stacks below 560 px.
+Add `.before` / `.after` for red/green label cues.
+
+```html
+<div class="vt-figure-pair">
+  <figure class="vt-figure before">
+    <p class="vt-figure-label">Before</p>
+    <img
+      src="before.jpg"
+      alt="State before the change"
+      width="600"
+      height="400"
+    />
+    <figcaption>Caption for the before state</figcaption>
+  </figure>
+  <figure class="vt-figure after">
+    <p class="vt-figure-label">After</p>
+    <img
+      src="after.jpg"
+      alt="State after the change"
+      width="600"
+      height="400"
+    />
+    <figcaption>Caption for the after state</figcaption>
+  </figure>
+</div>
+```
+
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
 
 ```html
