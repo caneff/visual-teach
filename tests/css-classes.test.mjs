@@ -82,6 +82,7 @@ const DEFINED = [
   ".vt-figure img",
   ".vt-figure figcaption",
   ".vt-figure-pair",
+  ".vt-figure-label",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
@@ -220,9 +221,5 @@ test("vt-figure-pair uses a 2-column grid for side-by-side layout", () => {
 });
 
 test("vt-figure-pair stacks on narrow widths via a media query", () => {
-  expect(css).toMatch(/\.vt-figure-pair/);
-  // A responsive stacking breakpoint must exist
-  expect(css).toMatch(
-    /@media[^{]*max-width[^{]*\{[^}]*\.vt-figure-pair|\.vt-figure-pair[^@]*@media[^{]*max-width/s
-  );
+  expect(css).toMatch(/@media[^{]*max-width[^{]*\{[^}]*\.vt-figure-pair/);
 });

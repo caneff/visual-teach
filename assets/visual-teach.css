@@ -1367,16 +1367,13 @@ code.vt-pcode {
 
 /* ====== figure / photo ====== */
 
-/* single framed image with styled caption */
 .vt-figure {
   margin: 1.4rem 0;
   text-align: center;
 }
 
-/* Responsive image: scales down on narrow viewports, never overflows.
-   background + min-height give the broken/missing-image state a themed
-   placeholder — alt text appears in the muted foreground on a soft fill,
-   so it reads clearly in both light and dark mode (no hardcoded icon). */
+/* background + min-height + color render alt text as a themed placeholder
+   for broken/missing images, readable in both light and dark mode. */
 .vt-figure img {
   display: block;
   max-width: 100%;
