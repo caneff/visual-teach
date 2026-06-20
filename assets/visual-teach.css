@@ -1365,6 +1365,76 @@ code.vt-pcode {
   height: auto;
 }
 
+/* ====== figure / photo ====== */
+
+/* single framed image with styled caption */
+.vt-figure {
+  margin: 1.4rem 0;
+  text-align: center;
+}
+
+/* Responsive image: scales down on narrow viewports, never overflows.
+   background + min-height give the broken/missing-image state a themed
+   placeholder — alt text appears in the muted foreground on a soft fill,
+   so it reads clearly in both light and dark mode (no hardcoded icon). */
+.vt-figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
+  background: var(--vt-soft);
+  min-height: 4rem;
+  color: var(--vt-muted);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.88rem;
+}
+
+.vt-figure figcaption {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* before/after photo pair — two captioned figures side-by-side */
+.vt-figure-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.4rem 0;
+}
+
+@media (max-width: 560px) {
+  .vt-figure-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vt-figure-pair .vt-figure {
+  margin: 0;
+}
+
+.vt-figure-pair .vt-figure-label {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+  color: var(--vt-muted);
+}
+
+.vt-figure-pair .vt-figure.before .vt-figure-label {
+  color: var(--vt-bad);
+}
+
+.vt-figure-pair .vt-figure.after .vt-figure-label {
+  color: var(--vt-good);
+}
+
 /* ====== print ====== */
 @media print {
   .vt-quiz button,

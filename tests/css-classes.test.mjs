@@ -77,6 +77,11 @@ const DEFINED = [
   // math (KaTeX)
   ".vt-math",
   ".vt-eq",
+  // figure / photo
+  ".vt-figure",
+  ".vt-figure img",
+  ".vt-figure figcaption",
+  ".vt-figure-pair",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
@@ -188,4 +193,36 @@ test("vt-node does not use flex-direction:column so inline sup/sub stay on the b
 test("vt-node uses text-align:center so label text is horizontally centred without flex-column", () => {
   const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
   expect(nodeRule).toContain("text-align: center");
+});
+
+test("vt-figure img is responsive — max-width:100% so it never overflows", () => {
+  const rule = ruleBody(/\.vt-figure\s+img\s*\{[^}]+\}/);
+  expect(rule, "vt-figure img rule must exist").toBeTruthy();
+  expect(rule).toContain("max-width: 100%");
+});
+
+test("vt-figure img has a themed background for the broken-image placeholder state", () => {
+  const rule = ruleBody(/\.vt-figure\s+img\s*\{[^}]+\}/);
+  expect(rule).toContain("var(--vt-soft)");
+});
+
+test("vt-figure figcaption uses --vt-muted so it reads as a caption, not body prose", () => {
+  const rule = ruleBody(/\.vt-figure\s+figcaption\s*\{[^}]+\}/);
+  expect(rule, "vt-figure figcaption rule must exist").toBeTruthy();
+  expect(rule).toContain("var(--vt-muted)");
+});
+
+test("vt-figure-pair uses a 2-column grid for side-by-side layout", () => {
+  const rule = ruleBody(/\.vt-figure-pair\s*\{[^}]+\}/);
+  expect(rule, "vt-figure-pair rule must exist").toBeTruthy();
+  expect(rule).toContain("grid-template-columns");
+  expect(rule).toContain("1fr 1fr");
+});
+
+test("vt-figure-pair stacks on narrow widths via a media query", () => {
+  expect(css).toMatch(/\.vt-figure-pair/);
+  // A responsive stacking breakpoint must exist
+  expect(css).toMatch(
+    /@media[^{]*max-width[^{]*\{[^}]*\.vt-figure-pair|\.vt-figure-pair[^@]*@media[^{]*max-width/s
+  );
 });
