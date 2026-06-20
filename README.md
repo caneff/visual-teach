@@ -52,15 +52,6 @@ Link the assets in each lesson (paths relative to `lessons/`):
 <script src="../assets/visual-teach.js"></script>
 ```
 
-`visual-teach.js` is a plain script (no `type="module"`), so a lesson opens
-straight from disk — double-click the `.html` or `open lessons/<file>.html`.
-Quizzes, checklists, and theming wire up over `file://` with no server.
-
-```sh
-# optional: serve over HTTP if you prefer a localhost URL
-npm run serve   # python3 -m http.server 8000, from the repo root
-```
-
 ### Two modes
 
 - **Compose**: visual-teach is active in the agent's context during a `/teach`
