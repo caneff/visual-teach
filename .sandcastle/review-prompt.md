@@ -56,7 +56,7 @@ still run `npm run test` / `npm run typecheck` after any refactor _you_ commit
    diff may legitimately have none. Check `.sandcastle/proof/issue-<id>/`:
    - `PROOF.md` exists. If it claims "no visual change" but the diff touches
      `assets/visual-teach.{css,js}` or a `vt-*` block, that is wrong — flag it and
-     have proof produced (see `implement-prompt.md` VISUAL PROOF).
+     have proof produced (see `.sandcastle/proof-protocol.md`).
    - `before.png` and `after.png` both exist and are **not identical**
      (`cmp -s before.png after.png` must report a difference). Identical shots
      mean the before was taken after the change; reject and regenerate.
