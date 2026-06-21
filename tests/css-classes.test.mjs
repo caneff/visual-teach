@@ -85,6 +85,8 @@ const DEFINED = [
   ".vt-figure-pair",
   ".vt-figure-label",
   ".vt-figure-alt",
+  // inline SVG inside vt-diagram
+  ".vt-diagram svg",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
@@ -102,6 +104,14 @@ test("diagram rules are tokenized — no raw hex colours", () => {
       ruleBody(/\.vt-node\s*\{[^}]*\}/)
   ).not.toMatch(NO_HEX);
   expect(ruleBody(/\.vt-flow\s*\{[^}]*\}/)).not.toMatch(NO_HEX);
+});
+
+test(".vt-diagram svg is responsive and themed via currentColor", () => {
+  const rule = ruleBody(/\.vt-diagram\s+svg\s*\{[^}]*\}/);
+  expect(rule).toContain("max-width: 100%");
+  expect(rule).toContain("height: auto");
+  expect(rule).toContain("var(--vt-ink)");
+  expect(rule).not.toMatch(NO_HEX);
 });
 
 test("flow injects an arrow connector; flex does NOT", () => {
