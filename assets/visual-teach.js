@@ -65,6 +65,23 @@ function wireQuiz(quiz) {
   });
 
   if (quiz.hasAttribute("data-multi")) {
+    var blockClass =
+      Array.from(quiz.classList).find(function (c) {
+        return c.startsWith("vt-");
+      }) || quiz.className;
+    if (!quiz.dataset.answer) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi is missing data-answer — defaulting to index 0"
+      );
+    } else if (answers.length < 2) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi has only one index in data-answer — did you mean to list multiple?"
+      );
+    }
     _wireMulti(ctx, answers);
   } else {
     _wireSingle(ctx, answers[0]);
