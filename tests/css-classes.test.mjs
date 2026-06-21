@@ -198,18 +198,16 @@ test("vt-eq centers and sizes display equations without inline style", () => {
   expect(rule).toContain("font-size");
 });
 
-test("vt-row-start suppresses arrow and margin so wrapped rows have no leading arrow", () => {
-  expect(css).toContain(".vt-row-start");
-  const marginRule = ruleBody(/\.vt-flow\s*>\s*\.vt-row-start\s*\{[^}]*\}/);
-  expect(marginRule, "vt-row-start rule must reset margin-left").toContain(
-    "margin-left: 0"
-  );
-  const beforeRule = ruleBody(
-    /\.vt-flow\s*>\s*\.vt-row-start::before\s*\{[^}]*\}/
-  );
-  expect(beforeRule, "vt-row-start::before must clear content").toContain(
-    "content: none"
-  );
+test("vt-flow is non-wrapping and scrollable to preserve all arrow connections", () => {
+  const flowRule = ruleBody(/\.vt-flow\s*\{[^}]*\}/);
+  expect(
+    flowRule,
+    "vt-flow must not wrap so sequence connections are never broken"
+  ).toContain("flex-wrap: nowrap");
+  expect(
+    flowRule,
+    "vt-flow must scroll horizontally for long sequences"
+  ).toContain("overflow-x: auto");
 });
 
 test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {

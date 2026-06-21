@@ -473,40 +473,6 @@ function initKatex() {
   }
 }
 
-/* Mark the first flex item on each wrapped row with vt-row-start so CSS can
-   suppress the injected arrow connector on those items. Called on init and on
-   every ResizeObserver tick so marks stay accurate as the viewport changes. */
-function markFlowRows(flow) {
-  var children = Array.from(flow.children);
-  children.forEach(function (c) {
-    c.classList.remove("vt-row-start");
-  });
-  if (children.length === 0) return;
-  var rowBottom = children[0].offsetTop + children[0].offsetHeight;
-  for (var i = 1; i < children.length; i++) {
-    var child = children[i];
-    var top = child.offsetTop;
-    if (top >= rowBottom - 1) {
-      child.classList.add("vt-row-start");
-    }
-    var bottom = top + child.offsetHeight;
-    if (bottom > rowBottom) rowBottom = bottom;
-  }
-}
-
-function initFlows() {
-  var flows = Array.from(document.querySelectorAll(".vt-flow"));
-  var hasResizeObserver = typeof ResizeObserver !== "undefined";
-  flows.forEach(function (flow) {
-    markFlowRows(flow);
-    if (hasResizeObserver) {
-      new ResizeObserver(function () {
-        markFlowRows(flow);
-      }).observe(flow);
-    }
-  });
-}
-
 var BLOCKS = [
   { sel: ".vt-quiz", wire: wireQuiz },
   { sel: ".vt-checklist", wire: wireChecklist },
@@ -536,7 +502,6 @@ function init() {
     wireAnchors,
     initPrism,
     initKatex,
-    initFlows,
     function () {
       if (typeof window !== "undefined") {
         wireThemeBridge(window);
@@ -560,7 +525,6 @@ var vtVisualTeach = {
   wireChecklist: wireChecklist,
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
-  markFlowRows: markFlowRows,
   BLOCKS: BLOCKS,
   init: init,
 };

@@ -182,10 +182,12 @@
         </p>
       </div>
 
-      <h2><span class="vt-num">8</span>.vt-flow — long pipeline (wrap test)</h2>
+      <h2>
+        <span class="vt-num">8</span>.vt-flow — long pipeline (scroll test)
+      </h2>
       <p>
-        A 9-stage pipeline that wraps onto multiple rows. Without the fix, rows
-        2+ open with a stray <code>→</code>.
+        A 9-stage pipeline that exceeds the container width. The flow scrolls
+        horizontally so all <code>→</code> connectors stay intact.
       </p>
       <div class="vt-diagram" id="wrap-test">
         <div class="vt-flow">
@@ -200,7 +202,8 @@
           <span class="vt-node em">Bake covered</span>
         </div>
         <p class="vt-diagram-caption">
-          Fig 9 — 9-stage bake-day pipeline; row 2+ must have no leading arrow
+          Fig 9 — 9-stage bake-day pipeline; scrolls horizontally to preserve
+          all arrows
         </p>
       </div>
 

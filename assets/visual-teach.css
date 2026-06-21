@@ -1108,10 +1108,13 @@ code.vt-pcode {
   color: var(--vt-muted);
 }
 
-/* flow — row with auto arrow connectors between direct children */
+/* flow — row with auto arrow connectors between direct children.
+   Intentionally non-wrapping: a sequence graph must never break its
+   connections between steps, so long flows scroll horizontally. */
 .vt-flow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   align-items: center;
   gap: 0.3rem;
   margin: 1rem 0;
@@ -1133,15 +1136,6 @@ code.vt-pcode {
   color: var(--vt-muted);
   pointer-events: none;
   line-height: 1;
-}
-
-/* first item on a wrapped row has no predecessor to its left — JS marks it
-   with vt-row-start so the injected arrow and its reserved margin are removed */
-.vt-flow > .vt-row-start {
-  margin-left: 0;
-}
-.vt-flow > .vt-row-start::before {
-  content: none;
 }
 
 /* flex playground — pure display:flex container, no injected separators.
