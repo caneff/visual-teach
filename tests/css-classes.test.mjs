@@ -77,6 +77,12 @@ const DEFINED = [
   // math (KaTeX)
   ".vt-math",
   ".vt-eq",
+  // figure / photo
+  ".vt-figure",
+  ".vt-figure img",
+  ".vt-figure figcaption",
+  ".vt-figure-pair",
+  ".vt-figure-label",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
@@ -163,6 +169,21 @@ test("vt-code pre has overflow-x:auto so long lines scroll inside any container"
   expect(preRule).toContain("overflow-x: auto");
 });
 
+test("vt-io pre has overflow-x:auto so long lines scroll inside a split panel", () => {
+  const preRule = ruleBody(/\.vt-io pre\s*\{[^}]*\}/);
+  expect(preRule).toContain("overflow-x: auto");
+});
+
+test("vt-io-input and vt-io-output have min-width:0 so grid items shrink inside a split panel", () => {
+  const itemRule = ruleBody(/\.vt-io-input,\s*\.vt-io-output\s*\{[^}]*\}/);
+  expect(itemRule).toContain("min-width: 0");
+});
+
+test("vt-split-label has overflow-wrap:break-word so long labels wrap instead of clipping at the panel edge", () => {
+  const labelRule = ruleBody(/\.vt-split-label\s*\{[^}]*\}/);
+  expect(labelRule).toContain("overflow-wrap: break-word");
+});
+
 test("vt-math block exists and uses --vt-ink token for dark/light theming", () => {
   const rule = ruleBody(/\.vt-math\s*\{[^}]+\}/);
   expect(rule, "vt-math rule must exist").toBeTruthy();
@@ -177,6 +198,18 @@ test("vt-eq centers and sizes display equations without inline style", () => {
   expect(rule).toContain("font-size");
 });
 
+test("vt-flow is non-wrapping and scrollable to preserve all arrow connections", () => {
+  const flowRule = ruleBody(/\.vt-flow\s*\{[^}]*\}/);
+  expect(
+    flowRule,
+    "vt-flow must not wrap so sequence connections are never broken"
+  ).toContain("flex-wrap: nowrap");
+  expect(
+    flowRule,
+    "vt-flow must scroll horizontally for long sequences"
+  ).toContain("overflow-x: auto");
+});
+
 test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {
   const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
   expect(
@@ -188,4 +221,32 @@ test("vt-node does not use flex-direction:column so inline sup/sub stay on the b
 test("vt-node uses text-align:center so label text is horizontally centred without flex-column", () => {
   const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
   expect(nodeRule).toContain("text-align: center");
+});
+
+test("vt-figure img is responsive — max-width:100% so it never overflows", () => {
+  const rule = ruleBody(/\.vt-figure\s+img\s*\{[^}]+\}/);
+  expect(rule, "vt-figure img rule must exist").toBeTruthy();
+  expect(rule).toContain("max-width: 100%");
+});
+
+test("vt-figure img has a themed background for the broken-image placeholder state", () => {
+  const rule = ruleBody(/\.vt-figure\s+img\s*\{[^}]+\}/);
+  expect(rule).toContain("var(--vt-soft)");
+});
+
+test("vt-figure figcaption uses --vt-muted so it reads as a caption, not body prose", () => {
+  const rule = ruleBody(/\.vt-figure\s+figcaption\s*\{[^}]+\}/);
+  expect(rule, "vt-figure figcaption rule must exist").toBeTruthy();
+  expect(rule).toContain("var(--vt-muted)");
+});
+
+test("vt-figure-pair uses a 2-column grid for side-by-side layout", () => {
+  const rule = ruleBody(/\.vt-figure-pair\s*\{[^}]+\}/);
+  expect(rule, "vt-figure-pair rule must exist").toBeTruthy();
+  expect(rule).toContain("grid-template-columns");
+  expect(rule).toContain("1fr 1fr");
+});
+
+test("vt-figure-pair stacks on narrow widths via a media query", () => {
+  expect(css).toMatch(/@media[^{]*max-width[^{]*\{[^}]*\.vt-figure-pair/);
 });

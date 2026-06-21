@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="533" viewBox="0 0 800 533" role="img" aria-label="Open-crumb sourdough loaf">
+  <rect width="800" height="533" fill="#e8dcc6"/>
+  <ellipse cx="400" cy="300" rx="300" ry="180" fill="#b87a3d"/>
+  <ellipse cx="400" cy="300" rx="300" ry="180" fill="none" stroke="#7a4a1e" stroke-width="10"/>
+  <path d="M210 250 Q400 200 590 250" fill="none" stroke="#5e3614" stroke-width="9" stroke-linecap="round"/>
+  <ellipse cx="400" cy="320" rx="250" ry="135" fill="#f2e6cf"/>
+  <g fill="#d8c39c">
+    <circle cx="330" cy="300" r="26"/><circle cx="430" cy="280" r="34"/>
+    <circle cx="500" cy="330" r="22"/><circle cx="380" cy="360" r="30"/>
+    <circle cx="470" cy="370" r="18"/><circle cx="300" cy="350" r="16"/>
+    <circle cx="540" cy="290" r="14"/><circle cx="360" cy="270" r="14"/>
+  </g>
+  <text x="400" y="500" text-anchor="middle" font-family="Georgia, serif" font-size="26" fill="#5e3614">Open-crumb sourdough loaf</text>
+</svg>

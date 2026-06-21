@@ -1108,10 +1108,13 @@ code.vt-pcode {
   color: var(--vt-muted);
 }
 
-/* flow — row with auto arrow connectors between direct children */
+/* flow — row with auto arrow connectors between direct children.
+   Intentionally non-wrapping: a sequence graph must never break its
+   connections between steps, so long flows scroll horizontally. */
 .vt-flow {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
   align-items: center;
   gap: 0.3rem;
   margin: 1rem 0;
@@ -1228,6 +1231,7 @@ code.vt-pcode {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--vt-muted);
+  overflow-wrap: break-word; /* prevent long labels from clipping at the panel edge */
 }
 
 .vt-col-label {
@@ -1363,6 +1367,94 @@ code.vt-pcode {
 .vt-mermaid svg {
   max-width: 100%;
   height: auto;
+}
+
+/* ====== figure / photo ====== */
+
+.vt-figure {
+  margin: 1.4rem 0;
+  text-align: center;
+}
+
+/* ::after shows centered italic alt text when the image fails to load.
+   For successfully-loaded images the browser treats <img> as a replaced
+   element and ignores ::after entirely, so loaded images are unaffected.
+   font-size: 0 suppresses the native broken-image icon + raw alt text so
+   only the styled ::after placeholder is visible. */
+.vt-figure img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
+  background: var(--vt-soft);
+  min-height: 4rem;
+  position: relative;
+  overflow: hidden;
+  font-size: 0;
+}
+
+.vt-figure img::after {
+  content: attr(alt);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--vt-soft);
+  border-radius: inherit;
+  color: var(--vt-muted);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.88rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.vt-figure figcaption {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* before/after photo pair — two captioned figures side-by-side */
+.vt-figure-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin: 1.4rem 0;
+}
+
+@media (max-width: 560px) {
+  .vt-figure-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vt-figure-pair .vt-figure {
+  margin: 0;
+  min-width: 0;
+}
+
+.vt-figure-pair .vt-figure-label {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.35rem;
+  color: var(--vt-muted);
+}
+
+.vt-figure-pair .vt-figure.before .vt-figure-label {
+  color: var(--vt-bad);
+}
+
+.vt-figure-pair .vt-figure.after .vt-figure-label {
+  color: var(--vt-good);
 }
 
 /* ====== print ====== */
