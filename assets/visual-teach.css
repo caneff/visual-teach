@@ -1391,6 +1391,7 @@ code.vt-pcode {
   background: var(--vt-soft);
   min-height: 4rem;
   position: relative;
+  overflow: hidden;
   font-size: 0;
 }
 
