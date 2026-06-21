@@ -454,6 +454,48 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 </div>
 ```
 
+### Inline SVG — hand-drawn diagrams (force, geometry, stick figures)
+
+Place raw `<svg>` directly inside `.vt-diagram`. Draw strokes and fills with
+`currentColor` (or a `var(--vt-*)` token) — **never hardcoded hex**. The
+`.vt-diagram svg` rule sets `color: var(--vt-ink)`, so `currentColor` resolves
+to the correct foreground in both light and dark mode automatically.
+
+```html
+<div class="vt-diagram">
+  <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+    <circle
+      cx="30"
+      cy="30"
+      r="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+    <line
+      x1="50"
+      y1="30"
+      x2="90"
+      y2="30"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+    <circle
+      cx="100"
+      cy="30"
+      r="15"
+      fill="currentColor"
+      opacity="0.15"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+  </svg>
+  <p class="vt-diagram-caption">
+    Fig — force diagram (currentColor scales with theme)
+  </p>
+</div>
+```
+
 ### Node / box — labeled card. Add `.em` for accent emphasis, `.muted` for secondary.
 
 Inline `<sup>` and `<sub>` are safe inside a node and render as raised/lowered
