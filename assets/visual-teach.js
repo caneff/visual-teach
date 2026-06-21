@@ -495,6 +495,36 @@ function wireBlocks() {
   });
 }
 
+// Detect visual row breaks in a .vt-flow and mark the first item on each
+// wrapped row with vt-row-start so CSS can suppress the leading → arrow.
+function markFlowRows(flow) {
+  var children = Array.from(flow.children);
+  children.forEach(function (child) {
+    child.classList.remove("vt-row-start");
+  });
+  if (children.length === 0) return;
+  var rowBottom = children[0].offsetTop + children[0].offsetHeight;
+  for (var i = 1; i < children.length; i++) {
+    var child = children[i];
+    if (child.offsetTop >= rowBottom) {
+      child.classList.add("vt-row-start");
+    }
+    rowBottom = Math.max(rowBottom, child.offsetTop + child.offsetHeight);
+  }
+}
+
+function initFlows() {
+  var flows = document.querySelectorAll(".vt-flow");
+  flows.forEach(function (flow) {
+    markFlowRows(flow);
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(function () {
+        markFlowRows(flow);
+      }).observe(flow);
+    }
+  });
+}
+
 function initFigureBroken() {
   document.querySelectorAll(".vt-figure img").forEach(function (img) {
     function showAlt() {
@@ -522,6 +552,7 @@ function init() {
     wireAnchors,
     initPrism,
     initKatex,
+    initFlows,
     initFigureBroken,
     function () {
       if (typeof window !== "undefined") {
@@ -546,6 +577,8 @@ var vtVisualTeach = {
   wireChecklist: wireChecklist,
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
+  markFlowRows: markFlowRows,
+  initFlows: initFlows,
   initFigureBroken: initFigureBroken,
   BLOCKS: BLOCKS,
   init: init,

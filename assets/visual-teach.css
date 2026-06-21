@@ -1109,15 +1109,22 @@ code.vt-pcode {
 }
 
 /* flow — row with auto arrow connectors between direct children.
-   Intentionally non-wrapping: a sequence graph must never break its
-   connections between steps, so long flows scroll horizontally. */
+   Wraps to multiple rows for long sequences; the JS markFlowRows pass
+   suppresses the leading → on the first item of each wrapped row. */
 .vt-flow {
   display: flex;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.3rem;
   margin: 1rem 0;
+}
+
+.vt-flow > .vt-row-start {
+  margin-left: 0;
+}
+
+.vt-flow > .vt-row-start::before {
+  content: none;
 }
 
 /* arrow before every child that follows another child */
