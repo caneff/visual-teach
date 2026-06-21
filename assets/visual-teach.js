@@ -7,13 +7,18 @@ function announce(liveRegion, text) {
   if (liveRegion) liveRegion.textContent = text;
 }
 
+function blockLabel(el) {
+  return (
+    Array.from(el.classList).find(function (c) {
+      return c.startsWith("vt-");
+    }) || el.className
+  );
+}
+
 // Check that block contains every required child selector. Warns for each
 // missing one and returns false if any are absent so the wirer can bail out.
 function ensure(block, selectors) {
-  var blockClass =
-    Array.from(block.classList).find(function (c) {
-      return c.startsWith("vt-");
-    }) || block.className;
+  var blockClass = blockLabel(block);
   var ok = true;
   selectors.forEach(function (sel) {
     if (!block.querySelector(sel)) {
@@ -65,6 +70,20 @@ function wireQuiz(quiz) {
   });
 
   if (quiz.hasAttribute("data-multi")) {
+    var blockClass = blockLabel(quiz);
+    if (!quiz.dataset.answer) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi is missing data-answer — defaulting to index 0"
+      );
+    } else if (answers.length < 2) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi has only one index in data-answer — did you mean to list multiple?"
+      );
+    }
     _wireMulti(ctx, answers);
   } else {
     _wireSingle(ctx, answers[0]);
