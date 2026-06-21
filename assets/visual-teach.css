@@ -1416,6 +1416,7 @@ code.vt-pcode {
 
 .vt-figure-pair .vt-figure {
   margin: 0;
+  min-width: 0;
 }
 
 .vt-figure-pair .vt-figure-label {
