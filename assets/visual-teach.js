@@ -499,10 +499,10 @@ function initFigureBroken() {
   document.querySelectorAll(".vt-figure img").forEach(function (img) {
     function showAlt() {
       if (img.parentNode.querySelector(".vt-figure-alt")) return;
-      var span = document.createElement("span");
-      span.className = "vt-figure-alt";
-      span.textContent = img.getAttribute("alt") || "";
-      img.parentNode.insertBefore(span, img.nextSibling);
+      var alt = document.createElement("div");
+      alt.className = "vt-figure-alt";
+      alt.textContent = img.getAttribute("alt") || "";
+      img.parentNode.insertBefore(alt, img.nextSibling);
       img.style.display = "none";
     }
 
