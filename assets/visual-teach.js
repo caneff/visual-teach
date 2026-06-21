@@ -502,17 +502,15 @@ function markFlowRows(flow) {
   children.forEach(function (child) {
     child.classList.remove("vt-row-start");
   });
-  var rowBottom = -1;
-  children.forEach(function (child, i) {
-    if (i === 0) {
-      rowBottom = child.offsetTop + child.offsetHeight;
-      return;
-    }
+  if (children.length === 0) return;
+  var rowBottom = children[0].offsetTop + children[0].offsetHeight;
+  for (var i = 1; i < children.length; i++) {
+    var child = children[i];
     if (child.offsetTop >= rowBottom) {
       child.classList.add("vt-row-start");
     }
     rowBottom = Math.max(rowBottom, child.offsetTop + child.offsetHeight);
-  });
+  }
 }
 
 function initFlows() {

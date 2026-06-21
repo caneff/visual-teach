@@ -1119,8 +1119,6 @@ code.vt-pcode {
   margin: 1rem 0;
 }
 
-/* suppress the injected → and its reserved margin on the first item of each
-   wrapped row; the JS markFlowRows pass sets this class on those items */
 .vt-flow > .vt-row-start {
   margin-left: 0;
 }
