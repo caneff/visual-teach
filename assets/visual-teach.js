@@ -7,13 +7,18 @@ function announce(liveRegion, text) {
   if (liveRegion) liveRegion.textContent = text;
 }
 
+function blockLabel(el) {
+  return (
+    Array.from(el.classList).find(function (c) {
+      return c.startsWith("vt-");
+    }) || el.className
+  );
+}
+
 // Check that block contains every required child selector. Warns for each
 // missing one and returns false if any are absent so the wirer can bail out.
 function ensure(block, selectors) {
-  var blockClass =
-    Array.from(block.classList).find(function (c) {
-      return c.startsWith("vt-");
-    }) || block.className;
+  var blockClass = blockLabel(block);
   var ok = true;
   selectors.forEach(function (sel) {
     if (!block.querySelector(sel)) {
@@ -65,6 +70,20 @@ function wireQuiz(quiz) {
   });
 
   if (quiz.hasAttribute("data-multi")) {
+    var blockClass = blockLabel(quiz);
+    if (!quiz.dataset.answer) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi is missing data-answer — defaulting to index 0"
+      );
+    } else if (answers.length < 2) {
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " data-multi has only one index in data-answer — did you mean to list multiple?"
+      );
+    }
     _wireMulti(ctx, answers);
   } else {
     _wireSingle(ctx, answers[0]);
@@ -495,6 +514,36 @@ function wireBlocks() {
   });
 }
 
+// Detect visual row breaks in a .vt-flow and mark the first item on each
+// wrapped row with vt-row-start so CSS can suppress the leading → arrow.
+function markFlowRows(flow) {
+  var children = Array.from(flow.children);
+  children.forEach(function (child) {
+    child.classList.remove("vt-row-start");
+  });
+  if (children.length === 0) return;
+  var rowBottom = children[0].offsetTop + children[0].offsetHeight;
+  for (var i = 1; i < children.length; i++) {
+    var child = children[i];
+    if (child.offsetTop >= rowBottom) {
+      child.classList.add("vt-row-start");
+    }
+    rowBottom = Math.max(rowBottom, child.offsetTop + child.offsetHeight);
+  }
+}
+
+function initFlows() {
+  var flows = document.querySelectorAll(".vt-flow");
+  flows.forEach(function (flow) {
+    markFlowRows(flow);
+    if (typeof ResizeObserver !== "undefined") {
+      new ResizeObserver(function () {
+        markFlowRows(flow);
+      }).observe(flow);
+    }
+  });
+}
+
 function initFigureBroken() {
   document.querySelectorAll(".vt-figure img").forEach(function (img) {
     function showAlt() {
@@ -522,6 +571,7 @@ function init() {
     wireAnchors,
     initPrism,
     initKatex,
+    initFlows,
     initFigureBroken,
     function () {
       if (typeof window !== "undefined") {
@@ -546,6 +596,8 @@ var vtVisualTeach = {
   wireChecklist: wireChecklist,
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
+  markFlowRows: markFlowRows,
+  initFlows: initFlows,
   initFigureBroken: initFigureBroken,
   BLOCKS: BLOCKS,
   init: init,

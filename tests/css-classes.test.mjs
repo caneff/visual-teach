@@ -24,6 +24,7 @@ const DEFINED = [
   ".vt-node.em",
   ".vt-box.em",
   ".vt-flow",
+  ".vt-row-start",
   ".vt-row",
   ".vt-col",
   ".vt-split",
@@ -199,16 +200,23 @@ test("vt-eq centers and sizes display equations without inline style", () => {
   expect(rule).toContain("font-size");
 });
 
-test("vt-flow is non-wrapping and scrollable to preserve all arrow connections", () => {
+test("vt-flow wraps so long sequences stay fully visible", () => {
   const flowRule = ruleBody(/\.vt-flow\s*\{[^}]*\}/);
   expect(
     flowRule,
-    "vt-flow must not wrap so sequence connections are never broken"
-  ).toContain("flex-wrap: nowrap");
+    "vt-flow must wrap so all nodes are visible without scrolling"
+  ).toContain("flex-wrap: wrap");
+});
+
+test("vt-row-start suppresses the leading arrow and margin on wrapped-row first items", () => {
   expect(
-    flowRule,
-    "vt-flow must scroll horizontally for long sequences"
-  ).toContain("overflow-x: auto");
+    css,
+    "vt-row-start must clear margin-left so no gap before the first item of a wrapped row"
+  ).toMatch(/\.vt-flow\s*>\s*\.vt-row-start\s*\{[^}]*margin-left:\s*0/);
+  expect(
+    css,
+    "vt-row-start::before must set content:none to remove the → on wrapped-row starts"
+  ).toMatch(/\.vt-flow\s*>\s*\.vt-row-start::before\s*\{[^}]*content:\s*none/);
 });
 
 test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {
