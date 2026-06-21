@@ -83,6 +83,7 @@ const DEFINED = [
   ".vt-figure figcaption",
   ".vt-figure-pair",
   ".vt-figure-label",
+  ".vt-figure-alt",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
@@ -249,4 +250,22 @@ test("vt-figure-pair uses a 2-column grid for side-by-side layout", () => {
 
 test("vt-figure-pair stacks on narrow widths via a media query", () => {
   expect(css).toMatch(/@media[^{]*max-width[^{]*\{[^}]*\.vt-figure-pair/);
+});
+
+test("vt-figure-alt uses --vt-soft background to match the themed placeholder frame", () => {
+  const rule = ruleBody(/\.vt-figure-alt\s*\{[^}]+\}/);
+  expect(rule, ".vt-figure-alt rule must exist").toBeTruthy();
+  expect(rule).toContain("var(--vt-soft)");
+});
+
+test("vt-figure-alt centers alt text with flexbox", () => {
+  const rule = ruleBody(/\.vt-figure-alt\s*\{[^}]+\}/);
+  expect(rule).toContain("display: flex");
+  expect(rule).toContain("align-items: center");
+  expect(rule).toContain("justify-content: center");
+});
+
+test("vt-figure-alt uses --vt-muted so the fallback text reads as secondary content", () => {
+  const rule = ruleBody(/\.vt-figure-alt\s*\{[^}]+\}/);
+  expect(rule).toContain("var(--vt-muted)");
 });

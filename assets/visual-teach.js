@@ -495,6 +495,26 @@ function wireBlocks() {
   });
 }
 
+function initFigureBroken() {
+  document.querySelectorAll(".vt-figure img").forEach(function (img) {
+    function showAlt() {
+      if (img.parentNode.querySelector(".vt-figure-alt")) return;
+      var span = document.createElement("span");
+      span.className = "vt-figure-alt";
+      span.textContent = img.getAttribute("alt") || "";
+      img.parentNode.insertBefore(span, img.nextSibling);
+      img.style.display = "none";
+    }
+
+    img.addEventListener("error", showAlt);
+
+    // data: URLs fail before DOMContentLoaded — handle already-errored imgs
+    if (img.getAttribute("src") && img.complete && img.naturalWidth === 0) {
+      showAlt();
+    }
+  });
+}
+
 function init() {
   // Each step runs isolated — one failing step never blocks the rest.
   [
@@ -502,6 +522,7 @@ function init() {
     wireAnchors,
     initPrism,
     initKatex,
+    initFigureBroken,
     function () {
       if (typeof window !== "undefined") {
         wireThemeBridge(window);
@@ -525,6 +546,7 @@ var vtVisualTeach = {
   wireChecklist: wireChecklist,
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
+  initFigureBroken: initFigureBroken,
   BLOCKS: BLOCKS,
   init: init,
 };

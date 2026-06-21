@@ -1376,11 +1376,6 @@ code.vt-pcode {
   text-align: center;
 }
 
-/* ::after shows centered italic alt text when the image fails to load.
-   For successfully-loaded images the browser treats <img> as a replaced
-   element and ignores ::after entirely, so loaded images are unaffected.
-   font-size: 0 suppresses the native broken-image icon + raw alt text so
-   only the styled ::after placeholder is visible. */
 .vt-figure img {
   display: block;
   max-width: 100%;
@@ -1390,26 +1385,27 @@ code.vt-pcode {
   border-radius: 10px;
   background: var(--vt-soft);
   min-height: 4rem;
-  position: relative;
   overflow: hidden;
-  font-size: 0;
 }
 
-.vt-figure img::after {
-  content: attr(alt);
-  position: absolute;
-  inset: 0;
+/* JS injects this when the img fires an error — shows alt text in place of the broken glyph */
+.vt-figure-alt {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  max-width: 100%;
+  margin: 0 auto;
+  min-height: 4rem;
   background: var(--vt-soft);
-  border-radius: inherit;
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
   color: var(--vt-muted);
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.88rem;
   font-style: italic;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .vt-figure figcaption {
