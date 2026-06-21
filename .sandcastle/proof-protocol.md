@@ -30,8 +30,7 @@ run the ES module — serve first (`python3 -m http.server 8000 &`) and shot a
 
 `wrangler` is preinstalled and authenticates from `CLOUDFLARE_API_TOKEN` /
 `CLOUDFLARE_ACCOUNT_ID`; the bucket is `$R2_BUCKET`. Objects are namespaced by
-issue, so re-uploads **overwrite in place** — re-shooting after a fix updates the
-image everywhere the PR embeds it, with no description edit:
+issue. Re-uploads overwrite the object in place:
 
 ```
 wrangler r2 object put "$R2_BUCKET/issue-<id>-after.png" \
@@ -41,9 +40,28 @@ wrangler r2 object put "$R2_BUCKET/issue-<id>-after.png" \
 
 Repeat for `before.png` **only** when you captured a new before. `--remote` is
 required (without it wrangler writes a local simulation, not the real bucket);
-`--content-type=image/png` makes the browser render the image inline. Public URL:
-`$R2_PUBLIC_BASE/issue-<id>-after.png` (resolve `$R2_PUBLIC_BASE` from the env —
-e.g. `https://pub-<hash>.r2.dev`).
+`--content-type=image/png` makes the browser render the image inline.
+
+**The embedded URL MUST carry a cache-buster, and you MUST bump it on every
+re-shoot.** GitHub proxies all PR/markdown images through
+`camo.githubusercontent.com`, which caches by full URL and ignores the origin's
+`Cache-Control`. Overwriting a stable R2 key therefore changes NOTHING the
+reviewer sees — camo keeps serving the first copy it cached. The reviewer will
+say "nothing changed" and they will be right. The only thing that forces camo to
+refetch is a URL it has never seen, so version the URL with the commit that
+carries the new screenshot:
+
+```
+$R2_PUBLIC_BASE/issue-<id>-after.png?v=<short-sha>
+```
+
+`<short-sha>` = `git rev-parse --short HEAD` of the commit you just made with the
+re-shot proof. Resolve `$R2_PUBLIC_BASE` from the env (e.g.
+`https://pub-<hash>.r2.dev`). The R2 key stays stable (overwrite in place); only
+the `?v=` query changes. This means the embed in PROOF.md / the PR description
+DOES get edited on every re-shoot — that is mandatory, not optional. Do NOT try
+to fix a stale image by `curl -X PURGE` on the camo URL; GitHub has degraded that
+path and it is unreliable.
 
 ## Record
 
@@ -58,14 +76,19 @@ the PR's own Visual proof section supplies once; a second one double-prints:
 | ![before](<before-url>) | ![after](<after-url>) |
 ```
 
-`git add` `PROOF.md`, never the PNGs. When you only regenerated `after.png` for an
-existing PR, PROOF.md already holds the right (stable) URLs — leave it unchanged.
+`git add` `PROOF.md`, never the PNGs. When you regenerated `after.png` for an
+existing PR, bump the `?v=<short-sha>` cache-buster on the after-URL in PROOF.md
+(and in the PR description if it embeds the URL directly) — see the camo note
+above. Leaving the URL unchanged means the reviewer keeps seeing the old image.
 
 ## Rules
 
-- **Never rewrite the PR description to change screenshot hosting.** The R2 URLs are
-  stable and work; a sandbox failing to read one is a network blip, not a reason to
-  re-host on raw.githubusercontent or anything else.
+- **Keep R2 hosting; don't re-host on raw.githubusercontent or elsewhere.** A
+  sandbox failing to read an R2 URL is a network blip, not a reason to switch hosts.
+  But the embedded URL is NOT immutable: it carries a `?v=<short-sha>` cache-buster
+  that you bump on every re-shoot (see the camo note above). If a reviewer says a
+  re-shot image "looks unchanged," the cause is almost always a missing `?v=` bump —
+  camo served the stale cached copy. Fix the URL, don't re-argue the pixels.
 - **Never drop the "before" column.** Before and after always ship together.
 - Skip proof ONLY for a change with no visual surface (logic / docs / tooling). Then
   PROOF.md is just `### #<id>` and a line `No visual change (docs/tooling only).`
