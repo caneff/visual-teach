@@ -454,6 +454,48 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 </div>
 ```
 
+### Inline SVG — hand-drawn diagrams (force, geometry, stick figures)
+
+Place raw `<svg>` directly inside `.vt-diagram`. Draw strokes and fills with
+`currentColor` (or a `var(--vt-*)` token) — **never hardcoded hex**. The
+`.vt-diagram svg` rule sets `color: var(--vt-ink)`, so `currentColor` resolves
+to the correct foreground in both light and dark mode automatically.
+
+```html
+<div class="vt-diagram">
+  <svg viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg">
+    <circle
+      cx="30"
+      cy="30"
+      r="20"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+    <line
+      x1="50"
+      y1="30"
+      x2="90"
+      y2="30"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+    <circle
+      cx="100"
+      cy="30"
+      r="15"
+      fill="currentColor"
+      opacity="0.15"
+      stroke="currentColor"
+      stroke-width="2"
+    />
+  </svg>
+  <p class="vt-diagram-caption">
+    Fig — force diagram (currentColor scales with theme)
+  </p>
+</div>
+```
+
 ### Node / box — labeled card. Add `.em` for accent emphasis, `.muted` for secondary.
 
 Inline `<sup>` and `<sub>` are safe inside a node and render as raised/lowered
@@ -573,60 +615,6 @@ mermaid **only** when the graph needs auto-layout: sequence, state, ER.
 The bridge reads the 9 `--vt-*` tokens at render time and maps them to
 mermaid's `themeVariables`, so diagrams match the lesson palette and switch
 automatically with dark mode.
-
-## Figure / photo (`.vt-figure`, `.vt-figure-pair`)
-
-**Rule: images must be local files, never remote URLs.** Download every photo
-into the workspace (e.g. `./assets/img/`) and reference it by relative path —
-never hotlink `https://images.unsplash.com/...` or any other remote `src`.
-Lessons are viewed offline and proof screenshots are captured in a no-network
-sandbox, so a remote `src` renders as a broken-image glyph. The only allowed
-non-local `src` is a deliberate broken-state demo (`data:image/png;base64,...`),
-and that one should be labelled as intentional.
-
-### Single image
-
-```html
-<figure class="vt-figure">
-  <img src="photo.jpg" alt="Describe the photo" width="800" height="533" />
-  <figcaption>Fig 1 — caption text (smaller, muted, italic)</figcaption>
-</figure>
-```
-
-- Image is responsive: scales down on narrow viewports, never overflows.
-- Caption is visually distinct from body prose (smaller, muted, italic).
-- Broken/missing image: the alt text shows inside the themed frame (soft
-  background, muted text) — correct in both light and dark mode.
-
-### Before/after pair
-
-Two captioned figures side-by-side on wide viewports; stacks below 560 px.
-Add `.before` / `.after` for red/green label cues.
-
-```html
-<div class="vt-figure-pair">
-  <figure class="vt-figure before">
-    <p class="vt-figure-label">Before</p>
-    <img
-      src="before.jpg"
-      alt="State before the change"
-      width="600"
-      height="400"
-    />
-    <figcaption>Caption for the before state</figcaption>
-  </figure>
-  <figure class="vt-figure after">
-    <p class="vt-figure-label">After</p>
-    <img
-      src="after.jpg"
-      alt="State after the change"
-      width="600"
-      height="400"
-    />
-    <figcaption>Caption for the after state</figcaption>
-  </figure>
-</div>
-```
 
 ## Theming — override any of the 9 tokens in the lesson `<head>`:
 

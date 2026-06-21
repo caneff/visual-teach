@@ -1065,6 +1065,14 @@ code.vt-pcode {
   overflow-x: auto;
 }
 
+/* inline SVG: responsive + inherit --vt-ink so currentColor strokes theme with light/dark */
+.vt-diagram svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  color: var(--vt-ink);
+}
+
 .vt-diagram-caption {
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.8rem;
@@ -1374,90 +1382,6 @@ code.vt-pcode {
 .vt-mermaid svg {
   max-width: 100%;
   height: auto;
-}
-
-/* ====== figure / photo ====== */
-
-.vt-figure {
-  margin: 1.4rem 0;
-  text-align: center;
-}
-
-.vt-figure img {
-  display: block;
-  max-width: 100%;
-  height: auto;
-  margin: 0 auto;
-  border: 1px solid var(--vt-rule);
-  border-radius: 10px;
-  background: var(--vt-soft);
-  min-height: 4rem;
-  overflow: hidden;
-}
-
-/* JS injects this when the img fires an error — shows alt text in place of the broken glyph */
-.vt-figure-alt {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  max-width: 100%;
-  margin: 0 auto;
-  min-height: 4rem;
-  background: var(--vt-soft);
-  border: 1px solid var(--vt-rule);
-  border-radius: 10px;
-  color: var(--vt-muted);
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.88rem;
-  font-style: italic;
-  text-align: center;
-  box-sizing: border-box;
-}
-
-.vt-figure figcaption {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.82rem;
-  color: var(--vt-muted);
-  font-style: italic;
-  margin-top: 0.5rem;
-}
-
-/* before/after photo pair — two captioned figures side-by-side */
-.vt-figure-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin: 1.4rem 0;
-}
-
-@media (max-width: 560px) {
-  .vt-figure-pair {
-    grid-template-columns: 1fr;
-  }
-}
-
-.vt-figure-pair .vt-figure {
-  margin: 0;
-  min-width: 0;
-}
-
-.vt-figure-pair .vt-figure-label {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  margin-bottom: 0.35rem;
-  color: var(--vt-muted);
-}
-
-.vt-figure-pair .vt-figure.before .vt-figure-label {
-  color: var(--vt-bad);
-}
-
-.vt-figure-pair .vt-figure.after .vt-figure-label {
-  color: var(--vt-good);
 }
 
 /* ====== print ====== */

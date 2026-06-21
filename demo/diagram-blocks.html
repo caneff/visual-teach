@@ -226,6 +226,95 @@
         </p>
       </div>
 
+      <h2><span class="vt-num">8</span>Inline SVG — currentColor theming</h2>
+      <p>
+        An <code>&lt;svg&gt;</code> drawn with
+        <code>stroke="currentColor"</code> inside
+        <code>.vt-diagram</code> inherits <code>--vt-ink</code> and themes
+        correctly in light and dark mode. No hardcoded hex.
+      </p>
+      <div class="vt-diagram">
+        <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker
+              id="arr"
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+            >
+              <path d="M0,0 L0,6 L8,3 z" fill="currentColor" />
+            </marker>
+          </defs>
+          <!-- force diagram: object A pushes object B -->
+          <rect
+            x="10"
+            y="25"
+            width="50"
+            height="30"
+            rx="4"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <text
+            x="35"
+            y="44"
+            text-anchor="middle"
+            font-size="11"
+            fill="currentColor"
+            font-family="sans-serif"
+          >
+            A
+          </text>
+          <line
+            x1="60"
+            y1="40"
+            x2="100"
+            y2="40"
+            stroke="currentColor"
+            stroke-width="2"
+            marker-end="url(#arr)"
+          />
+          <rect
+            x="100"
+            y="25"
+            width="50"
+            height="30"
+            rx="4"
+            fill="currentColor"
+            opacity="0.12"
+            stroke="currentColor"
+            stroke-width="2"
+          />
+          <text
+            x="125"
+            y="44"
+            text-anchor="middle"
+            font-size="11"
+            fill="currentColor"
+            font-family="sans-serif"
+          >
+            B
+          </text>
+          <text
+            x="80"
+            y="34"
+            text-anchor="middle"
+            font-size="10"
+            fill="currentColor"
+            font-family="sans-serif"
+          >
+            F
+          </text>
+        </svg>
+        <p class="vt-diagram-caption">
+          Fig 10 — inline SVG force diagram; stroke=currentColor follows
+          light/dark theme
+        </p>
+      </div>
+
       <footer class="vt-sources">diagram vocabulary demo · visual-teach</footer>
     </main>
     <script type="module" src="../assets/visual-teach.js"></script>
