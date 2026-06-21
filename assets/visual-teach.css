@@ -1376,8 +1376,11 @@ code.vt-pcode {
   text-align: center;
 }
 
-/* background + min-height + color render alt text as a themed placeholder
-   for broken/missing images, readable in both light and dark mode. */
+/* ::after shows centered italic alt text when the image fails to load.
+   For successfully-loaded images the browser treats <img> as a replaced
+   element and ignores ::after entirely, so loaded images are unaffected.
+   font-size: 0 suppresses the native broken-image icon + raw alt text so
+   only the styled ::after placeholder is visible. */
 .vt-figure img {
   display: block;
   max-width: 100%;
@@ -1387,9 +1390,25 @@ code.vt-pcode {
   border-radius: 10px;
   background: var(--vt-soft);
   min-height: 4rem;
+  position: relative;
+  font-size: 0;
+}
+
+.vt-figure img::after {
+  content: attr(alt);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: var(--vt-soft);
+  border-radius: inherit;
   color: var(--vt-muted);
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.88rem;
+  font-style: italic;
+  text-align: center;
 }
 
 .vt-figure figcaption {
