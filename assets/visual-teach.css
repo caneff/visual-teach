@@ -1067,6 +1067,7 @@ code.vt-pcode {
 
 /* inline SVG: responsive + inherit --vt-ink so currentColor strokes theme with light/dark */
 .vt-diagram svg {
+  display: block;
   max-width: 100%;
   height: auto;
   color: var(--vt-ink);

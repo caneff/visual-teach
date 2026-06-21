@@ -234,11 +234,19 @@
         correctly in light and dark mode. No hardcoded hex.
       </p>
       <div class="vt-diagram">
-        <svg
-          viewBox="0 0 200 80"
-          xmlns="http://www.w3.org/2000/svg"
-          style="display: block"
-        >
+        <svg viewBox="0 0 200 80" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker
+              id="arr"
+              markerWidth="8"
+              markerHeight="8"
+              refX="6"
+              refY="3"
+              orient="auto"
+            >
+              <path d="M0,0 L0,6 L8,3 z" fill="currentColor" />
+            </marker>
+          </defs>
           <!-- force diagram: object A pushes object B -->
           <rect
             x="10"
@@ -300,18 +308,6 @@
           >
             F
           </text>
-          <defs>
-            <marker
-              id="arr"
-              markerWidth="8"
-              markerHeight="8"
-              refX="6"
-              refY="3"
-              orient="auto"
-            >
-              <path d="M0,0 L0,6 L8,3 z" fill="currentColor" />
-            </marker>
-          </defs>
         </svg>
         <p class="vt-diagram-caption">
           Fig 10 — inline SVG force diagram; stroke=currentColor follows

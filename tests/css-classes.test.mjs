@@ -108,6 +108,7 @@ test("diagram rules are tokenized — no raw hex colours", () => {
 
 test(".vt-diagram svg is responsive and themed via currentColor", () => {
   const rule = ruleBody(/\.vt-diagram\s+svg\s*\{[^}]*\}/);
+  expect(rule).toContain("display: block");
   expect(rule).toContain("max-width: 100%");
   expect(rule).toContain("height: auto");
   expect(rule).toContain("var(--vt-ink)");
