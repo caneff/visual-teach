@@ -21,7 +21,7 @@ shell** block near the top of the cheatsheet (the canonical `<main>` skeleton:
 metabar, objectives, sections, recap) plus the asset `<link>`/`<script>` snippet
 above it, then fill it in and add blocks per the cheatsheet, deleting any you
 don't need. Cloning a known-good shell avoids the common misses (wrong asset
-paths, missing `type="module"`, dropped wrapper divs).
+paths, dropped wrapper divs).
 
 ## How it reaches `/teach`
 
@@ -49,13 +49,17 @@ content changes. For each targeted file:
 4. Remove any inline `<script>` block(s).
 5. Add asset links (relative to the lesson, typically `lessons/`):
    ```html
-   <link rel="stylesheet" href="../assets/visual-teach.css">
+   <link rel="stylesheet" href="../assets/visual-teach.css" />
    ```
-   and before `</body>` (visual-teach.js is an ES module — `type="module"` is
-   required, or it throws `Unexpected token 'export'` and nothing wires up):
+   and before `</body>`:
    ```html
-   <script type="module" src="../assets/visual-teach.js"></script>
+   <script src="../assets/visual-teach.js"></script>
    ```
+   **Do NOT add `type="module"` to this `<script>` tag.** `visual-teach.js` is a
+   plain UMD/IIFE script, not an ES module. Adding `type="module"` causes browsers
+   to fetch it as a module subject to CORS — which breaks file:// delivery with a
+   CORS policy error, silently disabling every interactive component.
+   Strip `type="module"` from the `visual-teach.js` script tag if found.
 6. Swap class names to their `vt-*` equivalents per `assets/visual-teach.md`.
    Preserve all semantic content, headings, body text, `data-*` attributes, and
    interactive markup.
