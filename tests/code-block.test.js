@@ -200,6 +200,47 @@ describe("vt-code missing required children", () => {
   });
 });
 
+describe("vt-code.vt-static display-only variant", () => {
+  it("does not warn when vt-static has a pre but no copy button", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    setup(`
+      <div class="vt-code vt-static">
+        <div class="vt-code-head"><span>Formula</span></div>
+        <pre><code>zenith distance = 90° − Ho</code></pre>
+      </div>
+    `);
+
+    expect(warnSpy).not.toHaveBeenCalled();
+    warnSpy.mockRestore();
+  });
+
+  it("warns when vt-static is missing a pre (pre is always required)", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    setup(`
+      <div class="vt-code vt-static">
+        <div class="vt-code-head"><span>Formula</span></div>
+      </div>
+    `);
+
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("pre"));
+    warnSpy.mockRestore();
+  });
+
+  it("does not wire a copy button on vt-static blocks", () => {
+    setup(`
+      <div class="vt-code vt-static">
+        <div class="vt-code-head"><span>Formula</span></div>
+        <pre><code>zenith distance = 90° − Ho</code></pre>
+      </div>
+    `);
+
+    const btn = document.querySelector(".vt-code-copy");
+    expect(btn).toBeNull();
+  });
+});
+
 describe("vt-pcode inline token emphasis", () => {
   it(".vt-pcode elements require no JS — they exist as plain code elements", () => {
     setup(

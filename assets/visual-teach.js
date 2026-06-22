@@ -329,7 +329,9 @@ function wireCopyButton(container) {
 }
 
 function wireCodeBlock(block) {
-  if (!ensure(block, [".vt-code-copy", "pre"])) return;
+  if (!ensure(block, ["pre"])) return;
+  if (block.classList.contains("vt-static")) return;
+  if (!ensure(block, [".vt-code-copy"])) return;
   wireCopyButton(block);
 }
 
