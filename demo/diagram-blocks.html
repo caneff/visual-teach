@@ -209,6 +209,22 @@
         </p>
       </div>
 
+      <h2><span class="vt-num">9</span>.vt-flow under dir=rtl</h2>
+      <p>
+        RTL flow: arrows point left (←), connector on the reading-order side, no
+        stray leading arrow. Arabic letter-sequence: بـ → يـ → ت.
+      </p>
+      <div class="vt-diagram" id="rtl-test" dir="rtl">
+        <div class="vt-flow">
+          <span class="vt-node">بـ</span>
+          <span class="vt-node">يـ</span>
+          <span class="vt-node em">ت</span>
+        </div>
+        <p class="vt-diagram-caption" style="text-align: right">
+          Fig 10 — RTL flow: arrows must point left, no stray leading arrow
+        </p>
+      </div>
+
       <h2><span class="vt-num">7</span>.vt-node with inline sup / sub</h2>
       <p>
         Superscripts and subscripts must stay on the same baseline line, not

@@ -1130,7 +1130,7 @@ code.vt-pcode {
 }
 
 .vt-flow > .vt-row-start {
-  margin-left: 0;
+  margin-inline-start: 0;
 }
 
 .vt-flow > .vt-row-start::before {
@@ -1140,19 +1140,24 @@ code.vt-pcode {
 /* arrow before every child that follows another child */
 .vt-flow > * + * {
   position: relative;
-  margin-left: 1.6rem;
+  margin-inline-start: 1.6rem;
 }
 
 .vt-flow > * + *::before {
   content: "→";
   position: absolute;
-  left: -1.4rem;
+  inset-inline-start: -1.4rem;
   top: 50%;
   transform: translateY(-50%);
   font-size: 1rem;
   color: var(--vt-muted);
   pointer-events: none;
   line-height: 1;
+}
+
+[dir="rtl"] .vt-flow > * + *::before,
+.vt-flow[dir="rtl"] > * + *::before {
+  content: "←";
 }
 
 /* flex playground — pure display:flex container, no injected separators.
