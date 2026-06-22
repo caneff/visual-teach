@@ -62,8 +62,12 @@ charts, `vt-flow` sequences — not a photo placeholder that surfaces only when 
 hard-code an `<img>` yourself. Hand-rolling a `<figure>` to show that nothing
 renders is fabricating demand, not discovering it.
 
-Log findings in `course-tests/FINDINGS.md`. Before writing a new gap finding,
-confirm that the skill actually generated content that required the missing block.
+The methodology guard and the list of deliberate non-components live in
+`docs/adr/0003-probe-methodology-and-deliberate-non-components.md` — read it before
+logging any gap. Probe runs are disposable: regenerate a course to probe, then
+delete it; do not commit courses or a findings log. Before writing a new gap
+finding, confirm that the skill actually generated content that required the
+missing block.
 
 ## Defaults (use when teach-test would ask)
 
