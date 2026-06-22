@@ -14,6 +14,13 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 <script src="../assets/visual-teach.js"></script>
 ```
 
+> **Do NOT add `type="module"` to the `<script>` tag above.** `visual-teach.js` is
+> a plain UMD/IIFE script, not an ES module. Adding `type="module"` causes browsers
+> to load it under CORS rules — which blocks file:// delivery with a CORS policy
+> error, silently disabling all interactive components (quizzes, checklists, theme
+> toggle, copy buttons). The primary delivery mode is file://, so this footgun kills
+> the whole page with no visible error unless you inspect the console.
+
 ## Page shell
 
 **Starting a new lesson? Copy this `<main>` block plus the asset link/script
