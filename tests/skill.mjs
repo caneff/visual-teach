@@ -118,31 +118,31 @@ for (const phrase of [
 }
 
 // ── type="module" hardening (issue #92) ───────────────────────
-test('SKILL.md: warns that type="module" breaks file:// delivery', () => {
+test(`SKILL.md: warns that type="module" breaks file:// delivery`, () => {
   expect(skill).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|type="module".*do not|never.*type="module"|type="module".*never|plain.*script.*not.*module|not.*module/i
   );
 });
 
-test('SKILL.md: Convert step strips type="module" from visual-teach.js tag', () => {
+test(`SKILL.md: Convert step strips type="module" from visual-teach.js tag`, () => {
   expect(skill).toMatch(
     /strip.*type="module"|remove.*type="module"|type="module".*strip|type="module".*remov/i
   );
 });
 
-test('SKILL.md: script snippet does not include type="module" on visual-teach.js', () => {
+test(`SKILL.md: script snippet does not include type="module" on visual-teach.js`, () => {
   const scriptTagMatch = skill.match(/<script[^>]*visual-teach\.js[^>]*>/);
   expect(scriptTagMatch).not.toBeNull();
   expect(scriptTagMatch[0]).not.toContain('type="module"');
 });
 
-test('cheatsheet: warns against type="module" on visual-teach.js script', () => {
+test(`cheatsheet: warns against type="module" on visual-teach.js script`, () => {
   expect(cheatsheet).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|not.*type="module"|type="module".*not|plain.*script|not.*ES module|CORS/i
   );
 });
 
-test('after: visual-teach.js script tag has no type="module"', () => {
+test(`after: visual-teach.js script tag has no type="module"`, () => {
   const scriptTagMatch = afterHtml.match(/<script[^>]*visual-teach\.js[^>]*>/);
   expect(scriptTagMatch).not.toBeNull();
   expect(scriptTagMatch[0]).not.toContain('type="module"');
