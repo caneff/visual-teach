@@ -182,6 +182,23 @@
         </p>
       </div>
 
+      <h2><span class="vt-num">7</span>.vt-node with inline sup / sub</h2>
+      <p>
+        Superscripts and subscripts must stay on the same baseline line, not
+        collapse to a second row.
+      </p>
+      <div class="vt-diagram">
+        <div class="vt-flow">
+          <span class="vt-node">β</span>
+          <span class="vt-node">square: β<sup>2</sup></span>
+          <span class="vt-node em">1 − β<sup>2</sup></span>
+          <span class="vt-node">H<sub>2</sub>O</span>
+        </div>
+        <p class="vt-diagram-caption">
+          Fig 8 — sup/sub must stay inline, not wrap to a new line
+        </p>
+      </div>
+
       <h2><span class="vt-num">8</span>.vt-flow — long pipeline (wrap test)</h2>
       <p>
         A 12-pose Sun Salutation flow. Wraps to multiple rows so every node is
@@ -225,24 +242,7 @@
         </p>
       </div>
 
-      <h2><span class="vt-num">7</span>.vt-node with inline sup / sub</h2>
-      <p>
-        Superscripts and subscripts must stay on the same baseline line, not
-        collapse to a second row.
-      </p>
-      <div class="vt-diagram">
-        <div class="vt-flow">
-          <span class="vt-node">β</span>
-          <span class="vt-node">square: β<sup>2</sup></span>
-          <span class="vt-node em">1 − β<sup>2</sup></span>
-          <span class="vt-node">H<sub>2</sub>O</span>
-        </div>
-        <p class="vt-diagram-caption">
-          Fig 8 — sup/sub must stay inline, not wrap to a new line
-        </p>
-      </div>
-
-      <h2><span class="vt-num">8</span>Inline SVG — currentColor theming</h2>
+      <h2><span class="vt-num">10</span>Inline SVG — currentColor theming</h2>
       <p>
         An <code>&lt;svg&gt;</code> drawn with
         <code>stroke="currentColor"</code> inside
@@ -326,7 +326,7 @@
           </text>
         </svg>
         <p class="vt-diagram-caption">
-          Fig 10 — inline SVG force diagram; stroke=currentColor follows
+          Fig 11 — inline SVG force diagram; stroke=currentColor follows
           light/dark theme
         </p>
       </div>
