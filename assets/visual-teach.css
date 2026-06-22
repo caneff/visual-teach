@@ -204,7 +204,7 @@ table {
   margin: 1rem 0;
 }
 th {
-  text-align: left;
+  text-align: start;
   font-family: "Helvetica Neue", Arial, sans-serif;
   font-size: 0.75rem;
   text-transform: uppercase;
