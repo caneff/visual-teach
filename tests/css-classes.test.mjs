@@ -215,12 +215,38 @@ test("vt-flow wraps so long sequences stay fully visible", () => {
 test("vt-row-start suppresses the leading arrow and margin on wrapped-row first items", () => {
   expect(
     css,
-    "vt-row-start must clear margin-left so no gap before the first item of a wrapped row"
-  ).toMatch(/\.vt-flow\s*>\s*\.vt-row-start\s*\{[^}]*margin-left:\s*0/);
+    "vt-row-start must clear margin-inline-start so no gap before the first item of a wrapped row"
+  ).toMatch(/\.vt-flow\s*>\s*\.vt-row-start\s*\{[^}]*margin-inline-start:\s*0/);
   expect(
     css,
     "vt-row-start::before must set content:none to remove the → on wrapped-row starts"
   ).toMatch(/\.vt-flow\s*>\s*\.vt-row-start::before\s*\{[^}]*content:\s*none/);
+});
+
+test("vt-flow connector uses logical properties so RTL layouts get arrow on reading-order side", () => {
+  expect(
+    css,
+    "vt-flow * + * must use margin-inline-start (not margin-left) for RTL-correct connector spacing"
+  ).toMatch(/\.vt-flow\s*>\s*\*\s*\+\s*\*\s*\{[^}]*margin-inline-start:/);
+  expect(
+    css,
+    "vt-flow * + *::before must use inset-inline-start (not left:) for RTL-correct arrow placement"
+  ).toMatch(
+    /\.vt-flow\s*>\s*\*\s*\+\s*\*::before\s*\{[^}]*inset-inline-start:/
+  );
+  expect(
+    css,
+    "vt-flow must not use physical left: on the connector arrow"
+  ).not.toMatch(/\.vt-flow\s*>\s*\*\s*\+\s*\*::before\s*\{[^}]*\bleft:/);
+});
+
+test("vt-flow RTL glyph points left under dir=rtl", () => {
+  expect(
+    css,
+    "a [dir=rtl] rule must flip the connector glyph to ← for RTL reading order"
+  ).toMatch(
+    /\[dir="rtl"\].*\.vt-flow\s*>.*::before[^{]*\{[^}]*content:\s*"←"/s
+  );
 });
 
 test("vt-node does not use flex-direction:column so inline sup/sub stay on the baseline", () => {
