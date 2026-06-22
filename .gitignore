@@ -11,4 +11,7 @@ node_modules/
 probe-adoption.sh
 
 # Generated stress-test courses (local only for now)
-course-tests/
+# Ignore course contents but not the methodology docs themselves
+course-tests/*
+!course-tests/CHECKLIST.md
+!course-tests/FINDINGS.md
