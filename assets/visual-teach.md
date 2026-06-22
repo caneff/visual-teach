@@ -330,6 +330,28 @@ To add a new language not yet in `assets/prism/`, download the `.min.js` file
 from `https://cdn.jsdelivr.net/npm/prismjs/components/` into `assets/prism/` and
 add the `<script>` tag to your lesson HTML.
 
+### Display-only variant (`.vt-static`) — formulas, sample output, ASCII diagrams
+
+Add `.vt-static` to `.vt-code` for preformatted boxes that should never be copied
+— formulas, command results, ASCII art, or any labeled display content where a
+copy button is meaningless. A `.vt-code.vt-static` block requires only a `<pre>`
+(no `.vt-code-copy`), wires nothing, and emits no console warning.
+
+```html
+<div class="vt-code vt-static">
+  <div class="vt-code-head"><span>Formula</span></div>
+  <pre><code>zenith distance = 90° − Ho</code></pre>
+</div>
+```
+
+Plain `.vt-code` (without `.vt-static`) still requires `.vt-code-copy` and warns
+if it is absent — so genuine "forgot the button" mistakes are still caught.
+
+For real mathematical equations, prefer `.vt-math` / `.vt-eq` (KaTeX/LaTeX) over
+`.vt-code.vt-static` — they render proper math notation with correct spacing and
+symbols. Use `.vt-static` only when plain preformatted text is the right medium
+(ASCII art, pseudo-formulas, sample output).
+
 ## Input → output pair (`.vt-io`) — code beside its result
 
 Side-by-side on wide viewports, stacked below 600 px. Copy button on the
