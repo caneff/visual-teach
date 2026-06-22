@@ -10,6 +10,8 @@ const teachCourseSkill = readFileSync(
   join(root, ".claude/skills/teach-course/SKILL.md"),
   "utf8"
 );
+const checklist = readFileSync(join(root, "course-tests/CHECKLIST.md"), "utf8");
+const findings = readFileSync(join(root, "course-tests/FINDINGS.md"), "utf8");
 
 // ── teach-course SKILL.md: probe methodology guard ───────────────────────────
 
@@ -40,18 +42,10 @@ test("course-tests/CHECKLIST.md exists", () => {
 });
 
 test("course-tests/CHECKLIST.md: carries the no-placeholder guard", () => {
-  const checklist = readFileSync(
-    join(root, "course-tests/CHECKLIST.md"),
-    "utf8"
-  );
   expect(checklist).toMatch(/hand.roll|placeholder.*content|fabricat/i);
 });
 
 test("course-tests/CHECKLIST.md: states probe only exercises blocks the skill generates", () => {
-  const checklist = readFileSync(
-    join(root, "course-tests/CHECKLIST.md"),
-    "utf8"
-  );
   expect(checklist).toMatch(
     /only.*block.*skill|block.*skill.*emit|block.*skill.*generat/i
   );
@@ -64,16 +58,13 @@ test("course-tests/FINDINGS.md exists", () => {
 });
 
 test("course-tests/FINDINGS.md: annotates image-gap finding as retracted or manufactured", () => {
-  const findings = readFileSync(join(root, "course-tests/FINDINGS.md"), "utf8");
   expect(findings).toMatch(/retract|manufactured|invalid|fabricat/i);
 });
 
 test("course-tests/FINDINGS.md: cross-references issue #86", () => {
-  const findings = readFileSync(join(root, "course-tests/FINDINGS.md"), "utf8");
   expect(findings).toContain("#86");
 });
 
 test("course-tests/FINDINGS.md: cross-references issue #87", () => {
-  const findings = readFileSync(join(root, "course-tests/FINDINGS.md"), "utf8");
   expect(findings).toContain("#87");
 });
