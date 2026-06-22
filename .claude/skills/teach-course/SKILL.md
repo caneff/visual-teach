@@ -40,6 +40,31 @@ Then **read `./assets/visual-teach.md` (the cheatsheet) before authoring any les
 
 6. **Write a starting learning record** `learning-records/0001-*.md` noting the course was bootstrapped by `teach-course` with an auto-generated mission, so a future real session knows the starting state was synthetic.
 
+## Probe methodology: only exercise blocks the skill actually generates
+
+A course test is a smoke test of the `teach-test` skill, not a gap-hunting audit of
+the component library. Follow this rule without exception:
+
+**A probe may only exercise `vt-*` blocks that the skill itself emits.** Never
+hand-roll placeholder content (fake `<img>` paths, fabricated classes, HTML the
+skill would never write) and then log the absence of a component to render that
+content as a library gap.
+
+A "missing component" finding is valid only when the skill _tried to express real,
+generatable content_ and found no `vt-*` block for it — e.g. the skill produced a
+code sample but had no `vt-code` block, or a quiz but had no `vt-quiz` block. If
+the only path to the alleged gap is to hand-author content the skill cannot supply,
+**there is no gap — there is no demand.**
+
+For visual crafts where the skill cannot acquire source media (photography, video
+stills), the expected probe output is _built_ visuals — CSS diagrams, SVG, mermaid
+charts, `vt-flow` sequences — not a photo placeholder that surfaces only when you
+hard-code an `<img>` yourself. Hand-rolling a `<figure>` to show that nothing
+renders is fabricating demand, not discovering it.
+
+Log findings in `course-tests/FINDINGS.md`. Before writing a new gap finding,
+confirm that the skill actually generated content that required the missing block.
+
 ## Defaults (use when teach-test would ask)
 
 - **Mission**: most common practical goal for the subject; mark it auto-generated and editable.
