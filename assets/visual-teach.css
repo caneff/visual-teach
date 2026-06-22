@@ -1409,3 +1409,81 @@ code.vt-pcode {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ====== forced-colors (Windows High Contrast / any forced-colors mode) ====== */
+@media (forced-colors: active) {
+  /* Callout tones: the SVG mask icon collapses to a single monochrome slab;
+     add a distinct text label per tone so they remain semantically distinguishable. */
+  .vt-callout.warn::after,
+  .vt-callout.info::after,
+  .vt-callout.insight::after,
+  .vt-callout.success::after,
+  .vt-callout.risk::after {
+    position: absolute;
+    top: 0.8rem;
+    left: 0.45rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+  .vt-callout.warn::after {
+    content: "⚠";
+  }
+  .vt-callout.info::after {
+    content: "ℹ";
+  }
+  .vt-callout.insight::after {
+    content: "💡";
+  }
+  .vt-callout.success::after {
+    content: "✓";
+  }
+  .vt-callout.risk::after {
+    content: "⛔";
+  }
+
+  /* Quiz per-option state: background/border-color both forced away; prepend a glyph. */
+  .vt-quiz button.opt.correct::before {
+    content: "✓ ";
+  }
+  .vt-quiz button.opt.wrong::before {
+    content: "✗ ";
+  }
+
+  /* Semantic pills: color is forced away; prepend a short text prefix. */
+  .vt-pill.good::before {
+    content: "✓ ";
+  }
+  .vt-pill.bad::before {
+    content: "✗ ";
+  }
+  .vt-pill.warn::before {
+    content: "! ";
+  }
+
+  /* vt-level: all three levels share the same ● glyph; make each distinct. */
+  .vt-level.beginner::before {
+    content: "○";
+  }
+  .vt-level.intermediate::before {
+    content: "◑";
+  }
+  .vt-level.advanced::before {
+    content: "●";
+  }
+
+  /* vt-node.em / vt-box.em: emphasis relies on background + accent color; add a visible outline. */
+  .vt-node.em,
+  .vt-box.em {
+    outline: 2px solid ButtonText;
+    outline-offset: 2px;
+  }
+}
+
+/* ====== prefers-reduced-motion ====== */
+@media (prefers-reduced-motion: reduce) {
+  /* Gate the progress-bar width animation so it does not run for users who opt out of motion. */
+  .vt-progress-bar-fill {
+    transition: none;
+  }
+}

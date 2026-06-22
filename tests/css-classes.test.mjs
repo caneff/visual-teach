@@ -274,3 +274,97 @@ test("forced-dark selector uses :root[data-theme='dark'] (spec 0,2,0) so a flat 
   // Bare [data-theme="dark"] without :root prefix has spec 0,1,0 — same as flat :root, loses on source order
   expect(css).not.toMatch(/(?<![:\w])\[data-theme="dark"\]\s*\{/);
 });
+
+// ====== forced-colors + prefers-reduced-motion ======
+
+test("forced-colors block exists in CSS", () => {
+  expect(css).toMatch(/@media\s*\(\s*forced-colors\s*:\s*active\s*\)/);
+});
+
+test("callout tones each expose a distinct text label via ::after under forced-colors", () => {
+  // Each tone rule inside the forced-colors block must supply content: "..." on ::after
+  const fcBlock = css.slice(css.indexOf("forced-colors: active"));
+  expect(
+    fcBlock,
+    "warn callout must have a ::after label under forced-colors"
+  ).toMatch(/\.vt-callout\.warn::after[^{]*\{[^}]*content:/);
+  expect(
+    fcBlock,
+    "info callout must have a ::after label under forced-colors"
+  ).toMatch(/\.vt-callout\.info::after[^{]*\{[^}]*content:/);
+  expect(
+    fcBlock,
+    "insight callout must have a ::after label under forced-colors"
+  ).toMatch(/\.vt-callout\.insight::after[^{]*\{[^}]*content:/);
+  expect(
+    fcBlock,
+    "success callout must have a ::after label under forced-colors"
+  ).toMatch(/\.vt-callout\.success::after[^{]*\{[^}]*content:/);
+  expect(
+    fcBlock,
+    "risk callout must have a ::after label under forced-colors"
+  ).toMatch(/\.vt-callout\.risk::after[^{]*\{[^}]*content:/);
+});
+
+test("quiz correct/wrong buttons get a non-color glyph under forced-colors", () => {
+  const fcBlock = css.slice(css.indexOf("forced-colors: active"));
+  expect(fcBlock, "correct option must add a checkmark glyph").toMatch(
+    /\.vt-quiz button\.opt\.correct::before[^{]*\{[^}]*content:/
+  );
+  expect(fcBlock, "wrong option must add a cross glyph").toMatch(
+    /\.vt-quiz button\.opt\.wrong::before[^{]*\{[^}]*content:/
+  );
+});
+
+test("semantic pills get a text prefix under forced-colors so good/bad/warn are distinguishable", () => {
+  const fcBlock = css.slice(css.indexOf("forced-colors: active"));
+  expect(fcBlock, "vt-pill.good must add a non-color text label").toMatch(
+    /\.vt-pill\.good[^{]*\{[^}]*content:|\.vt-pill\.good::before[^{]*\{[^}]*content:/
+  );
+  expect(fcBlock, "vt-pill.bad must add a non-color text label").toMatch(
+    /\.vt-pill\.bad[^{]*\{[^}]*content:|\.vt-pill\.bad::before[^{]*\{[^}]*content:/
+  );
+  expect(fcBlock, "vt-pill.warn must add a non-color text label").toMatch(
+    /\.vt-pill\.warn[^{]*\{[^}]*content:|\.vt-pill\.warn::before[^{]*\{[^}]*content:/
+  );
+});
+
+test("vt-level tones are distinguished by distinct ::before glyphs under forced-colors", () => {
+  const fcBlock = css.slice(css.indexOf("forced-colors: active"));
+  // Each level must have a distinct glyph — they all use ● in normal mode
+  expect(
+    fcBlock,
+    "beginner level must have a distinct marker under forced-colors"
+  ).toMatch(
+    /\.vt-level\.beginner[^{]*\{[^}]*content:|\.vt-level\.beginner::before[^{]*\{[^}]*content:/
+  );
+  expect(
+    fcBlock,
+    "intermediate level must have a distinct marker under forced-colors"
+  ).toMatch(
+    /\.vt-level\.intermediate[^{]*\{[^}]*content:|\.vt-level\.intermediate::before[^{]*\{[^}]*content:/
+  );
+  expect(
+    fcBlock,
+    "advanced level must have a distinct marker under forced-colors"
+  ).toMatch(
+    /\.vt-level\.advanced[^{]*\{[^}]*content:|\.vt-level\.advanced::before[^{]*\{[^}]*content:/
+  );
+});
+
+test("vt-node.em gets a non-color distinction under forced-colors", () => {
+  const fcBlock = css.slice(css.indexOf("forced-colors: active"));
+  expect(
+    fcBlock,
+    "vt-node.em must have a visible non-color cue (border or outline)"
+  ).toMatch(/\.vt-node\.em|\.vt-box\.em/);
+});
+
+test("progress-bar fill transition is disabled under prefers-reduced-motion", () => {
+  expect(css).toMatch(/@media\s*\(\s*prefers-reduced-motion\s*:\s*reduce\s*\)/);
+  const rmBlock = css.slice(css.indexOf("prefers-reduced-motion: reduce"));
+  expect(
+    rmBlock,
+    "progress-bar-fill transition must be removed under reduced-motion"
+  ).toMatch(/\.vt-progress-bar-fill[^{]*\{[^}]*transition:\s*none/);
+});
