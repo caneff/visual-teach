@@ -163,8 +163,8 @@ test("cheatsheet: quiz section retains equal-length visible text guidance", () =
   );
 });
 
-// ── Theming dark-mode fix (issue #93) ────────────────────────────
-test("cheatsheet: theming example uses a flat :root block (Part B — single override works)", () => {
+// ── Theming overrides ────────────────────────────
+test("cheatsheet: theming example uses a flat :root block", () => {
   const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
   expect(themingSection).toMatch(/:root\s*\{[^}]*--vt-accent/);
 });
