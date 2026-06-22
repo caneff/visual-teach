@@ -237,8 +237,7 @@ test("vt-node uses text-align:center so label text is horizontally centred witho
 });
 
 test("forced-dark selector uses :root[data-theme='dark'] (spec 0,2,0) so a flat :root author override does not clobber vt's dark accent", () => {
-  // :root[data-theme="dark"] (0,2,0) beats an author's flat :root (0,1,0)
   expect(css).toMatch(/:root\[data-theme="dark"\]\s*\{/);
-  // Bare [data-theme="dark"] without :root prefix has only spec 0,1,0 — same as flat :root, loses on source order
+  // Bare [data-theme="dark"] without :root prefix has spec 0,1,0 — same as flat :root, loses on source order
   expect(css).not.toMatch(/(?<![:\w])\[data-theme="dark"\]\s*\{/);
 });
