@@ -236,6 +236,13 @@ test("vt-node uses text-align:center so label text is horizontally centred witho
   expect(nodeRule).toContain("text-align: center");
 });
 
+test("th uses text-align:start (logical) not text-align:left so header labels align correctly under dir=rtl", () => {
+  const thRule = ruleBody(/^th\s*\{[^}]*\}/m);
+  expect(thRule, "th rule must exist").toBeTruthy();
+  expect(thRule).toContain("text-align: start");
+  expect(thRule).not.toContain("text-align: left");
+});
+
 test("forced-dark selector uses :root[data-theme='dark'] (spec 0,2,0) so a flat :root author override does not clobber vt's dark accent", () => {
   expect(css).toMatch(/:root\[data-theme="dark"\]\s*\{/);
   // Bare [data-theme="dark"] without :root prefix has spec 0,1,0 — same as flat :root, loses on source order
