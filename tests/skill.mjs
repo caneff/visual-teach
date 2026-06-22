@@ -162,3 +162,22 @@ test("cheatsheet: quiz section retains equal-length visible text guidance", () =
     /same length|equal length|roughly.*length|length.*roughly/i
   );
 });
+
+// ── Theming dark-mode fix (issue #93) ────────────────────────────
+test("cheatsheet: theming example uses a flat :root block (Part B — single override works)", () => {
+  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+  expect(themingSection).toMatch(/:root\s*\{[^}]*--vt-accent/);
+});
+
+test("cheatsheet: theming section explains that vt dark rules win via higher specificity so a flat override is safe", () => {
+  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+  expect(themingSection).toMatch(
+    /higher.?specificity|:root\[data-theme|spec.*0,2,0|0,2,0/i
+  );
+});
+
+test("cheatsheet: theming section lists which tokens vt re-sets in dark mode", () => {
+  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+  expect(themingSection).toMatch(/--vt-accent.*--vt-ink|--vt-ink.*--vt-accent/);
+  expect(themingSection).toMatch(/dark mode|theme-varying/i);
+});
