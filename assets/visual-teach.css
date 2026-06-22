@@ -44,7 +44,9 @@
     color-scheme: dark;
   }
 }
-[data-theme="dark"] {
+/* Higher specificity (0,2,0 vs 0,1,0) so this beats an author's flat :root override,
+   keeping dark-mode contrast correct without requiring per-theme author blocks. */
+:root[data-theme="dark"] {
   --vt-ink: #e6e9ee;
   --vt-muted: #97a2b2;
   --vt-accent: #5b9dff;

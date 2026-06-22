@@ -235,3 +235,9 @@ test("vt-node uses text-align:center so label text is horizontally centred witho
   const nodeRule = ruleBody(/\.vt-node,\s*\.vt-box\s*\{[^}]*\}/);
   expect(nodeRule).toContain("text-align: center");
 });
+
+test("forced-dark selector uses :root[data-theme='dark'] (spec 0,2,0) so a flat :root author override does not clobber vt's dark accent", () => {
+  expect(css).toMatch(/:root\[data-theme="dark"\]\s*\{/);
+  // Bare [data-theme="dark"] without :root prefix has spec 0,1,0 — same as flat :root, loses on source order
+  expect(css).not.toMatch(/(?<![:\w])\[data-theme="dark"\]\s*\{/);
+});

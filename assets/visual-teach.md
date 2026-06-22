@@ -650,12 +650,22 @@ automatically with dark mode.
 ```html
 <style>
   :root {
-    --vt-accent: #0d7d4d;
-    --vt-ink: #11181c;
+    --vt-accent: #4338ca;
+    --vt-accent-fg: #fff;
   }
 </style>
 ```
 
-Tokens: `--vt-ink --vt-muted --vt-accent --vt-accent-fg --vt-rule --vt-paper
---vt-good --vt-bad --vt-warn`. Topic-specific colors (e.g. a product's own UI
-palette) belong here, not in `visual-teach.css`.
+A flat `:root` override is safe for **all 9 tokens** in both light and dark mode.
+vt's forced-dark rule uses `:root[data-theme="dark"]` (specificity 0,2,0), which beats
+a flat `:root` (0,1,0) — so vt's dark accent wins automatically and dark-mode contrast
+stays correct without any per-theme blocks in your stylesheet.
+
+Theme-varying tokens (vt re-sets these in dark mode): `--vt-ink --vt-muted --vt-accent
+--vt-accent-fg --vt-rule --vt-paper --vt-good --vt-bad --vt-warn`.
+
+Derived tokens (`--vt-soft --vt-stripe --vt-neutral-soft --vt-accent-dk --vt-accent-soft`)
+update automatically from the base tokens and need not be overridden.
+
+Topic-specific colors (e.g. a product's own UI palette) belong here, not in
+`visual-teach.css`.
