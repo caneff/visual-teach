@@ -95,4 +95,28 @@ describe("vt-flow markFlowRows", () => {
     vtVisualTeach.markFlowRows(flow);
     expect(kids[2].classList.contains("vt-row-start")).toBe(false);
   });
+
+  it("marks the correct row-start in an RTL flow — offsetTop is direction-agnostic", () => {
+    // Under RTL flex, DOM-order item[0] is placed at the far RIGHT (first in reading order).
+    // When items wrap, DOM-order item[N] is the rightmost (reading-order first) on the new row.
+    // markFlowRows detects this via offsetTop just as in LTR, so the same item gets vt-row-start.
+    dom = new JSDOM(
+      `<div class="vt-flow" dir="rtl">${"<span></span>".repeat(5)}</div>`
+    );
+    flow = dom.window.document.querySelector(".vt-flow");
+    const kids = Array.from(flow.children);
+    // Simulate RTL wrap: items 0,1,2 on row 1; items 3,4 on row 2
+    setOffsetTop(kids[0], 0, 20);
+    setOffsetTop(kids[1], 0, 20);
+    setOffsetTop(kids[2], 0, 20);
+    setOffsetTop(kids[3], 30, 20);
+    setOffsetTop(kids[4], 30, 20);
+    vtVisualTeach.markFlowRows(flow);
+    // item[3] is the reading-order first on row 2 (rightmost in RTL) — must be suppressed
+    expect(kids[0].classList.contains("vt-row-start")).toBe(false);
+    expect(kids[1].classList.contains("vt-row-start")).toBe(false);
+    expect(kids[2].classList.contains("vt-row-start")).toBe(false);
+    expect(kids[3].classList.contains("vt-row-start")).toBe(true);
+    expect(kids[4].classList.contains("vt-row-start")).toBe(false);
+  });
 });
