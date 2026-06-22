@@ -221,10 +221,22 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // Fresh, unblocked issues from the planner run the full implement→review
   // pipeline. Issues labelled needs-review (implemented earlier, review errored)
   // skip the implementer and re-run ONLY the reviewer on their existing branch.
-  const fresh = plan.output.issues.map((i) => ({
-    ...i,
-    mode: "full" as const,
-  }));
+  //
+  // Drop anything this run already completed in an earlier iteration. The
+  // planner sources its ready-for-agent list from GitHub's label SEARCH index,
+  // which is eventually consistent: an issue relabeled in-review at the end of
+  // iteration N can still surface as ready-for-agent when iteration N+1's
+  // planner queries a second later, so it gets re-selected and needlessly
+  // re-implemented (the implementer no-ops, but it still burns a sandbox + a
+  // reviewer pass that makes throwaway commits). allCompleted is authoritative
+  // local state with no index lag — filter against it.
+  const handled = new Set(allCompleted.map((i) => i.id));
+  const fresh = plan.output.issues
+    .filter((i) => !handled.has(i.id))
+    .map((i) => ({
+      ...i,
+      mode: "full" as const,
+    }));
   const needsReview = listIssues("needs-review").map((i) => ({
     id: String(i.number),
     title: i.title,
