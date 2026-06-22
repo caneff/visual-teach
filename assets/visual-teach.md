@@ -21,6 +21,20 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 > toggle, copy buttons). The primary delivery mode is file://, so this footgun kills
 > the whole page with no visible error unless you inspect the console.
 
+## These blocks are a floor, not a ceiling
+
+The `vt-*` blocks cover the commodity parts of a lesson — chrome, callouts,
+quizzes, code, tables, basic diagrams — so you don't reinvent them and lessons
+share a consistent look. They are **not** a ceiling, and **not a mold every
+lesson must fit**. When a topic has an interaction the catalog can't express — a
+simulator, a manipulable diagram, a domain-specific widget — build it as a new
+component in `./assets/` (per `/teach`'s own rule: "when a lesson needs something
+new and reusable, write it as a component") and let it sit alongside the `vt-*`
+blocks. That is a welcome **bonus, never a requirement**: reach for bespoke when
+it genuinely serves the topic, not for its own sake. The point is to avoid
+same-y, templated lessons — the catalog handles the commodity 80% so your effort
+goes to whatever makes this particular lesson worth doing.
+
 ## Page shell
 
 **Starting a new lesson? Copy this `<main>` block plus the asset link/script
