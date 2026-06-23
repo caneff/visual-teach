@@ -64,6 +64,9 @@ import { z } from "zod";
 //                     branch and re-runs ONLY the reviewer. After
 //                     REVIEW_RETRY_CAP failed re-reviews it escalates back to
 //                     ready-for-agent for a full re-implement.
+//   ready-for-human → the reviewer found the branch doesn't meet the issue spec
+//                     (#130) REVIEW_RETRY_CAP times; re-implementing isn't
+//                     converging, so it's handed off for a human to take over.
 //
 // Transitioning out of ready-for-agent the moment an outcome is known (rather
 // than at the very end of the run) is what stops a finished issue from being
