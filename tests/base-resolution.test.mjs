@@ -88,12 +88,36 @@ describe(".sandcastle base resolution — forest fixture 108→112, 120→119", 
     expect(base).toBe("main");
   });
 
-  test("≥2 parents is deferred to #128 — defaults to main", () => {
+  test("≥2 parents with no hook falls back to main", () => {
     expect(
       resolveBase({
         parents: ["112", "119"],
         branchExistsWithWork: allBuiltThisRun,
       })
     ).toBe("main");
+  });
+
+  test("≥2 parents (diamond) delegates to onMultiParent and returns its base", () => {
+    let seen;
+    const base = resolveBase({
+      parents: ["112", "119"],
+      branchExistsWithWork: allBuiltThisRun,
+      onMultiParent: (ps) => {
+        seen = ps;
+        return "sandcastle/base-130";
+      },
+    });
+    expect(seen).toEqual(["112", "119"]);
+    expect(base).toBe("sandcastle/base-130");
+  });
+
+  test("a conflicting multi-parent merge propagates null so the caller can skip", () => {
+    expect(
+      resolveBase({
+        parents: ["112", "119"],
+        branchExistsWithWork: allBuiltThisRun,
+        onMultiParent: () => null,
+      })
+    ).toBeNull();
   });
 });
