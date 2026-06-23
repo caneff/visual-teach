@@ -49,6 +49,7 @@ import {
   buildMultiParentBase,
 } from "./base-resolution.mts";
 import { prComponents } from "./pr-components.mts";
+import { parseSpecVerdict } from "./review-verdict.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
@@ -63,6 +64,9 @@ import { z } from "zod";
 //                     branch and re-runs ONLY the reviewer. After
 //                     REVIEW_RETRY_CAP failed re-reviews it escalates back to
 //                     ready-for-agent for a full re-implement.
+//   ready-for-human → the reviewer found the branch doesn't meet the issue spec
+//                     (#130) REVIEW_RETRY_CAP times; re-implementing isn't
+//                     converging, so it's handed off for a human to take over.
 //
 // Transitioning out of ready-for-agent the moment an outcome is known (rather
 // than at the very end of the run) is what stops a finished issue from being
@@ -471,6 +475,14 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         // Review. A reviewer error (e.g. context blow-up) must NOT discard the
         // implementer's commits — catch it and flag the issue needs-review so a
         // later pass re-reviews the existing branch instead of re-implementing.
+        // The originating issue text, so the reviewer can judge spec-conformance
+        // (issue #130) independently — it sees ONLY the issue, the commits, and
+        // the diff, never the implementer's reasoning.
+        const issueSpec =
+          gh(
+            `issue view ${issue.id} --json title,body --jq '.title + "\n\n" + .body'`
+          ) ?? "(issue text unavailable)";
+
         try {
           const review = await sandbox.run({
             name: "reviewer",
@@ -484,8 +496,27 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             // chain it was stacked on. Can't reuse the built-in TARGET_BRANCH arg
             // — sandcastle reserves it and pins it to the host branch (main),
             // which would leak the parent chain's commits into the diff.
-            promptArgs: { BRANCH: issue.branch, REVIEW_BASE: base },
+            promptArgs: {
+              BRANCH: issue.branch,
+              REVIEW_BASE: base,
+              ISSUE_SPEC: `#${issue.id} ${issueSpec}`,
+            },
           });
+          // Spec-conformance gate (#130): sandbox.run has no structured output,
+          // so the reviewer emits a sentinel line. An explicit FAIL means the
+          // branch does not satisfy the issue — re-implement it (handled in the
+          // outcome loop), do not accept it as done.
+          const verdict = parseSpecVerdict(review.stdout);
+          if (!verdict.pass) {
+            console.warn(
+              `  ⚠ ${issue.id} failed spec review: ${verdict.reason}`
+            );
+            return {
+              issue,
+              kind: "spec-fail" as const,
+              commits: [...implementCommits, ...review.commits],
+            };
+          }
           return {
             issue,
             kind: "done" as const,
@@ -518,6 +549,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // iteration's planner (and any future run) sees the right state:
   //   done         → in-review  (drop ready-for-agent + needs-review)
   //   needs-review → needs-review (drop ready-for-agent; keep branch commits)
+  //   spec-fail    → ready-for-agent (re-implement), or ready-for-human at cap
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
   const attempts = readAttempts();
@@ -560,6 +592,30 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         );
       } else {
         relabel(issue.id, "needs-review", ["ready-for-agent"]);
+      }
+    } else if (kind === "spec-fail") {
+      // The branch was reviewed cleanly for code quality but does NOT satisfy
+      // the issue (#130). Re-implementing is the fix — re-review can't repair
+      // "built the wrong thing" — so send it back to ready-for-agent. Cap the
+      // re-implements with a distinct counter so a persistently-misunderstood
+      // issue doesn't loop forever; at the cap, hand it to a human.
+      const key = `spec-${issue.id}`;
+      attempts[key] = (attempts[key] ?? 0) + 1;
+      if (attempts[key] >= REVIEW_RETRY_CAP) {
+        relabel(issue.id, "ready-for-human", [
+          "ready-for-agent",
+          "needs-review",
+          "in-review",
+        ]);
+        delete attempts[key];
+        console.warn(
+          `  ${issue.id} failed spec review ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`
+        );
+      } else {
+        relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
+        console.warn(
+          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${attempts[key]}/${REVIEW_RETRY_CAP})`
+        );
       }
     }
   }
