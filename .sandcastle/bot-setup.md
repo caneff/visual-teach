@@ -53,11 +53,18 @@ Note the **App ID** shown near the top of the page (a small integer like `123456
 
 ## Step 4 — Find the Installation ID
 
-```bash
-gh api /repos/<owner>/<repo>/installation --jq '.id'
+After Step 3, GitHub lands you on the installation's settings page. Its URL ends
+with the Installation ID:
+
+```
+https://github.com/settings/installations/<INSTALLATION_ID>
 ```
 
-This returns a number like `12345678` — that's `GITHUB_APP_INSTALLATION_ID`.
+That trailing number is `GITHUB_APP_INSTALLATION_ID` (e.g. `12345678`).
+
+> The `gh api /repos/<owner>/<repo>/installation` endpoint does **not** work here —
+> it requires a JWT signed by the App itself, not your personal token, so it
+> returns `401 "A JSON web token could not be decoded"`. Use the URL above.
 
 ---
 
@@ -65,17 +72,35 @@ This returns a number like `12345678` — that's `GITHUB_APP_INSTALLATION_ID`.
 
 ### Local development
 
-Copy `.env.example` to `.env` and fill in the three values:
+Sandcastle reads `.sandcastle/.env` (NOT a top-level `.env`). If you don't have
+one yet, copy the template, then fill in the values:
 
 ```bash
-cp .env.example .env
-# Edit .env:
+cp .sandcastle/.env.example .sandcastle/.env
+# Edit .sandcastle/.env:
 #   GITHUB_APP_ID=<app-id>
 #   GITHUB_APP_PRIVATE_KEY="$(cat /path/to/downloaded.pem)"
 #   GITHUB_APP_INSTALLATION_ID=<installation-id>
+#   SANDCASTLE_BOT_GIT_NAME=sandcastle-bot
+#   SANDCASTLE_BOT_GIT_EMAIL=<bot email — see Step 5b>
 ```
 
-`.env` is gitignored — it will not be committed.
+`.sandcastle/.env` is gitignored — it will not be committed.
+
+Once the bot works, blank out the old personal `GH_TOKEN=` line in
+`.sandcastle/.env` so runs can't silently fall back to your account.
+
+### Step 5b — Bot email
+
+The commit-author email is the App's no-reply address, in this exact shape:
+
+```
+<APP_ID>+<app-slug>[bot]@users.noreply.github.com
+```
+
+Example: App ID `1234567`, name `sandcastle-bot` →
+`1234567+sandcastle-bot[bot]@users.noreply.github.com`. Using this makes GitHub
+link commits to the bot's avatar.
 
 ### CI (GitHub Actions)
 
