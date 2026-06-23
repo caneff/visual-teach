@@ -196,8 +196,7 @@ const planSchema = z.object({
 const MAX_ITERATIONS = 5;
 
 // Resolve sandbox identity once. No-op when bot env vars are unset.
-// mintInstallationToken is async, so await here (installation tokens are
-// short-lived ~1h, so we mint per run rather than caching).
+// Installation tokens are short-lived (~1h); minting per run keeps them fresh.
 const identity = await sandboxIdentity();
 
 // Hooks run inside the sandbox before the agent starts each iteration.

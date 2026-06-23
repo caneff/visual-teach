@@ -20,7 +20,7 @@
  *   hooks.sandbox.onSandboxReady: [...identity.gitConfigCommands, ...]
  */
 
-import { mintInstallationToken, loadCredentials } from "./mint-gh-token.mjs";
+import { mintInstallationToken } from "./mint-gh-token.mjs";
 
 export interface SandboxIdentity {
   /** Environment variables to merge into docker({ env }). Empty when bot vars unset. */
@@ -45,16 +45,14 @@ export async function sandboxIdentity(
 
   if (!resolvedToken) {
     const appId = process.env.GITHUB_APP_ID;
-    const appKey = process.env.GITHUB_APP_PRIVATE_KEY;
-    const appInstId = process.env.GITHUB_APP_INSTALLATION_ID;
+    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY?.replace(
+      /\\n/g,
+      "\n"
+    );
+    const installationId = process.env.GITHUB_APP_INSTALLATION_ID;
 
-    if (appId && appKey && appInstId) {
-      const creds = loadCredentials();
-      resolvedToken = await tokenMinter(
-        creds.appId,
-        creds.privateKey,
-        creds.installationId
-      );
+    if (appId && privateKey && installationId) {
+      resolvedToken = await tokenMinter(appId, privateKey, installationId);
     }
   }
 

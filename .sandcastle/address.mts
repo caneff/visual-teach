@@ -59,8 +59,7 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
     console.log(`Open sandcastle PR(s) with comments: ${list.join(", ")}`);
   }
 
-  // Mint once per run — installation tokens are valid ~1h and short-lived
-  // enough that per-run minting is the right cadence (no caching needed).
+  // Mint once per run; installation tokens are valid ~1h, no caching needed.
   const identity = await sandboxIdentity();
   const hooks = {
     sandbox: {
