@@ -11,9 +11,9 @@ The PR head branch is: `{{RUN_BRANCH}}`
 
 The orchestrator already assembled `{{RUN_BRANCH}}` as a throwaway head off
 `main`: it merged in this component's leaf tips (each of which already contains
-its whole chain) and pushed the result to `origin`. **Do NOT create, rebuild, merge, rebase, or otherwise run git that
-mutates anything.** The head is final — your only job is to open ONE pull request
-from it and write its prose.
+its whole chain) and pushed the result to `origin`. **Do NOT create, rebuild,
+merge, rebase, or otherwise run git that mutates anything.** The head is final —
+your only job is to open ONE pull request from it and write its prose.
 
 Read-only inspection to write an accurate body is expected:
 

@@ -617,6 +617,19 @@ if (components.length === 0) {
     }
     git(`worktree remove --force ${wt}`);
 
+    // If every leaf merge conflicted and aborted, the head is still bare `main`
+    // with nothing ahead — opening a PR from it would be an empty no-op. Skip the
+    // whole component in that case rather than pushing main-onto-main and asking
+    // the agent to open an empty PR.
+    const ahead = git(`rev-list --count main..${prBranch}`);
+    if (ahead === null || ahead === "0") {
+      console.error(
+        `  ✗ Component ${n + 1}: no commits landed on ${prBranch} ` +
+          `(all ${leaves.length} leaf merge(s) conflicted); skipping its PR.`
+      );
+      continue;
+    }
+
     // Push the assembled head host-side so the agent only has to open the PR.
     git(`push -u --force-with-lease origin ${prBranch}`);
     await sandcastle.run({
