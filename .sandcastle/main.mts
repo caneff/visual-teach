@@ -5,17 +5,24 @@
 //                               dependency graph, and outputs a <plan> JSON
 //                               listing unblocked issues with branch names.
 //   Phase 2 (Execute + Review): For each issue, a sandbox is created via
-//                               createSandbox(). The implementer runs first
-//                               (100 iterations). If it produces commits, a
-//                               reviewer runs in the same sandbox on the same
-//                               branch (1 iteration). All issue pipelines run
-//                               concurrently via Promise.allSettled().
-//   Phase 3 (Open PRs):         A single agent pushes each completed branch
-//                               and opens a PR into the current branch for
-//                               manual review (no auto-merge).
+//                               createSandbox(), cut from the run's integration
+//                               tip so it builds on everything completed earlier
+//                               this run. The implementer runs first (100
+//                               iterations); if there's work on the branch a
+//                               reviewer runs in the same sandbox (1 iteration).
+//                               Each completed issue is folded onto the tip
+//                               LINEARLY (foldLinear) — no merge commits, so the
+//                               run stays one revisable stack. All issue
+//                               pipelines run concurrently via Promise.allSettled().
+//   Phase 3 (Open PR):          The integration tip already holds every folded
+//                               issue, so the host just pushes it and a single
+//                               agent opens ONE PR into main for manual review
+//                               (no auto-merge).
 //
-// The outer loop repeats up to MAX_ITERATIONS times so that newly unblocked
-// issues are picked up after each round of merges.
+// The outer loop repeats up to MAX_ITERATIONS times. Because completed work is
+// folded onto the tip and the next iteration's branches are cut from that tip,
+// an issue blocked by an earlier one is picked up and stacked on top once the
+// earlier one lands — instead of deadlocking until a human merges.
 //
 // Usage:
 //   npx tsx .sandcastle/main.mts
@@ -72,6 +79,37 @@ function git(args: string): string | null {
   } catch {
     return null;
   }
+}
+
+// Fold a completed issue branch onto the run's integration tip, keeping history
+// LINEAR (no merge commits) so the stack stays revisable with
+// `git rebase --update-refs`. Two cases:
+//   - Fast-forward: the branch was cut from the current tip and only adds
+//     commits → just advance the tip pointer. The common case (one issue per
+//     iteration), and zero risk.
+//   - Sibling: two issues in the SAME iteration both branched from the tip as it
+//     was at iteration start, so the second isn't a descendant of the first once
+//     the first folds. Rebase its commits onto the new tip in a scratch worktree.
+//     Safe because the planner only co-selects non-overlapping issues.
+// Returns true if the branch is now part of the tip; false (logged by caller) if
+// a rebase conflicted — that issue is left out of the PR rather than corrupting
+// the stack.
+function foldLinear(tip: string, branch: string): boolean {
+  const tipSha = git(`rev-parse ${tip}`);
+  const base = git(`merge-base ${tip} ${branch}`);
+  if (tipSha !== null && base === tipSha) {
+    git(`branch -f ${tip} ${branch}`); // fast-forward: pure pointer move
+    return true;
+  }
+  // Sibling: replay the branch's commits onto the advanced tip.
+  const wt = `.sandcastle/fold-${branch.replace(/[/\\]/g, "-")}`;
+  git(`worktree remove --force ${wt}`); // clear any stale scratch worktree
+  git(`worktree add --force ${wt} ${branch}`);
+  const ok = git(`-C ${wt} rebase ${tip}`);
+  if (ok === null) git(`-C ${wt} rebase --abort`);
+  else git(`branch -f ${tip} ${branch}`);
+  git(`worktree remove --force ${wt}`);
+  return ok !== null;
 }
 
 // Log verbosity via SANDCASTLE_VERBOSE:
@@ -175,6 +213,10 @@ const copyToWorktree = ["node_modules"];
 // and open a single consolidated PR at the end, instead of one PR per issue.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 const runBranch = `sandcastle/run-${runId}`;
+// The integration tip. Starts at main; each completed issue is folded onto it
+// LINEARLY (foldLinear) so later iterations build on earlier work and the whole
+// run is one revisable stack that becomes a single PR. Never pushed to main.
+git(`branch -f ${runBranch} main`);
 // Branch the top-level runs (planner, PR consolidator) report against — used
 // only to name their log files the way sandcastle would by default.
 const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
@@ -212,6 +254,14 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     // Opus for planning: dependency analysis benefits from deeper reasoning.
     agent: sandcastle.claudeCode("claude-opus-4-8"),
     promptFile: "./.sandcastle/plan-prompt.md",
+    // Issues already completed earlier in THIS run. Their code is in the run's
+    // base branch, so an issue depending only on these is unblocked — the
+    // planner must build on top of them, not treat them as in-flight blockers.
+    promptArgs: {
+      COMPLETED_THIS_RUN: allCompleted.length
+        ? allCompleted.map((i) => `- #${i.id} — ${i.title}`).join("\n")
+        : "(none yet — first iteration)",
+    },
     // Extract and validate the <plan> JSON into a typed object. Throws
     // StructuredOutputError if the tag is missing, the JSON is malformed, or
     // validation fails — which aborts the loop.
@@ -278,13 +328,18 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       // `main...branch` diff is based on current main. For a brand-new branch
       // cut from main this is a harmless no-op. Best-effort: abort on conflict
       // and proceed; the retry cap escalates a branch that can't be salvaged.
+      // Bring the branch up to the current integration tip by REBASING onto it
+      // (not merging) so the branch stays linear — a merge commit here would
+      // make the issue un-revisable later. A fresh branch cut from the tip
+      // rebases as a no-op; a stale branch from an earlier run replays its
+      // commits onto the tip. Best-effort: abort on conflict and proceed; the
+      // fold step or retry cap handles a branch that can't be salvaged.
       const sandboxHooks = {
         ...hooks,
         host: {
           onWorktreeReady: [
             {
-              command:
-                "git fetch origin main && (git merge --no-edit origin/main || git merge --abort)",
+              command: `git rebase ${runBranch} || git rebase --abort`,
             },
           ],
         },
@@ -292,6 +347,10 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
+        // New branches are cut from the integration tip, so they already contain
+        // every issue completed earlier this run. (Ignored if the branch already
+        // exists — the rebase hook above refreshes those.)
+        baseBranch: runBranch,
         sandbox: docker(),
         hooks: sandboxHooks,
         copyToWorktree,
@@ -337,7 +396,10 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             maxIterations: 1,
             agent: sandcastle.claudeCode("claude-sonnet-4-6"),
             promptFile: "./.sandcastle/review-prompt.md",
-            promptArgs: { BRANCH: issue.branch },
+            // Diff against the integration tip (stable during the iteration —
+            // folds happen after), so the reviewer sees only THIS issue's
+            // commits, not the work it was stacked on.
+            promptArgs: { BRANCH: issue.branch, TARGET_BRANCH: runBranch },
           });
           return {
             issue,
@@ -379,6 +441,18 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     if (outcome.status !== "fulfilled") continue;
     const { issue, kind } = outcome.value;
     if (kind === "done") {
+      // Fold onto the integration tip before counting it done. If the fold
+      // conflicts (a sibling rebase that couldn't apply), leave it in-review so
+      // a human sees it, but keep it OUT of the PR — the run branch must only
+      // contain work that actually stacked cleanly.
+      if (!foldLinear(runBranch, issue.branch)) {
+        console.error(
+          `  ✗ ${issue.id} (${issue.branch}) could not fold onto ${runBranch}; left in-review, excluded from PR`
+        );
+        relabel(issue.id, "in-review", ["ready-for-agent", "needs-review"]);
+        delete attempts[issue.id];
+        continue;
+      }
       relabel(issue.id, "in-review", ["ready-for-agent", "needs-review"]);
       delete attempts[issue.id]; // reviewed clean — reset the retry counter
       completedIssues.push({
@@ -429,16 +503,20 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 // ---------------------------------------------------------------------------
 // Phase 3: One consolidated PR for the whole run
 //
-// A single agent creates the run branch off main, merges every completed issue
-// branch into it, pushes it, and opens ONE PR. The PR body lists all changes
-// grouped by issue and includes a QA checklist for manual review before merge.
+// The run branch was built incrementally during the loop: every completed issue
+// was folded onto it LINEARLY (foldLinear), so it already contains all the work
+// as one revisable stack off main — no merging left to do. The host pushes it
+// here, then a single agent opens ONE PR with a body grouped by issue and a QA
+// checklist for manual review before merge.
 // ---------------------------------------------------------------------------
 if (allCompleted.length === 0) {
   console.log("\nNo completed issues across the run. No PR to open.");
 } else {
   console.log(
-    `\nOpening one consolidated PR for ${allCompleted.length} issue(s) on ${runBranch}.`
+    `\nPushing ${runBranch} and opening one consolidated PR for ${allCompleted.length} issue(s).`
   );
+  // Push the integration branch host-side so the agent only has to open the PR.
+  git(`push -u --force-with-lease origin ${runBranch}`);
   await sandcastle.run({
     hooks,
     sandbox: docker(),
@@ -453,8 +531,6 @@ if (allCompleted.length === 0) {
       ISSUES: allCompleted
         .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
         .join("\n"),
-      // Just the branch names, for the merge step.
-      BRANCHES: allCompleted.map((i) => `- ${i.branch}`).join("\n"),
     },
   });
   console.log("\nConsolidated PR opened.");

@@ -20,9 +20,21 @@ These issues are already implemented but not yet merged into `main` (in review, 
 
 </in-flight-json>
 
+# ALREADY DONE THIS RUN (in your base — satisfied dependencies, NOT blockers)
+
+These issues were completed earlier in this same run. Their code is **already merged into the branch your work will be cut from**, so anything depending on them can build on top right now.
+
+<completed-this-run>
+
+{{COMPLETED_THIS_RUN}}
+
+</completed-this-run>
+
+**Override rule:** if an issue in the "in flight" list above _also_ appears here, it is in your base — treat it as a satisfied dependency, **not** a blocker. An issue whose only blockers are listed here is **UNBLOCKED**: select it and it will be stacked on top of that work.
+
 # TASK
 
-Analyze the issues and build a dependency graph. For each `ready-for-agent` issue, determine whether it **is blocked by** any other open issue — whether that other issue is `ready-for-agent` or already **in flight** (the list above).
+Analyze the issues and build a dependency graph. For each `ready-for-agent` issue, determine whether it **is blocked by** any other open issue — whether that other issue is `ready-for-agent` or already **in flight** (the list above) — **except** issues listed under "ALREADY DONE THIS RUN", which are satisfied dependencies you build on, never blockers.
 
 An issue B is **blocked by** issue A if:
 

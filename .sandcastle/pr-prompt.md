@@ -3,27 +3,24 @@
 Open ONE consolidated pull request into `main` for everything completed in this
 run. Do NOT open a PR per branch. Do NOT merge the PR into `main`.
 
-The run branch to create and use is: `{{RUN_BRANCH}}`
+The run branch is: `{{RUN_BRANCH}}`
 
-These are the completed issue branches to fold in:
+# THE RUN BRANCH IS ALREADY BUILT AND PUSHED
 
-{{BRANCHES}}
+The orchestrator already built `{{RUN_BRANCH}}` as a single LINEAR stack off
+`main` — every completed issue was folded onto it during the run, in order — and
+has pushed it to `origin`. **Do NOT create, rebuild, merge, or rebase it.** There
+is nothing to fold; the branch is final.
 
-# BUILD THE RUN BRANCH
+Your only job is to open ONE pull request from it. First sanity-check the branch
+is there and is what you describe:
 
-1. Start from an up-to-date main:
-   `git fetch origin && git checkout main && git pull --ff-only`
-2. Create the run branch: `git checkout -b {{RUN_BRANCH}}`
-3. Merge each completed issue branch into it, in the order listed:
-   `git merge --no-ff origin/<branch> -m "Merge <branch>"` (fetch the branch
-   first if it is not local: `git fetch origin <branch>`).
-   - If a merge conflicts, resolve it preserving BOTH issues' intent, run
-     `npm run lint && npm run typecheck && npm run test`, then commit the
-     resolution. If you cannot resolve a branch cleanly, skip it, and record the
-     skip prominently in the PR body under a `## Skipped` heading.
-4. After all merges, run `npm run lint && npm run typecheck && npm run test` once
-   on the combined branch. Everything must pass before you open the PR.
-5. Push: `git push -u origin {{RUN_BRANCH}}`
+- `git fetch origin {{RUN_BRANCH}}`
+- `git log --oneline origin/main..origin/{{RUN_BRANCH}}` — these are the commits the PR contains.
+- `git diff origin/main...origin/{{RUN_BRANCH}}` — the full diff, for writing the body below.
+
+(CI runs lint/typecheck/test on the PR — that is the authoritative gate, so you
+do not run them here.)
 
 # OPEN THE PR
 
