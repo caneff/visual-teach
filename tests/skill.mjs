@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -201,6 +201,36 @@ test("quiz block: quiz section retains equal-length visible text guidance", () =
   expect(quizBlock).toMatch(
     /same length|equal length|roughly.*length|length.*roughly/i
   );
+});
+
+// ── Compose-only: no Convert references in domain docs ────────
+const context = readFileSync(join(root, "CONTEXT.md"), "utf8");
+const prd = readFileSync(join(root, "docs/PRD.md"), "utf8");
+
+test("CONTEXT.md: no Convert (mode) glossary entry", () => {
+  expect(context).not.toMatch(/\*\*Convert \(mode\)\*\*/);
+});
+
+test("CONTEXT.md: no two-mode framing mentioning Convert", () => {
+  expect(context).not.toContain("**Convert**");
+});
+
+test("docs/PRD.md: §9 heading does not name Convert verb", () => {
+  expect(prd).not.toContain("## 9. Invocation: the Convert verb");
+});
+
+test("docs/PRD.md: no bulk-migrator framing for Convert", () => {
+  expect(prd).not.toContain("bulk migrat");
+});
+
+test("docs/adr/: an ADR exists recording the Compose-only decision", () => {
+  const adrDir = join(root, "docs/adr");
+  const adrs = readdirSync(adrDir);
+  const composeOnly = adrs.some((f) => {
+    const content = readFileSync(join(adrDir, f), "utf8");
+    return /compose.only|no.*convert.*verb|remove.*convert/i.test(content);
+  });
+  expect(composeOnly).toBe(true);
 });
 
 // ── Theming overrides — live in the index ─────────────────────
