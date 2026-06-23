@@ -217,6 +217,19 @@ const runBranch = `sandcastle/run-${runId}`;
 // LINEARLY (foldLinear) so later iterations build on earlier work and the whole
 // run is one revisable stack that becomes a single PR. Never pushed to main.
 git(`branch -f ${runBranch} main`);
+
+// Drop leftover issue worktrees from earlier runs so each branch is recut fresh
+// from the current tip. Otherwise sandcastle reuses the stale checkout (built on
+// old main) and probes origin for a local-only branch it can't find, spamming
+// "Could not fetch from origin". Branch refs and their commits persist — only
+// the checkout dirs go; the onWorktreeReady rebase re-aligns whatever's recut.
+for (const m of (git(`worktree list --porcelain`) ?? "").matchAll(
+  /^worktree (.+)$/gm
+)) {
+  if (m[1].includes("/.sandcastle/worktrees/"))
+    git(`worktree remove --force ${m[1]}`);
+}
+git(`worktree prune`);
 // Branch the top-level runs (planner, PR consolidator) report against — used
 // only to name their log files the way sandcastle would by default.
 const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
