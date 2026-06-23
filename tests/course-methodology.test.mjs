@@ -15,6 +15,10 @@ const adrPath = join(
   "docs/adr/0003-probe-methodology-and-deliberate-non-components.md"
 );
 const adr = readFileSync(adrPath, "utf8");
+const teachBaseSkillPath = join(root, ".claude/skills/teach-base/SKILL.md");
+const teachBaseSkill = existsSync(teachBaseSkillPath)
+  ? readFileSync(teachBaseSkillPath, "utf8")
+  : "";
 
 // ── teach-course SKILL.md: probe methodology guard ───────────────────────────
 
@@ -68,4 +72,32 @@ test("ADR 0003: records the retracted/removed image-component finding", () => {
 test("ADR 0003: lists the deliberate non-components (plot, numeric input)", () => {
   expect(adr).toMatch(/xy.?plot|chart/i);
   expect(adr).toMatch(/numeric|free.?text/i);
+});
+
+// ── teach-base: frozen A/B control baseline ──────────────────────────────────
+
+test("teach-base skill directory exists", () => {
+  expect(existsSync(teachBaseSkillPath)).toBe(true);
+});
+
+test("teach-base SKILL.md: name frontmatter is teach-base", () => {
+  expect(teachBaseSkill).toMatch(/^name:\s*teach-base/m);
+});
+
+test("teach-base SKILL.md: documented as A/B control baseline — do not edit", () => {
+  expect(teachBaseSkill).toMatch(/A\/B|control|baseline/i);
+  expect(teachBaseSkill).toMatch(/do not edit|frozen|never.edit/i);
+});
+
+test("teach-base SKILL.md: contains no vt-* class references", () => {
+  expect(teachBaseSkill).not.toMatch(/vt-[a-z]/);
+});
+
+test("teach-base SKILL.md: seeds no assets (no ./assets/ seeding instruction)", () => {
+  expect(teachBaseSkill).not.toMatch(/cp -R|seed.*asset|copy.*asset/i);
+});
+
+test("teach-course SKILL.md: references teach-base, not teach-test", () => {
+  expect(teachCourseSkill).toContain("teach-base");
+  expect(teachCourseSkill).not.toContain("teach-test");
 });

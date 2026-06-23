@@ -9,11 +9,12 @@ reimplement its pedagogy. No `/teach` installed → visual-teach has nothing to
 enrich and points the user to install it.
 
 Considered and rejected:
+
 - **Fork/modify `/teach`** — it's someone else's repo; would couple us to their
   internals.
 - **Standalone authoring skill** — would duplicate `/teach`'s pedagogy and ship a
   worse course.
-- **A wrapper that programmatically invokes both** — *verified impossible.*
+- **A wrapper that programmatically invokes both** — _verified impossible._
   `/teach` sets `disable-model-invocation: true`, which blocks every programmatic
   path (Skill tool, subagent preload, hooks, CLI, settings, @-mention). Only a
   human typing `/teach` starts it. Do not re-investigate.
@@ -31,7 +32,7 @@ them by its own rule — no invocation needed.
 channel is on permanently. There is no zero-touch path.
 
 Empirically, adoption is high even without seeding: in 5/5 fresh workspaces (using
-a local `teach-test` proxy — `/teach` minus the invocation flag) the model
+a local `teach-base` proxy — `/teach` minus the invocation flag) the model
 spontaneously copied the assets in and authored with `vt-*` blocks, pulled by
 `/teach`'s own "reuse is default" instinct. The seed-floor is the guaranteed
 fallback for a miss.

@@ -106,7 +106,7 @@ Reliability comes from the **filesystem**, most-reliable first:
    On fresh workspaces this also seeds `./assets/` spontaneously (5/5 evidence,
    ADR 0002).
 
-**Empirical evidence (5/5).** A `teach-test` copy (only the flag removed) run by
+**Empirical evidence (5/5).** A `teach-base` copy (only the flag removed) run by
 clean-context subagents on five fresh workspaces, neutral prompts that never
 mentioned visual-teach: all five spontaneously seeded `./assets/` and authored
 with `vt-*` blocks. Fresh-workspace auto-adoption is **high**, not low. Caveat:
