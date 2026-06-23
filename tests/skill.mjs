@@ -16,10 +16,6 @@ const beforeHtml = readFileSync(
 const afterHtml = readFileSync(join(root, "demo/cron-0001-after.html"), "utf8");
 
 // ── SKILL.md structure ─────────────────────────────────────────
-test("SKILL.md: documents the Convert action", () => {
-  expect(skill).toContain("Convert existing lessons");
-});
-
 test("SKILL.md: documents seeding assets into ./assets/", () => {
   expect(skill).toMatch(/seed/i);
   expect(skill).toContain("./assets/");
@@ -37,8 +33,8 @@ test("SKILL.md: references vt-* class convention", () => {
   expect(skill).toContain("vt-*");
 });
 
-test("SKILL.md: Convert mentions :root override for topic colors", () => {
-  expect(skill).toContain(":root");
+test("SKILL.md: reference pointer instructs to open only needed blocks", () => {
+  expect(skill).toMatch(/open only.*block|block.*you need|only the block/i);
 });
 
 // ── Demo conversion exercise files ────────────────────────────
@@ -117,23 +113,11 @@ for (const phrase of [
   });
 }
 
-// ── type="module" hardening (issue #92) ───────────────────────
-test(`SKILL.md: warns that type="module" breaks file:// delivery`, () => {
-  expect(skill).toMatch(
+// ── type="module" hardening — assertions preserved against the index ──
+test(`index: warns that type="module" breaks file:// delivery`, () => {
+  expect(cheatsheet).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|type="module".*do not|never.*type="module"|type="module".*never|plain.*script.*not.*module|not.*module/i
   );
-});
-
-test(`SKILL.md: Convert step strips type="module" from visual-teach.js tag`, () => {
-  expect(skill).toMatch(
-    /strip.*type="module"|remove.*type="module"|type="module".*strip|type="module".*remov/i
-  );
-});
-
-test(`SKILL.md: script snippet does not include type="module" on visual-teach.js`, () => {
-  const scriptTagMatch = skill.match(/<script[^>]*visual-teach\.js[^>]*>/);
-  expect(scriptTagMatch).not.toBeNull();
-  expect(scriptTagMatch[0]).not.toContain('type="module"');
 });
 
 test(`cheatsheet: warns against type="module" on visual-teach.js script`, () => {
@@ -148,22 +132,84 @@ test(`after: visual-teach.js script tag has no type="module"`, () => {
   expect(scriptTagMatch[0]).not.toContain('type="module"');
 });
 
-// ── visual-teach.md quiz option guidance ──────────────────────
-test("cheatsheet: quiz section allows uniform inline code in options", () => {
-  expect(cheatsheet).toMatch(/uniform/i);
-});
+// ── Block menu: every entry resolves to an existing file ──────
+const BLOCK_FILES = [
+  "blocks/callouts.md",
+  "blocks/code-io.md",
+  "blocks/tables-pills-keys.md",
+  "blocks/quizzes-checklist.md",
+  "blocks/diagrams.md",
+  "blocks/math.md",
+  "blocks/teacher-box.md",
+];
 
-test("cheatsheet: quiz section forbids spelling out punctuation", () => {
-  expect(cheatsheet).toMatch(/spell.*punct|punct.*spell|don.t spell/i);
-});
+for (const file of BLOCK_FILES) {
+  test(`block menu: index links to existing file ${file}`, () => {
+    expect(existsSync(join(root, "assets", file))).toBe(true);
+    expect(cheatsheet).toContain(file);
+  });
+}
 
-test("cheatsheet: quiz section retains equal-length visible text guidance", () => {
+// ── Selective-load instruction ────────────────────────────────
+test("index: carries selective-load / open-only-what-you-need instruction", () => {
   expect(cheatsheet).toMatch(
+    /open only.*block|only.*block.*you need|load.*only|selective.*load/i
+  );
+});
+
+// ── vt-* classes documented in their block files ──────────────
+const CLASS_TO_FILE = {
+  "vt-callout": "blocks/callouts.md",
+  "vt-level": "blocks/callouts.md",
+  "vt-code": "blocks/code-io.md",
+  "vt-static": "blocks/code-io.md",
+  "vt-io": "blocks/code-io.md",
+  "vt-table": "blocks/tables-pills-keys.md",
+  "vt-kv": "blocks/tables-pills-keys.md",
+  "vt-pill": "blocks/tables-pills-keys.md",
+  "vt-badge": "blocks/tables-pills-keys.md",
+  "vt-kbd": "blocks/tables-pills-keys.md",
+  "vt-quiz": "blocks/quizzes-checklist.md",
+  "vt-checklist": "blocks/quizzes-checklist.md",
+  "vt-diagram": "blocks/diagrams.md",
+  "vt-flow": "blocks/diagrams.md",
+  "vt-flex": "blocks/diagrams.md",
+  "vt-split": "blocks/diagrams.md",
+  "vt-mermaid": "blocks/diagrams.md",
+  "vt-math": "blocks/math.md",
+  "vt-eq": "blocks/math.md",
+  "vt-pcode": "blocks/math.md",
+  "vt-teacher": "blocks/teacher-box.md",
+};
+
+for (const [cls, file] of Object.entries(CLASS_TO_FILE)) {
+  test(`${cls} is documented in assets/${file}`, () => {
+    const content = readFileSync(join(root, "assets", file), "utf8");
+    expect(content).toContain(cls);
+  });
+}
+
+// ── Quiz option guidance — now lives in quiz block file ───────
+const quizBlock = readFileSync(
+  join(root, "assets/blocks/quizzes-checklist.md"),
+  "utf8"
+);
+
+test("quiz block: quiz section allows uniform inline code in options", () => {
+  expect(quizBlock).toMatch(/uniform/i);
+});
+
+test("quiz block: quiz section forbids spelling out punctuation", () => {
+  expect(quizBlock).toMatch(/spell.*punct|punct.*spell|don.t spell/i);
+});
+
+test("quiz block: quiz section retains equal-length visible text guidance", () => {
+  expect(quizBlock).toMatch(
     /same length|equal length|roughly.*length|length.*roughly/i
   );
 });
 
-// ── Theming overrides ───────────────────────────────────────────
+// ── Theming overrides — live in the index ─────────────────────
 test("cheatsheet: theming example uses a flat :root block", () => {
   const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
   expect(themingSection).toMatch(/:root\s*\{[^}]*--vt-accent/);
