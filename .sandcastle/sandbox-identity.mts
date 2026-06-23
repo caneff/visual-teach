@@ -6,8 +6,12 @@
  * fields are empty and every sandbox attributes commits/PRs/comments to the
  * maintainer exactly as before.
  *
- * Bot env vars:
- *   SANDCASTLE_BOT_GH_TOKEN  — GitHub token for the bot account
+ * Token resolution order (first match wins):
+ *   1. SANDCASTLE_BOT_GH_TOKEN — direct token, no minting needed
+ *   2. GITHUB_APP_{ID,PRIVATE_KEY,INSTALLATION_ID} — mint an installation token
+ *   3. Neither set — empty env, no-op
+ *
+ * Bot git config env vars (independent of token source):
  *   SANDCASTLE_BOT_GIT_NAME  — git user.name for commits made in-sandbox
  *   SANDCASTLE_BOT_GIT_EMAIL — git user.email for commits made in-sandbox
  *
@@ -16,6 +20,8 @@
  *   hooks.sandbox.onSandboxReady: [...identity.gitConfigCommands, ...]
  */
 
+import { mintInstallationToken, loadCredentials } from "./mint-gh-token.mjs";
+
 export interface SandboxIdentity {
   /** Environment variables to merge into docker({ env }). Empty when bot vars unset. */
   env: Record<string, string>;
@@ -23,12 +29,38 @@ export interface SandboxIdentity {
   gitConfigCommands: Array<{ command: string }>;
 }
 
-export function sandboxIdentity(): SandboxIdentity {
-  const token = process.env.SANDCASTLE_BOT_GH_TOKEN;
+type TokenMinter = (
+  appId: string,
+  privateKey: string,
+  installationId: string
+) => Promise<string>;
+
+export async function sandboxIdentity(
+  tokenMinter: TokenMinter = mintInstallationToken
+): Promise<SandboxIdentity> {
   const name = process.env.SANDCASTLE_BOT_GIT_NAME;
   const email = process.env.SANDCASTLE_BOT_GIT_EMAIL;
 
-  const env: Record<string, string> = token ? { GH_TOKEN: token } : {};
+  let resolvedToken = process.env.SANDCASTLE_BOT_GH_TOKEN;
+
+  if (!resolvedToken) {
+    const appId = process.env.GITHUB_APP_ID;
+    const appKey = process.env.GITHUB_APP_PRIVATE_KEY;
+    const appInstId = process.env.GITHUB_APP_INSTALLATION_ID;
+
+    if (appId && appKey && appInstId) {
+      const creds = loadCredentials();
+      resolvedToken = await tokenMinter(
+        creds.appId,
+        creds.privateKey,
+        creds.installationId
+      );
+    }
+  }
+
+  const env: Record<string, string> = resolvedToken
+    ? { GH_TOKEN: resolvedToken }
+    : {};
   const gitConfigCommands: Array<{ command: string }> = [];
   if (name)
     gitConfigCommands.push({

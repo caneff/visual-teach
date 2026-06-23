@@ -15,6 +15,7 @@
 import { execSync } from "node:child_process";
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
+import { sandboxIdentity } from "./sandbox-identity.mts";
 
 const sh = (cmd: string) => execSync(cmd, { encoding: "utf8" }).trim();
 
@@ -58,8 +59,16 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
     console.log(`Open sandcastle PR(s) with comments: ${list.join(", ")}`);
   }
 
+  // Mint once per run — installation tokens are valid ~1h and short-lived
+  // enough that per-run minting is the right cadence (no caching needed).
+  const identity = await sandboxIdentity();
   const hooks = {
-    sandbox: { onSandboxReady: [{ command: "npm install" }] },
+    sandbox: {
+      onSandboxReady: [
+        ...identity.gitConfigCommands,
+        { command: "npm install" },
+      ],
+    },
   };
 
   // Sequential: each run pushes to a branch, so we avoid concurrent pushes and
@@ -73,7 +82,7 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
     await sandcastle.run({
       hooks,
       copyToWorktree: ["node_modules"],
-      sandbox: docker(),
+      sandbox: docker({ env: identity.env }),
       branchStrategy: { type: "branch", branch },
       name: `address-pr-${pr}`,
       maxIterations: 30,
