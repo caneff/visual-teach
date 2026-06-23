@@ -1,6 +1,8 @@
 # visual-teach is an add-on that composes with /teach, not a fork or standalone tool
 
-Status: accepted
+Status: superseded (2026-06-23) — we now own a fork of `/teach` (issue #111). The
+add-on/compose constraint below no longer applies; reviewers and the planner
+should treat the owned-fork model as current. Kept for history.
 
 `/teach` is a third-party skill (`mattpocock/skills`) we don't own. visual-teach
 ships as its own model-invocable skill that bundles the assets and composes with
