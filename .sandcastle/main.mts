@@ -50,6 +50,7 @@ import {
 } from "./base-resolution.mts";
 import { prComponents } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
+import { classifyInReview } from "./reconcile.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
@@ -88,6 +89,18 @@ function gh(args: string): string | null {
 function listIssues(label: string): { number: number; title: string }[] {
   const out = gh(
     `issue list --state open --label "${label}" --limit 100 --json number,title`
+  );
+  return out ? JSON.parse(out) : [];
+}
+
+// Return all PRs in the repo that reference `issueId` via a `Closes #N`-style
+// keyword in their body. Uses gh's PR search API; includes OPEN, CLOSED, and
+// MERGED PRs so the sweep can classify each case.
+function getPRsForIssue(
+  issueId: string
+): Array<{ number: number; state: string }> {
+  const out = gh(
+    `pr list --search "Closes #${issueId}" --state all --json number,state --limit 20`
   );
   return out ? JSON.parse(out) : [];
 }
@@ -249,6 +262,17 @@ const copyToWorktree = ["node_modules"];
 // only to name the throwaway PR head branches the host builds at Phase 3.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
+// Issues repaired by the reconciliation sweep (Phase 0.5). Tracked separately
+// from freshly-built issues so the run summary can bucket them correctly.
+const sweepRepairs: {
+  issueId: string;
+  title: string;
+  kind: "stranded-with-work" | "stranded-no-work" | "vetoed";
+}[] = [];
+// IDs of issues injected into allCompleted by the sweep (stranded-with-work).
+// Used at summary time to distinguish "built by sweep" from "built by plan loop".
+const sweepCompletedIds = new Set<string>();
+
 // Drop leftover issue worktrees from earlier runs so each branch is recut fresh
 // from its resolved base. Otherwise sandcastle reuses the stale checkout (built
 // on old main) and probes origin for a local-only branch it can't find, spamming
@@ -284,6 +308,77 @@ const allCompleted: {
 if (process.env.SANDCASTLE_SKIP_ADDRESS !== "1") {
   console.log("\n=== Phase 0: Address open sandcastle PR comments ===\n");
   await addressOpenPRs();
+}
+
+// Phase 0.5: Reconciliation sweep — restore the `in-review ⟺ open PR` invariant.
+//
+// An issue labeled `in-review` should always have an open PR waiting for a human
+// merge. But the label is set EAGERLY (mid-run, moment an issue is reviewed OK)
+// while the PR is created LAZILY (end-of-run, Phase 3). A crash between those
+// points leaves the issue stranded: labeled `in-review` with no PR, invisible to
+// the planner (which only selects `ready-for-agent`). The sweep detects and routes
+// each stranded issue before the plan loop, ensuring nothing is silently skipped.
+{
+  console.log(
+    "\n=== Phase 0.5: Reconciliation sweep — restore in-review ⟺ open PR ===\n"
+  );
+  const inReviewNow = listIssues("in-review");
+  if (inReviewNow.length === 0) {
+    console.log("No in-review issues — sweep complete.");
+  } else {
+    console.log(
+      `Checking ${inReviewNow.length} in-review issue(s) for stranded state...`
+    );
+    for (const issue of inReviewNow) {
+      const id = String(issue.number);
+      const prs = getPRsForIssue(id);
+      const cls = classifyInReview(id, prs, branchHasWork);
+      if (cls.kind === "open-pr") {
+        // Genuine human-gated: open or merged PR references this issue; untouched.
+        console.log(
+          `  ✓ #${id} — PR #${cls.prNumber} references it (human-gated)`
+        );
+      } else if (cls.kind === "vetoed") {
+        // Human closed the PR without merging — never re-PR or re-implement.
+        relabel(id, "ready-for-human", ["in-review"]);
+        sweepRepairs.push({ issueId: id, title: issue.title, kind: "vetoed" });
+        console.log(
+          `  ⚑ #${id} — PR #${cls.prNumber} closed-unmerged (human veto) → ready-for-human`
+        );
+      } else if (cls.kind === "stranded-with-work") {
+        // Branch exists with work but no PR was ever opened (crash before Phase 3).
+        // Trust the prior in-review verdict (the diff vs main is unchanged) and
+        // inject directly into allCompleted so Phase 3 opens the PR this run.
+        allCompleted.push({
+          id,
+          title: issue.title,
+          branch: `sandcastle/issue-${id}`,
+          parents: [],
+          group: "",
+        });
+        sweepCompletedIds.add(id);
+        sweepRepairs.push({
+          issueId: id,
+          title: issue.title,
+          kind: "stranded-with-work",
+        });
+        console.log(
+          `  ↻ #${id} — branch has work, no PR (stranded) → injected for Phase 3 PR`
+        );
+      } else {
+        // stranded-no-work: no branch and no PR — full re-implement needed.
+        relabel(id, "ready-for-agent", ["in-review"]);
+        sweepRepairs.push({
+          issueId: id,
+          title: issue.title,
+          kind: "stranded-no-work",
+        });
+        console.log(
+          `  ↺ #${id} — no branch, no PR (stranded) → ready-for-agent`
+        );
+      }
+    }
+  }
 }
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
@@ -732,6 +827,128 @@ if (components.length === 0) {
     });
   }
   console.log(`\n${components.length} PR(s) opened.`);
+}
+
+// ---------------------------------------------------------------------------
+// Run summary — bucketed accounting of every open issue.
+//
+// A run must never silently report "nothing done" while non-human-gated issues
+// exist. This summary ensures every open issue appears in exactly one bucket.
+// "No work to do" is safe to print ONLY when every bucket is human-gated or
+// in-flight — this summary shows why.
+// ---------------------------------------------------------------------------
+console.log("\n=== Run summary ===\n");
+
+const LIFECYCLE_LABELS = new Set([
+  "ready-for-agent",
+  "in-review",
+  "needs-review",
+  "ready-for-human",
+]);
+
+// IDs handled this run (built or swept)
+const handledIds = new Set([
+  ...allCompleted.map((i) => i.id),
+  ...sweepRepairs.map((r) => r.issueId),
+]);
+
+// 1. Fresh: built by the plan loop this run (not by the sweep)
+const freshBuilt = allCompleted.filter((i) => !sweepCompletedIds.has(i.id));
+if (freshBuilt.length > 0) {
+  console.log(`Built this run (${freshBuilt.length}):`);
+  for (const i of freshBuilt) console.log(`  • #${i.id} — ${i.title}`);
+}
+
+// 2. Repaired by reconciliation sweep
+if (sweepRepairs.length > 0) {
+  console.log(`\nRepaired by reconciliation sweep (${sweepRepairs.length}):`);
+  for (const r of sweepRepairs) {
+    if (r.kind === "stranded-with-work") {
+      console.log(
+        `  ↻ #${r.issueId} — ${r.title} (branch had work → PR queued this run)`
+      );
+    } else if (r.kind === "stranded-no-work") {
+      console.log(`  ↺ #${r.issueId} — ${r.title} (re-queued ready-for-agent)`);
+    } else {
+      console.log(
+        `  ⚑ #${r.issueId} — ${r.title} (human-vetoed PR → ready-for-human)`
+      );
+    }
+  }
+}
+
+// 3. Human-gated: open PR pending merge (in-review issues not handled this run)
+const remainingInReview = listIssues("in-review").filter(
+  (i) => !handledIds.has(String(i.number))
+);
+if (remainingInReview.length > 0) {
+  console.log(
+    `\nHuman-gated — open PR pending merge (${remainingInReview.length}):`
+  );
+  for (const i of remainingInReview)
+    console.log(`  • #${i.number} — ${i.title}`);
+}
+
+// 4. Human-gated: ready-for-human (reviewer gave up, or human-vetoed PR)
+const readyForHumanIssues = listIssues("ready-for-human");
+if (readyForHumanIssues.length > 0) {
+  console.log(
+    `\nHuman-gated — ready-for-human (${readyForHumanIssues.length}):`
+  );
+  for (const i of readyForHumanIssues)
+    console.log(`  • #${i.number} — ${i.title}`);
+}
+
+// 5. In-flight: needs-review (implemented, reviewer errored; will retry)
+const needsReviewSummary = listIssues("needs-review").filter(
+  (i) => !handledIds.has(String(i.number))
+);
+if (needsReviewSummary.length > 0) {
+  console.log(`\nIn-flight — needs-review (${needsReviewSummary.length}):`);
+  for (const i of needsReviewSummary)
+    console.log(`  • #${i.number} — ${i.title}`);
+}
+
+// 6. Human-gated: untriaged — open issues with no lifecycle label
+const allOpenRaw = gh(
+  `issue list --state open --limit 100 --json number,title,labels`
+);
+const allOpenIssues: Array<{
+  number: number;
+  title: string;
+  labels: Array<{ name: string }>;
+}> = allOpenRaw ? JSON.parse(allOpenRaw) : [];
+const untriaged = allOpenIssues.filter(
+  (i) =>
+    !i.labels.some((l) => LIFECYCLE_LABELS.has(l.name)) &&
+    !handledIds.has(String(i.number))
+);
+if (untriaged.length > 0) {
+  console.log(
+    `\nHuman-gated — untriaged (open, no lifecycle label) (${untriaged.length}):`
+  );
+  for (const i of untriaged) console.log(`  • #${i.number} — ${i.title}`);
+}
+
+// Invariant check: every open issue must appear in exactly one bucket.
+// If any falls outside all buckets, that is a bug in the orchestrator — flag it
+// loudly rather than hiding it in a "no work" message.
+const allSummaryIds = new Set([
+  ...handledIds,
+  ...remainingInReview.map((i) => String(i.number)),
+  ...readyForHumanIssues.map((i) => String(i.number)),
+  ...needsReviewSummary.map((i) => String(i.number)),
+  ...untriaged.map((i) => String(i.number)),
+]);
+const unaccounted = allOpenIssues.filter(
+  (i) => !allSummaryIds.has(String(i.number))
+);
+if (unaccounted.length > 0) {
+  console.error(
+    `\n⚠ BUG: ${unaccounted.length} open issue(s) not in any summary bucket — ` +
+      `this should be impossible:`
+  );
+  for (const i of unaccounted) console.error(`  ⚠ #${i.number} — ${i.title}`);
 }
 
 console.log("\nAll done.");

@@ -11,15 +11,15 @@ over iterations until the buildable backlog drains or the iteration cap is hit.
 Produces a set of PRs.
 
 **Iteration** — One plan→execute cycle inside a run. The planner selects the
-issues unblocked *right now*; later iterations pick up issues whose blockers
+issues unblocked _right now_; later iterations pick up issues whose blockers
 completed in earlier iterations of the same run.
 
 **Issue branch** — `sandcastle/issue-<id>`. Holds one issue's commits, cut from
 its resolved base (its parent's branch, or `main`).
 
 **Parent** — An issue another issue builds on, emitted by the planner as
-`parents: string[]`. At build time a parent is always either completed *this
-run* (its issue branch exists) or already in `main` (earlier run, merged).
+`parents: string[]`. At build time a parent is always either completed _this
+run_ (its issue branch exists) or already in `main` (earlier run, merged).
 _Avoid_: blocker (a blocker is unbuilt; a parent is built and depended on).
 
 **Chain** — A linear sequence of issues linked parent→child off a single root
@@ -49,6 +49,25 @@ Becomes exactly one PR. Its **head** is the merge of its leaf tips (issues no
 other issue in the set builds on): a single tip is the head directly; multiple
 tips are merged into a throwaway **merge head** branch. Base is always `main`.
 
-**Run-scoped** — A run stacks only on work completed *within that run* or
+**Run-scoped** — A run stacks only on work completed _within that run_ or
 already in `main`. It does not adopt another run's unmerged work as a parent;
 cross-run dependencies wait for a human merge.
+
+**Human-gated** — An open issue whose next move is a human's, so a run leaving
+it untouched is correct: an open PR pending merge, `ready-for-human`, or
+untriaged. Opposite: buildable or stranded.
+
+**Untriaged** — An open issue with no lifecycle label. Invisible to the planner
+by design (the `ready-for-agent` label is the human "well-specified, go" gate);
+reported in the run summary, not silently skipped.
+
+**Stranded** — An issue labeled `in-review` for which no open PR exists. Occurs
+when a run crashed between the eager `in-review` label set and the lazy Phase 3
+PR creation. The label lies. Distinguished from a human veto by the absence of
+any closed-unmerged PR referencing it.
+
+**Reconciliation sweep** — A start-of-run pass (Phase 0.5) restoring the
+`in-review ⟺ open PR` invariant. For each `in-review` issue it detects whether
+a PR exists and routes accordingly: open PR → leave untouched; closed-unmerged
+PR → `ready-for-human`; stranded-with-work → inject into Phase 3 PR creation;
+stranded-no-work → `ready-for-agent`.
