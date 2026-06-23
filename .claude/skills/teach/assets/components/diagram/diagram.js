@@ -32,13 +32,10 @@ function initFlows() {
 }
 
 if (typeof document !== "undefined") {
-  var _doInitFlows = function () {
-    initFlows();
-  };
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", _doInitFlows);
+    document.addEventListener("DOMContentLoaded", initFlows);
   } else {
-    _doInitFlows();
+    initFlows();
   }
 }
 

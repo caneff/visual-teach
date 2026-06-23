@@ -2,9 +2,6 @@
    Renders .vt-math display blocks and inline \(...\) / \[...\] delimiters
    via KaTeX. Silently skips when katex global is absent. */
 
-/* KaTeX math rendering: processes .vt-math display blocks and inline math
-   delimiters (\(...\) and \[...\]) in the document body.
-   Silently skips when katex global is absent (no network, no KaTeX loaded). */
 function initKatex() {
   if (typeof katex === "undefined") return;
 
@@ -36,13 +33,10 @@ function initKatex() {
 }
 
 if (typeof document !== "undefined") {
-  var _doInitKatex = function () {
-    initKatex();
-  };
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", _doInitKatex);
+    document.addEventListener("DOMContentLoaded", initKatex);
   } else {
-    _doInitKatex();
+    initKatex();
   }
 }
 

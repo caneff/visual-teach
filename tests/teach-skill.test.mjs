@@ -86,37 +86,26 @@ test("teach SKILL.md: references RESOURCES-FORMAT.md (upstream reference)", () =
 
 // ── Assets section is the ONLY changed section ────────────────────────────────
 
+const assetsIdx = skill.indexOf("## Assets");
+const nextSectionIdx = skill.indexOf("\n## ", assetsIdx + 1);
+const assetsSection =
+  nextSectionIdx === -1
+    ? skill.slice(assetsIdx)
+    : skill.slice(assetsIdx, nextSectionIdx);
+
 test("teach SKILL.md: has ## Assets section", () => {
   expect(skill).toContain("## Assets");
 });
 
 test("teach SKILL.md: Assets section names the bundled component collection", () => {
-  const assetsIdx = skill.indexOf("## Assets");
-  const nextSection = skill.indexOf("\n## ", assetsIdx + 1);
-  const assetsSection =
-    nextSection === -1
-      ? skill.slice(assetsIdx)
-      : skill.slice(assetsIdx, nextSection);
   expect(assetsSection).toMatch(/component|visual-teach\.md|catalog/i);
 });
 
 test("teach SKILL.md: Assets section carries floor-not-ceiling note", () => {
-  const assetsIdx = skill.indexOf("## Assets");
-  const nextSection = skill.indexOf("\n## ", assetsIdx + 1);
-  const assetsSection =
-    nextSection === -1
-      ? skill.slice(assetsIdx)
-      : skill.slice(assetsIdx, nextSection);
   expect(assetsSection).toMatch(/floor.*ceil|ceil.*floor/i);
 });
 
 test("teach SKILL.md: Assets section points at visual-teach.md catalog", () => {
-  const assetsIdx = skill.indexOf("## Assets");
-  const nextSection = skill.indexOf("\n## ", assetsIdx + 1);
-  const assetsSection =
-    nextSection === -1
-      ? skill.slice(assetsIdx)
-      : skill.slice(assetsIdx, nextSection);
   expect(assetsSection).toContain("visual-teach.md");
 });
 
