@@ -10,8 +10,11 @@ const teachCourseSkill = readFileSync(
   join(root, ".claude/skills/teach-course/SKILL.md"),
   "utf8"
 );
-const checklist = readFileSync(join(root, "course-tests/CHECKLIST.md"), "utf8");
-const findings = readFileSync(join(root, "course-tests/FINDINGS.md"), "utf8");
+const adrPath = join(
+  root,
+  "docs/adr/0003-probe-methodology-and-deliberate-non-components.md"
+);
+const adr = readFileSync(adrPath, "utf8");
 
 // ── teach-course SKILL.md: probe methodology guard ───────────────────────────
 
@@ -35,36 +38,34 @@ test("teach-course SKILL.md: states no-demand → no-gap rule", () => {
   );
 });
 
-// ── course-tests/CHECKLIST.md ────────────────────────────────────────────────
-
-test("course-tests/CHECKLIST.md exists", () => {
-  expect(existsSync(join(root, "course-tests/CHECKLIST.md"))).toBe(true);
-});
-
-test("course-tests/CHECKLIST.md: carries the no-placeholder guard", () => {
-  expect(checklist).toMatch(/hand.roll|placeholder.*content|fabricat/i);
-});
-
-test("course-tests/CHECKLIST.md: states probe only exercises blocks the skill generates", () => {
-  expect(checklist).toMatch(
-    /only.*block.*skill|block.*skill.*emit|block.*skill.*generat/i
+test("teach-course SKILL.md: points at the methodology ADR", () => {
+  expect(teachCourseSkill).toMatch(
+    /0003-probe-methodology-and-deliberate-non-components/
   );
 });
 
-// ── course-tests/FINDINGS.md ─────────────────────────────────────────────────
+// ── docs/adr/0003: the durable methodology + non-component record ────────────
 
-test("course-tests/FINDINGS.md exists", () => {
-  expect(existsSync(join(root, "course-tests/FINDINGS.md"))).toBe(true);
+test("ADR 0003 exists", () => {
+  expect(existsSync(adrPath)).toBe(true);
 });
 
-test("course-tests/FINDINGS.md: annotates image-gap finding as retracted or manufactured", () => {
-  expect(findings).toMatch(/retract|manufactured|invalid|fabricat/i);
+test("ADR 0003: carries the no-placeholder guard", () => {
+  expect(adr).toMatch(/hand.roll|placeholder.*content|fabricat/i);
 });
 
-test("course-tests/FINDINGS.md: cross-references issue #86", () => {
-  expect(findings).toContain("#86");
+test("ADR 0003: states probe only exercises blocks the skill emits", () => {
+  expect(adr).toMatch(
+    /only.*block.*skill|block.*skill.*emit|block.*skill.*actually emit|blocks.*skill.*generat/i
+  );
 });
 
-test("course-tests/FINDINGS.md: cross-references issue #87", () => {
-  expect(findings).toContain("#87");
+test("ADR 0003: records the retracted/removed image-component finding", () => {
+  expect(adr).toMatch(/retract|manufactured|removed|empty/i);
+  expect(adr).toContain("#86");
+});
+
+test("ADR 0003: lists the deliberate non-components (plot, numeric input)", () => {
+  expect(adr).toMatch(/xy.?plot|chart/i);
+  expect(adr).toMatch(/numeric|free.?text/i);
 });

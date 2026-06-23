@@ -21,6 +21,20 @@ Link in `<head>` / before `</body>` (relative to `lessons/`):
 > toggle, copy buttons). The primary delivery mode is file://, so this footgun kills
 > the whole page with no visible error unless you inspect the console.
 
+## These blocks are a floor, not a ceiling
+
+The `vt-*` blocks cover the commodity parts of a lesson — chrome, callouts,
+quizzes, code, tables, basic diagrams — so you don't reinvent them and lessons
+share a consistent look. They are **not** a ceiling, and **not a mold every
+lesson must fit**. When a topic has an interaction the catalog can't express — a
+simulator, a manipulable diagram, a domain-specific widget — build it as a new
+component in `./assets/` (per `/teach`'s own rule: "when a lesson needs something
+new and reusable, write it as a component") and let it sit alongside the `vt-*`
+blocks. That is a welcome **bonus, never a requirement**: reach for bespoke when
+it genuinely serves the topic, not for its own sake. The point is to avoid
+same-y, templated lessons — the catalog handles the commodity 80% so your effort
+goes to whatever makes this particular lesson worth doing.
+
 ## Page shell
 
 **Starting a new lesson? Copy this `<main>` block plus the asset link/script
@@ -251,18 +265,25 @@ written yet, so a "Next" link would be dead). Just name what's coming.
 
 ## Teacher box (SVG cap icon, question chips) — one job: ask the agent
 
+Include a teacher prompt in **every** lesson — but **write it fresh each time.**
+Do not reuse a fixed heading or the same chips lesson to lesson; identical teacher
+boxes are the #1 tell that a course was stamped from a template. The cap icon and
+styling are supplied by the component and stay consistent — your job is to vary the
+_words_. Each lesson: write a one-line invitation in your own framing, and pull
+**2–4 chips from THIS lesson's actual content** — a real point of confusion here, a
+link back to a prior lesson, a concrete "go deeper" on something specific. Vary the
+chip count too; not every box needs exactly three.
+
 ```html
 <div class="vt-teacher">
   <div>
-    <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
-    <p>
-      Ask anything — follow-up questions are the point, not an interruption. Not
-      sure where to start:
+    <p class="h">
+      <!-- lesson-specific invitation to ask the agent; phrase it fresh -->
     </p>
     <div class="vt-asks">
-      <span class="vt-ask">Why did X happen?</span>
-      <span class="vt-ask">How does this map to Y?</span>
-      <span class="vt-ask">Show me a harder example</span>
+      <!-- 2–4 questions a learner of THIS lesson would genuinely ask -->
+      <span class="vt-ask">…</span>
+      <span class="vt-ask">…</span>
     </div>
   </div>
 </div>
