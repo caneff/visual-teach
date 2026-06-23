@@ -265,18 +265,25 @@ written yet, so a "Next" link would be dead). Just name what's coming.
 
 ## Teacher box (SVG cap icon, question chips) — one job: ask the agent
 
+Include a teacher prompt in **every** lesson — but **write it fresh each time.**
+Do not reuse a fixed heading or the same chips lesson to lesson; identical teacher
+boxes are the #1 tell that a course was stamped from a template. The cap icon and
+styling are supplied by the component and stay consistent — your job is to vary the
+_words_. Each lesson: write a one-line invitation in your own framing, and pull
+**2–4 chips from THIS lesson's actual content** — a real point of confusion here, a
+link back to a prior lesson, a concrete "go deeper" on something specific. Vary the
+chip count too; not every box needs exactly three.
+
 ```html
 <div class="vt-teacher">
   <div>
-    <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
-    <p>
-      Ask anything — follow-up questions are the point, not an interruption. Not
-      sure where to start:
+    <p class="h">
+      <!-- lesson-specific invitation to ask the agent; phrase it fresh -->
     </p>
     <div class="vt-asks">
-      <span class="vt-ask">Why did X happen?</span>
-      <span class="vt-ask">How does this map to Y?</span>
-      <span class="vt-ask">Show me a harder example</span>
+      <!-- 2–4 questions a learner of THIS lesson would genuinely ask -->
+      <span class="vt-ask">…</span>
+      <span class="vt-ask">…</span>
     </div>
   </div>
 </div>
