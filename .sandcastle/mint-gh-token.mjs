@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
  * Build a GitHub App JWT signed with RS256.
  * @param {string} appId   GitHub App ID (numeric, as string)
  * @param {string} privateKey  PEM-encoded PKCS#1 or PKCS#8 RSA private key
- * @returns {string} Signed JWT valid for 10 minutes
+ * @returns {string} Signed JWT valid ~9 minutes (under GitHub's 10-min cap, for drift)
  */
 export function buildJwt(appId, privateKey) {
   const now = Math.floor(Date.now() / 1000);
@@ -27,7 +27,10 @@ export function buildJwt(appId, privateKey) {
   const payload = Buffer.from(
     JSON.stringify({
       iat: now - 60, // 60-second past buffer for clock drift
-      exp: now + 600, // 10-minute window (GitHub App JWT max)
+      // GitHub caps exp at 10 min ahead of ITS clock and recommends <10 min to
+      // absorb drift. A fast local clock (WSL2 runs ahead) pushes now+600 past
+      // the cap → 401 "'exp' too far in the future". 540s keeps ~60s of margin.
+      exp: now + 540,
       iss: String(appId),
     })
   ).toString("base64url");
