@@ -1,5 +1,5 @@
 import { test, expect } from "vitest";
-import { readFileSync, existsSync } from "fs";
+import { readFileSync, existsSync, readdirSync } from "fs";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
@@ -206,7 +206,6 @@ test("quiz block: quiz section retains equal-length visible text guidance", () =
 // ── Compose-only: no Convert references in domain docs ────────
 const context = readFileSync(join(root, "CONTEXT.md"), "utf8");
 const prd = readFileSync(join(root, "docs/PRD.md"), "utf8");
-const { readdirSync } = await import("fs");
 
 test("CONTEXT.md: no Convert (mode) glossary entry", () => {
   expect(context).not.toMatch(/\*\*Convert \(mode\)\*\*/);
@@ -227,11 +226,11 @@ test("docs/PRD.md: no bulk-migrator framing for Convert", () => {
 test("docs/adr/: an ADR exists recording the Compose-only decision", () => {
   const adrDir = join(root, "docs/adr");
   const adrs = readdirSync(adrDir);
-  const composOnly = adrs.some((f) => {
+  const composeOnly = adrs.some((f) => {
     const content = readFileSync(join(adrDir, f), "utf8");
     return /compose.only|no.*convert.*verb|remove.*convert/i.test(content);
   });
-  expect(composOnly).toBe(true);
+  expect(composeOnly).toBe(true);
 });
 
 // ── Theming overrides — live in the index ─────────────────────
