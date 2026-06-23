@@ -50,6 +50,11 @@ import {
 } from "./base-resolution.mts";
 import { prComponents } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
+import {
+  classifyInReviewIssue,
+  bucketIssues,
+  buildRunSummary,
+} from "./reconcile.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
@@ -177,6 +182,169 @@ function writeAttempts(a: Record<string, number>): void {
   writeFileSync(ATTEMPTS_FILE, JSON.stringify(a, null, 2));
 }
 
+// ---------------------------------------------------------------------------
+// Reconciliation sweep helpers (issue #143)
+// ---------------------------------------------------------------------------
+
+// Fetch all open issues (all labels) for the bucketed run summary.
+function listAllOpenIssues(): {
+  number: number;
+  title: string;
+  labels: string[];
+}[] {
+  const out = gh(
+    `issue list --state open --limit 200 --json number,title,labels`
+  );
+  if (!out) return [];
+  const raw: { number: number; title: string; labels: { name: string }[] }[] =
+    JSON.parse(out);
+  return raw.map((i) => ({
+    number: i.number,
+    title: i.title,
+    labels: i.labels.map((l) => l.name),
+  }));
+}
+
+// Query GitHub for all PRs and build a map of issueNumber → PRs that close it.
+// Uses closingIssuesReferences (the field GitHub populates when a PR body
+// contains a closing keyword such as "Closes #N").
+function getPrsReferencingIssues(): Map<
+  number,
+  { number: number; state: string }[]
+> {
+  const nameWithOwner =
+    gh(`repo view --json nameWithOwner --jq .nameWithOwner`) ?? "";
+  const [owner, repo] = nameWithOwner.split("/");
+  if (!owner || !repo) return new Map();
+
+  const raw = gh(
+    `api graphql -f 'query={ repository(owner: "${owner}", name: "${repo}") { pullRequests(first: 100, states: [OPEN, CLOSED, MERGED]) { nodes { number state closingIssuesReferences(first: 20) { nodes { number } } } } } }'`
+  );
+  if (!raw) return new Map();
+
+  let data: {
+    data?: {
+      repository?: {
+        pullRequests?: {
+          nodes?: {
+            number: number;
+            state: string;
+            closingIssuesReferences?: { nodes?: { number: number }[] };
+          }[];
+        };
+      };
+    };
+  };
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return new Map();
+  }
+
+  const prs = data?.data?.repository?.pullRequests?.nodes ?? [];
+  const map = new Map<number, { number: number; state: string }[]>();
+  for (const pr of prs) {
+    for (const issue of pr.closingIssuesReferences?.nodes ?? []) {
+      const n = issue.number;
+      if (!map.has(n)) map.set(n, []);
+      map.get(n)!.push({ number: pr.number, state: pr.state });
+    }
+  }
+  return map;
+}
+
+// ---------------------------------------------------------------------------
+// Reconciliation sweep: run once at run start to restore the invariant
+//   in-review ⟺ an open PR references the issue.
+//
+// For each in-review issue:
+//   • open PR exists              → human-gated; leave untouched
+//   • only closed/merged PR(s)   → human vetoed; relabel ready-for-human
+//   • no PR at all (stranded)    →
+//       branch exists with work   → inject into completedFromSweep for Phase 3
+//       no branch / no work       → relabel ready-for-agent
+//
+// Returns the sets needed by the end-of-run bucketed summary.
+// ---------------------------------------------------------------------------
+function reconciliationSweep(): {
+  sweepInjected: Set<string>;
+  sweepRequeued: Set<string>;
+  completedFromSweep: {
+    id: string;
+    title: string;
+    branch: string;
+    parents: string[];
+    group: string;
+  }[];
+} {
+  const inReview = listIssues("in-review");
+  if (inReview.length === 0) {
+    return {
+      sweepInjected: new Set(),
+      sweepRequeued: new Set(),
+      completedFromSweep: [],
+    };
+  }
+
+  console.log(
+    `\n=== Reconciliation sweep: ${inReview.length} in-review issue(s) ===\n`
+  );
+  const prsForIssues = getPrsReferencingIssues();
+
+  const sweepInjected = new Set<string>();
+  const sweepRequeued = new Set<string>();
+  const completedFromSweep: {
+    id: string;
+    title: string;
+    branch: string;
+    parents: string[];
+    group: string;
+  }[] = [];
+
+  for (const issue of inReview) {
+    const id = String(issue.number);
+    const rawPrs = prsForIssues.get(issue.number) ?? [];
+    const prs = rawPrs.map((pr) => ({
+      number: pr.number,
+      state: pr.state as "OPEN" | "CLOSED" | "MERGED",
+    }));
+    const classification = classifyInReviewIssue(prs);
+
+    if (classification === "human-gated") {
+      console.log(`  #${id} — human-gated (open PR exists); leaving untouched`);
+    } else if (classification === "human-vetoed") {
+      console.log(
+        `  #${id} — human-vetoed (closed/merged PR, no open PR) → ready-for-human`
+      );
+      relabel(id, "ready-for-human", ["in-review"]);
+    } else {
+      // stranded: no PR references this issue
+      const branch = issueBranch(id);
+      if (branchExistsWithWork(id)) {
+        console.log(
+          `  #${id} — stranded; branch ${branch} has work → injecting into this run for PR`
+        );
+        sweepInjected.add(id);
+        completedFromSweep.push({
+          id,
+          title: issue.title,
+          branch,
+          parents: [],
+          group: "",
+        });
+      } else {
+        console.log(
+          `  #${id} — stranded; no branch / no work → ready-for-agent`
+        );
+        relabel(id, "ready-for-agent", ["in-review"]);
+        sweepRequeued.add(id);
+      }
+    }
+  }
+
+  return { sweepInjected, sweepRequeued, completedFromSweep };
+}
+
 // Ensure the lifecycle labels exist (idempotent — gh errors if present, swallowed).
 gh(
   `label create in-review --color FBCA04 --description "Implemented + reviewed by sandcastle; PR pending human merge"`
@@ -292,6 +460,17 @@ if (process.env.SANDCASTLE_SKIP_ADDRESS !== "1") {
   console.log("\n=== Phase 0: Address open sandcastle PR comments ===\n");
   await addressOpenPRs();
 }
+
+// Pre-loop reconciliation sweep (issue #143): restore in-review ⟺ open PR
+// invariant before the plan loop runs. Stranded branches are injected into
+// allCompleted so Phase 3 opens their PRs; issues with no branch are relabeled
+// ready-for-agent so the planner can re-build them.
+const { sweepInjected, sweepRequeued, completedFromSweep } =
+  reconciliationSweep();
+allCompleted.push(...completedFromSweep);
+
+// Track issue → PR number across all Phase 3 opens for the run summary.
+const prAssignments = new Map<string, number>();
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);
@@ -737,8 +916,31 @@ if (components.length === 0) {
           .join("\n"),
       },
     });
+
+    // Capture the PR number so the end-of-run summary can show "→ PR #N".
+    const prNumRaw = gh(`pr view ${prBranch} --json number --jq .number`);
+    const prNum = prNumRaw ? parseInt(prNumRaw, 10) : 0;
+    if (prNum > 0) {
+      for (const issue of issues) prAssignments.set(issue.id, prNum);
+    }
   }
   console.log(`\n${components.length} PR(s) opened.`);
+}
+
+// ---------------------------------------------------------------------------
+// End-of-run bucketed summary (issue #143): account for every open issue in
+// exactly one bucket so nothing is silently hidden behind "no work to do".
+// ---------------------------------------------------------------------------
+{
+  const allOpenIssues = listAllOpenIssues();
+  const bucketed = bucketIssues({
+    openIssues: allOpenIssues,
+    builtThisRun: new Set(allCompleted.map((i) => i.id)),
+    sweepInjected,
+    sweepRequeued,
+    prAssignments,
+  });
+  console.log(buildRunSummary(bucketed));
 }
 
 console.log("\nAll done.");
