@@ -55,19 +55,21 @@ carries the new screenshot:
 $R2_PUBLIC_BASE/issue-<id>-after.png?v=<short-sha>
 ```
 
-`<short-sha>` = `git rev-parse --short HEAD` of the commit you just made with the
-re-shot proof. Resolve `$R2_PUBLIC_BASE` from the env (e.g.
-`https://pub-<hash>.r2.dev`). The R2 key stays stable (overwrite in place); only
-the `?v=` query changes. This means the embed in PROOF.md / the PR description
-DOES get edited on every re-shoot — that is mandatory, not optional. Do NOT try
+`<short-sha>` = `git rev-parse --short HEAD` of your latest commit (the fix), or
+any fresh unique token — it only needs to be a URL camo has never seen. Resolve
+`$R2_PUBLIC_BASE` from the env (e.g. `https://pub-<hash>.r2.dev`). The R2 key stays
+stable (overwrite in place); only the `?v=` query changes. This means the embed in
+the PR description DOES get edited on every re-shoot — that is mandatory, not optional. Do NOT try
 to fix a stale image by `curl -X PURGE` on the camo URL; GitHub has degraded that
 path and it is unreliable.
 
 ## Record
 
-Write `.sandcastle/proof/issue-<id>/PROOF.md` (committed text; the PNGs are
-gitignored). Head it with a per-issue subheading — **NOT** `## Visual proof`, which
-the PR's own Visual proof section supplies once; a second one double-prints:
+Write `.sandcastle/proof/issue-<id>/PROOF.md` as **local scratch** — the whole
+`proof/` dir is gitignored, so nothing here is committed. It is the source you
+paste into the **PR description**; that is the only place the proof lives. Head it
+with a per-issue subheading — **NOT** `## Visual proof`, which the PR's own Visual
+proof section supplies once; a second one double-prints:
 
 ```
 ### #<id>
@@ -76,10 +78,10 @@ the PR's own Visual proof section supplies once; a second one double-prints:
 | ![before](<before-url>) | ![after](<after-url>) |
 ```
 
-`git add` `PROOF.md`, never the PNGs. When you regenerated `after.png` for an
-existing PR, bump the `?v=<short-sha>` cache-buster on the after-URL in PROOF.md
-(and in the PR description if it embeds the URL directly) — see the camo note
-above. Leaving the URL unchanged means the reviewer keeps seeing the old image.
+Put the table in the **PR description**; never commit `PROOF.md` or the PNGs. When
+you regenerated `after.png` for an existing PR, bump the `?v=<short-sha>`
+cache-buster on the after-URL in the PR description — see the camo note above.
+Leaving the URL unchanged means the reviewer keeps seeing the old image.
 
 ## Rules
 

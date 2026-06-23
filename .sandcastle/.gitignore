@@ -2,5 +2,5 @@
 logs/
 worktrees/
 worktree
-proof/**/*.png
+proof/
 review-attempts.json
