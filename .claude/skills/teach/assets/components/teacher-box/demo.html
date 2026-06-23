@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Teacher Box Component Demo</title>
+    <link rel="stylesheet" href="../../base/base.css" />
+    <link rel="stylesheet" href="teacher-box.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Component Demo</p>
+      <h1>Teacher Box</h1>
+      <p class="vt-lede">
+        A prompted self-explanation block with question chips that surface
+        common learner questions.
+      </p>
+
+      <h2>Example</h2>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">Before moving on — can you explain it?</p>
+          <p>
+            Try to answer one of these in your own words. Explaining a concept
+            is the fastest way to find the gaps in your understanding.
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">What problem does this solve?</span>
+            <span class="vt-ask"
+              >When would you use this over the alternative?</span
+            >
+            <span class="vt-ask">What breaks if you skip this step?</span>
+          </div>
+        </div>
+      </div>
+
+      <h2>Minimal variant</h2>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">Check your understanding</p>
+          <p>
+            How would you explain <code>display: flex</code> to a colleague who
+            has never used it?
+          </p>
+        </div>
+      </div>
+    </main>
+    <script src="../../base/base.js"></script>
+  </body>
+</html>
