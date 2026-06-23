@@ -1,14 +1,17 @@
-// Connected-component detection for per-component PRs (issue #127).
+// PR-set detection for per-set PRs (issues #127 + #129).
 //
 // A run builds a dependency FOREST: each issue's branch is cut from its parent's
-// branch (or main). At PR time we open ONE pull request per connected component
-// of that forest — a set of issues transitively linked by parent edges. The
-// components are genuinely independent off main (no shared commits), so their
-// PRs merge in any order with no rebase surgery.
+// branch (or main). At PR time we open ONE pull request per PR SET — a connected
+// component of `{parent edges} ∪ {same-group edges}`. Dependency links and a
+// shared topic `group` both pull issues into one set; a dependency edge always
+// wins, so a chain is never split (a component is the atomic floor — #127), while
+// topic only combines otherwise-independent components (#129). Each set is
+// independent off main (no shared commits), so its PRs merge in any order with no
+// rebase surgery.
 //
 // Only edges to parents ALSO completed this run count. A parent already in main
 // (it landed in an earlier run) is not part of this run's forest, so it does not
-// pull its dependent into a component — the dependent stands alone off main.
+// pull its dependent into a set — the dependent stands alone off main.
 //
 // Pure function: no git, unit-testable. The orchestrator passes the issues it
 // recorded as `done` this run.
@@ -18,6 +21,10 @@ export interface CompletedIssue {
   title: string;
   branch: string;
   parents: string[];
+  // Topic key from the planner (issue #129). Issues sharing a non-empty group are
+  // combined into one PR even when no dependency links them. Undefined/empty means
+  // "no topic" — the issue groups only by its dependency edges.
+  group?: string;
 }
 
 export interface PrComponent {
@@ -58,7 +65,21 @@ export function prComponents(issues: CompletedIssue[]): PrComponent[] {
     }
   }
 
-  // Issues referenced as a parent BY A FELLOW completed issue are not leaves.
+  // Topic edges (issue #129): union all issues sharing a non-empty group key, so
+  // independent dependency components on the same topic land in one PR set. Parent
+  // edges already unioned above, so a dependency that crosses groups still wins —
+  // a component is never split, only combined.
+  const groupRep = new Map<string, string>();
+  for (const issue of issues) {
+    if (!issue.group) continue;
+    const rep = groupRep.get(issue.group);
+    if (rep === undefined) groupRep.set(issue.group, issue.id);
+    else union(issue.id, rep);
+  }
+
+  // Leaf tips stay PARENT-based: a topic-merged set keeps one leaf per chain, and
+  // the PR head merges them all. An issue referenced as a parent by a fellow
+  // completed issue is not a leaf.
   const referencedParents = new Set(
     issues.flatMap((i) => i.parents).filter((p) => present.has(p))
   );

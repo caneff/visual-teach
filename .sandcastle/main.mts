@@ -29,9 +29,10 @@
 // human merges. There is no single integration tip and no per-issue fold: the
 // forest replaces the former one revisable stack.
 //
-// PRs are split by dependency component (one run → several PRs). Topic grouping
-// (combining independent components into one PR) is deferred to #129; multi-parent
-// (diamond) base resolution is deferred to #128.
+// PRs are split by PR set (one run → several PRs): a connected component of
+// dependency edges, with independent same-topic components combined via a `group`
+// key the planner emits. Multi-parent (diamond) base resolution is deferred to
+// #128.
 //
 // Usage:
 //   npx tsx .sandcastle/main.mts
@@ -187,6 +188,13 @@ const planSchema = z.object({
       // branch (1 parent, present this run) or `main` (0 parents, or parent
       // already merged). Empty array for a root.
       parents: z.array(z.string()),
+      // Topic key (issue #129): a short slug grouping issues that belong in the
+      // same PR by feature/theme, even when no dependency links them. Issues
+      // sharing a group are combined into one PR; dependency edges still force
+      // same-PR regardless. The planner reuses an existing group from
+      // COMPLETED_THIS_RUN when an issue fits one, so keys stay stable across
+      // iterations.
+      group: z.string(),
     })
   ),
 });
@@ -224,13 +232,13 @@ const copyToWorktree = ["node_modules"];
 // Main loop
 // ---------------------------------------------------------------------------
 
-// One run = one PR (for now — per-component / topic-grouped PRs are issue #127).
-// We accumulate every completed issue across all iterations and open a single
-// consolidated PR at the end, instead of one PR per issue.
+// One run → one PR per PR set. We accumulate every completed issue across all
+// iterations and, at the end, partition them into PR sets (dependency components,
+// with same-topic components combined) and open one PR each.
 //
 // There is no integration tip anymore: the forest builds each issue on its real
 // parent's branch (or main), so there is nothing to fold onto. `runId` survives
-// only to name the throwaway PR head branch the host builds at Phase 3.
+// only to name the throwaway PR head branches the host builds at Phase 3.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
 // Drop leftover issue worktrees from earlier runs so each branch is recut fresh
@@ -258,6 +266,7 @@ const allCompleted: {
   title: string;
   branch: string;
   parents: string[];
+  group: string;
 }[] = [];
 
 // Phase 0: clear pending review comments on open sandcastle PRs before taking
@@ -295,8 +304,10 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     // Issues already completed earlier in THIS run. Their branches exist locally
     // with work, so an issue depending only on these is unblocked — the planner
     // must build on top of them (declare them as `parents`), not treat them as
-    // in-flight blockers. We surface each one's own parents too so the planner
-    // has the forest context it needs to keep declaring consistent edges.
+    // in-flight blockers. We surface each one's own parents AND its assigned group
+    // so the planner keeps declaring consistent edges and REUSES existing group
+    // keys (issue #129) instead of coining a new synonym that would split a topic
+    // across PRs.
     promptArgs: {
       COMPLETED_THIS_RUN: allCompleted.length
         ? allCompleted
@@ -304,7 +315,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
               const parents = i.parents.length
                 ? ` (builds on ${i.parents.map((p) => `#${p}`).join(", ")})`
                 : "";
-              return `- #${i.id} — ${i.title}${parents}`;
+              const group = i.group ? ` [group: ${i.group}]` : "";
+              return `- #${i.id} — ${i.title}${parents}${group}`;
             })
             .join("\n")
         : "(none yet — first iteration)",
@@ -505,6 +517,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     title: string;
     branch: string;
     parents: string[];
+    group: string;
   }[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
@@ -520,8 +533,10 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         id: issue.id,
         title: issue.title,
         branch: issue.branch,
-        // review-only issues have no plan entry, hence no declared parents.
+        // review-only issues have no plan entry, hence no declared parents/group.
+        // An empty group means "no topic" — it groups only by dependency edges.
         parents: issue.mode === "full" ? issue.parents : [],
+        group: issue.mode === "full" ? issue.group : "",
       });
     } else if (kind === "needs-review") {
       attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
@@ -554,8 +569,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   }
 
   // -------------------------------------------------------------------------
-  // Accumulate, do NOT open PRs yet. The single consolidated PR is opened after
-  // the outer loop ends (Phase 3), so a whole run produces one PR.
+  // Accumulate, do NOT open PRs yet. Phase 3 opens them after the outer loop
+  // ends — one per PR set (dependency component, with same-topic components
+  // combined).
   // -------------------------------------------------------------------------
   allCompleted.push(...completedIssues);
   console.log(
@@ -564,29 +580,28 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 3: One PR per dependency component
+// Phase 3: One PR per PR set
 //
-// The run built a forest; now open ONE pull request per connected component of
-// that forest — issues transitively linked by parent edges (prComponents). Each
-// component is genuinely independent off `main` (no shared commits), so its PR
-// merges in any order with no rebase surgery.
+// The run built a forest; now open ONE pull request per PR set — a connected
+// component of `{parent edges} ∪ {same-group edges}` (prComponents). Dependency
+// links and shared topic both pull issues into the same set, but a dependency
+// edge always wins, so a chain is never split. Each set is independent off `main`
+// (no shared commits), so its PR merges in any order with no rebase surgery.
 //
-// Per component the host assembles a throwaway head off `main`
-// (`sandcastle/pr-<runId>-<n>`) by merging in the component's LEAF TIPS — issues
-// no fellow member builds on. A child branch already contains its ancestors, so
-// merging the leaves pulls in the whole component exactly once (a fork merges
-// several leaves; a diamond collapses to one). The host force-pushes each head
-// and an agent opens ONE PR from it into main (prose only — the agent runs no
-// git).
-//
-// (Topic grouping — combine independent components into one PR — is issue #129.)
+// Per set the host assembles a throwaway head off `main`
+// (`sandcastle/pr-<runId>-<n>`) by merging in the set's LEAF TIPS — issues no
+// fellow member builds on. A child branch already contains its ancestors, so
+// merging the leaves pulls in each chain exactly once (a fork or a topic-merged
+// set has several leaves; a diamond collapses to one). The host force-pushes each
+// head and an agent opens ONE PR from it into main (prose only — the agent runs
+// no git).
 // ---------------------------------------------------------------------------
 const components = prComponents(allCompleted);
 if (components.length === 0) {
   console.log("\nNo completed issues across the run. No PR to open.");
 } else {
   console.log(
-    `\nOpening ${components.length} PR(s), one per dependency component, for ` +
+    `\nOpening ${components.length} PR(s), one per PR set, for ` +
       `${allCompleted.length} completed issue(s).`
   );
   for (const [n, component] of components.entries()) {

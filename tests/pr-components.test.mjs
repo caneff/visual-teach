@@ -11,11 +11,12 @@ import { prComponents } from "../.sandcastle/pr-components.mts";
 //   →  main ─┬─ 112 ── 108     (component A, leaf 108)
 //            └─ 119 ── 120     (component B, leaf 120)
 
-const issue = (id, parents = []) => ({
+const issue = (id, parents = [], group = undefined) => ({
   id,
   title: `issue ${id}`,
   branch: `sandcastle/issue-${id}`,
   parents,
+  group,
 });
 
 // Compare components by their member id sets, order-independent.
@@ -88,5 +89,52 @@ describe("prComponents — non-linear shapes", () => {
 
   test("empty input yields no components", () => {
     expect(prComponents([])).toEqual([]);
+  });
+});
+
+// Topic grouping (issue #129): a PR set is a connected component of
+// {parent edges} ∪ {same-group-key edges}. Topic combines independent dependency
+// components into one PR; a parent edge still forces same-set (a component is the
+// atomic floor and can never be split). Leaf tips stay parent-based, so a
+// topic-merged set keeps one leaf per chain.
+describe("prComponents — topic grouping", () => {
+  test("two independent chains sharing a group become ONE PR set with both leaves", () => {
+    const comps = prComponents([
+      issue("112", [], "auth"),
+      issue("108", ["112"], "auth"),
+      issue("119", [], "auth"),
+      issue("120", ["119"], "auth"),
+    ]);
+    expect(idSets(comps)).toEqual([["108", "112", "119", "120"]]);
+    // Each chain still contributes its own leaf tip; the PR head merges both.
+    expect(leafIds(comps, "112")).toEqual(["108", "120"]);
+  });
+
+  test("independent chains in DIFFERENT groups stay separate PR sets", () => {
+    const comps = prComponents([
+      issue("112", [], "auth"),
+      issue("108", ["112"], "auth"),
+      issue("119", [], "ui"),
+      issue("120", ["119"], "ui"),
+    ]);
+    expect(idSets(comps)).toEqual([
+      ["108", "112"],
+      ["119", "120"],
+    ]);
+  });
+
+  test("a parent edge crossing two groups still forces ONE set (component is atomic)", () => {
+    // 108 builds on 112 but the planner tagged them different groups. The
+    // dependency edge wins — they cannot be split across PRs.
+    const comps = prComponents([
+      issue("112", [], "auth"),
+      issue("108", ["112"], "ui"),
+    ]);
+    expect(idSets(comps)).toEqual([["108", "112"]]);
+  });
+
+  test("issues without a group are not merged by group", () => {
+    const comps = prComponents([issue("112"), issue("119")]);
+    expect(idSets(comps)).toEqual([["112"], ["119"]]);
   });
 });

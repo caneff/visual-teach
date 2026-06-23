@@ -62,12 +62,23 @@ Rules:
 - A root issue that builds on nothing this run gets `"parents": []`.
 - Most issues have zero or one parent. Multiple parents are allowed but rare.
 
+## Topic group — which issues belong in the same PR
+
+For each issue you select, also emit a `group`: a short lowercase slug naming the feature or theme it belongs to (e.g. `"auth"`, `"dark-mode"`, `"perf"`). Issues sharing a `group` are combined into **one pull request**, even when no dependency links them — this is how a run produces a few coherent PRs by topic instead of one PR per issue.
+
+Rules:
+
+- **Reuse existing keys.** If an issue belongs to the same theme as one under "ALREADY DONE THIS RUN" (each is shown with its `[group: X]`), reuse that exact key — do not coin a synonym, or the topic splits across two PRs.
+- Issues you genuinely cannot group with anything else get their own unique slug.
+- `group` is about theme only; it does **not** override dependencies. A parent edge always forces same-PR regardless of group, so you never need a group to encode a dependency — use `parents` for that.
+- Keep groups meaningful: don't lump unrelated issues into one catch-all, and don't over-split a single feature.
+
 # OUTPUT
 
-Output your plan as a JSON object wrapped in `<plan>` tags. Every issue MUST include a `parents` array (use `[]` for a root):
+Output your plan as a JSON object wrapped in `<plan>` tags. Every issue MUST include a `parents` array (use `[]` for a root) and a `group` slug:
 
 <plan>
-{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42", "parents": []}, {"id": "43", "title": "Add auth UI", "branch": "sandcastle/issue-43", "parents": ["42"]}]}
+{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42", "parents": [], "group": "auth"}, {"id": "43", "title": "Add auth UI", "branch": "sandcastle/issue-43", "parents": ["42"], "group": "auth"}]}
 </plan>
 
 Include only unblocked `ready-for-agent` issues. If every ready-for-agent issue is blocked **only** by other ready-for-agent issues (not by in-flight work), include the single highest-priority candidate (the one with the fewest or weakest dependencies). But if the remaining issues are blocked by **in-flight** work, do NOT force-pick them — leave them out and emit an empty plan; they unblock once that work merges.
