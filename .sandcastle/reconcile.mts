@@ -1,4 +1,4 @@
-// Pure functions for reconciliation sweep and bucketed run summary (issue #143).
+// Pure functions for reconciliation sweep and bucketed run summary.
 //
 // classifyInReviewIssue: classify a single in-review issue based on its PRs.
 // bucketIssues: bucket all open issues for the end-of-run summary.
@@ -77,13 +77,6 @@ export function bucketIssues(options: {
   // issue id → PR number, set during Phase 3
   prAssignments: Map<string, number>;
 }): BucketedIssue[] {
-  const LIFECYCLE = new Set([
-    "ready-for-agent",
-    "in-review",
-    "needs-review",
-    "ready-for-human",
-  ]);
-
   return options.openIssues.map((issue) => {
     const id = String(issue.number);
     const labelSet = new Set(issue.labels);
@@ -132,18 +125,11 @@ export function bucketIssues(options: {
         bucket: "ready-for-agent",
       };
 
-    // No lifecycle label at all → untriaged
-    if (!LIFECYCLE.has([...labelSet].find((l) => LIFECYCLE.has(l)) ?? ""))
-      return {
-        number: issue.number,
-        title: issue.title,
-        bucket: "human-gated-untriaged",
-      };
-
+    // No lifecycle label → untriaged.
     return {
       number: issue.number,
       title: issue.title,
-      bucket: "uncategorized",
+      bucket: "human-gated-untriaged",
     };
   });
 }

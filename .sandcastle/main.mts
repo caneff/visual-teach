@@ -183,7 +183,7 @@ function writeAttempts(a: Record<string, number>): void {
 }
 
 // ---------------------------------------------------------------------------
-// Reconciliation sweep helpers (issue #143)
+// Reconciliation sweep helpers
 // ---------------------------------------------------------------------------
 
 // Fetch all open issues (all labels) for the bucketed run summary.
@@ -461,10 +461,10 @@ if (process.env.SANDCASTLE_SKIP_ADDRESS !== "1") {
   await addressOpenPRs();
 }
 
-// Pre-loop reconciliation sweep (issue #143): restore in-review ⟺ open PR
-// invariant before the plan loop runs. Stranded branches are injected into
-// allCompleted so Phase 3 opens their PRs; issues with no branch are relabeled
-// ready-for-agent so the planner can re-build them.
+// Pre-loop reconciliation sweep: restore in-review ⟺ open PR invariant before
+// the plan loop runs. Stranded branches are injected into allCompleted so Phase 3
+// opens their PRs; issues with no branch are relabeled ready-for-agent so the
+// planner can re-build them.
 const { sweepInjected, sweepRequeued, completedFromSweep } =
   reconciliationSweep();
 allCompleted.push(...completedFromSweep);
@@ -928,8 +928,8 @@ if (components.length === 0) {
 }
 
 // ---------------------------------------------------------------------------
-// End-of-run bucketed summary (issue #143): account for every open issue in
-// exactly one bucket so nothing is silently hidden behind "no work to do".
+// End-of-run bucketed summary: account for every open issue in exactly one
+// bucket so nothing is silently hidden behind "no work to do".
 // ---------------------------------------------------------------------------
 {
   const allOpenIssues = listAllOpenIssues();
