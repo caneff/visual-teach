@@ -1,0 +1,111 @@
+// @vitest-environment node
+import { test, expect, describe, beforeAll } from "vitest";
+import { generateKeyPairSync } from "node:crypto";
+import { buildJwt, loadCredentials } from "../.sandcastle/mint-gh-token.mjs";
+
+let testPrivateKeyPem;
+
+beforeAll(() => {
+  const { privateKey } = generateKeyPairSync("rsa", { modulusLength: 2048 });
+  testPrivateKeyPem = privateKey.export({ type: "pkcs1", format: "pem" });
+});
+
+// ── buildJwt ──────────────────────────────────────────────────────────────────
+
+describe("buildJwt", () => {
+  test("returns a 3-part dot-separated JWT string", () => {
+    const jwt = buildJwt("12345", testPrivateKeyPem);
+    expect(jwt.split(".")).toHaveLength(3);
+  });
+
+  test("header decodes to { alg: RS256, typ: JWT }", () => {
+    const [headerB64] = buildJwt("12345", testPrivateKeyPem).split(".");
+    const header = JSON.parse(Buffer.from(headerB64, "base64url").toString());
+    expect(header.alg).toBe("RS256");
+    expect(header.typ).toBe("JWT");
+  });
+
+  test("payload contains iss equal to the appId string", () => {
+    const [, payloadB64] = buildJwt("99999", testPrivateKeyPem).split(".");
+    const payload = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
+    expect(payload.iss).toBe("99999");
+  });
+
+  test("payload iat is in the past (clock-drift buffer)", () => {
+    const [, payloadB64] = buildJwt("1", testPrivateKeyPem).split(".");
+    const { iat } = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
+    expect(iat).toBeLessThan(Math.floor(Date.now() / 1000));
+  });
+
+  test("payload exp is iat + 600 (10-minute window)", () => {
+    const [, payloadB64] = buildJwt("1", testPrivateKeyPem).split(".");
+    const { iat, exp } = JSON.parse(
+      Buffer.from(payloadB64, "base64url").toString()
+    );
+    expect(exp - iat).toBe(660); // 600s window + 60s drift buffer
+  });
+});
+
+// ── loadCredentials ───────────────────────────────────────────────────────────
+
+describe("loadCredentials", () => {
+  const VARS = {
+    GITHUB_APP_ID: "42",
+    GITHUB_APP_PRIVATE_KEY:
+      "-----BEGIN RSA PRIVATE KEY-----\nfake\n-----END RSA PRIVATE KEY-----",
+    GITHUB_APP_INSTALLATION_ID: "1001",
+  };
+
+  function withEnv(overrides, fn) {
+    const saved = {};
+    const all = { ...VARS, ...overrides };
+    for (const [k, v] of Object.entries(all)) {
+      saved[k] = process.env[k];
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+    try {
+      return fn();
+    } finally {
+      for (const [k, v] of Object.entries(saved)) {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      }
+    }
+  }
+
+  test("returns parsed credentials when all vars are set", () => {
+    const creds = withEnv({}, () => loadCredentials());
+    expect(creds.appId).toBe("42");
+    expect(creds.installationId).toBe("1001");
+    expect(creds.privateKey).toContain("BEGIN RSA PRIVATE KEY");
+  });
+
+  test("throws with var name when GITHUB_APP_ID is missing", () => {
+    expect(() =>
+      withEnv({ GITHUB_APP_ID: undefined }, () => loadCredentials())
+    ).toThrow(/GITHUB_APP_ID/);
+  });
+
+  test("throws with var name when GITHUB_APP_PRIVATE_KEY is missing", () => {
+    expect(() =>
+      withEnv({ GITHUB_APP_PRIVATE_KEY: undefined }, () => loadCredentials())
+    ).toThrow(/GITHUB_APP_PRIVATE_KEY/);
+  });
+
+  test("throws with var name when GITHUB_APP_INSTALLATION_ID is missing", () => {
+    expect(() =>
+      withEnv({ GITHUB_APP_INSTALLATION_ID: undefined }, () =>
+        loadCredentials()
+      )
+    ).toThrow(/GITHUB_APP_INSTALLATION_ID/);
+  });
+
+  test("expands literal \\n to newlines in GITHUB_APP_PRIVATE_KEY", () => {
+    const creds = withEnv(
+      { GITHUB_APP_PRIVATE_KEY: "line1\\nline2\\nline3" },
+      () => loadCredentials()
+    );
+    expect(creds.privateKey).toBe("line1\nline2\nline3");
+  });
+});
