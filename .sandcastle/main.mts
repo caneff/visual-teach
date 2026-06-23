@@ -31,8 +31,8 @@
 //
 // PRs are split by PR set (one run → several PRs): a connected component of
 // dependency edges, with independent same-topic components combined via a `group`
-// key the planner emits. Multi-parent (diamond) base resolution is deferred to
-// #128.
+// key the planner emits. A multi-parent (diamond) issue is built on a temp base
+// branch merging all its parents.
 //
 // Usage:
 //   npx tsx .sandcastle/main.mts
@@ -43,7 +43,11 @@ import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
 import { sandboxIdentity } from "./sandbox-identity.mts";
-import { resolveBase, issueBranch } from "./base-resolution.mts";
+import {
+  resolveBase,
+  issueBranch,
+  buildMultiParentBase,
+} from "./base-resolution.mts";
 import { prComponents } from "./pr-components.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -383,19 +387,24 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       //   0 parents          → main
       //   1 parent this run  → sandcastle/issue-<parent> (stack on the chain)
       //   1 parent merged    → main (its work already landed earlier)
-      // ≥2 parents (diamond) is deferred to #128; resolveBase falls back to main
-      // for now (logged below) rather than building a temp merge base here.
+      //   ≥2 parents (diamond) → a temp base branch merging all parents
+      //                          (buildMultiParentBase), or null if that merge
+      //                          conflicts — then skip the issue this iteration.
       // review-only issues have no plan entry, so default their parents to [].
       const parents = issue.mode === "full" ? issue.parents : [];
-      const base = resolveBase({ parents, branchExistsWithWork });
-      if (parents.length >= 2) {
-        console.warn(
-          `  ${issue.id} declares ${parents.length} parents (${parents
+      const base = resolveBase({
+        parents,
+        branchExistsWithWork,
+        onMultiParent: (ps) =>
+          buildMultiParentBase(issue.id, ps, { git, branchExistsWithWork }),
+      });
+      if (base === null) {
+        console.error(
+          `  ✗ ${issue.id} multi-parent base merge conflicted (${parents
             .map((p) => `#${p}`)
-            .join(
-              ", "
-            )}); multi-parent base is deferred to #128 — basing on ${base}`
+            .join(", ")}); skipping this iteration, will retry next time`
         );
+        return { issue, kind: "nothing" as const, commits: [] };
       }
 
       // A pre-existing branch (a review-only re-review, or a ready-for-agent
