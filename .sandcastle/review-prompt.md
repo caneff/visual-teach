@@ -85,9 +85,15 @@ the GATES above still run regardless.
 # SPEC CONFORMANCE (required — emit the verdict last)
 
 Independently decide whether the diff actually satisfies the originating issue
-above: every acceptance criterion met, no requirement skipped, nothing that looks
-like it implements the wrong thing. This is SEPARATE from code quality — clean,
-well-refactored code that does not meet the spec still FAILS.
+above. Check each acceptance criterion and classify any failure as one of:
+
+- **missing / partial** — an AC not implemented, or only half done
+- **scope creep** — behavior in the diff the issue never asked for
+- **implemented-but-wrong** — an AC the code appears to address but does so incorrectly
+
+Quote the specific acceptance-criterion line for each finding. This is SEPARATE
+from code quality — clean, well-refactored code that does not meet the spec still
+FAILS.
 
 Do NOT try to implement missing requirements yourself; that is a re-implement,
 which the orchestrator routes back to a fresh implementer. Judge and report only.
