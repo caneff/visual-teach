@@ -67,9 +67,21 @@ For every comment you addressed or chose not to, post a reply in its thread.
   where `<comment_id>` is the thread-starting comment's `id`.
 - **Top-level** — `gh pr comment {{PR_NUMBER}} --body "<reply>"`.
 
-Reply content: one or two sentences. If you made a change, say what you changed
-and reference the commit (e.g. "Dropped the backticks so it renders as a plain
-link — `$SHA`."). If you did not change anything, say why or ask the question.
+Reply content: **start every reply with a Markdown blockquote of the comment you
+are responding to** so the thread is self-contained — one or two `> `-prefixed
+lines quoting (or, if long, trimming to) the original comment, then a blank line,
+then your reply. After the quote: one or two sentences. If you made a change, say
+what you changed and reference the commit (e.g. "Dropped the backticks so it
+renders as a plain link — `$SHA`."). If you did not change anything, say why or
+ask the question.
+
+Example:
+
+```
+> Drop the backticks here — this should render as a plain link.
+
+Done — removed them so it renders as a plain link. `$SHA`
+```
 
 Do NOT resolve the threads — leave that to the human reviewer. Do NOT merge the
 PR. Do NOT close the PR.
