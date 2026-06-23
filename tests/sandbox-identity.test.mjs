@@ -1,8 +1,7 @@
 import { test, expect, beforeEach, afterEach } from "vitest";
 
-// Dynamic import so we can reload with different env state.
-// vitest re-executes the module each import() call when env changes.
-// We test the pure function by manipulating process.env before importing.
+// The module is imported once; sandboxIdentity() reads process.env at call time,
+// so manipulating process.env between tests is enough to exercise both branches.
 
 const botVars = [
   "SANDCASTLE_BOT_GH_TOKEN",

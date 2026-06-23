@@ -28,19 +28,15 @@ export function sandboxIdentity(): SandboxIdentity {
   const name = process.env.SANDCASTLE_BOT_GIT_NAME;
   const email = process.env.SANDCASTLE_BOT_GIT_EMAIL;
 
-  if (!token && !name && !email) {
-    return { env: {}, gitConfigCommands: [] };
-  }
-
-  return {
-    env: token ? { GH_TOKEN: token } : {},
-    gitConfigCommands: [
-      ...(name
-        ? [{ command: `git config user.name ${JSON.stringify(name)}` }]
-        : []),
-      ...(email
-        ? [{ command: `git config user.email ${JSON.stringify(email)}` }]
-        : []),
-    ],
-  };
+  const env: Record<string, string> = token ? { GH_TOKEN: token } : {};
+  const gitConfigCommands: Array<{ command: string }> = [];
+  if (name)
+    gitConfigCommands.push({
+      command: `git config user.name ${JSON.stringify(name)}`,
+    });
+  if (email)
+    gitConfigCommands.push({
+      command: `git config user.email ${JSON.stringify(email)}`,
+    });
+  return { env, gitConfigCommands };
 }
