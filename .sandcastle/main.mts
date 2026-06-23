@@ -15,10 +15,12 @@
 //                               there's work on the branch a reviewer runs in the
 //                               same sandbox (1 iteration). All issue pipelines
 //                               run concurrently via Promise.allSettled().
-//   Phase 3 (Open PR):          The host merges every completed issue tip from
-//                               this run into one throwaway head off `main`,
-//                               force-pushes it, and a single agent opens ONE PR
-//                               into main for manual review (no auto-merge).
+//   Phase 3 (Open PRs):         The host splits the run's completed issues into
+//                               connected dependency components and opens ONE PR
+//                               per component: it merges each component's leaf
+//                               tips into a throwaway head off `main`,
+//                               force-pushes it, and an agent opens the PR into
+//                               main for manual review (no auto-merge).
 //
 // The outer loop repeats up to MAX_ITERATIONS times. Because a completed issue's
 // branch is immutable and the next iteration's dependent branches are cut from
@@ -27,9 +29,9 @@
 // human merges. There is no single integration tip and no per-issue fold: the
 // forest replaces the former one revisable stack.
 //
-// Per-component / topic-grouped PRs (one run → several PRs) are deferred to
-// issues #127; multi-parent (diamond) base resolution is deferred to #128. This
-// issue keeps one consolidated PR per run.
+// PRs are split by dependency component (one run → several PRs). Topic grouping
+// (combining independent components into one PR) is deferred to #129; multi-parent
+// (diamond) base resolution is deferred to #128.
 //
 // Usage:
 //   npx tsx .sandcastle/main.mts
