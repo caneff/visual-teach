@@ -890,7 +890,9 @@ if (remainingInReview.length > 0) {
 }
 
 // 4. Human-gated: ready-for-human (reviewer gave up, or human-vetoed PR)
-const readyForHumanIssues = listIssues("ready-for-human");
+const readyForHumanIssues = listIssues("ready-for-human").filter(
+  (i) => !handledIds.has(String(i.number))
+);
 if (readyForHumanIssues.length > 0) {
   console.log(
     `\nHuman-gated — ready-for-human (${readyForHumanIssues.length}):`
