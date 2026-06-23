@@ -26,12 +26,11 @@ Pay extra attention to test files that touch the relevant parts of the code.
 
 # EXECUTION
 
-If applicable, use RGR to complete the task.
-
-1. RED: write one test
-2. GREEN: write the implementation to pass that test
-3. REPEAT until done
-4. REFACTOR the code
+Use the **`/tdd` skill** (vendored at `.claude/skills/tdd/`) and follow it — do
+not improvise your own test rhythm. Its load-bearing rules: one vertical slice
+at a time (RED: one failing test → GREEN: minimal code to pass → REPEAT), never
+write all tests first then all code, test observable behavior through the public
+interface (not source shape), refactor only once green.
 
 # FEEDBACK LOOPS
 
