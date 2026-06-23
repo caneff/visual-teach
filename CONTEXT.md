@@ -56,3 +56,10 @@ Contains no `visual-teach` awareness, no `vt-*` knowledge, and seeds no assets.
 Lessons it produces are plain hand-written HTML — the control arm for comparing
 against the visual-teach add-on. **Do not edit:** modifying it silently invalidates
 any A/B comparison that uses it as the baseline. See `docs/ab-comparison-methodology.md`.
+
+**treatment twin** — The A/B treatment arm. An invocable copy of the owned `teach`
+skill derived on-demand by `scripts/derive-treatment.sh`: `teach` with only
+`disable-model-invocation` stripped, byte-identical to `teach` in every other
+respect. Because it is generated, not hand-authored, it cannot drift from `teach`.
+Paired with `teach-base` for side-by-side comparisons — the delta between the two
+arms measures the value the component library adds. See `docs/ab-comparison-methodology.md`.
