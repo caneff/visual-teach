@@ -46,12 +46,28 @@ An issue is **unblocked** if it has zero blocking dependencies on any other open
 
 For each unblocked issue, assign a branch name using the exact format `sandcastle/issue-{id}` (no slug or other suffix). This must be deterministic so that re-planning the same issue always produces the same branch name and accumulated progress is preserved.
 
+## Parents — what each issue builds on
+
+For each issue you select, also emit `parents`: the ids of the issues it **builds on** — the dependencies whose code it needs sitting underneath it. Each issue's branch will be cut directly from its parent's branch, so this is what wires up the dependency forest.
+
+Draw parents from **both**:
+
+- **Open blockers** that are listed under "ALREADY DONE THIS RUN" (their branches exist right now, so a dependent can stack on them this run).
+- Any "ALREADY DONE THIS RUN" issue this one builds on, even if you would not have called it a hard blocker.
+
+Rules:
+
+- A parent must be an issue id from the "ALREADY DONE THIS RUN" list. (An unbuilt blocker — `ready-for-agent` or in-flight — is **not** a parent; if a selectable issue is blocked by such an issue, leave it out of the plan entirely instead of listing it as a parent.)
+- **Bias toward declaring a parent when unsure.** A missed parent breaks the dependent's build (its code is cut without the dependency underneath); a falsely-declared parent only over-groups two changes that could have been independent. When in doubt, declare it.
+- A root issue that builds on nothing this run gets `"parents": []`.
+- Most issues have zero or one parent. Multiple parents are allowed but rare.
+
 # OUTPUT
 
-Output your plan as a JSON object wrapped in `<plan>` tags:
+Output your plan as a JSON object wrapped in `<plan>` tags. Every issue MUST include a `parents` array (use `[]` for a root):
 
 <plan>
-{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42"}]}
+{"issues": [{"id": "42", "title": "Fix auth bug", "branch": "sandcastle/issue-42", "parents": []}, {"id": "43", "title": "Add auth UI", "branch": "sandcastle/issue-43", "parents": ["42"]}]}
 </plan>
 
 Include only unblocked `ready-for-agent` issues. If every ready-for-agent issue is blocked **only** by other ready-for-agent issues (not by in-flight work), include the single highest-priority candidate (the one with the fewest or weakest dependencies). But if the remaining issues are blocked by **in-flight** work, do NOT force-pick them — leave them out and emit an empty plan; they unblock once that work merges.

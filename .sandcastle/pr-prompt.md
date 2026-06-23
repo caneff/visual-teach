@@ -7,13 +7,14 @@ The run branch is: `{{RUN_BRANCH}}`
 
 # THE RUN BRANCH IS ALREADY BUILT AND PUSHED
 
-The orchestrator already built `{{RUN_BRANCH}}` as a single LINEAR stack off
-`main` — every completed issue was folded onto it during the run, in order — and
-has pushed it to `origin`. **Do NOT create, rebuild, merge, or rebase it.** There
-is nothing to fold; the branch is final.
+The orchestrator already assembled `{{RUN_BRANCH}}` as a throwaway head off
+`main`: it merged in every completed issue's branch (the dependency forest's leaf
+tips, each of which already contains its whole chain) and pushed the result to
+`origin`. **Do NOT create, rebuild, merge, rebase, or otherwise run git that
+mutates anything.** The head is final — your only job is to open ONE pull request
+from it and write its prose.
 
-Your only job is to open ONE pull request from it. First sanity-check the branch
-is there and is what you describe:
+Read-only inspection to write an accurate body is expected:
 
 - `git fetch origin {{RUN_BRANCH}}`
 - `git log --oneline origin/main..origin/{{RUN_BRANCH}}` — these are the commits the PR contains.
