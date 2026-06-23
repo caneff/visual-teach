@@ -24,18 +24,17 @@ Authors (the `/teach` agent) rebuild this each time, and it drifts between lesso
 
 - **Primary user:** someone already using `/teach` who wants richer, consistent
   lessons without `/teach` hand-rolling CSS/JS each time.
-- **Author (the actor that writes lessons):** the `/teach` agent — or a standalone
-  agent doing the Convert verb. Not a human hand-writing markup, though a human
-  can.
-- **Use cases:** (a) new lessons born rich during a `/teach` run; (b) retrofitting
-  existing lessons to the shared blocks; (c) bulk-migrating a whole workspace.
+- **Author (the actor that writes lessons):** the `/teach` agent. Not a human
+  hand-writing markup, though a human can.
+- **Use cases:** (a) new lessons born rich during a `/teach` run; (b) lessons in an
+  existing workspace enriched as the Author reaches for `vt-*` blocks over time.
 
 ## 3. Goals
 
 1. Eliminate the duplicated ~150 lines/lesson — one shared stylesheet + script.
 2. Make `/teach` lessons consistent and richer (real quiz feedback, persisted
    checklists, themed callouts) with **zero new authoring model** to learn.
-3. Adopt-by-subtraction: a lesson adopts by *deleting* its inline CSS/JS and
+3. Adopt-by-subtraction: a lesson adopts by _deleting_ its inline CSS/JS and
    linking two assets.
 4. Stay an **add-on** to `/teach` — never fork it, never reimplement its pedagogy.
 5. No build step, no server, no dependency. Lessons keep opening from `file://`.
@@ -46,13 +45,13 @@ Minimalism applies to **plumbing** (no MCP, no build, no framework, no heavy
 runtime) — **not** to the visual blocks. The blocks are the product; they should
 be genuinely rich and beautiful, matching `/teach`'s "laziness OFF for
 deliverables" charter. "Rebuild ~10 CSS blocks, not a 42MB engine" rejects the
-heavyweight *runtime*, never visual quality — the two are separable (a rich CSS
+heavyweight _runtime_, never visual quality — the two are separable (a rich CSS
 diagram vocabulary is cheap and dependency-free). When in doubt on a visual block,
 err toward expressive, not minimal.
 
 ## 4. Non-goals
 
-- **Not** a lesson *format/schema/validator.** visual-teach is a passive component
+- **Not** a lesson \*format/schema/validator.\*\* visual-teach is a passive component
   library (like Bootstrap), not a renderer. Unknown/malformed markup renders
   inert, never "invalid."
 - **Not** a teaching engine. Authoring a course (mission, zone-of-proximal-dev,
@@ -100,7 +99,7 @@ typing `/teach` starts it, and a wrapper skill is impossible.
 Reliability comes from the **filesystem**, most-reliable first:
 
 1. **Filesystem (primary).** Once the assets + cheatsheet sit in `./assets/`,
-   `/teach` reuses them by its *own* charter ("read `./assets/` and reuse"). This
+   `/teach` reuses them by its _own_ charter ("read `./assets/` and reuse"). This
    is `/teach`'s instruction to itself, not our hope.
 2. **Compose / auto-invoke (booster).** The model may auto-invoke visual-teach
    (it is model-invocable, not blocked) mid-`/teach` if the description matches.
@@ -113,15 +112,14 @@ with `vt-*` blocks. Fresh-workspace auto-adoption is **high**, not low. Caveat:
 faithful proxy, not the real flagged `/teach`; gold-standard check (a human
 running real `/teach`) still pending. See ADR 0002.
 
-**Cold start:** a brand-new workspace has an empty `./assets/`, so lesson 1 *can*
-be born plain. Floor = **one `/visual-teach` per workspace** (seed first, or
-convert after lesson 1), then channel 1 carries every later lesson. No zero-touch
-path exists.
+**Cold start:** a brand-new workspace has an empty `./assets/`. Compose auto-seeding
+(backed by the 5/5 evidence above) is the floor — the Author seeds the files on the
+first lesson by its own instinct. No explicit verb needed. See ADR 0004.
 
 ## 8. Scope — block set
 
 Core ships only **universal** teaching blocks. Topic-specific widgets (audio
-players, SQL sandboxes) and topic colors stay in the *workspace's* assets. Seam:
+players, SQL sandboxes) and topic colors stay in the _workspace's_ assets. Seam:
 core = topic-agnostic, workspace = topic-specific.
 
 **Inclusion bar (per §3a).** Every block is walked one at a time and must beat
@@ -132,7 +130,7 @@ author ergonomics (less to emit, more reliable), or themeability. A block is **c
 only if it adds nothing on any axis** — a pointless wrapper identical to writing
 the HTML inline. Visually-plain blocks (callout, table) can fully earn their place
 on consistency + a11y + DRY; they need not be flashier. The verbatim-extracted
-blocks are starting points to *raise where it pays*, not finished. Walk + verdicts
+blocks are starting points to _raise where it pays_, not finished. Walk + verdicts
 tracked below.
 
 **v1 (built, render-verified):** page shell (`vt-kicker`/`h1`/`vt-lede`/`vt-meta`/
@@ -152,7 +150,7 @@ hand-composed CSS diagram system, tokenized to the 9 vars, degrades to styled HT
 - `.vt-split` — before/after two-panel layout
 - reuse `.vt-pill`
 
-**mermaid** is an opt-in escape hatch for *computed* graphs (sequence, state, ER)
+**mermaid** is an opt-in escape hatch for _computed_ graphs (sequence, state, ER)
 — one CDN `<script>`, only when a lesson needs real auto-layout. Not our code.
 
 **Deferred:** the sketch/hand-drawn aesthetic (rough.js + Excalifont — a JS dep,
@@ -162,23 +160,23 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 
 ### Block-walk verdicts (per inclusion bar)
 
-| block | verdict | raise to |
-| --- | --- | --- |
-| diagram | KEEP + build rich | full CSS vocabulary (§8) + opt-in mermaid |
-| quiz | KEEP + RAISE | per-option misconception feedback, a11y (buttons/keyboard/`aria-live`/focus), single-answer always retries (no answer reveal/lock until correct), opt-in multi-select. Stretch: cross-lesson score. |
-| checklist | KEEP + RAISE | progress *bar* (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2. |
-| callout | KEEP + RAISE (**built**) | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted. |
-| table | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky. |
-| pill | KEEP + RAISE (**prototyped**) | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `demo/pill-variants.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting). |
-| page shell | KEEP + RAISE (**prototyping**) | meta bar (time/prereqs/difficulty/position), CSS section-anchor links. (~~prev/next nav~~ and ~~`vt-cta` "Next" button~~ both dropped — lessons authored one at a time, so any forward link/button is a dead affordance; replaced by a plain `vt-upnext` text teaser.) Objectives/recap/mission/source split OUT to separate blocks (below). |
-| objectives (new) | ADD | "By the end you'll…" box |
-| mission-tie-in (new) | ADD | "why this matters for your goal" (grounds lesson in `/teach` mission) |
-| primary-source (new) | ADD | featured high-trust source card (`/teach` charter) |
-| recap + next-CTA (new) | ADD | "what you earned" + next-lesson call-to-action |
-| dark mode | **v1** (was deferred) | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle |
-| teacher | KEEP + RAISE (**prototyped**) | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `demo/teacher-box.html`. |
-| footer/sources | KEEP + RAISE (**prototyped**) | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `demo/footer-sources.html`. |
-| prose base | KEEP + RAISE (**prototyped**) | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `demo/code-block.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern. |
+| block                  | verdict                                     | raise to                                                                                                                                                                                                                                                                                                                                     |
+| ---------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| diagram                | KEEP + build rich                           | full CSS vocabulary (§8) + opt-in mermaid                                                                                                                                                                                                                                                                                                    |
+| quiz                   | KEEP + RAISE                                | per-option misconception feedback, a11y (buttons/keyboard/`aria-live`/focus), single-answer always retries (no answer reveal/lock until correct), opt-in multi-select. Stretch: cross-lesson score.                                                                                                                                          |
+| checklist              | KEEP + RAISE                                | progress _bar_ (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2.                                                                                                                                                                                                                                                            |
+| callout                | KEEP + RAISE (**built**)                    | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted.                                                                                                                                                                                             |
+| table                  | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky.                                                                      |
+| pill                   | KEEP + RAISE (**prototyped**)               | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `demo/pill-variants.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting).                                                                                                     |
+| page shell             | KEEP + RAISE (**prototyping**)              | meta bar (time/prereqs/difficulty/position), CSS section-anchor links. (~~prev/next nav~~ and ~~`vt-cta` "Next" button~~ both dropped — lessons authored one at a time, so any forward link/button is a dead affordance; replaced by a plain `vt-upnext` text teaser.) Objectives/recap/mission/source split OUT to separate blocks (below). |
+| objectives (new)       | ADD                                         | "By the end you'll…" box                                                                                                                                                                                                                                                                                                                     |
+| mission-tie-in (new)   | ADD                                         | "why this matters for your goal" (grounds lesson in `/teach` mission)                                                                                                                                                                                                                                                                        |
+| primary-source (new)   | ADD                                         | featured high-trust source card (`/teach` charter)                                                                                                                                                                                                                                                                                           |
+| recap + next-CTA (new) | ADD                                         | "what you earned" + next-lesson call-to-action                                                                                                                                                                                                                                                                                               |
+| dark mode              | **v1** (was deferred)                       | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle                                                                                                                                                                                                                                                        |
+| teacher                | KEEP + RAISE (**prototyped**)               | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `demo/teacher-box.html`.                                                                                                                                                                                                                        |
+| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `demo/footer-sources.html`.                                                                                                                                                                                                 |
+| prose base             | KEEP + RAISE (**prototyped**)               | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `demo/code-block.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern.                                                     |
 
 ### Theming
 
@@ -191,30 +189,28 @@ core CSS.
 
 ### Lesson shape
 
-HTML *is* the source — no JSON/MDX/markdown intermediate. Author links the two
+HTML _is_ the source — no JSON/MDX/markdown intermediate. Author links the two
 assets and uses `vt-*` blocks; `data-key` on a checklist replaces hand-picked
 localStorage keys. (Full markup: `assets/visual-teach.md`.)
 
-## 9. Invocation: the Convert verb
+## 9. Invocation: Compose-only
 
-`/visual-teach` is visual-teach's **only** explicit verb (`CONTEXT.md`):
+visual-teach has no explicit verb. It operates in **Compose** mode only:
+auto-invoked mid-`/teach` as the model picks up asset files from `./assets/`.
 
-- **Lessons present** (`/visual-teach [file|all]`): retrofit — ensure assets,
-  strip inline `<style>`/`<script>`, swap classes to `vt-*`, link assets, move
-  topic colors to a `:root` override. Mechanical edit, no script. Needs no
-  `/teach`.
-- **No lessons (seed-only):** install the three assets, tell the user to run
-  `/teach`.
+Cold-start seeding is handled by Compose auto-seeding (ADR 0002: 5/5 fresh
+workspaces seeded spontaneously). There is no bulk-migration or retrofit verb —
+the filesystem channel (`/teach` reuses whatever is in `./assets/` by its own
+charter) means every future lesson in the workspace benefits once the assets exist.
 
-Serves four jobs: cold-start seed, fallback when Compose misses, bulk migrator,
-proof-of-concept (convert the real lessons).
+See ADR 0004 for the decision record.
 
 ## 10. The hard bet: runnable code (deferred)
 
 No real lesson uses it yet; slot reserved to avoid a later rewrite. When built:
 **client-side only, sandboxed `<iframe srcdoc>`** (works from `file://`, where Web
 Workers are blocked in Chrome; isolated; static-hostable; no code-on-our-box). JS
-runs directly; Python via Pyodide-from-CDN *if* ever needed. Not building a server
+runs directly; Python via Pyodide-from-CDN _if_ ever needed. Not building a server
 sandbox or multi-language runner.
 
 ## 11. Status & milestones
@@ -231,7 +227,6 @@ sandbox or multi-language runner.
       shell+new blocks already dark via folded tokens; code block; teacher; footer)
 - [ ] Work the polish backlog (§11a)
 - [ ] Cheatsheet hardening: "tokens are not classes" (model misused `vt-ink`)
-- [ ] Exercise Convert + seed-only end-to-end on `data-studio/0001`
 - [ ] Gold-standard check: human runs real (flagged) `/teach` + visual-teach
 - [ ] Decide installation/release path (how a user installs the skill)
 
@@ -269,5 +264,6 @@ sandbox or multi-language runner.
 
 - ADR 0001 — copy assets into each workspace (`docs/adr/0001-*`)
 - ADR 0002 — add-on that composes, not a fork (`docs/adr/0002-*`)
-- `CONTEXT.md` — glossary (visual-teach, Lesson, Compose, Convert, …)
+- `CONTEXT.md` — glossary (visual-teach, Lesson, Compose, …)
+- ADR 0004 — Compose-only, no Convert verb (`docs/adr/0004-*`)
 - `docs/visual-plan-analysis.md` — the research that motivated the split

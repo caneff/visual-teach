@@ -203,6 +203,37 @@ test("quiz block: quiz section retains equal-length visible text guidance", () =
   );
 });
 
+// ── Compose-only: no Convert references in domain docs ────────
+const context = readFileSync(join(root, "CONTEXT.md"), "utf8");
+const prd = readFileSync(join(root, "docs/PRD.md"), "utf8");
+const { readdirSync } = await import("fs");
+
+test("CONTEXT.md: no Convert (mode) glossary entry", () => {
+  expect(context).not.toMatch(/\*\*Convert \(mode\)\*\*/);
+});
+
+test("CONTEXT.md: no two-mode framing mentioning Convert", () => {
+  expect(context).not.toContain("**Convert**");
+});
+
+test("docs/PRD.md: §9 heading does not name Convert verb", () => {
+  expect(prd).not.toContain("## 9. Invocation: the Convert verb");
+});
+
+test("docs/PRD.md: no bulk-migrator framing for Convert", () => {
+  expect(prd).not.toContain("bulk migrat");
+});
+
+test("docs/adr/: an ADR exists recording the Compose-only decision", () => {
+  const adrDir = join(root, "docs/adr");
+  const adrs = readdirSync(adrDir);
+  const composOnly = adrs.some((f) => {
+    const content = readFileSync(join(adrDir, f), "utf8");
+    return /compose.only|no.*convert.*verb|remove.*convert/i.test(content);
+  });
+  expect(composOnly).toBe(true);
+});
+
 // ── Theming overrides — live in the index ─────────────────────
 test("index: theming example uses a flat :root block", () => {
   const themingSection = index.slice(index.indexOf("## Theming"));
