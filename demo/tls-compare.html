@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>visual-teach · TLS-WITH A/B — monolith vs split docs</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: #f4f5f7;
+      }
+      header {
+        padding: 0.9rem 1.2rem;
+        border-bottom: 1px solid #e3e6ea;
+        background: #fff;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      header p {
+        margin: 0.25rem 0 0;
+        font-size: 0.85rem;
+        color: #5b6472;
+      }
+      .tabs {
+        display: flex;
+        gap: 0;
+        border-bottom: 1px solid #e3e6ea;
+        background: #fff;
+        padding: 0 1.2rem;
+      }
+      .tab {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: none;
+        color: #5b6472;
+      }
+      .tab.active {
+        border-bottom-color: #1e6ea7;
+        color: #1e6ea7;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: #e3e6ea;
+        height: calc(100vh - 90px);
+      }
+      .pane {
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        min-width: 0;
+      }
+      .pane .lbl {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #5b6472;
+        border-bottom: 1px solid #e3e6ea;
+      }
+      .pane.baseline .lbl {
+        color: #c5221f;
+      }
+      .pane.rebuild .lbl {
+        color: #0d7d4d;
+      }
+      iframe {
+        border: 0;
+        width: 100%;
+        flex: 1;
+      }
+      @media (max-width: 800px) {
+        .cols {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>TLS-WITH A/B · Monolith baseline vs Split-docs rebuild</h1>
+      <p>
+        Issue #108 — same topic, same locked prompt, different docs surface.
+        Left: monolith arm (pre-#106). Right: split-docs arm (post-#106).
+      </p>
+    </header>
+    <div class="tabs">
+      <button class="tab active" onclick="setLesson(1)">
+        Lesson 1 — Why TLS?
+      </button>
+      <button class="tab" onclick="setLesson(2)">Lesson 2 — Handshake</button>
+      <button class="tab" onclick="setLesson(3)">Lesson 3 — Practice</button>
+    </div>
+    <div class="cols">
+      <div class="pane baseline">
+        <span class="lbl">Monolith baseline · with/</span>
+        <iframe
+          id="left"
+          src="../../../vt-compare/tls/with/tls-01.html"
+          title="Monolith baseline"
+        ></iframe>
+      </div>
+      <div class="pane rebuild">
+        <span class="lbl">Split-docs rebuild · with-split/</span>
+        <iframe
+          id="right"
+          src="../../../vt-compare/tls/with-split/tls-01.html"
+          title="Split rebuild"
+        ></iframe>
+      </div>
+    </div>
+    <script>
+      const tabs = document.querySelectorAll(".tab");
+      function setLesson(n) {
+        tabs.forEach((t, i) => t.classList.toggle("active", i === n - 1));
+        document.getElementById("left").src =
+          `../../../vt-compare/tls/with/tls-0${n}.html`;
+        document.getElementById("right").src =
+          `../../../vt-compare/tls/with-split/tls-0${n}.html`;
+      }
+    </script>
+  </body>
+</html>
