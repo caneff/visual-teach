@@ -20,7 +20,7 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
 # ponytail: pinned to major v4; bump when R2 upload flags change.
 RUN npm install -g wrangler@4
 
-# Chromium system libs for Playwright (demo/shot.mjs visual proof). Needs root,
+# Chromium system libs for Playwright (.sandcastle/shot.mjs visual proof). Needs root,
 # so install the apt deps here; the browser binary itself is fetched per-user below.
 RUN npx -y playwright@1.61.0 install-deps chromium \
   && rm -rf /var/lib/apt/lists/*

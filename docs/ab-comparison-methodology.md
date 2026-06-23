@@ -125,5 +125,5 @@ Its key principle, worth keeping: **when the `after` looks worse, fix the
 `visual-teach` library — do not edit the `after` directly.** The `after` is a
 byproduct of the library, not an artifact to hand-tune. This drove real library
 fixes (e.g. adding `.vt-row.nowrap` to `assets/visual-teach.css`). The
-`demo/shot.mjs` screenshot script exists to catch layout regressions from this
+`.sandcastle/shot.mjs` screenshot script exists to catch layout regressions from this
 flow without manual eyeballing.
