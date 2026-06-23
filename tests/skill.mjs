@@ -6,7 +6,7 @@ import { dirname, join } from "path";
 const __dir = dirname(fileURLToPath(import.meta.url));
 const root = join(__dir, "..");
 
-const cheatsheet = readFileSync(join(root, "assets/visual-teach.md"), "utf8");
+const index = readFileSync(join(root, "assets/visual-teach.md"), "utf8");
 
 const skill = readFileSync(join(root, "SKILL.md"), "utf8");
 const beforeHtml = readFileSync(
@@ -114,14 +114,8 @@ for (const phrase of [
 }
 
 // ── type="module" hardening — assertions preserved against the index ──
-test(`index: warns that type="module" breaks file:// delivery`, () => {
-  expect(cheatsheet).toMatch(
-    /type="module".*break|break.*type="module"|do not.*type="module"|type="module".*do not|never.*type="module"|type="module".*never|plain.*script.*not.*module|not.*module/i
-  );
-});
-
-test(`cheatsheet: warns against type="module" on visual-teach.js script`, () => {
-  expect(cheatsheet).toMatch(
+test(`index: warns against type="module" on visual-teach.js script`, () => {
+  expect(index).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|not.*type="module"|type="module".*not|plain.*script|not.*ES module|CORS/i
   );
 });
@@ -146,13 +140,13 @@ const BLOCK_FILES = [
 for (const file of BLOCK_FILES) {
   test(`block menu: index links to existing file ${file}`, () => {
     expect(existsSync(join(root, "assets", file))).toBe(true);
-    expect(cheatsheet).toContain(file);
+    expect(index).toContain(file);
   });
 }
 
 // ── Selective-load instruction ────────────────────────────────
 test("index: carries selective-load / open-only-what-you-need instruction", () => {
-  expect(cheatsheet).toMatch(
+  expect(index).toMatch(
     /open only.*block|only.*block.*you need|load.*only|selective.*load/i
   );
 });
@@ -210,20 +204,20 @@ test("quiz block: quiz section retains equal-length visible text guidance", () =
 });
 
 // ── Theming overrides — live in the index ─────────────────────
-test("cheatsheet: theming example uses a flat :root block", () => {
-  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+test("index: theming example uses a flat :root block", () => {
+  const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(/:root\s*\{[^}]*--vt-accent/);
 });
 
-test("cheatsheet: theming section explains that vt dark rules win via higher specificity so a flat override is safe", () => {
-  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+test("index: theming section explains that vt dark rules win via higher specificity so a flat override is safe", () => {
+  const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(
     /higher.?specificity|:root\[data-theme|spec.*0,2,0|0,2,0/i
   );
 });
 
-test("cheatsheet: theming section lists which tokens vt re-sets in dark mode", () => {
-  const themingSection = cheatsheet.slice(cheatsheet.indexOf("## Theming"));
+test("index: theming section lists which tokens vt re-sets in dark mode", () => {
+  const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(/--vt-accent.*--vt-ink|--vt-ink.*--vt-accent/);
   expect(themingSection).toMatch(/dark mode|theme-varying/i);
 });
