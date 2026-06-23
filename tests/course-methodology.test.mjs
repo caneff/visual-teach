@@ -16,9 +16,7 @@ const adrPath = join(
 );
 const adr = readFileSync(adrPath, "utf8");
 const teachBaseSkillPath = join(root, ".claude/skills/teach-base/SKILL.md");
-const teachBaseSkill = existsSync(teachBaseSkillPath)
-  ? readFileSync(teachBaseSkillPath, "utf8")
-  : "";
+const teachBaseSkill = readFileSync(teachBaseSkillPath, "utf8");
 
 // ── teach-course SKILL.md: probe methodology guard ───────────────────────────
 
@@ -76,7 +74,7 @@ test("ADR 0003: lists the deliberate non-components (plot, numeric input)", () =
 
 // ── teach-base: frozen A/B control baseline ──────────────────────────────────
 
-test("teach-base skill directory exists", () => {
+test("teach-base skill file exists", () => {
   expect(existsSync(teachBaseSkillPath)).toBe(true);
 });
 
