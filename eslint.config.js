@@ -36,7 +36,7 @@ export default [
   },
   {
     // Tests run under jsdom (browser globals) on Node; demo scripts are Node.
-    files: ["tests/**", "demo/**", "*.config.js"],
+    files: ["tests/**", "demo/**", "scripts/**", "*.config.js"],
     languageOptions: {
       sourceType: "module",
       globals: { ...globals.browser, ...globals.node },

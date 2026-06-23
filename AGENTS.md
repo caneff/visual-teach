@@ -3,14 +3,13 @@
 Agent instructions for the visual-teach repo. See `docs/PRD.md` for the project
 spec, `CONTEXT.md` for the glossary, and `docs/adr/` for decisions.
 
-## Keep the cheatsheet in sync
+## Component catalog is machine-enforced
 
-`assets/visual-teach.md` is the authoring cheatsheet — the single source of
-truth for which `vt-*` blocks exist and how to use them. When you add, rename,
-or change the markup of a block in `assets/visual-teach.css` or
-`assets/visual-teach.js`, update the cheatsheet in the **same change**. A block
-that ships without a cheatsheet entry doesn't exist as far as lesson authors are
-concerned.
+`npm run showcase` globs `assets/components/*/demo.html` and asserts every
+registered component has a demo before writing `demo/showcase.html`. The
+pre-commit hook runs it automatically and stages the result, so the committed
+showcase is always fresh. When you add a new component, adding its
+`demo.html` is the only sync step required — the machine does the rest.
 
 ## Agent skills
 
