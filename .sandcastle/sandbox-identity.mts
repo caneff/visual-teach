@@ -59,14 +59,15 @@ export async function sandboxIdentity(
   const env: Record<string, string> = resolvedToken
     ? { GH_TOKEN: resolvedToken }
     : {};
-  const gitConfigCommands: Array<{ command: string }> = [];
-  if (name)
-    gitConfigCommands.push({
-      command: `git config user.name ${JSON.stringify(name)}`,
-    });
-  if (email)
-    gitConfigCommands.push({
-      command: `git config user.email ${JSON.stringify(email)}`,
-    });
+  // Sandcastle runs onSandboxReady hooks with unbounded concurrency, and each
+  // `git config` write takes an exclusive .git/config.lock. Two separate hook
+  // entries race and the loser dies with "could not lock config file: File
+  // exists". Chain both writes into ONE hook so they run sequentially.
+  const cfgs: string[] = [];
+  if (name) cfgs.push(`git config user.name ${JSON.stringify(name)}`);
+  if (email) cfgs.push(`git config user.email ${JSON.stringify(email)}`);
+  const gitConfigCommands: Array<{ command: string }> = cfgs.length
+    ? [{ command: cfgs.join(" && ") }]
+    : [];
   return { env, gitConfigCommands };
 }
