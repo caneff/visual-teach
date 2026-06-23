@@ -398,8 +398,10 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             promptFile: "./.sandcastle/review-prompt.md",
             // Diff against the integration tip (stable during the iteration —
             // folds happen after), so the reviewer sees only THIS issue's
-            // commits, not the work it was stacked on.
-            promptArgs: { BRANCH: issue.branch, TARGET_BRANCH: runBranch },
+            // commits, not the work it was stacked on. Can't reuse the built-in
+            // TARGET_BRANCH arg — sandcastle reserves it and pins it to the host
+            // branch (main), which would leak stacked-on commits into the diff.
+            promptArgs: { BRANCH: issue.branch, REVIEW_BASE: runBranch },
           });
           return {
             issue,
