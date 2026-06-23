@@ -70,8 +70,8 @@ err toward expressive, not minimal.
 - Lessons stay readable and print correctly with **JS disabled** (progressive
   enhancement, not a JS-blank page).
 - Composition actually happens in practice (see §7 + ADR 0002 evidence).
-- A real existing lesson (`data-studio/0001`) converts cleanly with no content
-  loss.
+- A new lesson in a fresh workspace is born with `vt-*` blocks via Compose
+  auto-seeding (ADR 0002 evidence).
 
 ## 6. Solution overview
 
@@ -103,7 +103,8 @@ Reliability comes from the **filesystem**, most-reliable first:
    is `/teach`'s instruction to itself, not our hope.
 2. **Compose / auto-invoke (booster).** The model may auto-invoke visual-teach
    (it is model-invocable, not blocked) mid-`/teach` if the description matches.
-3. **Explicit `/visual-teach` (certainty + cold-start seed).**
+   On fresh workspaces this also seeds `./assets/` spontaneously (5/5 evidence,
+   ADR 0002).
 
 **Empirical evidence (5/5).** A `teach-test` copy (only the flag removed) run by
 clean-context subagents on five fresh workspaces, neutral prompts that never
