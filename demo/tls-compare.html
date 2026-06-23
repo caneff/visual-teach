@@ -105,7 +105,7 @@
         <span class="lbl">Monolith baseline · with/</span>
         <iframe
           id="left"
-          src="../../../vt-compare/tls/with/tls-01.html"
+          src="../../vt-compare/tls/with/tls-01.html"
           title="Monolith baseline"
         ></iframe>
       </div>
@@ -113,7 +113,7 @@
         <span class="lbl">Split-docs rebuild · with-split/</span>
         <iframe
           id="right"
-          src="../../../vt-compare/tls/with-split/tls-01.html"
+          src="../../vt-compare/tls/with-split/tls-01.html"
           title="Split rebuild"
         ></iframe>
       </div>
@@ -123,9 +123,9 @@
       function setLesson(n) {
         tabs.forEach((t, i) => t.classList.toggle("active", i === n - 1));
         document.getElementById("left").src =
-          `../../../vt-compare/tls/with/tls-0${n}.html`;
+          `../../vt-compare/tls/with/tls-0${n}.html`;
         document.getElementById("right").src =
-          `../../../vt-compare/tls/with-split/tls-0${n}.html`;
+          `../../vt-compare/tls/with-split/tls-0${n}.html`;
       }
     </script>
   </body>
