@@ -41,6 +41,13 @@
         font-size: 1.02rem;
         margin: 1.8rem 0 0.4rem;
       }
+      /* Reset the <main> elements spliced from component demos so base.css's
+   max-width/margin/padding only applies to the outer showcase <main>. */
+      .sc-component main {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
     </style>
   </head>
   <body>
@@ -90,7 +97,6 @@
             dependent rows. This action cannot be undone.
           </div>
         </main>
-        <script src="../../base/base.js"></script>
       </div>
 
       <!-- ─── Code ─────────────────────────────────────────────────────── -->
@@ -297,12 +303,20 @@ print(result)</code></pre>
             </table>
           </div>
         </main>
-        <script src="../../base/base.js"></script>
       </div>
 
       <!-- ─── Chip ─────────────────────────────────────────────────────── -->
       <div class="sc-component" id="component-chip">
         <p class="sc-label">Chip</p>
+        <style>
+          .demo-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+            margin: 1rem 0 1.6rem;
+          }
+        </style>
         <main>
           <p class="vt-kicker">Component</p>
           <h1>Chip</h1>
@@ -378,7 +392,6 @@ print(result)</code></pre>
             <kbd class="vt-kbd">Space</kbd>
           </div>
         </main>
-        <script src="../../base/base.js"></script>
       </div>
 
       <!-- ─── Quiz ─────────────────────────────────────────────────────── -->
@@ -457,8 +470,6 @@ print(result)</code></pre>
             <div aria-live="polite" class="vt-quiz-live"></div>
           </div>
         </main>
-        <script src="../../base/base.js"></script>
-        <script src="quiz.js"></script>
       </div>
 
       <!-- ─── Checklist ─────────────────────────────────────────────────────── -->
@@ -469,7 +480,8 @@ print(result)</code></pre>
           <h1>Checklist</h1>
           <p class="vt-lede">
             A persisted step-by-step checklist with progress bar. State is saved
-            to <code>localStorage</code>.
+            to
+            <code>localStorage</code>.
           </p>
 
           <h2>Example: Set up a local dev environment</h2>
@@ -509,8 +521,6 @@ print(result)</code></pre>
             </li>
           </ul>
         </main>
-        <script src="../../base/base.js"></script>
-        <script src="checklist.js"></script>
       </div>
 
       <!-- ─── Diagram ─────────────────────────────────────────────────────── -->
@@ -738,7 +748,6 @@ print(result)</code></pre>
             </div>
           </div>
         </main>
-        <script src="../../base/base.js"></script>
       </div>
     </main>
     <script src="../assets/prism/prism-core.min.js"></script>

@@ -39,10 +39,24 @@ if (missing.length) {
 // Use REQUIRED order so the showcase page is stable regardless of filesystem order.
 const components = REQUIRED.filter((name) => found.includes(name));
 
-// Extract content between <body> and </body> (strips the body tag itself).
+// Extract <style> blocks from <head> (demo-specific styles like .demo-row).
+function extractHeadStyles(html) {
+  const headM = html.match(/<head[^>]*>([\s\S]*?)<\/head>/i);
+  if (!headM) return "";
+  const styles = [];
+  const re = /<style[^>]*>([\s\S]*?)<\/style>/gi;
+  let m;
+  while ((m = re.exec(headM[1])) !== null) styles.push(m[1].trim());
+  return styles.join("\n");
+}
+
+// Extract content between <body> and </body>, stripping script tags.
+// Script tags have demo-relative paths that break in the showcase context;
+// the correct scripts are added once at the bottom of the generated page.
 function extractBody(html) {
   const m = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-  return m ? m[1].trim() : html;
+  const body = m ? m[1].trim() : html;
+  return body.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "").trim();
 }
 
 // Build asset paths relative to demo/showcase.html.
@@ -80,14 +94,16 @@ const sections = components
   .map((name) => {
     const demoPath = join(componentsDir, name, "demo.html");
     const html = readFileSync(demoPath, "utf8");
+    const headStyles = extractHeadStyles(html);
     const body = extractBody(html);
     const title =
       name.charAt(0).toUpperCase() + name.slice(1).replace(/-/g, " ");
+    const styleBlock = headStyles ? `<style>\n${headStyles}\n</style>\n` : "";
     return `
 <!-- ─── ${title} ─────────────────────────────────────────────────────── -->
 <div class="sc-component" id="component-${name}">
 <p class="sc-label">${title}</p>
-${body}
+${styleBlock}${body}
 </div>`;
   })
   .join("\n");
@@ -111,6 +127,9 @@ ${componentCssLinks}
 }
 .sc-component { margin-bottom: 3rem; }
 h3 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 1.02rem; margin: 1.8rem 0 .4rem; }
+/* Reset the <main> elements spliced from component demos so base.css's
+   max-width/margin/padding only applies to the outer showcase <main>. */
+.sc-component main { max-width: none; margin: 0; padding: 0; }
 </style>
 </head>
 <body>
