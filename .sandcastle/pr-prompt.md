@@ -1,16 +1,17 @@
 # TASK
 
-Open ONE consolidated pull request into `main` for everything completed in this
-run. Do NOT open a PR per branch. Do NOT merge the PR into `main`.
+Open ONE pull request into `main` for the issues listed at the bottom of this
+prompt — they are one dependency component of this run (the orchestrator opens a
+separate PR per component). Do NOT open a PR per branch. Do NOT merge the PR into
+`main`.
 
-The run branch is: `{{RUN_BRANCH}}`
+The PR head branch is: `{{RUN_BRANCH}}`
 
-# THE RUN BRANCH IS ALREADY BUILT AND PUSHED
+# THE HEAD BRANCH IS ALREADY BUILT AND PUSHED
 
 The orchestrator already assembled `{{RUN_BRANCH}}` as a throwaway head off
-`main`: it merged in every completed issue's branch (the dependency forest's leaf
-tips, each of which already contains its whole chain) and pushed the result to
-`origin`. **Do NOT create, rebuild, merge, rebase, or otherwise run git that
+`main`: it merged in this component's leaf tips (each of which already contains
+its whole chain) and pushed the result to `origin`. **Do NOT create, rebuild, merge, rebase, or otherwise run git that
 mutates anything.** The head is final — your only job is to open ONE pull request
 from it and write its prose.
 
@@ -25,7 +26,7 @@ do not run them here.)
 
 # OPEN THE PR
 
-`gh pr create --base main --head {{RUN_BRANCH}} --title "Sandcastle run: <N> issues" --body "<body>"`
+`gh pr create --base main --head {{RUN_BRANCH}} --title "Sandcastle: <N> issue(s)" --body "<body>"`
 where `<N>` is the number of issues actually folded in. Build `<body>` with these
 sections:
 
