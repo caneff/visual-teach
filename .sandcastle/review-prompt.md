@@ -12,6 +12,16 @@ Review the code changes on branch `{{BRANCH}}` and improve code clarity, consist
 
 !`git log {{REVIEW_BASE}}..{{BRANCH}} --oneline`
 
+## Originating issue (the spec)
+
+The change must satisfy this issue — its acceptance criteria are the contract.
+You are given ONLY the issue, the commits, and the diff: form your own judgment,
+independent of however the change was built.
+
+<issue-spec>
+{{ISSUE_SPEC}}
+</issue-spec>
+
 # REVIEW PROCESS
 
 1. **Understand the change**: Read the diff and commits above to understand the intent.
@@ -72,4 +82,20 @@ If you find improvements to make:
 If the code is already clean and well-structured, make no refactor commit — but
 the GATES above still run regardless.
 
-Once complete, output <promise>COMPLETE</promise>.
+# SPEC CONFORMANCE (required — emit the verdict last)
+
+Independently decide whether the diff actually satisfies the originating issue
+above: every acceptance criterion met, no requirement skipped, nothing that looks
+like it implements the wrong thing. This is SEPARATE from code quality — clean,
+well-refactored code that does not meet the spec still FAILS.
+
+Do NOT try to implement missing requirements yourself; that is a re-implement,
+which the orchestrator routes back to a fresh implementer. Judge and report only.
+
+Emit your verdict as the FINAL line of your output, exactly one of (the prefix
+must match verbatim — the host greps for it):
+
+- `SANDCASTLE_SPEC: PASS`
+- `SANDCASTLE_SPEC: FAIL — <one-line reason>`
+
+Then, on the next line, output <promise>COMPLETE</promise>.
