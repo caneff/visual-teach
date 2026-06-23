@@ -87,6 +87,20 @@ test("sandbox-identity: gitConfigCommands embed the actual name and email values
   expect(cmds.some((c) => c.includes("bot@example.com"))).toBe(true);
 });
 
+test("sandbox-identity: name+email collapse into ONE chained command (no .git/config.lock race)", async () => {
+  process.env.SANDCASTLE_BOT_GH_TOKEN = "ghp_test_token";
+  process.env.SANDCASTLE_BOT_GIT_NAME = "Sandcastle Bot";
+  process.env.SANDCASTLE_BOT_GIT_EMAIL = "bot@example.com";
+
+  const id = await sandboxIdentity();
+  // Sandcastle runs hooks concurrently; two git config writes would race on
+  // the config lock. Exactly one hook entry, chaining both writes sequentially.
+  expect(id.gitConfigCommands).toHaveLength(1);
+  expect(id.gitConfigCommands[0].command).toMatch(
+    /user\.name.*&&.*user\.email/
+  );
+});
+
 // ── App creds branch: installation token minting ─────────────────────────────
 
 const fakeTokenMinter = async () => "ghs_minted_token";
