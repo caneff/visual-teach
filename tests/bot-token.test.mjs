@@ -37,7 +37,7 @@ describe("buildJwt", () => {
     expect(iat).toBeLessThan(Math.floor(Date.now() / 1000));
   });
 
-  test("payload exp is iat + 600 (10-minute window)", () => {
+  test("payload exp is iat + 660 (600s window + 60s clock-drift buffer)", () => {
     const [, payloadB64] = buildJwt("1", testPrivateKeyPem).split(".");
     const { iat, exp } = JSON.parse(
       Buffer.from(payloadB64, "base64url").toString()
