@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "echo 'No TypeScript — skipping'",
+    "sync-teach-assets": "bash scripts/sync-teach-assets.sh",
     "prepare": "husky"
   },
   "devDependencies": {
