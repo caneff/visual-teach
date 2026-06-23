@@ -1,5 +1,9 @@
 import { test, expect, describe } from "vitest";
-import { resolveBase, issueBranch } from "../.sandcastle/base-resolution.mts";
+import {
+  resolveBase,
+  issueBranch,
+  buildMultiParentBase,
+} from "../.sandcastle/base-resolution.mts";
 
 // Fixture forest (from issue #126):
 //   108 builds on 112        → chain  main ─ 112 ─ 108
@@ -119,5 +123,73 @@ describe(".sandcastle base resolution — forest fixture 108→112, 120→119", 
         onMultiParent: () => null,
       })
     ).toBeNull();
+  });
+});
+
+// buildMultiParentBase — the git-touching half (issue #128), driven through a
+// fake `git` so the merge-loop logic (which parents get merged, conflict → abort
+// → null, all-merged → main) is verified without a real repository.
+describe("buildMultiParentBase — temp base for a diamond", () => {
+  // Records every git command; returns null (failure) for a merge of the branch
+  // named in `conflictOn`, "" (success) otherwise.
+  const fakeGit = (conflictOn = null) => {
+    const calls = [];
+    const git = (args) => {
+      calls.push(args);
+      if (conflictOn && args.includes("merge ") && args.includes(conflictOn)) {
+        return null;
+      }
+      return "";
+    };
+    return { git, calls };
+  };
+  const merges = (calls) => calls.filter((c) => c.includes("merge --no-edit"));
+
+  test("all parents already merged → main, no git touched", () => {
+    const { git, calls } = fakeGit();
+    const base = buildMultiParentBase("130", ["112", "119"], {
+      git,
+      branchExistsWithWork: () => false,
+    });
+    expect(base).toBe("main");
+    expect(calls).toEqual([]);
+  });
+
+  test("merges EVERY present parent and returns the temp base branch", () => {
+    const { git, calls } = fakeGit();
+    const base = buildMultiParentBase("130", ["112", "119"], {
+      git,
+      branchExistsWithWork: () => true,
+    });
+    expect(base).toBe("sandcastle/base-130");
+    expect(merges(calls).length).toBe(2);
+    expect(merges(calls).some((c) => c.includes("sandcastle/issue-112"))).toBe(
+      true
+    );
+    expect(merges(calls).some((c) => c.includes("sandcastle/issue-119"))).toBe(
+      true
+    );
+    expect(calls.some((c) => c.includes("merge --abort"))).toBe(false);
+  });
+
+  test("a parent already in main is skipped, present ones still merged", () => {
+    const { git, calls } = fakeGit();
+    const base = buildMultiParentBase("130", ["112", "119"], {
+      git,
+      branchExistsWithWork: (id) => id === "112",
+    });
+    expect(base).toBe("sandcastle/base-130");
+    expect(merges(calls).length).toBe(1);
+    expect(merges(calls)[0]).toContain("sandcastle/issue-112");
+  });
+
+  test("a conflicting merge aborts and returns null (caller skips)", () => {
+    const { git, calls } = fakeGit("sandcastle/issue-119");
+    const base = buildMultiParentBase("130", ["112", "119"], {
+      git,
+      branchExistsWithWork: () => true,
+    });
+    expect(base).toBeNull();
+    expect(calls.some((c) => c.includes("merge --abort"))).toBe(true);
   });
 });

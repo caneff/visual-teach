@@ -54,3 +54,51 @@ export function resolveBase({
   // ≥2 parents (diamond): the caller's hook builds a temp base merging them.
   return onMultiParent(parents);
 }
+
+// Git operations buildMultiParentBase needs, injected so the merge-loop logic is
+// unit-testable with a fake git (the real one lives in the orchestrator).
+export interface MultiParentDeps {
+  // Run a git command; returns its output, or null when the command fails (e.g. a
+  // conflicting merge). Mirrors the orchestrator's `git()` helper.
+  git: (args: string) => string | null;
+  // Whether a parent's issue branch exists locally with unmerged work this run.
+  branchExistsWithWork: (parentId: string) => boolean;
+}
+
+// Build a temp base branch for a multi-parent (diamond) issue: one containing
+// every parent's work. Start from `main` (which already holds any parent merged
+// in an earlier run) and merge in each parent whose branch still carries unmerged
+// work this run. Returns the temp branch name, or null if any merge conflicts —
+// the caller then skips the issue this iteration rather than building on a base
+// missing a parent. A diamond whose parents all already merged needs no temp
+// branch and resolves straight to `main`.
+//
+// NB: we branch from `main` and merge the present parents, rather than branching
+// from the first parent and merging the rest — equivalent result, and starting at
+// main keeps the base run-scope-correct when some parents already merged.
+export function buildMultiParentBase(
+  issueId: string,
+  parents: string[],
+  { git, branchExistsWithWork }: MultiParentDeps
+): string | null {
+  const present = parents.filter(branchExistsWithWork).map(issueBranch);
+  if (present.length === 0) return "main";
+  const baseBranch = `sandcastle/base-${issueId}`;
+  git(`branch -f ${baseBranch} main`);
+  const wt = `.sandcastle/base-${issueId}`;
+  git(`worktree remove --force ${wt}`); // clear any stale scratch worktree
+  git(`worktree add --force ${wt} ${baseBranch}`);
+  let ok = true;
+  for (const branch of present) {
+    const merged = git(
+      `-C ${wt} merge --no-edit -m "Merge ${branch} into ${baseBranch}" ${branch}`
+    );
+    if (merged === null) {
+      git(`-C ${wt} merge --abort`);
+      ok = false;
+      break;
+    }
+  }
+  git(`worktree remove --force ${wt}`);
+  return ok ? baseBranch : null;
+}

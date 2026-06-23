@@ -43,7 +43,11 @@ import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
 import { sandboxIdentity } from "./sandbox-identity.mts";
-import { resolveBase, issueBranch } from "./base-resolution.mts";
+import {
+  resolveBase,
+  issueBranch,
+  buildMultiParentBase,
+} from "./base-resolution.mts";
 import { prComponents } from "./pr-components.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
@@ -136,39 +140,6 @@ function branchExistsWithWork(parentId: string): boolean {
   // `rev-parse --verify` exits non-zero (git() → null) when the ref is missing.
   if (git(`rev-parse --verify --quiet ${branch}`) === null) return false;
   return branchHasWork(branch);
-}
-
-// Build a temp base branch for a multi-parent (diamond) issue: one containing
-// every parent's work. Start from main (which already holds any parent merged in
-// an earlier run) and merge in each parent whose branch still carries unmerged
-// work this run. Returns the temp branch name, or null if any merge conflicts —
-// the caller then skips the issue this iteration rather than building on a base
-// missing a parent. A diamond whose parents all already merged needs no temp
-// branch and resolves straight to main.
-function buildMultiParentBase(
-  issueId: string,
-  parents: string[]
-): string | null {
-  const present = parents.filter(branchExistsWithWork).map(issueBranch);
-  if (present.length === 0) return "main";
-  const baseBranch = `sandcastle/base-${issueId}`;
-  git(`branch -f ${baseBranch} main`);
-  const wt = `.sandcastle/base-${issueId}`;
-  git(`worktree remove --force ${wt}`); // clear any stale scratch worktree
-  git(`worktree add --force ${wt} ${baseBranch}`);
-  let ok = true;
-  for (const branch of present) {
-    const merged = git(
-      `-C ${wt} merge --no-edit -m "Merge ${branch} into ${baseBranch}" ${branch}`
-    );
-    if (merged === null) {
-      git(`-C ${wt} merge --abort`);
-      ok = false;
-      break;
-    }
-  }
-  git(`worktree remove --force ${wt}`);
-  return ok ? baseBranch : null;
 }
 
 // add/remove as separate calls so a no-op remove never blocks the add.
@@ -424,7 +395,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       const base = resolveBase({
         parents,
         branchExistsWithWork,
-        onMultiParent: (ps) => buildMultiParentBase(issue.id, ps),
+        onMultiParent: (ps) =>
+          buildMultiParentBase(issue.id, ps, { git, branchExistsWithWork }),
       });
       if (base === null) {
         console.error(
