@@ -24,15 +24,6 @@ describe("main.mts — bot identity wiring", () => {
     expect(mainSrc).toMatch(/\.\.\.\s*identity\.gitConfigCommands/);
   });
 
-  test("planner sandbox passes identity.env to docker()", () => {
-    // All three sandboxes (planner, implement/review, pr-consolidator) use docker()
-    // The pattern docker({ env: identity.env }) must appear for each.
-    const matches = [
-      ...mainSrc.matchAll(/docker\(\{\s*env:\s*identity\.env\s*\}\)/g),
-    ];
-    expect(matches.length).toBeGreaterThanOrEqual(1);
-  });
-
   test("all three docker() sandbox calls pass identity.env (planner, issue, pr-consolidator)", () => {
     const matches = [
       ...mainSrc.matchAll(/docker\(\{\s*env:\s*identity\.env\s*\}\)/g),
@@ -41,8 +32,6 @@ describe("main.mts — bot identity wiring", () => {
   });
 
   test("hooks object (containing identity.gitConfigCommands) is passed to all sandcastle.run calls", () => {
-    // Count sandcastle.run({ hooks, ... }) and createSandbox({ hooks: ... }) calls
-    // that carry the identity-bearing hooks.
     const runWithHooks = [
       ...mainSrc.matchAll(/sandcastle\.run\(\{[^}]*hooks[^}]*\}/gs),
     ];
