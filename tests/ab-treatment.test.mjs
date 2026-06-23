@@ -24,7 +24,7 @@ test("derive script exists at scripts/derive-treatment.sh", () => {
 });
 
 test("derive script is executable", () => {
-  const result = execSync(`test -x ${deriveScript} && echo ok`, {
+  const result = execSync(`test -x "${deriveScript}" && echo ok`, {
     encoding: "utf8",
   }).trim();
   expect(result).toBe("ok");
@@ -35,7 +35,7 @@ test("derive script is executable", () => {
 test("derive script produces twin whose SKILL.md matches teach except the disable-model-invocation line", () => {
   const tmpDir = join(os.tmpdir(), "vt-test-treatment-twin");
   rmSync(tmpDir, { recursive: true, force: true });
-  execSync(`bash ${deriveScript} ${tmpDir}`, { encoding: "utf8" });
+  execSync(`bash "${deriveScript}" "${tmpDir}"`, { encoding: "utf8" });
   const twinSkill = readFileSync(join(tmpDir, "SKILL.md"), "utf8");
   const expected = teachSkill
     .split("\n")
@@ -48,7 +48,7 @@ test("derive script produces twin whose SKILL.md matches teach except the disabl
 test("derived twin has no disable-model-invocation line", () => {
   const tmpDir = join(os.tmpdir(), "vt-test-treatment-twin-flag");
   rmSync(tmpDir, { recursive: true, force: true });
-  execSync(`bash ${deriveScript} ${tmpDir}`, { encoding: "utf8" });
+  execSync(`bash "${deriveScript}" "${tmpDir}"`, { encoding: "utf8" });
   const twinSkill = readFileSync(join(tmpDir, "SKILL.md"), "utf8");
   expect(twinSkill).not.toMatch(/^disable-model-invocation:/m);
   rmSync(tmpDir, { recursive: true, force: true });
@@ -57,7 +57,7 @@ test("derived twin has no disable-model-invocation line", () => {
 test("derived twin preserves all other frontmatter from teach", () => {
   const tmpDir = join(os.tmpdir(), "vt-test-treatment-twin-fm");
   rmSync(tmpDir, { recursive: true, force: true });
-  execSync(`bash ${deriveScript} ${tmpDir}`, { encoding: "utf8" });
+  execSync(`bash "${deriveScript}" "${tmpDir}"`, { encoding: "utf8" });
   const twinSkill = readFileSync(join(tmpDir, "SKILL.md"), "utf8");
   expect(twinSkill).toMatch(/^name:\s*teach\s*$/m);
   expect(twinSkill).toMatch(/^effort:\s*high\s*$/m);
@@ -67,7 +67,7 @@ test("derived twin preserves all other frontmatter from teach", () => {
 test("derived twin copies bundled assets from teach", () => {
   const tmpDir = join(os.tmpdir(), "vt-test-treatment-twin-assets");
   rmSync(tmpDir, { recursive: true, force: true });
-  execSync(`bash ${deriveScript} ${tmpDir}`, { encoding: "utf8" });
+  execSync(`bash "${deriveScript}" "${tmpDir}"`, { encoding: "utf8" });
   expect(existsSync(join(tmpDir, "assets"))).toBe(true);
   expect(existsSync(join(tmpDir, "assets/base/base.css"))).toBe(true);
   rmSync(tmpDir, { recursive: true, force: true });
