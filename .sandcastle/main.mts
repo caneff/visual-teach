@@ -51,8 +51,15 @@ import {
 import { prComponents } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
+
+// Sandcastle forwards .sandcastle/.env into sandboxes but never into the host
+// process (it has no process.env assignment). sandboxIdentity() runs host-side
+// and mints the bot token from GITHUB_APP_* — so without this, those vars are
+// undefined on the host, minting no-ops, and PRs fall back to the personal
+// GH_TOKEN. Load the env file here, before any sandboxIdentity() call.
+if (existsSync(".sandcastle/.env")) process.loadEnvFile(".sandcastle/.env");
 
 // ---------------------------------------------------------------------------
 // Issue lifecycle labels (managed host-side, never by the agents)
