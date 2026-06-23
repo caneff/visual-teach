@@ -1,41 +1,45 @@
-# visual-teach — authoring index
+# visual-teach — component catalog
 
-These two assets (`visual-teach.css`, `visual-teach.js`) style and animate a
-lesson. **Link them in every lesson and use the `vt-*` classes instead of
-inlining your own CSS/JS.** Colors come from 9 themeable tokens — override them
-in the lesson `<head>` to match the topic; never hardcode hex.
+`visual-teach` ships as a **base + 9 standalone components**. Each component is
+self-contained: its CSS file, optional JS, and a co-located `demo.html` that is
+both the usage doc and the rendering proof. See `demo/showcase.html` for all
+components on one page.
 
-Link in `<head>` / before `</body>` (relative to `lessons/`):
+**These blocks are a floor, not a ceiling.** `vt-*` covers the commodity parts.
+When a topic needs an interaction the catalog can't express, build a bespoke
+component in `./assets/` and place it alongside the `vt-*` blocks.
+
+## Linking — two paths
+
+### Option A — monolithic bundle (backwards-compatible)
 
 ```html
 <link rel="stylesheet" href="../assets/visual-teach.css" />
-<!-- ... -->
 <script src="../assets/visual-teach.js"></script>
 ```
 
-> **Do NOT add `type="module"` to the `<script>` tag above.** `visual-teach.js` is
-> a plain UMD/IIFE script, not an ES module. Adding `type="module"` causes browsers
-> to load it under CORS rules — which blocks file:// delivery with a CORS policy
-> error, silently disabling all interactive components (quizzes, checklists, theme
-> toggle, copy buttons). The primary delivery mode is file://, so this footgun kills
-> the whole page with no visible error unless you inspect the console.
+> **Do NOT add `type="module"` to the `<script>` tag above.** `visual-teach.js`
+> is a plain UMD/IIFE script, not an ES module. Adding `type="module"` causes
+> browsers to load it under CORS rules — which blocks file:// delivery with a
+> CORS policy error, silently disabling all interactive components (quizzes,
+> checklists, theme toggle, copy buttons). The primary delivery mode is file://,
+> so this footgun kills the whole page with no visible error unless you inspect
+> the console.
 
-## These blocks are a floor, not a ceiling
+### Option B — base + pick your components
 
-The `vt-*` blocks cover the commodity parts of a lesson so you don't reinvent
-them and lessons share a consistent look. They are **not** a ceiling, and
-**not a mold every lesson must fit**. When a topic needs an interaction the
-catalog can't express, build it as a new component in `./assets/` and let it
-sit alongside the `vt-*` blocks. Reach for bespoke when it genuinely serves
-the topic; the point is to avoid same-y, templated lessons.
+```html
+<link rel="stylesheet" href="../assets/base/base.css" />
+<link rel="stylesheet" href="../assets/components/callout/callout.css" />
+<!-- add only the component CSS files this lesson needs -->
+<script src="../assets/base/base.js"></script>
+<!-- add interactive component scripts as needed -->
+```
 
 ## Page shell
 
-**Starting a new lesson? Copy this `<main>` block and the asset link/script
-snippet above as your structural skeleton — the consistent HTML frame only,
-not a complete lesson with fixed slots to fill.** The body between
-`vt-mission` and `vt-recap` is composed from the block menu below; there
-are no mandatory pedagogical blocks. Delete any shell element you don't need.
+Copy this `<main>` skeleton when starting a new lesson. It is the structural
+frame only — not a complete lesson with fixed slots to fill.
 
 ```html
 <main>
@@ -67,7 +71,7 @@ are no mandatory pedagogical blocks. Delete any shell element you don't need.
     <strong>Why this matters for your goal:</strong> …
   </div>
 
-  <!-- Section heading. JS auto-adds id (slug of text) + hover "#" anchor — just write the h2. -->
+  <!-- h2 sections: JS auto-adds id (slug of text) + hover "#" anchor -->
   <h2><span class="vt-num">1</span>Section heading</h2>
   …prose: plain p / ul / code / a, auto-themed…
 
@@ -75,50 +79,44 @@ are no mandatory pedagogical blocks. Delete any shell element you don't need.
   <div class="vt-source">
     <div>
       <span class="h">Primary source</span> <a href="…">Source title</a> — one
-      sentence on why this source.
+      sentence.
     </div>
   </div>
 
   <!-- Recap + up-next teaser -->
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
-    One sentence on what the learner can now do.
+    One-sentence summary.
   </div>
   <p class="vt-upnext"><em>Up next:</em> next topic.</p>
 </main>
 ```
 
-## Block menu — open only what this lesson needs
+## Component catalog
 
-**Open only the block files this lesson needs.** Loading all of them at once
-is what produces stamped, same-chrome-every-lesson output. Decide what a
-specific lesson requires from the menu below; open only those block files.
-Most lessons use 2–4 blocks, not all seven.
+Open only the component demos this lesson needs — loading all of them at once
+produces stamped, same-chrome-every-lesson output. Most lessons use 2–4
+components, not all nine.
 
-| Block               | Reach for when…                                                                                   | File                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
-| Callouts            | you need a tip, warning, insight, success, or risk box — or a difficulty label                    | [blocks/callouts.md](blocks/callouts.md)                   |
-| Code + IO           | you're showing code snippets, shell output, or input/output pairs                                 | [blocks/code-io.md](blocks/code-io.md)                     |
-| Tables, pills, keys | you're comparing options, listing key-value pairs, labeling status, or showing keyboard shortcuts | [blocks/tables-pills-keys.md](blocks/tables-pills-keys.md) |
-| Quizzes + checklist | you need a knowledge check or a step-by-step procedure                                            | [blocks/quizzes-checklist.md](blocks/quizzes-checklist.md) |
-| Diagrams            | you're visualizing structure, flow, comparisons, or abstract concepts                             | [blocks/diagrams.md](blocks/diagrams.md)                   |
-| Math                | the lesson involves equations, formulas, or symbolic notation                                     | [blocks/math.md](blocks/math.md)                           |
-| Teacher box         | you want to invite the learner to ask a question (discretionary — write fresh each time)          | [blocks/teacher-box.md](blocks/teacher-box.md)             |
+| Component   | Reach for when…                                                                                        | Demo                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
+| callout     | you need a tip, warning, insight, success, or risk box                                                 | [components/callout/demo.html](components/callout/demo.html)         |
+| code        | showing code snippets, shell output, or input→output pairs                                             | [components/code/demo.html](components/code/demo.html)               |
+| table       | comparing options, listing key-value pairs, or status grids                                            | [components/table/demo.html](components/table/demo.html)             |
+| chip        | labeling status, difficulty, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd / .vt-level) | [components/chip/demo.html](components/chip/demo.html)               |
+| quiz        | a knowledge check (single or multi-select, retry-until-correct)                                        | [components/quiz/demo.html](components/quiz/demo.html)               |
+| checklist   | a step-by-step procedure with persisted progress                                                       | [components/checklist/demo.html](components/checklist/demo.html)     |
+| diagram     | visualizing structure, flow, comparisons, or abstract concepts                                         | [components/diagram/demo.html](components/diagram/demo.html)         |
+| math        | equations, formulas, or symbolic notation (KaTeX)                                                      | [components/math/demo.html](components/math/demo.html)               |
+| teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                  | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
 
-## Recap + up-next teaser
+## Quiz authoring rules
 
-A forward _teaser_ — plain prose, **not** a link/button (the next lesson isn't
-written yet, so a "Next" link would be dead). Just name what's coming.
+Keep option text to roughly equal visible length. Use uniform inline `<code>` so
+options stay scannable. Don't spell out punctuation: write `git merge` not
+"run 'git merge'".
 
-```html
-<div class="vt-recap">
-  <p class="h">✦ What you earned</p>
-  One-sentence summary of what the learner can now do.
-</div>
-<p class="vt-upnext"><em>Up next:</em> topic name.</p>
-```
-
-## Footer / sources — `vt-sources` (source-type icons, companion slot, verified-date)
+## Footer / sources
 
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 
@@ -164,15 +162,12 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 ```
 
 A flat `:root` override is safe for **all 9 tokens** in both light and dark mode.
-vt's forced-dark rule uses `:root[data-theme="dark"]` (specificity 0,2,0), which beats
-a flat `:root` (0,1,0) — so vt's dark accent wins automatically and dark-mode contrast
-stays correct without any per-theme blocks in your stylesheet.
+vt's forced-dark rule uses `:root[data-theme="dark"]` (specificity 0,2,0), which
+beats a flat `:root` (0,1,0) — so vt's dark accent wins automatically and
+dark-mode contrast stays correct without any per-theme blocks in your stylesheet.
 
-Theme-varying tokens (vt re-sets these in dark mode): `--vt-ink --vt-muted --vt-accent
---vt-accent-fg --vt-rule --vt-paper --vt-good --vt-bad --vt-warn`.
+Theme-varying tokens (vt re-sets these in dark mode): `--vt-ink --vt-muted --vt-accent --vt-accent-fg --vt-rule --vt-paper --vt-good --vt-bad --vt-warn`.
 
-Derived tokens (`--vt-soft --vt-stripe --vt-neutral-soft --vt-accent-dk --vt-accent-soft`)
-update automatically from the base tokens and need not be overridden.
-
-Topic-specific colors (e.g. a product's own UI palette) belong here, not in
-`visual-teach.css`.
+Derived tokens (`--vt-soft --vt-stripe --vt-neutral-soft --vt-accent-dk
+--vt-accent-soft`) update automatically from the base tokens and need not be
+overridden.

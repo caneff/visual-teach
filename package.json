@@ -3,6 +3,7 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "showcase": "node scripts/showcase.js",
     "serve": "python3 -m http.server 8000",
     "lint": "eslint .",
     "format": "prettier --write .",

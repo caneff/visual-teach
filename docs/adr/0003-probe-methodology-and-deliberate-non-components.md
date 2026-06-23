@@ -2,7 +2,7 @@
 
 Status: accepted
 
-The `teach-course` probe is a smoke test of the `teach-test` skill, not a
+The `teach-course` probe is a smoke test of the `teach-base` skill, not a
 gap-hunt of the component library. It generates a throwaway course on some
 subject and checks that real lesson content maps onto `vt-*` blocks. The courses
 themselves are disposable scratch — regenerate one when you need to probe; do not

@@ -5,7 +5,7 @@ must **show** before/after screenshots, not just describe the change. Follow thi
 whenever your change has any visual surface. `<id>` below is the issue number you
 are working on — substitute it everywhere.
 
-Tool: `node demo/shot.mjs <html-file> <out.png> [cssSelector]` (Playwright;
+Tool: `node .sandcastle/shot.mjs <html-file> <out.png> [cssSelector]` (Playwright;
 chromium installed). Pick the `demo/` page that exercises the block you touched
 (e.g. `code-block.html`, `table-variants.html`, `diagram-blocks.html`,
 `figure-photo.html`); if unsure use `demo/showcase.html`, which uses every block.
@@ -18,10 +18,10 @@ run the ES module — serve first (`python3 -m http.server 8000 &`) and shot a
 
 - **New work** — `.sandcastle/proof/issue-<id>/before.png` does NOT exist yet:
   1. **BEFORE** — on the UNCHANGED code, before you edit anything:
-     `node demo/shot.mjs demo/<page>.html .sandcastle/proof/issue-<id>/before.png [selector]`
+     `node .sandcastle/shot.mjs demo/<page>.html .sandcastle/proof/issue-<id>/before.png [selector]`
   2. Make your change.
   3. **AFTER** — same page, same selector:
-     `node demo/shot.mjs demo/<page>.html .sandcastle/proof/issue-<id>/after.png [selector]`
+     `node .sandcastle/shot.mjs demo/<page>.html .sandcastle/proof/issue-<id>/after.png [selector]`
 - **Regenerating proof on an open PR** — `before.png` already EXISTS: the "before"
   is the original pre-fix state. **Do NOT touch it.** Re-shoot only `after.png` on
   your fixed code, using the same page/selector as the existing proof.

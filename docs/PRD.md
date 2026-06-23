@@ -106,7 +106,7 @@ Reliability comes from the **filesystem**, most-reliable first:
    On fresh workspaces this also seeds `./assets/` spontaneously (5/5 evidence,
    ADR 0002).
 
-**Empirical evidence (5/5).** A `teach-test` copy (only the flag removed) run by
+**Empirical evidence (5/5).** A `teach-base` copy (only the flag removed) run by
 clean-context subagents on five fresh workspaces, neutral prompts that never
 mentioned visual-teach: all five spontaneously seeded `./assets/` and authored
 with `vt-*` blocks. Fresh-workspace auto-adoption is **high**, not low. Caveat:
@@ -167,17 +167,17 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | quiz                   | KEEP + RAISE                                | per-option misconception feedback, a11y (buttons/keyboard/`aria-live`/focus), single-answer always retries (no answer reveal/lock until correct), opt-in multi-select. Stretch: cross-lesson score.                                                                                                                                          |
 | checklist              | KEEP + RAISE                                | progress _bar_ (not bare count) + a11y (label assoc, keyboard, aria). Hints → v2.                                                                                                                                                                                                                                                            |
 | callout                | KEEP + RAISE (**built**)                    | themeable SVG tone icons (border+icon share `--cal-color`), 5 tones; a11y (decorative `::before`). Optional auto tone-label available if wanted.                                                                                                                                                                                             |
-| table                  | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `demo/table-variants.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky.                                                                      |
-| pill                   | KEEP + RAISE (**prototyped**)               | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `demo/pill-variants.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting).                                                                                                     |
+| table                  | KEEP + RAISE (**prototyped, needs polish**) | header column, cell-status (✓/✗/~), row emphasis, key/value variant, density, responsive — all in `assets/components/table/demo.html`. **Not folded yet.** Polish-later: recommended-column UI, comparison-matrix labels, key/value formatting, zebra. Defer JS sortable/sticky.                                                             |
+| pill                   | KEEP + RAISE (**prototyped**)               | semantic fills + outline + sizes + status-dot + leading-icon; **difficulty/level** pills; **`.vt-kbd`** keycaps (own micro-element). All in `assets/components/chip/demo.html`. Count/step **badge** → polish (sizing, "Step X of Y" formatting).                                                                                            |
 | page shell             | KEEP + RAISE (**prototyping**)              | meta bar (time/prereqs/difficulty/position), CSS section-anchor links. (~~prev/next nav~~ and ~~`vt-cta` "Next" button~~ both dropped — lessons authored one at a time, so any forward link/button is a dead affordance; replaced by a plain `vt-upnext` text teaser.) Objectives/recap/mission/source split OUT to separate blocks (below). |
 | objectives (new)       | ADD                                         | "By the end you'll…" box                                                                                                                                                                                                                                                                                                                     |
 | mission-tie-in (new)   | ADD                                         | "why this matters for your goal" (grounds lesson in `/teach` mission)                                                                                                                                                                                                                                                                        |
 | primary-source (new)   | ADD                                         | featured high-trust source card (`/teach` charter)                                                                                                                                                                                                                                                                                           |
 | recap + next-CTA (new) | ADD                                         | "what you earned" + next-lesson call-to-action                                                                                                                                                                                                                                                                                               |
 | dark mode              | **v1** (was deferred)                       | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle                                                                                                                                                                                                                                                        |
-| teacher                | KEEP + RAISE (**prototyped**)               | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `demo/teacher-box.html`.                                                                                                                                                                                                                        |
-| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `demo/footer-sources.html`.                                                                                                                                                                                                 |
-| prose base             | KEEP + RAISE (**prototyped**)               | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `demo/code-block.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern.                                                     |
+| teacher                | KEEP + RAISE (**prototyped**)               | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `assets/components/teacher-box/demo.html`.                                                                                                                                                                                                      |
+| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `assets/base/demo.html`.                                                                                                                                                                                                 |
+| prose base             | KEEP + RAISE (**prototyped**)               | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `assets/components/code/demo.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern.                                         |
 
 ### Theming
 
@@ -233,18 +233,18 @@ sandbox or multi-language runner.
 
 ## 11a. Polish backlog (prototyped, refine before folding)
 
-- **Table** (`demo/table-variants.html`): recommended-column interface,
+- **Table** (`assets/components/table/demo.html`): recommended-column interface,
   comparison-matrix header labels, key/value formatting, zebra striping. Header
   column / cell-status / row-emphasis / density look done; the four above need
   another pass before folding into `visual-teach.css` + showcase.
-- **Pill count/step badge** (`demo/pill-variants.html`): badge sizing in general,
+- **Pill count/step badge** (`assets/components/chip/demo.html`): badge sizing in general,
   and the inline "Step 3 of 7" formatting. Rest of the pill set looks done.
 - **Neutral color** — the neutral pill/variant (`--vt-soft` bg + `--vt-muted`
   text) reads washed out. Reevaluate: maybe a dedicated neutral token or more
   contrast. Affects neutral pills, status-dot pills, possibly elsewhere.
-- **Primary-source card icon** (`demo/shell-blocks.html`): uses 📖 emoji — swap
+- **Primary-source card icon** (`assets/base/demo.html`): uses 📖 emoji — swap
   to a masked SVG (OS-independent) for consistency with callout tone icons.
-- **Teacher box size** (`demo/teacher-box.html`): the full stack (header + para +
+- **Teacher box size** (`assets/components/teacher-box/demo.html`): the full stack (header + para +
   chips + try-this + community) is tall. Find compaction wins — tighten spacing,
   or make try-this/community optional/inline — without losing the affordances.
 

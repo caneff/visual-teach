@@ -1,0 +1,72 @@
+/**
+ * Sandbox identity helper — gated, no-op by default.
+ *
+ * Returns the GH_TOKEN env and git user config commands that identify Sandcastle
+ * as a bot in sandboxes. When the bot env vars are unset (the default), both
+ * fields are empty and every sandbox attributes commits/PRs/comments to the
+ * maintainer exactly as before.
+ *
+ * Token resolution order (first match wins):
+ *   1. SANDCASTLE_BOT_GH_TOKEN — direct token, no minting needed
+ *   2. GITHUB_APP_{ID,PRIVATE_KEY,INSTALLATION_ID} — mint an installation token
+ *   3. Neither set — empty env, no-op
+ *
+ * Bot git config env vars (independent of token source):
+ *   SANDCASTLE_BOT_GIT_NAME  — git user.name for commits made in-sandbox
+ *   SANDCASTLE_BOT_GIT_EMAIL — git user.email for commits made in-sandbox
+ *
+ * Wire-up in main.mts:
+ *   docker({ env: identity.env })
+ *   hooks.sandbox.onSandboxReady: [...identity.gitConfigCommands, ...]
+ */
+
+import { mintInstallationToken } from "./mint-gh-token.mjs";
+
+export interface SandboxIdentity {
+  /** Environment variables to merge into docker({ env }). Empty when bot vars unset. */
+  env: Record<string, string>;
+  /** Commands to prepend to sandbox.onSandboxReady for git identity. Empty when bot vars unset. */
+  gitConfigCommands: Array<{ command: string }>;
+}
+
+type TokenMinter = (
+  appId: string,
+  privateKey: string,
+  installationId: string
+) => Promise<string>;
+
+export async function sandboxIdentity(
+  tokenMinter: TokenMinter = mintInstallationToken
+): Promise<SandboxIdentity> {
+  const name = process.env.SANDCASTLE_BOT_GIT_NAME;
+  const email = process.env.SANDCASTLE_BOT_GIT_EMAIL;
+
+  let resolvedToken = process.env.SANDCASTLE_BOT_GH_TOKEN;
+
+  if (!resolvedToken) {
+    const appId = process.env.GITHUB_APP_ID;
+    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY?.replace(
+      /\\n/g,
+      "\n"
+    );
+    const installationId = process.env.GITHUB_APP_INSTALLATION_ID;
+
+    if (appId && privateKey && installationId) {
+      resolvedToken = await tokenMinter(appId, privateKey, installationId);
+    }
+  }
+
+  const env: Record<string, string> = resolvedToken
+    ? { GH_TOKEN: resolvedToken }
+    : {};
+  const gitConfigCommands: Array<{ command: string }> = [];
+  if (name)
+    gitConfigCommands.push({
+      command: `git config user.name ${JSON.stringify(name)}`,
+    });
+  if (email)
+    gitConfigCommands.push({
+      command: `git config user.email ${JSON.stringify(email)}`,
+    });
+  return { env, gitConfigCommands };
+}

@@ -9,11 +9,6 @@ const root = join(__dir, "..");
 const index = readFileSync(join(root, "assets/visual-teach.md"), "utf8");
 
 const skill = readFileSync(join(root, "SKILL.md"), "utf8");
-const beforeHtml = readFileSync(
-  join(root, "demo/cron-0001-before.html"),
-  "utf8"
-);
-const afterHtml = readFileSync(join(root, "demo/cron-0001-after.html"), "utf8");
 
 // ── SKILL.md structure ─────────────────────────────────────────
 test("SKILL.md: documents seeding assets into ./assets/", () => {
@@ -33,173 +28,184 @@ test("SKILL.md: references vt-* class convention", () => {
   expect(skill).toContain("vt-*");
 });
 
-test("SKILL.md: reference pointer instructs to open only needed blocks", () => {
-  expect(skill).toMatch(/open only.*block|block.*you need|only the block/i);
+// ── Component structure ────────────────────────────────────────
+const COMPONENTS = [
+  "callout",
+  "code",
+  "table",
+  "chip",
+  "quiz",
+  "checklist",
+  "diagram",
+  "math",
+  "teacher-box",
+];
+
+test("assets/base/base.css exists", () => {
+  expect(existsSync(join(root, "assets/base/base.css"))).toBe(true);
 });
 
-// ── Demo conversion exercise files ────────────────────────────
-test("demo/cron-0001-before.html exists", () => {
-  expect(existsSync(join(root, "demo/cron-0001-before.html"))).toBe(true);
+test("assets/base/base.js exists", () => {
+  expect(existsSync(join(root, "assets/base/base.js"))).toBe(true);
 });
 
-test("demo/cron-0001-after.html exists", () => {
-  expect(existsSync(join(root, "demo/cron-0001-after.html"))).toBe(true);
+test("base.css defines the 9 --vt-* tokens", () => {
+  const css = readFileSync(join(root, "assets/base/base.css"), "utf8");
+  for (const token of [
+    "--vt-ink",
+    "--vt-muted",
+    "--vt-accent",
+    "--vt-accent-fg",
+    "--vt-rule",
+    "--vt-paper",
+    "--vt-good",
+    "--vt-bad",
+    "--vt-warn",
+  ]) {
+    expect(css, `base.css must define ${token}`).toContain(token);
+  }
 });
 
-test("before: has inline <style>", () => {
-  expect(beforeHtml).toContain("<style>");
+test("base.css has dark mode rules", () => {
+  const css = readFileSync(join(root, "assets/base/base.css"), "utf8");
+  expect(css).toMatch(/@media\s*\(\s*prefers-color-scheme\s*:\s*dark\s*\)/);
+  expect(css).toMatch(/:root\[data-theme="dark"\]/);
 });
 
-test("before: has inline <script>", () => {
-  expect(beforeHtml).toContain("<script>");
-});
+for (const name of COMPONENTS) {
+  test(`components/${name}/demo.html exists`, () => {
+    expect(existsSync(join(root, "assets/components", name, "demo.html"))).toBe(
+      true
+    );
+  });
 
-test("before: does not link visual-teach.css", () => {
-  expect(beforeHtml).not.toContain("visual-teach.css");
-});
+  test(`components/${name}/${name}.css exists`, () => {
+    expect(
+      existsSync(join(root, "assets/components", name, `${name}.css`))
+    ).toBe(true);
+  });
 
-test("after: links visual-teach.css", () => {
-  expect(afterHtml).toContain("visual-teach.css");
-});
-
-test("after: links visual-teach.js", () => {
-  expect(afterHtml).toContain("visual-teach.js");
-});
-
-test("after: no inline checklist JS", () => {
-  expect(afterHtml).not.toMatch(/<script>\s*\/\*.*?checklist/s);
-});
-
-test("after: no inline quiz JS", () => {
-  expect(afterHtml).not.toMatch(/<script>\s*\/\*.*?quiz/s);
-});
-
-for (const cls of [
-  "vt-kicker",
-  "vt-lede",
-  "vt-metabar",
-  "vt-num",
-  "vt-callout",
-  "vt-table",
-  "vt-code",
-  "vt-checklist",
-  "vt-quiz",
-  "vt-recap",
-  "vt-sources",
-]) {
-  test(`after: contains class ${cls}`, () => {
-    expect(afterHtml).toContain(cls);
+  test(`component ${name}: CSS does not redefine :root tokens`, () => {
+    const cssPath = join(root, "assets/components", name, `${name}.css`);
+    const css = readFileSync(cssPath, "utf8");
+    expect(
+      css,
+      `${name}.css must not define :root { --vt-* } tokens — those live in base.css`
+    ).not.toMatch(/:root\s*\{[^}]*--vt-ink/);
   });
 }
 
-test("after: topic colors in :root override", () => {
-  expect(afterHtml).toContain(":root");
-});
-
-test("after: sets --vt-accent token in :root", () => {
-  expect(afterHtml).toContain("--vt-accent");
-});
-
-for (const phrase of [
-  "Reading a cron expression",
-  "The five fields",
-  "every value of this field",
-  "Open your crontab",
-  "Timezone trap",
-  "crontab(5)",
-]) {
-  test(`after: preserves teaching phrase "${phrase}"`, () => {
-    expect(afterHtml).toContain(phrase);
+// Interactive components must ship a JS file.
+const JS_COMPONENTS = ["quiz", "checklist", "code", "diagram", "math"];
+for (const name of JS_COMPONENTS) {
+  test(`component ${name} ships its own JS file`, () => {
+    expect(
+      existsSync(join(root, "assets/components", name, `${name}.js`))
+    ).toBe(true);
   });
 }
 
-// ── type="module" hardening — assertions preserved against the index ──
-test(`index: warns against type="module" on visual-teach.js script`, () => {
+// ── Chip class names: unchanged from monolith ─────────────────
+test("chip.css ships .vt-pill (unchanged class name)", () => {
+  const css = readFileSync(
+    join(root, "assets/components/chip/chip.css"),
+    "utf8"
+  );
+  expect(css).toContain(".vt-pill");
+});
+
+test("chip.css ships .vt-badge (unchanged class name)", () => {
+  const css = readFileSync(
+    join(root, "assets/components/chip/chip.css"),
+    "utf8"
+  );
+  expect(css).toContain(".vt-badge");
+});
+
+test("chip.css ships .vt-kbd (unchanged class name)", () => {
+  const css = readFileSync(
+    join(root, "assets/components/chip/chip.css"),
+    "utf8"
+  );
+  expect(css).toContain(".vt-kbd");
+});
+
+test("chip.css ships .vt-level (unchanged class name)", () => {
+  const css = readFileSync(
+    join(root, "assets/components/chip/chip.css"),
+    "utf8"
+  );
+  expect(css).toContain(".vt-level");
+});
+
+// ── Showcase ──────────────────────────────────────────────────
+test("demo/showcase.html exists", () => {
+  expect(existsSync(join(root, "demo/showcase.html"))).toBe(true);
+});
+
+test("demo/showcase.html links base.css", () => {
+  const html = readFileSync(join(root, "demo/showcase.html"), "utf8");
+  expect(html).toContain("base/base.css");
+});
+
+test("demo/showcase.html references all 9 components", () => {
+  const html = readFileSync(join(root, "demo/showcase.html"), "utf8");
+  for (const name of COMPONENTS) {
+    expect(html, `showcase must include ${name} component`).toContain(
+      `components/${name}`
+    );
+  }
+});
+
+// ── Deleted files ─────────────────────────────────────────────
+test("blocks/ directory is empty (block md files replaced by component demos)", () => {
+  const blocksDir = join(root, "assets/blocks");
+  const files = existsSync(blocksDir)
+    ? readdirSync(blocksDir).filter((f) => f.endsWith(".md"))
+    : [];
+  expect(
+    files,
+    "blocks/*.md files must be deleted — component demos are the new docs"
+  ).toEqual([]);
+});
+
+test("cron demo files are removed", () => {
+  expect(existsSync(join(root, "demo/cron-0001-before.html"))).toBe(false);
+  expect(existsSync(join(root, "demo/cron-0001-after.html"))).toBe(false);
+  expect(existsSync(join(root, "demo/cron-0001-compare.html"))).toBe(false);
+});
+
+// ── AGENTS.md ─────────────────────────────────────────────────
+test("AGENTS.md: no manual 'keep the cheatsheet in sync' rule", () => {
+  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  expect(agents).not.toMatch(/keep the cheatsheet in sync/i);
+});
+
+test("AGENTS.md: mentions machine-enforced showcase", () => {
+  const agents = readFileSync(join(root, "AGENTS.md"), "utf8");
+  expect(agents).toMatch(/showcase|machine.enforc/i);
+});
+
+// ── type="module" hardening — assertions preserved in the catalog ──
+test(`catalog: warns against type="module" on visual-teach.js script`, () => {
   expect(index).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|not.*type="module"|type="module".*not|plain.*script|not.*ES module|CORS/i
   );
 });
 
-test(`after: visual-teach.js script tag has no type="module"`, () => {
-  const scriptTagMatch = afterHtml.match(/<script[^>]*visual-teach\.js[^>]*>/);
-  expect(scriptTagMatch).not.toBeNull();
-  expect(scriptTagMatch[0]).not.toContain('type="module"');
+// ── Component catalog entries ─────────────────────────────────
+test("catalog: lists all 9 components", () => {
+  for (const name of COMPONENTS) {
+    expect(index, `catalog must list component ${name}`).toContain(
+      `components/${name}`
+    );
+  }
 });
-
-// ── Block menu: every entry resolves to an existing file ──────
-const BLOCK_FILES = [
-  "blocks/callouts.md",
-  "blocks/code-io.md",
-  "blocks/tables-pills-keys.md",
-  "blocks/quizzes-checklist.md",
-  "blocks/diagrams.md",
-  "blocks/math.md",
-  "blocks/teacher-box.md",
-];
-
-for (const file of BLOCK_FILES) {
-  test(`block menu: index links to existing file ${file}`, () => {
-    expect(existsSync(join(root, "assets", file))).toBe(true);
-    expect(index).toContain(file);
-  });
-}
 
 // ── Selective-load instruction ────────────────────────────────
-test("index: carries selective-load / open-only-what-you-need instruction", () => {
+test("catalog: carries selective-load / open-only-what-you-need instruction", () => {
   expect(index).toMatch(
-    /open only.*block|only.*block.*you need|load.*only|selective.*load/i
-  );
-});
-
-// ── vt-* classes documented in their block files ──────────────
-const CLASS_TO_FILE = {
-  "vt-callout": "blocks/callouts.md",
-  "vt-level": "blocks/callouts.md",
-  "vt-code": "blocks/code-io.md",
-  "vt-static": "blocks/code-io.md",
-  "vt-io": "blocks/code-io.md",
-  "vt-table": "blocks/tables-pills-keys.md",
-  "vt-kv": "blocks/tables-pills-keys.md",
-  "vt-pill": "blocks/tables-pills-keys.md",
-  "vt-badge": "blocks/tables-pills-keys.md",
-  "vt-kbd": "blocks/tables-pills-keys.md",
-  "vt-quiz": "blocks/quizzes-checklist.md",
-  "vt-checklist": "blocks/quizzes-checklist.md",
-  "vt-diagram": "blocks/diagrams.md",
-  "vt-flow": "blocks/diagrams.md",
-  "vt-flex": "blocks/diagrams.md",
-  "vt-split": "blocks/diagrams.md",
-  "vt-mermaid": "blocks/diagrams.md",
-  "vt-math": "blocks/math.md",
-  "vt-eq": "blocks/math.md",
-  "vt-pcode": "blocks/math.md",
-  "vt-teacher": "blocks/teacher-box.md",
-};
-
-for (const [cls, file] of Object.entries(CLASS_TO_FILE)) {
-  test(`${cls} is documented in assets/${file}`, () => {
-    const content = readFileSync(join(root, "assets", file), "utf8");
-    expect(content).toContain(cls);
-  });
-}
-
-// ── Quiz option guidance — now lives in quiz block file ───────
-const quizBlock = readFileSync(
-  join(root, "assets/blocks/quizzes-checklist.md"),
-  "utf8"
-);
-
-test("quiz block: quiz section allows uniform inline code in options", () => {
-  expect(quizBlock).toMatch(/uniform/i);
-});
-
-test("quiz block: quiz section forbids spelling out punctuation", () => {
-  expect(quizBlock).toMatch(/spell.*punct|punct.*spell|don.t spell/i);
-});
-
-test("quiz block: quiz section retains equal-length visible text guidance", () => {
-  expect(quizBlock).toMatch(
-    /same length|equal length|roughly.*length|length.*roughly/i
+    /open only.*component|only.*component.*you need|load.*only/i
   );
 });
 
@@ -233,20 +239,20 @@ test("docs/adr/: an ADR exists recording the Compose-only decision", () => {
   expect(composeOnly).toBe(true);
 });
 
-// ── Theming overrides — live in the index ─────────────────────
-test("index: theming example uses a flat :root block", () => {
+// ── Theming overrides — live in the catalog ───────────────────
+test("catalog: theming example uses a flat :root block", () => {
   const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(/:root\s*\{[^}]*--vt-accent/);
 });
 
-test("index: theming section explains that vt dark rules win via higher specificity so a flat override is safe", () => {
+test("catalog: theming section explains that vt dark rules win via higher specificity so a flat override is safe", () => {
   const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(
     /higher.?specificity|:root\[data-theme|spec.*0,2,0|0,2,0/i
   );
 });
 
-test("index: theming section lists which tokens vt re-sets in dark mode", () => {
+test("catalog: theming section lists which tokens vt re-sets in dark mode", () => {
   const themingSection = index.slice(index.indexOf("## Theming"));
   expect(themingSection).toMatch(/--vt-accent.*--vt-ink|--vt-ink.*--vt-accent/);
   expect(themingSection).toMatch(/dark mode|theme-varying/i);

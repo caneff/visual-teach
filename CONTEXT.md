@@ -49,3 +49,10 @@ behavior; nothing requires it to.
 **Convention** (not "contract") — A documented class + attribute shape for a
 block. Followed for the styling/behavior payoff, not enforced. Deliberately not
 called a "contract" or "schema": visual-teach validates nothing.
+
+**teach-base** — The frozen, pristine A/B control baseline. A copy of `/teach`
+with only `disable-model-invocation` removed so it can be invoked as a subagent.
+Contains no `visual-teach` awareness, no `vt-*` knowledge, and seeds no assets.
+Lessons it produces are plain hand-written HTML — the control arm for comparing
+against the visual-teach add-on. **Do not edit:** modifying it silently invalidates
+any A/B comparison that uses it as the baseline. See `docs/ab-comparison-methodology.md`.

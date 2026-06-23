@@ -32,6 +32,7 @@
 import * as sandcastle from "@ai-hero/sandcastle";
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
+import { sandboxIdentity } from "./sandbox-identity.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
@@ -194,10 +195,17 @@ const planSchema = z.object({
 // Raise this if your backlog is large; lower it for a quick smoke-test run.
 const MAX_ITERATIONS = 5;
 
+// Resolve sandbox identity once. No-op when bot env vars are unset.
+// Installation tokens are short-lived (~1h); minting per run keeps them fresh.
+const identity = await sandboxIdentity();
+
 // Hooks run inside the sandbox before the agent starts each iteration.
 // npm install ensures the sandbox always has fresh dependencies.
+// Git identity commands (if any) come first so commits in-sandbox use the bot identity.
 const hooks = {
-  sandbox: { onSandboxReady: [{ command: "npm install" }] },
+  sandbox: {
+    onSandboxReady: [...identity.gitConfigCommands, { command: "npm install" }],
+  },
 };
 
 // Copy node_modules from the host into the worktree before each sandbox
@@ -258,7 +266,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // -------------------------------------------------------------------------
   const plan = await sandcastle.run({
     hooks,
-    sandbox: docker(),
+    sandbox: docker({ env: identity.env }),
     name: "planner",
     logging: logging("planner", headBranch),
     // One iteration is enough: the planner just needs to read and reason,
@@ -364,7 +372,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         // every issue completed earlier this run. (Ignored if the branch already
         // exists — the rebase hook above refreshes those.)
         baseBranch: runBranch,
-        sandbox: docker(),
+        sandbox: docker({ env: identity.env }),
         hooks: sandboxHooks,
         copyToWorktree,
       });
@@ -534,7 +542,7 @@ if (allCompleted.length === 0) {
   git(`push -u --force-with-lease origin ${runBranch}`);
   await sandcastle.run({
     hooks,
-    sandbox: docker(),
+    sandbox: docker({ env: identity.env }),
     name: "pr-consolidator",
     logging: logging("pr-consolidator", headBranch),
     maxIterations: 1,

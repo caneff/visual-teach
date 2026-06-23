@@ -1,465 +1,768 @@
-<!DOCTYPE html><html lang="en"><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>visual-teach · block showcase</title>
-<link rel="stylesheet" href="../assets/visual-teach.css">
-<style>
-/* showcase-only labels + v2-candidate styling (NOT part of the library) */
-.sc-label { font-family:'Helvetica Neue',Arial,sans-serif; font-size:.7rem; text-transform:uppercase;
-  letter-spacing:.1em; color:var(--vt-muted); margin:2.5rem 0 .4rem; border-top:1px dashed var(--vt-rule); padding-top:1.2rem; }
-.sc-v2 { opacity:.95; }
-/* showcase-only sub-demo headings (h3) + muted sub-caption */
-h3 { font-family:'Helvetica Neue',Arial,sans-serif; font-size:1.02rem; margin:1.8rem 0 .4rem; }
-h3 .vt-num { color:var(--vt-accent); margin-right:.4rem; }
-.sc-sub { font-weight:400; font-size:.8rem; color:var(--vt-muted); }
-.sc-v2-tag { display:inline-block; font-family:'Helvetica Neue',Arial,sans-serif; font-size:.68rem;
-  background:var(--vt-warn); color:#000; padding:.05rem .45rem; border-radius:999px; margin-left:.5rem; vertical-align:middle; }
-/* theme toggle (showcase-only) */
-.vt-theme-toggle { position: fixed; top: 1rem; right: 1rem; font: inherit; font-size:.8rem;
-  font-family:'Helvetica Neue',Arial,sans-serif; padding:.35rem .7rem; border-radius:999px;
-  border:1px solid var(--vt-rule); background:var(--vt-paper); color:var(--vt-ink); cursor:pointer; }
-/* CANDIDATE hint styling (v2, not in visual-teach.css) */
-.vt-hint{margin-top:.5rem}
-.vt-hint>summary{font-family:'Helvetica Neue',Arial,sans-serif;font-size:.85rem;color:var(--vt-accent);cursor:pointer;list-style:none;display:inline-flex;align-items:center;gap:.3rem}
-.vt-hint>summary::-webkit-details-marker{display:none}
-.vt-hint>summary::before{content:"💡";font-size:.9em}
-.vt-hint>summary::after{content:"Need a hint?"}
-.vt-hint[open]>summary::after{content:"Hide hint"}
-.vt-hint>summary span{display:none}
-.vt-hint .vt-hint-body{margin-top:.5rem;padding:.7rem .9rem;font-size:.92rem;background:color-mix(in srgb,var(--vt-accent) 7%,var(--vt-paper));border-radius:8px}
-</style>
-</head><body>
-<button class="vt-theme-toggle" id="theme-toggle">◐ theme</button>
-<main>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>visual-teach · showcase</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/katex/katex.min.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/chip/chip.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link
+      rel="stylesheet"
+      href="../assets/components/checklist/checklist.css"
+    />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/math/math.css" />
+    <link
+      rel="stylesheet"
+      href="../assets/components/teacher-box/teacher-box.css"
+    />
+    <style>
+      /* showcase-only chrome — not part of the library */
+      .sc-label {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--vt-muted);
+        margin: 2.5rem 0 0.4rem;
+        border-top: 1px dashed var(--vt-rule);
+        padding-top: 1.2rem;
+      }
+      .sc-component {
+        margin-bottom: 3rem;
+      }
+      h3 {
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        font-size: 1.02rem;
+        margin: 1.8rem 0 0.4rem;
+      }
+      /* Reset the <main> elements spliced from component demos so base.css's
+   max-width/margin/padding only applies to the outer showcase <main>. */
+      .sc-component main {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">visual-teach · showcase</p>
+      <h1>Component showcase</h1>
+      <p class="vt-lede">
+        Every component the library ships, rendered from their individual source
+        files.
+      </p>
 
-  <p class="vt-kicker">visual-teach · showcase</p>
-  <h1>Block showcase</h1>
-  <p class="vt-lede">Every block the library currently ships, rendered from the real <code>../assets/visual-teach.{css,js}</code>.</p>
+      <!-- ─── Callout ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-callout">
+        <p class="sc-label">Callout</p>
+        <main>
+          <p class="vt-kicker">Component</p>
+          <h1>Callout</h1>
+          <p class="vt-lede">
+            Five semantic tones for surfacing warnings, information, insights,
+            successes, and risks inline with prose.
+          </p>
 
-  <p class="sc-label">Page shell — kicker / h1 / lede / meta (above)</p>
+          <div class="vt-callout warn">
+            <strong>Warning (default)</strong> — Double-check your configuration
+            before deploying. Misconfigured environment variables can cause
+            silent failures in production.
+          </div>
 
-  <h2><span class="vt-num">1</span>Prose &amp; text</h2>
+          <div class="vt-callout info">
+            <strong>Info</strong> — This API is available in all regions. Rate
+            limits apply per project, not per user account.
+          </div>
 
-  <h3><span class="vt-num">1.1</span>Headings, body &amp; lists</h3>
-  <p>Plain <code>h2</code>/<code>p</code>/<code>code</code>/<code>a</code> are auto-themed. Body is Georgia; headings Helvetica. A <a href="#">link</a> uses the accent token. Lists:</p>
-  <ul><li>Create a branch off <code>main</code></li><li>Merge it back with <code>git merge</code></li></ul>
+          <div class="vt-callout insight">
+            <strong>Insight</strong> — Batching multiple writes into a single
+            transaction can reduce round-trips by up to 80% on high-latency
+            connections.
+          </div>
 
-  <h3><span class="vt-num">1.2</span>Callouts <span class="sc-sub">(5 tones)</span></h3>
-  <div class="vt-callout">Default (warn) callout — a caution.</div>
-  <div class="vt-callout info">Info tone — neutral note.</div>
-  <div class="vt-callout insight"><strong>Insight:</strong> the durable idea worth remembering.</div>
-  <div class="vt-callout success">Success tone — you did the thing.</div>
-  <div class="vt-callout risk"><strong>Risk:</strong> the gotcha that bites.</div>
+          <div class="vt-callout success">
+            <strong>Success</strong> — Your migration completed without errors.
+            All 42,000 rows were transferred and verified.
+          </div>
 
-  <h2><span class="vt-num">2</span>Tables</h2>
-
-  <h3><span class="vt-num">2.1</span>Comparison matrix <span class="sc-sub">(cell status · recommended col · row emphasis)</span></h3>
-  <div class="vt-table-wrap">
-  <table class="vt-table">
-    <colgroup><col><col><col class="vt-col-pick"><col></colgroup>
-    <thead><tr>
-      <th scope="col">Capability</th><th scope="col">Option A</th><th scope="col" class="vt-th-pick"><span class="vt-pick-badge">Recommended</span>Option B</th><th scope="col">Option C</th>
-    </tr></thead>
-    <tbody>
-      <tr><th scope="row">Preserves branch history</th><td class="vt-no"></td><td class="vt-ok"></td><td class="vt-partial"></td></tr>
-      <tr class="vt-row-key"><th scope="row">Keeps a linear log</th><td class="vt-partial"></td><td class="vt-ok"></td><td class="vt-ok"></td></tr>
-      <tr><th scope="row">Safe on shared branches</th><td class="vt-ok"></td><td class="vt-no"></td><td class="vt-ok"></td></tr>
-    </tbody>
-  </table>
-  </div>
-
-  <h3><span class="vt-num">2.2</span>Key / value reference</h3>
-  <table class="vt-kv">
-    <tr><th scope="row">Branch</th><td>A movable pointer to a commit — <code>git branch feature</code>.</td></tr>
-    <tr><th scope="row">Merge</th><td>Joining two branch histories — <code>git merge feature</code>.</td></tr>
-  </table>
-
-  <h3><span class="vt-num">2.3</span>Compact density + zebra</h3>
-  <table class="vt-table compact">
-    <thead><tr><th>Step</th><th>Action</th><th>Result</th></tr></thead>
-    <tbody>
-      <tr><td>1</td><td>Create a branch</td><td>Pointer at HEAD</td></tr>
-      <tr><td>2</td><td>Commit your work</td><td>Branch advances</td></tr>
-      <tr><td>3</td><td>Merge into main</td><td>Histories joined</td></tr>
-    </tbody>
-  </table>
-
-  <h2><span class="vt-num">3</span>Pills, badges &amp; keys</h2>
-
-  <h3><span class="vt-num">3.1</span>Semantic pills <span class="sc-sub">(fills · outline · size · dot · icon)</span></h3>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
-    <span class="vt-pill">accent</span>
-    <span class="vt-pill neutral">neutral</span>
-    <span class="vt-pill good">good</span>
-    <span class="vt-pill bad">bad</span>
-    <span class="vt-pill warn">warn</span>
-    <span class="vt-pill outline">accent</span>
-    <span class="vt-pill outline neutral">neutral</span>
-    <span class="vt-pill outline good">good</span>
-    <span class="vt-pill outline bad">bad</span>
-    <span class="vt-pill outline warn">warn</span>
-    <span class="vt-pill sm">small</span>
-    <span class="vt-pill outline good dot">Required</span>
-    <span class="vt-pill outline bad dot">Deprecated</span>
-    <span class="vt-pill good ic-check">Done</span>
-    <span class="vt-pill warn ic-warn">Careful</span>
-  </div>
-
-  <h3><span class="vt-num">3.2</span>Difficulty / level pills</h3>
-  <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
-    <span class="vt-level beginner">Beginner</span>
-    <span class="vt-level intermediate">Intermediate</span>
-    <span class="vt-level advanced">Advanced</span>
-  </div>
-
-  <h3><span class="vt-num">3.3</span>Badges &amp; keyboard keys</h3>
-  <div style="display:flex;gap:.7rem;flex-wrap:wrap;align-items:center;margin:.5rem 0">
-    <span class="vt-badge">1</span><span class="vt-badge">2</span><span class="vt-badge">3</span>
-    <span style="margin-left:.5rem"><kbd class="vt-kbd">Ctrl</kbd> + <kbd class="vt-kbd">K</kbd></span>
-    <span><kbd class="vt-kbd">⌘</kbd> <kbd class="vt-kbd">Shift</kbd> <kbd class="vt-kbd">P</kbd></span>
-    <span><kbd class="vt-kbd">Enter</kbd></span>
-  </div>
-
-  <h3><span class="vt-num">3.4</span>Pills inline in a table <span class="sc-sub">(original baseline)</span></h3>
-  <table>
-    <tr><th>Concept</th><th>Role</th></tr>
-    <tr><td>Branch <span class="vt-pill">pointer</span></td><td>What you commit onto</td></tr>
-    <tr><td>Merge <span class="vt-pill">join</span></td><td>What brings histories together</td></tr>
-  </table>
-
-  <!-- ── Checklist v1 ──────────────────────────────────────────────────── -->
-  <h2><span class="vt-num">4</span>Checklist <span class="sc-sub">(progress bar · a11y label association)</span></h2>
-  <ol class="vt-checklist" data-key="showcase">
-    <li>
-      <input type="checkbox">
-      <div><span class="vt-step-title">Create a branch</span><span class="vt-step-body">Run <code>git switch -c feature</code>.</span></div>
-    </li>
-    <li>
-      <input type="checkbox">
-      <div><span class="vt-step-title">Commit your work</span><span class="vt-step-body">Stage changes, then <code>git commit</code>.</span></div>
-    </li>
-    <li>
-      <input type="checkbox">
-      <div><span class="vt-step-title">Merge into main</span><span class="vt-step-body">Switch to <code>main</code>, then <code>git merge feature</code>.</span></div>
-    </li>
-  </ol>
-
-  <!-- ── Quiz v1: single-answer ────────────────────────────────────────── -->
-  <h2><span class="vt-num">5</span>Quiz <span class="sc-sub">(per-option misconceptions · always-on correct · a11y)</span></h2>
-  <h3><span class="vt-num">5.1</span>Single-answer <span class="sc-sub">(retry until correct)</span></h3>
-  <div class="vt-quiz" data-answer="1">
-    <p class="q">Which command creates a new branch and switches to it in one step?</p>
-    <button class="opt">git branch feature</button>
-    <button class="opt">git switch -c feature</button>
-    <button class="opt">git merge feature</button>
-    <div class="feedback"></div>
-    <template class="why-good"><code>git switch -c</code> creates the branch and checks it out together.</template>
-    <template class="why-bad">Only <code>git switch -c</code> both creates the branch and moves you onto it.</template>
-    <template data-opt="0"><code>git branch feature</code> creates the branch but leaves you on your current one.</template>
-    <template data-opt="2"><code>git merge feature</code> joins an existing branch in — it doesn't create one.</template>
-    <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
-  </div>
-
-  <!-- ── Quiz v1: multi-select ─────────────────────────────────────────── -->
-  <h3><span class="vt-num">5.2</span>Multi-select <span class="sc-sub">(data-multi · comma-list answer)</span></h3>
-  <div class="vt-quiz" data-answer="0,2" data-multi>
-    <p class="q">Which of the following are real Git commands for branching? (select all that apply)</p>
-    <button class="opt">git branch</button>
-    <button class="opt">git fork</button>
-    <button class="opt">git merge</button>
-    <button class="opt">git combine</button>
-    <div class="feedback"></div>
-    <template class="why-good"><code>git branch</code> and <code>git merge</code> are real commands. <code>git fork</code> and <code>git combine</code> don't exist — forking is a host feature, and merging is done with <code>git merge</code>.</template>
-    <template class="why-bad">Review the Git command list — only <code>git branch</code> and <code>git merge</code> are genuine commands.</template>
-    <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
-  </div>
-
-  <h2><span class="vt-num">6</span>Code <span class="sc-sub">(filename header · copy button · Prism-highlighted)</span></h2>
-  <div class="vt-code">
-    <div class="vt-code-head"><span>squares.py</span><button class="vt-code-copy" aria-label="Copy code"></button></div>
-    <pre><code class="language-python">def squares(n):
-    # first n perfect squares
-    return [i * i for i in range(n)]
-
-result = squares(10)
-print(f"got {len(result)} squares")</code></pre>
-  </div>
-  <p>Inline token emphasis: use <code class="vt-pcode">return</code> to exit a function.</p>
-
-  <h2><span class="vt-num">7</span>Lesson shell</h2>
-
-  <h3><span class="vt-num">7.1</span>Recap + up-next teaser</h3>
-  <div class="vt-recap">
-    <p class="h">✦ What you earned</p>
-    You can now branch off main without fear, and you know which merge strategy keeps your history clean.
-  </div>
-  <p class="vt-upnext"><em>Up next:</em> rebasing &amp; conflict resolution.</p>
-
-  <h3><span class="vt-num">7.2</span>Meta bar <span class="sc-sub">(time · prereqs · difficulty · position)</span></h3>
-  <div class="vt-metabar">
-    <span class="item">⏱ <strong>~15 min</strong></span>
-    <span class="item">Needs: <strong>a repo from Lesson 1</strong></span>
-    <span class="item"><span class="vt-level beginner">Beginner</span></span>
-    <span class="item">Lesson <strong>1</strong> of 9</span>
-  </div>
-  <div class="vt-metabar">
-    <span class="item">⏱ <strong>~20 min</strong></span>
-    <span class="item">Needs: <strong>Lesson 2 complete</strong></span>
-    <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
-    <span class="item">Lesson <strong>3</strong> of 9</span>
-  </div>
-  <div class="vt-metabar">
-    <span class="item">⏱ <strong>~30 min</strong></span>
-    <span class="item">Needs: <strong>Lessons 1–4</strong></span>
-    <span class="item"><span class="vt-level advanced">Advanced</span></span>
-    <span class="item">Lesson <strong>7</strong> of 9</span>
-  </div>
-
-  <h3><span class="vt-num">7.3</span>Section anchor <span class="sc-sub">(auto-injected by JS — hover the h2 below to reveal #)</span></h3>
-  <h2>Hover this heading</h2>
-
-  <h3><span class="vt-num">7.4</span>Objectives block</h3>
-  <div class="vt-objectives">
-    <p class="h">By the end of this lesson you'll be able to:</p>
-    <ul>
-      <li>Create a feature branch from an existing commit</li>
-      <li>Tell the difference between a fast-forward and a three-way merge</li>
-      <li>Spot when a merge will produce a conflict before you run it</li>
-    </ul>
-  </div>
-
-  <h3><span class="vt-num">7.5</span>Mission tie-in</h3>
-  <div class="vt-mission"><strong>Why this matters for your goal:</strong> your team ships features in parallel — without clean branching and merging, their work collides on <code>main</code>, so you'll practice it here.</div>
-
-  <h3><span class="vt-num">7.6</span>Primary-source card <span class="sc-sub">(masked SVG book icon · follows --vt-accent)</span></h3>
-  <div class="vt-source">
-    <div><span class="h">Primary source</span>
-      <a href="#">git merge — official reference</a> — the fast-forward and three-way merge rules, straight from the docs.</div>
-  </div>
-
-  <h3><span class="vt-num">7.7</span>Teacher box <span class="sc-sub">(SVG cap · question chips — ask-the-agent only)</span></h3>
-  <div class="vt-teacher">
-    <div>
-      <p class="h">Stuck or curious? Your teacher is the agent that made this.</p>
-      <p>Ask anything — follow-up questions are the point, not an interruption. Not sure where to start:</p>
-      <div class="vt-asks">
-        <span class="vt-ask">Why did my merge create a conflict?</span>
-        <span class="vt-ask">How does this differ from rebasing?</span>
-        <span class="vt-ask">Show me a harder example</span>
+          <div class="vt-callout risk">
+            <strong>Risk</strong> — Deleting this record will cascade to 17
+            dependent rows. This action cannot be undone.
+          </div>
+        </main>
       </div>
-    </div>
-  </div>
 
-  <h3><span class="vt-num">7.8</span>Footer / sources <span class="sc-sub">(numbered refs · source-type icons · companion slot · verified-date)</span></h3>
-  <footer class="vt-sources">
-    <span class="lbl">Sources</span>
-    <ul class="vt-reflist">
-      <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Official tutorial: branching workflows</a> <span class="note">— the canonical walkthrough.</span></li>
-      <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Branching &amp; merging concepts</a> <span class="note">— commit → branch → merge.</span></li>
-      <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
-      <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Git users community forum</a></li>
-    </ul>
-    <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Git glossary &amp; concept map</a></div>
-    <div class="meta">Showcase · verified 2026-06-19</div>
-  </footer>
+      <!-- ─── Code ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-code">
+        <p class="sc-label">Code</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Code</h1>
+          <p class="vt-lede">
+            Syntax-highlighted code blocks, paired I/O blocks, and inline
+            emphasis.
+          </p>
 
-  <!-- ===================== diagram vocabulary ===================== -->
-  <h2><span class="vt-num">8</span>CSS diagrams <span class="sc-sub">(panel · node · flow · row+col · split · flex)</span></h2>
+          <h2>Python code block with copy button</h2>
 
-  <h3><span class="vt-num">8.1</span>Flow pipeline</h3>
-  <div class="vt-diagram">
-    <div class="vt-flow">
-      <span class="vt-node">Commit</span>
-      <span class="vt-node">Branch</span>
-      <span class="vt-node em">Merge</span>
-    </div>
-    <p class="vt-diagram-caption">Fig — auto arrows via CSS, no JS</p>
-  </div>
+          <div class="vt-code">
+            <div class="vt-code-head">
+              <span>fibonacci.py</span>
+              <button class="vt-code-copy" type="button"></button>
+            </div>
+            <pre><code class="language-python">def fibonacci(n):
+    """Return the nth Fibonacci number."""
+    if n <= 1:
+        return n
+    a, b = 0, 1
+    for _ in range(2, n + 1):
+        a, b = b, a + b
+    return b
 
-  <h3><span class="vt-num">8.2</span>Row / col lanes</h3>
-  <div class="vt-diagram">
-    <div class="vt-row">
-      <div class="vt-col">
-        <span class="vt-col-label">Branch</span>
-        <span class="vt-node">feature</span>
-        <span class="vt-node">hotfix</span>
+# Print first 10 Fibonacci numbers
+for i in range(10):
+    print(f"fib({i}) = {fibonacci(i)}")</code></pre>
+          </div>
+
+          <h2>Input → Output pair</h2>
+
+          <div class="vt-io">
+            <div class="vt-io-input">
+              <div class="vt-io-head">
+                <span>Input</span>
+                <button class="vt-code-copy" type="button"></button>
+              </div>
+              <pre><code class="language-python">numbers = [3, 1, 4, 1, 5, 9, 2, 6]
+result = sorted(numbers)
+print(result)</code></pre>
+            </div>
+            <div class="vt-io-output">
+              <div class="vt-io-head">
+                <span>Output</span>
+              </div>
+              <pre><code>[1, 1, 2, 3, 4, 5, 6, 9]</code></pre>
+            </div>
+          </div>
+
+          <h2>Inline emphasis with <code>vt-pcode</code></h2>
+
+          <p>
+            Use <code class="vt-pcode">vt-pcode</code> for inline code that
+            deserves accent-level emphasis — for example, a key concept like
+            <code class="vt-pcode">list comprehension</code> or a primary API
+            name like <code class="vt-pcode">sorted()</code>. Regular inline
+            <code>code</code> stays muted by comparison.
+          </p>
+        </main>
       </div>
-      <div class="vt-col">
-        <span class="vt-col-label">Integrate</span>
-        <span class="vt-node em">Merge</span>
-        <span class="vt-node em">Resolve</span>
+
+      <!-- ─── Table ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-table">
+        <p class="sc-label">Table</p>
+        <main>
+          <p class="vt-kicker">Component</p>
+          <h1>Table</h1>
+          <p class="vt-lede">
+            Comparison matrices, key/value references, and compact zebra tables
+            — all responsive and themeable.
+          </p>
+
+          <h2>Comparison matrix</h2>
+
+          <div class="vt-table-wrap">
+            <table class="vt-table">
+              <colgroup>
+                <col />
+                <col />
+                <col class="vt-col-pick" />
+                <col />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th>Feature</th>
+                  <th>Option A</th>
+                  <th class="vt-th-pick">
+                    <span class="vt-pick-badge">Recommended</span>Option B
+                  </th>
+                  <th>Option C</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th scope="row">Dark mode</th>
+                  <td class="vt-ok"></td>
+                  <td class="vt-ok"></td>
+                  <td class="vt-no"></td>
+                </tr>
+                <tr>
+                  <th scope="row">Accessibility</th>
+                  <td class="vt-partial">
+                    <span class="note">Needs review</span>
+                  </td>
+                  <td class="vt-ok"></td>
+                  <td class="vt-partial">
+                    <span class="note">Partial ARIA</span>
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Responsive</th>
+                  <td class="vt-no"></td>
+                  <td class="vt-ok"></td>
+                  <td class="vt-ok"></td>
+                </tr>
+                <tr class="vt-row-key">
+                  <th scope="row">Bundle size</th>
+                  <td>48 KB</td>
+                  <td>12 KB</td>
+                  <td>31 KB</td>
+                </tr>
+                <tr>
+                  <th scope="row">Tree-shaking</th>
+                  <td class="vt-no"></td>
+                  <td class="vt-ok"></td>
+                  <td class="vt-partial"><span class="note">Partial</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <h2>Key / value reference</h2>
+
+          <table class="vt-kv">
+            <tbody>
+              <tr>
+                <th scope="row">Method</th>
+                <td>POST</td>
+              </tr>
+              <tr>
+                <th scope="row">Endpoint</th>
+                <td><code>/v1/messages</code></td>
+              </tr>
+              <tr>
+                <th scope="row">Auth</th>
+                <td>Bearer token via <code>Authorization</code> header</td>
+              </tr>
+              <tr>
+                <th scope="row">Rate limit</th>
+                <td>1 000 requests / minute per project</td>
+              </tr>
+              <tr>
+                <th scope="row">Max tokens</th>
+                <td>200 000 input · 8 192 output</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>Compact + zebra table</h2>
+
+          <div class="vt-table-wrap">
+            <table class="vt-table compact">
+              <thead>
+                <tr>
+                  <th>Status code</th>
+                  <th>Meaning</th>
+                  <th>Retryable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>200</td>
+                  <td>OK</td>
+                  <td class="vt-ok"></td>
+                </tr>
+                <tr>
+                  <td>400</td>
+                  <td>Bad request</td>
+                  <td class="vt-no"></td>
+                </tr>
+                <tr>
+                  <td>429</td>
+                  <td>Rate limit exceeded</td>
+                  <td class="vt-ok"></td>
+                </tr>
+                <tr>
+                  <td>500</td>
+                  <td>Internal server error</td>
+                  <td class="vt-partial">
+                    <span class="note">With backoff</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>529</td>
+                  <td>Overloaded</td>
+                  <td class="vt-ok"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </main>
       </div>
-      <div class="vt-col">
-        <span class="vt-col-label">Result</span>
-        <span class="vt-node">main</span>
+
+      <!-- ─── Chip ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-chip">
+        <p class="sc-label">Chip</p>
+        <style>
+          .demo-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            align-items: center;
+            margin: 1rem 0 1.6rem;
+          }
+        </style>
+        <main>
+          <p class="vt-kicker">Component</p>
+          <h1>Chip</h1>
+          <p class="vt-lede">
+            Pills, level indicators, step badges, and keyboard key caps — inline
+            labelling vocabulary.
+          </p>
+
+          <h2>Pill — fills</h2>
+          <div class="demo-row">
+            <span class="vt-pill">Default</span>
+            <span class="vt-pill neutral">Neutral</span>
+            <span class="vt-pill good">Good</span>
+            <span class="vt-pill bad">Bad</span>
+            <span class="vt-pill warn">Warn</span>
+          </div>
+
+          <h2>Pill — outlines</h2>
+          <div class="demo-row">
+            <span class="vt-pill outline">Default</span>
+            <span class="vt-pill outline neutral">Neutral</span>
+            <span class="vt-pill outline good">Good</span>
+            <span class="vt-pill outline bad">Bad</span>
+            <span class="vt-pill outline warn">Warn</span>
+          </div>
+
+          <h2>Pill — sizes</h2>
+          <div class="demo-row">
+            <span class="vt-pill">Regular</span>
+            <span class="vt-pill sm">Small</span>
+            <span class="vt-pill good sm">Small good</span>
+          </div>
+
+          <h2>Pill — status dot</h2>
+          <div class="demo-row">
+            <span class="vt-pill dot good">Online</span>
+            <span class="vt-pill dot warn">Degraded</span>
+            <span class="vt-pill dot bad">Offline</span>
+            <span class="vt-pill dot neutral">Unknown</span>
+          </div>
+
+          <h2>Pill — leading icons</h2>
+          <div class="demo-row">
+            <span class="vt-pill ic-check good">Verified</span>
+            <span class="vt-pill ic-warn warn">Caution</span>
+          </div>
+
+          <h2>Level pills</h2>
+          <div class="demo-row">
+            <span class="vt-level beginner">Beginner</span>
+            <span class="vt-level intermediate">Intermediate</span>
+            <span class="vt-level advanced">Advanced</span>
+          </div>
+
+          <h2>Badge</h2>
+          <div class="demo-row">
+            <span class="vt-badge">1</span>
+            <span class="vt-badge">2</span>
+            <span class="vt-badge">3</span>
+            <span class="vt-badge sm">1</span>
+            <span class="vt-badge sm">2</span>
+          </div>
+
+          <h2>Keyboard keys</h2>
+          <div class="demo-row">
+            <kbd class="vt-kbd">Ctrl</kbd>
+            <kbd class="vt-kbd">⌘</kbd>
+            <kbd class="vt-kbd">Shift</kbd>
+            <kbd class="vt-kbd">Alt</kbd>
+            <kbd class="vt-kbd">Enter</kbd>
+            <kbd class="vt-kbd">Esc</kbd>
+            <kbd class="vt-kbd">Tab</kbd>
+            <kbd class="vt-kbd">Space</kbd>
+          </div>
+        </main>
       </div>
-    </div>
-  </div>
 
-  <h3><span class="vt-num">8.3</span>Before / after split</h3>
-  <div class="vt-diagram">
-    <div class="vt-split">
-      <div class="vt-split-panel before">
-        <div class="vt-split-label">Before</div>
-        <p style="margin:0;font-size:.92rem">~107 lines inline CSS per lesson — drifts, duplicated.</p>
+      <!-- ─── Quiz ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-quiz">
+        <p class="sc-label">Quiz</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Quiz</h1>
+          <p class="vt-lede">
+            Interactive single-answer and multi-select quiz blocks.
+          </p>
+
+          <div aria-live="polite" class="vt-quiz-live"></div>
+
+          <h2>Single-answer quiz</h2>
+          <p>
+            Pick one correct answer. Wrong picks show per-option feedback
+            without locking; you keep trying until you get it right.
+          </p>
+
+          <div class="vt-quiz" data-answer="1">
+            <p class="q">
+              Which CSS property controls the space between flex items?
+            </p>
+            <button class="opt">margin</button>
+            <button class="opt">gap</button>
+            <button class="opt">padding</button>
+            <button class="opt">spacing</button>
+
+            <template class="why-good">
+              <strong>gap</strong> is the correct property. It sets the space
+              between flex (and grid) items directly on the container.
+            </template>
+            <template class="why-bad">Not quite — try again.</template>
+            <template data-opt="0">
+              <strong>margin</strong> can push items apart, but it adds space
+              outside the item on all sides and isn't the idiomatic flexbox
+              approach.
+            </template>
+            <template data-opt="2">
+              <strong>padding</strong> adds space inside the element, not
+              between sibling items.
+            </template>
+            <template data-opt="3">
+              <strong>spacing</strong> isn't a CSS property — it's not valid
+              here.
+            </template>
+
+            <div class="feedback"></div>
+            <div aria-live="polite" class="vt-quiz-live"></div>
+          </div>
+
+          <h2>Multi-select quiz</h2>
+          <p>Select all correct answers, then click "Check answer".</p>
+
+          <div class="vt-quiz" data-answer="0,2" data-multi>
+            <p class="q">
+              Which of the following are valid CSS length units? (Select all
+              that apply.)
+            </p>
+            <button class="opt">rem</button>
+            <button class="opt">px-ratio</button>
+            <button class="opt">vw</button>
+            <button class="opt">screen-percent</button>
+
+            <template class="why-good">
+              <strong>rem</strong> (root em) and <strong>vw</strong> (viewport
+              width) are both valid CSS length units.
+            </template>
+            <template class="why-bad">
+              Not all your selections are correct. <strong>px-ratio</strong> and
+              <strong>screen-percent</strong> are not real CSS units.
+            </template>
+
+            <div class="feedback"></div>
+            <div aria-live="polite" class="vt-quiz-live"></div>
+          </div>
+        </main>
       </div>
-      <div class="vt-split-panel after">
-        <div class="vt-split-label">After</div>
-        <p style="margin:0;font-size:.92rem">One shared stylesheet — link once, delete inline styles.</p>
+
+      <!-- ─── Checklist ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-checklist">
+        <p class="sc-label">Checklist</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Checklist</h1>
+          <p class="vt-lede">
+            A persisted step-by-step checklist with progress bar. State is saved
+            to
+            <code>localStorage</code>.
+          </p>
+
+          <h2>Example: Set up a local dev environment</h2>
+
+          <ul class="vt-checklist" data-key="demo">
+            <li>
+              <input type="checkbox" />
+              <div>
+                <span class="vt-step-title">Install Node.js</span>
+                <span class="vt-step-body"
+                  >Download the LTS release from
+                  <a href="https://nodejs.org">nodejs.org</a> and run the
+                  installer. Verify with <code>node -v</code>.</span
+                >
+              </div>
+            </li>
+            <li>
+              <input type="checkbox" />
+              <div>
+                <span class="vt-step-title">Clone the repository</span>
+                <span class="vt-step-body"
+                  >Run
+                  <code>git clone https://github.com/example/repo.git</code> and
+                  <code>cd</code> into the project directory.</span
+                >
+              </div>
+            </li>
+            <li>
+              <input type="checkbox" />
+              <div>
+                <span class="vt-step-title">Install dependencies</span>
+                <span class="vt-step-body"
+                  >Run <code>npm install</code> to fetch all packages listed in
+                  <code>package.json</code>.</span
+                >
+              </div>
+            </li>
+          </ul>
+        </main>
       </div>
-    </div>
-  </div>
 
-  <h3><span class="vt-num">8.4</span>Node states &amp; nowrap lanes <span class="sc-sub">(plain · em · muted · .vt-box alias · .vt-row.nowrap)</span></h3>
-  <div class="vt-diagram">
-    <div class="vt-flow">
-      <span class="vt-node">plain</span>
-      <span class="vt-node em">em</span>
-      <span class="vt-node muted">muted</span>
-      <span class="vt-box">box alias</span>
-    </div>
-    <p class="sc-sub" style="margin:.2rem 0">Narrowed to 320px to force overflow — lanes scroll horizontally instead of wrapping:</p>
-    <div style="max-width:320px;overflow-x:auto;border:1px dashed var(--vt-rule);padding:.4rem">
-      <div class="vt-row nowrap">
-        <div class="vt-col"><span class="vt-col-label">Lane A</span><span class="vt-node">won't wrap</span></div>
-        <div class="vt-col"><span class="vt-col-label">Lane B</span><span class="vt-node">scrolls instead</span></div>
-        <div class="vt-col"><span class="vt-col-label">Lane C</span><span class="vt-node">stays in a row</span></div>
-        <div class="vt-col"><span class="vt-col-label">Lane D</span><span class="vt-node">on narrow screens</span></div>
+      <!-- ─── Diagram ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-diagram">
+        <p class="sc-label">Diagram</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Diagram</h1>
+          <p class="vt-lede">
+            Flow pipelines, row/col lanes, before/after splits, and flex
+            playgrounds.
+          </p>
+
+          <h2>Flow pipeline</h2>
+
+          <div class="vt-diagram">
+            <div class="vt-flow">
+              <div class="vt-node">Request</div>
+              <div class="vt-node em">Auth</div>
+              <div class="vt-node">Router</div>
+              <div class="vt-node">Handler</div>
+              <div class="vt-node">Response</div>
+            </div>
+            <p class="vt-diagram-caption">
+              HTTP request lifecycle — auth is the critical step.
+            </p>
+          </div>
+
+          <h2>Flow with muted nodes</h2>
+
+          <div class="vt-diagram">
+            <div class="vt-flow">
+              <div class="vt-node muted">Source</div>
+              <div class="vt-node">Transform</div>
+              <div class="vt-node em">Validate</div>
+              <div class="vt-node muted">Sink</div>
+            </div>
+          </div>
+
+          <h2>Row / col lanes</h2>
+
+          <div class="vt-diagram">
+            <div class="vt-row">
+              <div class="vt-col">
+                <div class="vt-col-label">Frontend</div>
+                <div class="vt-node">React App</div>
+                <div class="vt-node">Vite</div>
+              </div>
+              <div class="vt-col">
+                <div class="vt-col-label">API</div>
+                <div class="vt-node em">GraphQL</div>
+                <div class="vt-node">REST</div>
+              </div>
+              <div class="vt-col">
+                <div class="vt-col-label">Storage</div>
+                <div class="vt-node">Postgres</div>
+                <div class="vt-node">Redis</div>
+              </div>
+            </div>
+          </div>
+
+          <h2>Before / after split</h2>
+
+          <div class="vt-split">
+            <div class="vt-split-panel before">
+              <div class="vt-split-label">Before</div>
+              <p>
+                Each service calls the database directly — N connections, no
+                pooling, tight coupling.
+              </p>
+            </div>
+            <div class="vt-split-panel after">
+              <div class="vt-split-label">After</div>
+              <p>
+                A connection pool sits in front — services share connections,
+                latency drops, coupling loosens.
+              </p>
+            </div>
+          </div>
+
+          <h2>Flex playground — justify-content</h2>
+
+          <p><strong>jc-between</strong></p>
+          <div class="vt-flex jc-between">
+            <div class="vt-flex-item">Alpha</div>
+            <div class="vt-flex-item">Beta</div>
+            <div class="vt-flex-item">Gamma</div>
+          </div>
+
+          <p><strong>jc-center</strong></p>
+          <div class="vt-flex jc-center">
+            <div class="vt-flex-item">Alpha</div>
+            <div class="vt-flex-item">Beta</div>
+            <div class="vt-flex-item">Gamma</div>
+          </div>
+
+          <p><strong>jc-evenly</strong></p>
+          <div class="vt-flex jc-evenly">
+            <div class="vt-flex-item">Alpha</div>
+            <div class="vt-flex-item">Beta</div>
+            <div class="vt-flex-item">Gamma</div>
+          </div>
+
+          <h2>Flex playground — align-items</h2>
+
+          <p><strong>ai-start</strong> (items of different heights)</p>
+          <div class="vt-flex ai-start" style="height: 5rem">
+            <div class="vt-flex-item">Short</div>
+            <div
+              class="vt-flex-item"
+              style="padding-top: 1.2rem; padding-bottom: 1.2rem"
+            >
+              Tall
+            </div>
+            <div class="vt-flex-item">Short</div>
+          </div>
+
+          <p><strong>ai-end</strong></p>
+          <div class="vt-flex ai-end" style="height: 5rem">
+            <div class="vt-flex-item">Short</div>
+            <div
+              class="vt-flex-item"
+              style="padding-top: 1.2rem; padding-bottom: 1.2rem"
+            >
+              Tall
+            </div>
+            <div class="vt-flex-item">Short</div>
+          </div>
+        </main>
       </div>
-    </div>
-  </div>
 
-  <h3><span class="vt-num">8.5</span>Flex playground <span class="sc-sub">(vt-flex + jc-* — no injected arrows; use for layout demos, not vt-flow)</span></h3>
-  <div class="vt-diagram">
-    <p class="sc-sub" style="margin:.1rem 0 .3rem">jc-start</p>
-    <div class="vt-flex jc-start">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-center</p>
-    <div class="vt-flex jc-center">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-between</p>
-    <div class="vt-flex jc-between">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-around</p>
-    <div class="vt-flex jc-around">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-evenly</p>
-    <div class="vt-flex jc-evenly">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="sc-sub" style="margin:.6rem 0 .3rem">jc-end</p>
-    <div class="vt-flex jc-end">
-      <span class="vt-flex-item">A</span>
-      <span class="vt-flex-item">B</span>
-      <span class="vt-flex-item">C</span>
-    </div>
-    <p class="vt-diagram-caption">Fig — six justify-content values; rendered by real flex, no injected margins</p>
-  </div>
+      <!-- ─── Math ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-math">
+        <p class="sc-label">Math</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Math</h1>
+          <p class="vt-lede">
+            KaTeX-rendered display equations and inline math.
+          </p>
 
-  <!-- ===================== mermaid opt-in ===================== -->
-  <h2><span class="vt-num">9</span>Mermaid <span class="sc-sub">(opt-in computed graphs — CDN loads only on this page)</span></h2>
-  <div class="vt-callout info"><strong>When to use:</strong> mermaid is for graphs that must be auto-laid-out (sequence, state machine, flowchart, class, ER). The brand-blue theme is tuned for these box-and-arrow types; multi-series charts (pie, xy) come out mono-blue and should use a native theme instead. For anything you can hand-compose, use the CSS diagram vocabulary — it prints cleanly with zero JS overhead.</div>
+          <h2>Display math block — quadratic formula</h2>
 
-  <h3><span class="vt-num">9.1</span>Sequence diagram</h3>
-  <div class="vt-mermaid">
-sequenceDiagram
-  participant Client
-  participant Server
-  participant DB
-  Client->>Server: POST /login
-  Server->>DB: SELECT user WHERE email=?
-  DB-->>Server: user row
-  Server-->>Client: 200 OK + JWT
-  </div>
+          <div class="vt-math vt-eq">
+            x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+          </div>
 
-  <h3><span class="vt-num">9.2</span>State machine</h3>
-  <div class="vt-mermaid">
-stateDiagram-v2
-  [*] --> Draft
-  Draft --> Review: submit
-  Review --> Draft: request changes
-  Review --> Published: approve
-  Published --> Archived: archive
-  Archived --> [*]
-  </div>
+          <p>
+            The quadratic formula gives the roots of any polynomial
+            <span>\(ax^2 + bx + c = 0\)</span> where <span>\(a \neq 0\)</span>.
+          </p>
 
-  <h3><span class="vt-num">9.3</span>Flowchart</h3>
-  <div class="vt-mermaid">
-flowchart TD
-  A[Request] --> B{Authenticated?}
-  B -->|yes| C[Handle]
-  B -->|no| D[401 Unauthorized]
-  C --> E[Respond]
-  </div>
+          <h2>Euler's identity</h2>
 
-  <h3><span class="vt-num">9.4</span>Class diagram</h3>
-  <div class="vt-mermaid">
-classDiagram
-  class User {
-    +int id
-    +string name
-    +login()
-  }
-  class Admin {
-    +revoke()
-  }
-  User <|-- Admin
-  </div>
+          <div class="vt-math vt-eq">e^{i\pi} + 1 = 0</div>
 
-  <h3><span class="vt-num">9.5</span>ER diagram</h3>
-  <div class="vt-mermaid">
-erDiagram
-  USER ||--o{ ORDER : places
-  ORDER ||--|{ ITEM : contains
-  USER {
-    int id
-    string email
-  }
-  </div>
+          <p>
+            Often called the most beautiful equation in mathematics, it connects
+            five fundamental constants: <span>\(e\)</span>, <span>\(i\)</span>,
+            <span>\(\pi\)</span>, <span>\(1\)</span>, and <span>\(0\)</span>.
+          </p>
 
-  <!-- ===================== v2 / candidate blocks ===================== -->
-  <h2><span class="vt-num">10</span>v2 candidates <span class="sc-sub">(visible, not settled)</span></h2>
+          <h2>Normal distribution PDF</h2>
 
-  <div class="sc-v2">
-    <h3><span class="vt-num">10.1</span>Checklist hint <span class="sc-v2-tag">v2 concept</span></h3>
-    <p style="font-size:.92rem;color:var(--vt-muted)">Native <code>&lt;details&gt;</code>, zero JS — try-before-hint (desirable difficulty). UI not final.</p>
-    <ol class="vt-checklist" data-key="showcase-hint">
-      <li><input type="checkbox"><div>
-        <span class="vt-step-title">Merge a stale branch — spot the conflict trap</span>
-        <span class="vt-step-body">Run <code>git merge feature</code> after <code>main</code> has moved on.</span>
-        <details class="vt-hint"><summary><span>Need a hint?</span></summary>
-          <div class="vt-hint-body">Both branches edited the same lines? Git can't auto-merge — you'll get a conflict to resolve by hand before the merge completes.</div>
-        </details>
-      </div></li>
-    </ol>
-  </div>
+          <div class="vt-math vt-eq">
+            f(x) = \frac{1}{\sigma\sqrt{2\pi}}
+            \exp\!\left(-\frac{(x-\mu)^2}{2\sigma^2}\right)
+          </div>
 
-</main>
-<script src="../assets/prism/prism-core.min.js"></script>
-<script src="../assets/prism/prism-markup.min.js"></script>
-<script src="../assets/prism/prism-css.min.js"></script>
-<script src="../assets/prism/prism-clike.min.js"></script>
-<script src="../assets/prism/prism-javascript.min.js"></script>
-<script src="../assets/prism/prism-python.min.js"></script>
-<script type="module" src="../assets/visual-teach.js"></script>
-<script src="../assets/mermaid.js"></script>
-<script>
-  document.getElementById('theme-toggle').addEventListener('click', function() {
-    var r = document.documentElement;
-    r.dataset.theme = r.dataset.theme === 'dark' ? 'light' : 'dark';
-  });
-</script>
-</body></html>
+          <p>
+            The probability density function of a normal distribution with mean
+            <span>\(\mu\)</span> and standard deviation <span>\(\sigma\)</span>.
+          </p>
+
+          <h2>Inline math in prose</h2>
+
+          <p>
+            The Pythagorean theorem states that in a right triangle, \(a^2 + b^2
+            = c^2\), where \(c\) is the hypotenuse. For example, a 3-4-5
+            triangle satisfies \(9 + 16 = 25\).
+          </p>
+        </main>
+      </div>
+
+      <!-- ─── Teacher box ─────────────────────────────────────────────────────── -->
+      <div class="sc-component" id="component-teacher-box">
+        <p class="sc-label">Teacher box</p>
+        <main>
+          <p class="vt-kicker">Component Demo</p>
+          <h1>Teacher Box</h1>
+          <p class="vt-lede">
+            A prompted self-explanation block with question chips that surface
+            common learner questions.
+          </p>
+
+          <h2>Example</h2>
+
+          <div class="vt-teacher">
+            <div>
+              <p class="h">Before moving on — can you explain it?</p>
+              <p>
+                Try to answer one of these in your own words. Explaining a
+                concept is the fastest way to find the gaps in your
+                understanding.
+              </p>
+              <div class="vt-asks">
+                <span class="vt-ask">What problem does this solve?</span>
+                <span class="vt-ask"
+                  >When would you use this over the alternative?</span
+                >
+                <span class="vt-ask">What breaks if you skip this step?</span>
+              </div>
+            </div>
+          </div>
+
+          <h2>Minimal variant</h2>
+
+          <div class="vt-teacher">
+            <div>
+              <p class="h">Check your understanding</p>
+              <p>
+                How would you explain <code>display: flex</code> to a colleague
+                who has never used it?
+              </p>
+            </div>
+          </div>
+        </main>
+      </div>
+    </main>
+    <script src="../assets/prism/prism-core.min.js"></script>
+    <script src="../assets/prism/prism-markup.min.js"></script>
+    <script src="../assets/prism/prism-css.min.js"></script>
+    <script src="../assets/prism/prism-clike.min.js"></script>
+    <script src="../assets/prism/prism-javascript.min.js"></script>
+    <script src="../assets/prism/prism-python.min.js"></script>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+    <script src="../assets/components/diagram/diagram.js"></script>
+    <script src="../assets/components/math/math.js"></script>
+    <script src="../assets/mermaid.js"></script>
+    <script src="../assets/katex/auto-render.min.js"></script>
+  </body>
+</html>
