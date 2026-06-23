@@ -176,7 +176,7 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | recap + next-CTA (new) | ADD                                         | "what you earned" + next-lesson call-to-action                                                                                                                                                                                                                                                                                               |
 | dark mode              | **v1** (was deferred)                       | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle                                                                                                                                                                                                                                                        |
 | teacher                | KEEP + RAISE (**prototyped**)               | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `assets/components/teacher-box/demo.html`.                                                                                                                                                                                                      |
-| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `demo/footer-sources.html`.                                                                                                                                                                                                 |
+| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `assets/base/demo.html`.                                                                                                                                                                                                 |
 | prose base             | KEEP + RAISE (**prototyped**)               | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `assets/components/code/demo.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern.                                         |
 
 ### Theming
@@ -242,7 +242,7 @@ sandbox or multi-language runner.
 - **Neutral color** — the neutral pill/variant (`--vt-soft` bg + `--vt-muted`
   text) reads washed out. Reevaluate: maybe a dedicated neutral token or more
   contrast. Affects neutral pills, status-dot pills, possibly elsewhere.
-- **Primary-source card icon** (`demo/shell-blocks.html`): uses 📖 emoji — swap
+- **Primary-source card icon** (`assets/base/demo.html`): uses 📖 emoji — swap
   to a masked SVG (OS-independent) for consistency with callout tone icons.
 - **Teacher box size** (`assets/components/teacher-box/demo.html`): the full stack (header + para +
   chips + try-this + community) is tall. Find compaction wins — tighten spacing,
