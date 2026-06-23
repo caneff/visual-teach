@@ -41,6 +41,7 @@ import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
 import { sandboxIdentity } from "./sandbox-identity.mts";
 import { resolveBase, issueBranch } from "./base-resolution.mts";
+import { prComponents } from "./pr-components.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { z } from "zod";
@@ -561,74 +562,81 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 }
 
 // ---------------------------------------------------------------------------
-// Phase 3: One consolidated PR for the whole run
+// Phase 3: One PR per dependency component
 //
-// There is no integration tip to push. Instead the host assembles ONE throwaway
-// head off `main` (`sandcastle/pr-<runId>`) by merging in every completed issue's
-// LEAF TIP — an issue no other completed issue builds on. A child branch already
-// physically contains its parents' commits, so merging only the leaves pulls in
-// each whole chain exactly once, with no redundant merges and no cross-chain
-// entanglement. The host force-pushes that head and a single agent opens ONE PR
-// from it into main (prose only — the agent runs no git).
+// The run built a forest; now open ONE pull request per connected component of
+// that forest — issues transitively linked by parent edges (prComponents). Each
+// component is genuinely independent off `main` (no shared commits), so its PR
+// merges in any order with no rebase surgery.
 //
-// (Per-component / topic-grouped PRs — one run → several heads — are issue #127.)
+// Per component the host assembles a throwaway head off `main`
+// (`sandcastle/pr-<runId>-<n>`) by merging in the component's LEAF TIPS — issues
+// no fellow member builds on. A child branch already contains its ancestors, so
+// merging the leaves pulls in the whole component exactly once (a fork merges
+// several leaves; a diamond collapses to one). The host force-pushes each head
+// and an agent opens ONE PR from it into main (prose only — the agent runs no
+// git).
+//
+// (Topic grouping — combine independent components into one PR — is issue #129.)
 // ---------------------------------------------------------------------------
-if (allCompleted.length === 0) {
+const components = prComponents(allCompleted);
+if (components.length === 0) {
   console.log("\nNo completed issues across the run. No PR to open.");
 } else {
-  const prBranch = `sandcastle/pr-${runId}`;
-  // Leaf tips: issues that are not a parent of any other completed issue. Their
-  // branches transitively contain every ancestor in their chain, so the merge of
-  // the leaves equals the merge of the whole forest.
-  const parentIds = new Set(allCompleted.flatMap((i) => i.parents));
-  const leaves = allCompleted.filter((i) => !parentIds.has(i.id));
-
   console.log(
-    `\nBuilding consolidated head ${prBranch} from ${leaves.length} leaf tip(s) ` +
-      `(${allCompleted.length} issue(s) total) and opening one PR.`
+    `\nOpening ${components.length} PR(s), one per dependency component, for ` +
+      `${allCompleted.length} completed issue(s).`
   );
-
-  // Build the head in a scratch worktree so the host's checkout is untouched.
-  // Start at main, then merge each leaf tip in. Conflicts between independent
-  // chains are not expected (the planner co-selects non-overlapping issues); a
-  // conflicting merge aborts and that leaf is logged and skipped rather than
-  // corrupting the head.
-  git(`branch -f ${prBranch} main`);
-  const wt = `.sandcastle/pr-head-${runId}`;
-  git(`worktree remove --force ${wt}`); // clear any stale scratch worktree
-  git(`worktree add --force ${wt} ${prBranch}`);
-  for (const leaf of leaves) {
-    const ok = git(
-      `-C ${wt} merge --no-edit -m "Merge ${leaf.branch} into ${prBranch}" ${leaf.branch}`
+  for (const [n, component] of components.entries()) {
+    const prBranch = `sandcastle/pr-${runId}-${n + 1}`;
+    const { issues, leaves } = component;
+    console.log(
+      `\nComponent ${n + 1}/${components.length}: ${issues.length} issue(s), ` +
+        `${leaves.length} leaf tip(s) → ${prBranch}`
     );
-    if (ok === null) {
-      git(`-C ${wt} merge --abort`);
-      console.error(
-        `  ✗ ${leaf.id} (${leaf.branch}) conflicted merging into ${prBranch}; excluded from the PR head`
-      );
-    }
-  }
-  git(`worktree remove --force ${wt}`);
 
-  // Push the assembled head host-side so the agent only has to open the PR.
-  git(`push -u --force-with-lease origin ${prBranch}`);
-  await sandcastle.run({
-    hooks,
-    sandbox: docker({ env: identity.env }),
-    name: "pr-consolidator",
-    logging: logging("pr-consolidator", headBranch),
-    maxIterations: 1,
-    agent: sandcastle.claudeCode("claude-sonnet-4-6"),
-    promptFile: "./.sandcastle/pr-prompt.md",
-    promptArgs: {
-      RUN_BRANCH: prBranch,
-      // One markdown line per issue: id, title, branch.
-      ISSUES: allCompleted
-        .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
-        .join("\n"),
-    },
-  });
-  console.log("\nConsolidated PR opened.");
+    // Build the head in a scratch worktree so the host's checkout is untouched.
+    // Start at main, then merge each leaf tip in. Conflicts between independent
+    // chains are not expected (the planner co-selects non-overlapping issues); a
+    // conflicting merge aborts and that leaf is logged and skipped rather than
+    // corrupting the head.
+    git(`branch -f ${prBranch} main`);
+    const wt = `.sandcastle/pr-head-${runId}-${n + 1}`;
+    git(`worktree remove --force ${wt}`); // clear any stale scratch worktree
+    git(`worktree add --force ${wt} ${prBranch}`);
+    for (const leaf of leaves) {
+      const ok = git(
+        `-C ${wt} merge --no-edit -m "Merge ${leaf.branch} into ${prBranch}" ${leaf.branch}`
+      );
+      if (ok === null) {
+        git(`-C ${wt} merge --abort`);
+        console.error(
+          `  ✗ ${leaf.id} (${leaf.branch}) conflicted merging into ${prBranch}; excluded from the PR head`
+        );
+      }
+    }
+    git(`worktree remove --force ${wt}`);
+
+    // Push the assembled head host-side so the agent only has to open the PR.
+    git(`push -u --force-with-lease origin ${prBranch}`);
+    await sandcastle.run({
+      hooks,
+      sandbox: docker({ env: identity.env }),
+      name: `pr-consolidator-${n + 1}`,
+      logging: logging(`pr-consolidator-${n + 1}`, headBranch),
+      maxIterations: 1,
+      agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+      promptFile: "./.sandcastle/pr-prompt.md",
+      promptArgs: {
+        RUN_BRANCH: prBranch,
+        // One markdown line per issue in THIS component: id, title, branch.
+        ISSUES: issues
+          .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
+          .join("\n"),
+      },
+    });
+  }
+  console.log(`\n${components.length} PR(s) opened.`);
 }
 
 console.log("\nAll done.");
