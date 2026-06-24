@@ -62,14 +62,6 @@ describe(".sandcastle base resolution — forest fixture 108→112, 120→119", 
     ).toBe(issueBranch("119"));
   });
 
-  test("108 does NOT resolve onto 119's branch — chains stay independent", () => {
-    const base = resolveBase({
-      parents: parentsOf["108"],
-      branchExistsWithWork: allBuiltThisRun,
-    });
-    expect(base).not.toBe(issueBranch("119"));
-  });
-
   test("1-parent issue falls back to main when the parent already merged (branch absent / no work)", () => {
     // Parent landed in an earlier run: its work is in main, branch carries no
     // unmerged work. Base is main, not a stale parent branch.

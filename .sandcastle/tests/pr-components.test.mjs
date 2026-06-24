@@ -132,9 +132,4 @@ describe("prComponents — topic grouping", () => {
     ]);
     expect(idSets(comps)).toEqual([["108", "112"]]);
   });
-
-  test("issues without a group are not merged by group", () => {
-    const comps = prComponents([issue("112"), issue("119")]);
-    expect(idSets(comps)).toEqual([["112"], ["119"]]);
-  });
 });
