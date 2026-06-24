@@ -425,11 +425,10 @@ const copyToWorktree = ["node_modules"];
 // only to name the throwaway PR head branches the host builds at Phase 3.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
-// Remove all .sandcastle/worktrees/* checkout dirs. Branch refs and commits
-// persist — only the checkout dirs go. Called at run start (crash-recovery net
-// for a run that died before cleanup) and at run end (after Phase 3, once
-// per-issue worktrees are dead). The onWorktreeReady rebase re-aligns any
-// branch that is recut from its resolved base.
+// Branch refs and commits persist — only the checkout dirs go. Called at run
+// start (crash-recovery net for a run that died before cleanup) and at run end
+// (after Phase 3, once per-issue worktrees are dead). The onWorktreeReady
+// rebase re-aligns any branch that is recut from its resolved base.
 function gcWorktrees(): void {
   for (const path of parseSandcastleWorktrees(
     git(`worktree list --porcelain`) ?? ""
