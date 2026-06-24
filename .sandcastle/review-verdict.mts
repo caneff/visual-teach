@@ -20,3 +20,20 @@ export function parseSpecVerdict(stdout: string): SpecVerdict {
   if (fail) return { pass: false, reason: fail[0].trim() };
   return { pass: true, reason: "" };
 }
+
+// Distinguish a broken-harness fault from a genuine review failure.
+//
+// A reviewer can fail two ways. Either the review RAN and the branch couldn't
+// be salvaged (context blow-up, agent gave up) — that's per-issue, retry it.
+// Or the review never started because the prompt itself couldn't be assembled:
+// a `!`-command in the prompt template exited nonzero, so the preprocessor
+// raised a PromptError. That is deterministic — it fails identically for every
+// issue this run — so retrying only burns retry caps and mislabels good
+// branches as bad code. The orchestrator aborts the whole run on these instead.
+//
+// Matches on the error's string form because the sandcastle runtime wraps it in
+// an Effect FiberFailure (`(FiberFailure) PromptError: ...`); the PromptError
+// class is not exported to import and instanceof-check directly.
+export function isHarnessError(e: unknown): boolean {
+  return /PromptError/.test(String(e));
+}
