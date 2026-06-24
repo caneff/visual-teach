@@ -367,14 +367,19 @@ test("progress-bar fill transition is disabled under prefers-reduced-motion", ()
 
 // ====== @media print hardening ======
 
-const printStart = css.indexOf("@media print");
-const printBlock =
-  printStart >= 0
-    ? css.slice(
-        printStart,
-        css.indexOf("}", css.indexOf("{", printStart + 10)) + 1000
-      )
-    : "";
+function extractMediaBlock(source, query) {
+  const start = source.indexOf(query);
+  if (start < 0) return "";
+  let depth = 0;
+  for (let i = start; i < source.length; i++) {
+    if (source[i] === "{") depth++;
+    else if (source[i] === "}" && --depth === 0)
+      return source.slice(start, i + 1);
+  }
+  return "";
+}
+
+const printBlock = extractMediaBlock(css, "@media print");
 
 test("print block forces light theme — dark backgrounds waste ink and are unreadable on paper", () => {
   // The print block must reset the 9 base tokens to their light values and
@@ -430,9 +435,8 @@ test("print block documents that quiz options still print — the no-op specific
   // .vt-quiz button { display:none } is overridden by .vt-quiz button.opt { display:block }
   // (higher specificity 0,2,1 > 0,1,1) so quiz options correctly print; only non-option
   // buttons are hidden. A comment in the print block must make this intent explicit.
-  const printSection = css.slice(printStart);
   expect(
-    printSection,
+    printBlock,
     "print block must document the intentional quiz-option specificity"
   ).toMatch(/quiz.*opt|opt.*quiz|options.*print|print.*options/i);
 });
