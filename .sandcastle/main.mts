@@ -590,7 +590,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             .map((p) => `#${p}`)
             .join(", ")}); skipping this iteration, will retry next time`
         );
-        return { issue, kind: "nothing" as const, commits: [] };
+        return { issue, kind: "nothing" as const };
       }
 
       // A pre-existing branch (a review-only re-review, or a ready-for-agent
@@ -624,10 +624,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       });
 
       try {
-        let implementCommits: string[] = [];
-
         // Implement (full mode only). review-only issues already have commits
         // on their branch from an earlier run.
+        let implemented = false;
         if (issue.mode === "full") {
           const implement = await sandbox.run({
             name: "implementer",
@@ -641,7 +640,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
               BRANCH: issue.branch,
             },
           });
-          implementCommits = implement.commits;
+          implemented = implement.commits.length > 0;
         }
 
         // Decide whether to review by what's ON THE BRANCH, not by this run's
@@ -649,8 +648,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         // new commits but still has work to review; gating on this-run commits
         // there left the issue ready-for-agent and re-planned it every
         // iteration. Only a branch with no diff vs main is truly "nothing".
-        if (implementCommits.length === 0 && !branchHasWork(issue.branch)) {
-          return { issue, kind: "nothing" as const, commits: [] };
+        if (!implemented && !branchHasWork(issue.branch)) {
+          return { issue, kind: "nothing" as const };
         }
 
         // Review. A reviewer error (e.g. context blow-up) must NOT discard the
@@ -692,24 +691,12 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             console.warn(
               `  ⚠ ${issue.id} failed spec review: ${verdict.reason}`
             );
-            return {
-              issue,
-              kind: "spec-fail" as const,
-              commits: [...implementCommits, ...review.commits],
-            };
+            return { issue, kind: "spec-fail" as const };
           }
-          return {
-            issue,
-            kind: "done" as const,
-            commits: [...implementCommits, ...review.commits],
-          };
+          return { issue, kind: "done" as const };
         } catch (e) {
           console.error(`  ⚠ ${issue.id} review failed, will re-review: ${e}`);
-          return {
-            issue,
-            kind: "needs-review" as const,
-            commits: implementCommits,
-          };
+          return { issue, kind: "needs-review" as const };
         }
       } finally {
         await sandbox.close();
