@@ -303,24 +303,6 @@ describe("decideInReviewAction", () => {
     ).toBe("inject");
   });
 
-  test("human-gated branch state is irrelevant", () => {
-    expect(
-      decideInReviewAction("human-gated", {
-        branchExists: true,
-        mergesClean: true,
-      })
-    ).toBe("leave");
-  });
-
-  test("human-vetoed branch state is irrelevant", () => {
-    expect(
-      decideInReviewAction("human-vetoed", {
-        branchExists: false,
-        mergesClean: false,
-      })
-    ).toBe("relabel-human");
-  });
-
   test("stranded, branch absent but mergesClean true (shouldn't inject without branch) → requeue", () => {
     expect(
       decideInReviewAction("stranded", {

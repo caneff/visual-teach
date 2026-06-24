@@ -68,13 +68,9 @@ test("sandboxConfig: onSandboxReady is exactly [npm install] when no gitConfigCo
 
 // ── no-op branch: bot vars unset ─────────────────────────────────────────────
 
-test("sandbox-identity: no-op when bot vars unset — env is empty", async () => {
+test("sandbox-identity: no-op when bot vars unset — env and gitConfigCommands are empty", async () => {
   const id = await sandboxIdentity();
   expect(id.env).toEqual({});
-});
-
-test("sandbox-identity: no-op when bot vars unset — gitConfigCommands is empty", async () => {
-  const id = await sandboxIdentity();
   expect(id.gitConfigCommands).toEqual([]);
 });
 
