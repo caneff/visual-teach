@@ -4,7 +4,7 @@ import {
   bucketIssues,
   buildRunSummary,
   decideInReviewAction,
-} from "../.sandcastle/reconcile.mts";
+} from "../reconcile.mts";
 
 // ---------------------------------------------------------------------------
 // classifyInReviewIssue — four PR-state branches

@@ -3,7 +3,7 @@ import {
   resolveBase,
   issueBranch,
   buildMultiParentBase,
-} from "../.sandcastle/base-resolution.mts";
+} from "../base-resolution.mts";
 
 // Fixture forest (from issue #126):
 //   108 builds on 112        → chain  main ─ 112 ─ 108

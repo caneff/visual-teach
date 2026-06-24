@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import { parseSandcastleWorktrees } from "../.sandcastle/worktrees.mts";
+import { parseSandcastleWorktrees } from "../worktrees.mts";
 
 // git worktree list --porcelain sample outputs
 const MAIN_ONLY = `worktree /home/user/repo

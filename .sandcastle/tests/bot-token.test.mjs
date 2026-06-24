@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { test, expect, describe, beforeAll } from "vitest";
 import { generateKeyPairSync } from "node:crypto";
-import { buildJwt, loadCredentials } from "../.sandcastle/mint-gh-token.mjs";
+import { buildJwt, loadCredentials } from "../mint-gh-token.mjs";
 
 let testPrivateKeyPem;
 

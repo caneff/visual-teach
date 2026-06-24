@@ -1,9 +1,13 @@
-import { defineConfig } from 'vitest/config';
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    include: ['tests/**/*.test.{js,mjs}', 'tests/skill.mjs'],
+    include: [
+      "tests/**/*.test.{js,mjs}",
+      "tests/skill.mjs",
+      ".sandcastle/tests/**/*.test.mjs",
+    ],
   },
 });
