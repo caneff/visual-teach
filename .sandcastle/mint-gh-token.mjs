@@ -20,6 +20,8 @@ import { fileURLToPath } from "node:url";
  * @returns {string} Signed JWT valid ~9 minutes (under GitHub's 10-min cap, for drift)
  */
 export function buildJwt(appId, privateKey) {
+  // Env vars often store multiline PEMs with literal \n; expand them.
+  privateKey = privateKey.replace(/\\n/g, "\n");
   const now = Math.floor(Date.now() / 1000);
   const header = Buffer.from(
     JSON.stringify({ alg: "RS256", typ: "JWT" })
@@ -57,9 +59,6 @@ export function loadCredentials() {
     throw new Error("Missing required env var: GITHUB_APP_PRIVATE_KEY");
   if (!installationId)
     throw new Error("Missing required env var: GITHUB_APP_INSTALLATION_ID");
-
-  // Env vars often store multiline PEMs with literal \n; expand them.
-  privateKey = privateKey.replace(/\\n/g, "\n");
 
   return { appId, privateKey, installationId };
 }

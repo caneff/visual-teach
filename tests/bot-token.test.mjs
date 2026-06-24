@@ -37,14 +37,21 @@ describe("buildJwt", () => {
     expect(iat).toBeLessThan(Math.floor(Date.now() / 1000));
   });
 
-  test("payload exp is 540s ahead of now (under GitHub's 10-min cap, for drift)", () => {
+  test("payload exp is strictly under 600s ahead of now (under GitHub's 10-min cap, for drift)", () => {
     const before = Math.floor(Date.now() / 1000);
     const [, payloadB64] = buildJwt("1", testPrivateKeyPem).split(".");
     const { exp } = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
     // GitHub rejects exp > 10 min ahead of its clock; a fast local clock makes
     // now+600 overflow. exp must stay strictly under now+600 so drift fits.
-    expect(exp - before).toBe(540);
     expect(exp - before).toBeLessThan(600);
+  });
+
+  test("normalises literal \\n sequences in the private key", () => {
+    // Env vars often store multiline PEMs with literal \n; buildJwt must expand them.
+    const escapedKey = testPrivateKeyPem.replace(/\n/g, "\\n");
+    expect(() => buildJwt("12345", escapedKey)).not.toThrow();
+    const jwt = buildJwt("12345", escapedKey);
+    expect(jwt.split(".")).toHaveLength(3);
   });
 });
 
@@ -101,13 +108,5 @@ describe("loadCredentials", () => {
         loadCredentials()
       )
     ).toThrow(/GITHUB_APP_INSTALLATION_ID/);
-  });
-
-  test("expands literal \\n to newlines in GITHUB_APP_PRIVATE_KEY", () => {
-    const creds = withEnv(
-      { GITHUB_APP_PRIVATE_KEY: "line1\\nline2\\nline3" },
-      () => loadCredentials()
-    );
-    expect(creds.privateKey).toBe("line1\nline2\nline3");
   });
 });

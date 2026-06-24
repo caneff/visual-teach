@@ -45,10 +45,7 @@ export async function sandboxIdentity(
 
   if (!resolvedToken) {
     const appId = process.env.GITHUB_APP_ID;
-    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY?.replace(
-      /\\n/g,
-      "\n"
-    );
+    const privateKey = process.env.GITHUB_APP_PRIVATE_KEY;
     const installationId = process.env.GITHUB_APP_INSTALLATION_ID;
 
     if (appId && privateKey && installationId) {
