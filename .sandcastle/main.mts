@@ -40,21 +40,22 @@
 //   "scripts": { "sandcastle": "npx tsx .sandcastle/main.mts" }
 
 import * as sandcastle from "@ai-hero/sandcastle";
-import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
-import { sandboxIdentity } from "./sandbox-identity.mts";
+import { sandboxIdentity, sandboxConfig } from "./sandbox-identity.mts";
 import {
   resolveBase,
   issueBranch,
   buildMultiParentBase,
 } from "./base-resolution.mts";
-import { prComponents } from "./pr-components.mts";
+import { prComponents, CompletedIssue } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
+  decideInReviewAction,
   bucketIssues,
   buildRunSummary,
 } from "./reconcile.mts";
+import { parseSandcastleWorktrees } from "./worktrees.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
@@ -279,13 +280,7 @@ function getPrsReferencingIssues(): Map<
 function reconciliationSweep(): {
   sweepInjected: Set<string>;
   sweepRequeued: Set<string>;
-  completedFromSweep: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[];
+  completedFromSweep: CompletedIssue[];
 } {
   const inReview = listIssues("in-review");
   if (inReview.length === 0) {
@@ -303,13 +298,7 @@ function reconciliationSweep(): {
 
   const sweepInjected = new Set<string>();
   const sweepRequeued = new Set<string>();
-  const completedFromSweep: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[] = [];
+  const completedFromSweep: CompletedIssue[] = [];
 
   for (const issue of inReview) {
     const id = String(issue.number);
@@ -320,43 +309,46 @@ function reconciliationSweep(): {
     }));
     const classification = classifyInReviewIssue(prs);
 
-    if (classification === "human-gated") {
+    const branch = issueBranch(id);
+    const branchExists = branchExistsWithWork(id);
+    const mergesClean = branchExists && mergesCleanIntoMain(branch);
+    const action = decideInReviewAction(classification, {
+      branchExists,
+      mergesClean,
+    });
+
+    if (action === "leave") {
       console.log(`  #${id} — human-gated (open PR exists); leaving untouched`);
-    } else if (classification === "human-vetoed") {
+    } else if (action === "relabel-human") {
       console.log(
         `  #${id} — human-vetoed (closed/merged PR, no open PR) → ready-for-human`
       );
       relabel(id, "ready-for-human", ["in-review"]);
+    } else if (action === "inject") {
+      // Branch still applies to main — just never got a PR (e.g. a prior run
+      // crashed before Phase 3). Inject it for a cheap PR, no rebuild.
+      console.log(
+        `  #${id} — stranded; branch ${branch} merges clean → injecting into this run for PR`
+      );
+      sweepInjected.add(id);
+      completedFromSweep.push({
+        id,
+        title: issue.title,
+        branch,
+        parents: [],
+      });
     } else {
-      // stranded: no PR references this issue
-      const branch = issueBranch(id);
-      if (branchExistsWithWork(id) && mergesCleanIntoMain(branch)) {
-        // Branch still applies to main — just never got a PR (e.g. a prior run
-        // crashed before Phase 3). Inject it for a cheap PR, no rebuild.
-        console.log(
-          `  #${id} — stranded; branch ${branch} merges clean → injecting into this run for PR`
-        );
-        sweepInjected.add(id);
-        completedFromSweep.push({
-          id,
-          title: issue.title,
-          branch,
-          parents: [],
-          group: "",
-        });
-      } else {
-        // No branch, no work, OR a stale branch that conflicts with current
-        // main. Requeue NOW (before the plan loop) so this run rebuilds it from
-        // scratch — relabel ready-for-agent and delete any stale branch so
-        // Phase 2 recuts it fresh from main (a lingering branch is only rebased
-        // onto base, keeping its conflicting history).
-        console.log(
-          `  #${id} — stranded; no usable branch (missing or conflicts with main) → ready-for-agent for fresh rebuild`
-        );
-        git(`branch -D ${branch}`); // no-op (null) if the branch doesn't exist
-        relabel(id, "ready-for-agent", ["in-review"]);
-        sweepRequeued.add(id);
-      }
+      // requeue: no branch, no work, OR a stale branch that conflicts with main.
+      // Requeue NOW (before the plan loop) so this run rebuilds it from scratch —
+      // relabel ready-for-agent and delete any stale branch so Phase 2 recuts it
+      // fresh from main (a lingering branch is only rebased onto base, keeping its
+      // conflicting history).
+      console.log(
+        `  #${id} — stranded; no usable branch (missing or conflicts with main) → ready-for-agent for fresh rebuild`
+      );
+      git(`branch -D ${branch}`); // no-op (null) if the branch doesn't exist
+      relabel(id, "ready-for-agent", ["in-review"]);
+      sweepRequeued.add(id);
     }
   }
 
@@ -415,18 +407,9 @@ const MAX_ITERATIONS = 20;
 // Installation tokens are short-lived (~1h); minting per run keeps them fresh.
 const identity = await sandboxIdentity();
 
-// Hooks run inside the sandbox before the agent starts each iteration.
-// npm install ensures the sandbox always has fresh dependencies.
-// Git identity commands (if any) come first so commits in-sandbox use the bot identity.
-const hooks = {
-  sandbox: {
-    onSandboxReady: [...identity.gitConfigCommands, { command: "npm install" }],
-  },
-};
-
 // Copy node_modules from the host into the worktree before each sandbox
-// starts. Avoids a full npm install from scratch; the hook above handles
-// platform-specific binaries and any packages added since the last copy.
+// starts. Avoids a full npm install from scratch; sandboxConfig's npm install
+// hook handles platform-specific binaries and packages added since the copy.
 const copyToWorktree = ["node_modules"];
 
 // ---------------------------------------------------------------------------
@@ -442,18 +425,20 @@ const copyToWorktree = ["node_modules"];
 // only to name the throwaway PR head branches the host builds at Phase 3.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
-// Drop leftover issue worktrees from earlier runs so each branch is recut fresh
-// from its resolved base. Otherwise sandcastle reuses the stale checkout (built
-// on old main) and probes origin for a local-only branch it can't find, spamming
-// "Could not fetch from origin". Branch refs and their commits persist — only
-// the checkout dirs go; the onWorktreeReady rebase re-aligns whatever's recut.
-for (const m of (git(`worktree list --porcelain`) ?? "").matchAll(
-  /^worktree (.+)$/gm
-)) {
-  if (m[1].includes("/.sandcastle/worktrees/"))
-    git(`worktree remove --force ${m[1]}`);
+// Branch refs and commits persist — only the checkout dirs go. Called at run
+// start (crash-recovery net for a run that died before cleanup) and at run end
+// (after Phase 3, once per-issue worktrees are dead). The onWorktreeReady
+// rebase re-aligns any branch that is recut from its resolved base.
+function gcWorktrees(): void {
+  for (const path of parseSandcastleWorktrees(
+    git(`worktree list --porcelain`) ?? ""
+  )) {
+    git(`worktree remove --force ${path}`);
+  }
+  git(`worktree prune`);
 }
-git(`worktree prune`);
+
+gcWorktrees();
 // Branch the top-level runs (planner, PR consolidator) report against — used
 // only to name their log files the way sandcastle would by default.
 const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
@@ -462,13 +447,7 @@ const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 // bookkeeping — no git mutation. `parents` feeds back into the next planner
 // iteration (so dependent issues can declare these as parents) and drives the
 // Phase 3 head merge.
-const allCompleted: {
-  id: string;
-  title: string;
-  branch: string;
-  parents: string[];
-  group: string;
-}[] = [];
+const allCompleted: CompletedIssue[] = [];
 
 // Phase 0: clear pending review comments on open sandcastle PRs before taking
 // on new issue work. Once per run — humans don't comment mid-run, so a
@@ -503,8 +482,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // It outputs a <plan> JSON block — Output.object parses and validates it.
   // -------------------------------------------------------------------------
   const plan = await sandcastle.run({
-    hooks,
-    sandbox: docker({ env: identity.env }),
+    ...sandboxConfig(identity),
     name: "planner",
     logging: logging("planner", headBranch),
     // One iteration is enough: the planner just needs to read and reason,
@@ -624,25 +602,24 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       // stale branch replays its commits onto the base. Best-effort: abort on
       // conflict and proceed; the retry cap escalates a branch that can't be
       // salvaged.
-      const sandboxHooks = {
-        ...hooks,
-        host: {
-          onWorktreeReady: [
-            {
-              command: `git rebase ${base} || git rebase --abort`,
-            },
-          ],
-        },
-      };
-
+      const cfg = sandboxConfig(identity);
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
         // New branches are cut from the resolved base — the parent's branch (so
         // they contain just that chain's work) or main. (Ignored if the branch
         // already exists — the rebase hook above refreshes those.)
         baseBranch: base,
-        sandbox: docker({ env: identity.env }),
-        hooks: sandboxHooks,
+        ...cfg,
+        hooks: {
+          ...cfg.hooks,
+          host: {
+            onWorktreeReady: [
+              {
+                command: `git rebase ${base} || git rebase --abort`,
+              },
+            ],
+          },
+        },
         copyToWorktree,
       });
 
@@ -757,13 +734,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
   const attempts = readAttempts();
-  const completedIssues: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[] = [];
+  const completedIssues: CompletedIssue[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
     const { issue, kind } = outcome.value;
@@ -778,10 +749,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         id: issue.id,
         title: issue.title,
         branch: issue.branch,
-        // review-only issues have no plan entry, hence no declared parents/group.
-        // An empty group means "no topic" — it groups only by dependency edges.
         parents: issue.mode === "full" ? issue.parents : [],
-        group: issue.mode === "full" ? issue.group : "",
+        ...(issue.mode === "full" && issue.group ? { group: issue.group } : {}),
       });
     } else if (kind === "needs-review") {
       attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
@@ -924,15 +893,14 @@ if (components.length === 0) {
     // Push the assembled head host-side so the agent only has to open the PR.
     git(`push -u --force-with-lease origin ${prBranch}`);
     await sandcastle.run({
-      hooks,
-      sandbox: docker({ env: identity.env }),
+      ...sandboxConfig(identity),
       name: `pr-consolidator-${n + 1}`,
       logging: logging(`pr-consolidator-${n + 1}`, headBranch),
       maxIterations: 1,
       agent: sandcastle.claudeCode("claude-sonnet-4-6"),
       promptFile: "./.sandcastle/pr-prompt.md",
       promptArgs: {
-        RUN_BRANCH: prBranch,
+        MERGE_HEAD: prBranch,
         // One markdown line per issue in THIS component: id, title, branch.
         ISSUES: issues
           .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
@@ -977,6 +945,10 @@ for (const issue of allCompleted) {
       `stale branch deleted → ready-for-agent for a fresh rebuild`
   );
 }
+
+// End-of-run worktree GC: remove any issue checkout dirs that Phase 3 left
+// behind. PRs are open; the worktrees are dead.
+gcWorktrees();
 
 // ---------------------------------------------------------------------------
 // End-of-run bucketed summary: account for every open issue in exactly one

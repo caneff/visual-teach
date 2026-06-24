@@ -5,11 +5,11 @@ prompt — they are one dependency component of this run (the orchestrator opens
 separate PR per component). Do NOT open a PR per branch. Do NOT merge the PR into
 `main`.
 
-The PR head branch is: `{{RUN_BRANCH}}`
+The PR head branch is: `{{MERGE_HEAD}}`
 
 # THE HEAD BRANCH IS ALREADY BUILT AND PUSHED
 
-The orchestrator already assembled `{{RUN_BRANCH}}` as a throwaway head off
+The orchestrator already assembled `{{MERGE_HEAD}}` as a throwaway head off
 `main`: it merged in this component's leaf tips (each of which already contains
 its whole chain) and pushed the result to `origin`. **Do NOT create, rebuild,
 merge, rebase, or otherwise run git that mutates anything.** The head is final —
@@ -17,16 +17,16 @@ your only job is to open ONE pull request from it and write its prose.
 
 Read-only inspection to write an accurate body is expected:
 
-- `git fetch origin {{RUN_BRANCH}}`
-- `git log --oneline origin/main..origin/{{RUN_BRANCH}}` — these are the commits the PR contains.
-- `git diff origin/main...origin/{{RUN_BRANCH}}` — the full diff, for writing the body below.
+- `git fetch origin {{MERGE_HEAD}}`
+- `git log --oneline origin/main..origin/{{MERGE_HEAD}}` — these are the commits the PR contains.
+- `git diff origin/main...origin/{{MERGE_HEAD}}` — the full diff, for writing the body below.
 
 (CI runs lint/typecheck/test on the PR — that is the authoritative gate, so you
 do not run them here.)
 
 # OPEN THE PR
 
-`gh pr create --base main --head {{RUN_BRANCH}} --title "Sandcastle: <N> issue(s)" --body "<body>"`
+`gh pr create --base main --head {{MERGE_HEAD}} --title "Sandcastle: <N> issue(s)" --body "<body>"`
 where `<N>` is the number of issues actually folded in. Build `<body>` with these
 sections:
 
@@ -40,7 +40,7 @@ One subsection per issue that made it in. For each:
 
 - A `### #<id> — <title>` heading.
 - 1-3 bullets describing the actual change (read the issue's commits/diff with
-  `git log` / `git diff main...{{RUN_BRANCH}} -- <paths>`; describe behavior, not
+  `git log` / `git diff main...{{MERGE_HEAD}} -- <paths>`; describe behavior, not
   file lists).
 - A `Closes #<id>` line so the squash-merge auto-closes every issue.
 
