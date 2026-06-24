@@ -16,8 +16,7 @@
  *   SANDCASTLE_BOT_GIT_EMAIL — git user.email for commits made in-sandbox
  *
  * Wire-up in main.mts:
- *   docker({ env: identity.env })
- *   hooks.sandbox.onSandboxReady: [...identity.gitConfigCommands, ...]
+ *   sandcastle.run({ ...sandboxConfig(identity), ... })
  */
 
 import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
