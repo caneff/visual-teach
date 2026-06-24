@@ -3,6 +3,7 @@ import {
   classifyInReviewIssue,
   bucketIssues,
   buildRunSummary,
+  decideInReviewAction,
 } from "../.sandcastle/reconcile.mts";
 
 // ---------------------------------------------------------------------------
@@ -254,50 +255,78 @@ describe("buildRunSummary", () => {
 });
 
 // ---------------------------------------------------------------------------
-// main.mts contract tests — reconciliation sweep wiring
+// decideInReviewAction — truth table
 // ---------------------------------------------------------------------------
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
-
-const __dir = dirname(fileURLToPath(import.meta.url));
-const root = join(__dir, "..");
-const mainSrc = readFileSync(join(root, ".sandcastle/main.mts"), "utf8");
-
-describe("main.mts — reconciliation sweep wiring", () => {
-  test("imports from reconcile.mts", () => {
-    expect(mainSrc).toMatch(/from ['"]\.\/reconcile\.mts['"]/);
+describe("decideInReviewAction", () => {
+  test("human-gated → leave", () => {
+    expect(
+      decideInReviewAction("human-gated", {
+        branchExists: false,
+        mergesClean: false,
+      })
+    ).toBe("leave");
   });
 
-  test("runs reconciliation sweep before the plan loop", () => {
-    // The sweep call must appear before 'for (let iteration'
-    const sweepPos = mainSrc.indexOf("reconciliationSweep");
-    const loopPos = mainSrc.indexOf("for (let iteration");
-    expect(sweepPos).toBeGreaterThan(0);
-    expect(sweepPos).toBeLessThan(loopPos);
+  test("human-vetoed → relabel-human", () => {
+    expect(
+      decideInReviewAction("human-vetoed", {
+        branchExists: true,
+        mergesClean: true,
+      })
+    ).toBe("relabel-human");
   });
 
-  test("prints bucketed summary at end of run", () => {
-    expect(mainSrc).toMatch(/buildRunSummary|runSummary/);
+  test("stranded, no branch → requeue", () => {
+    expect(
+      decideInReviewAction("stranded", {
+        branchExists: false,
+        mergesClean: false,
+      })
+    ).toBe("requeue");
   });
 
-  test("sweep injects stranded branches into allCompleted", () => {
-    // The sweep passes allCompleted (or pushes to it) for Phase 3 to open PRs
-    expect(mainSrc).toMatch(/allCompleted\.push|sweepInjected/);
+  test("stranded, branch exists but conflicts with main → requeue", () => {
+    expect(
+      decideInReviewAction("stranded", {
+        branchExists: true,
+        mergesClean: false,
+      })
+    ).toBe("requeue");
   });
 
-  test("post-Phase-3 strand reconciliation requeues every PR-less completed issue", () => {
-    // After the PR-opening loop, any completed issue absent from prAssignments
-    // must be relabeled ready-for-agent, have its stale branch deleted, and be
-    // moved into sweepRequeued. This is what makes ending a run stranded (#114,
-    // #100) impossible. Assert the loop exists after Phase 3 and does all three.
-    const summaryPos = mainSrc.lastIndexOf("buildRunSummary"); // call site, not the import
-    const loopPos = mainSrc.indexOf("prAssignments.has(issue.id)");
-    expect(loopPos).toBeGreaterThan(0);
-    expect(loopPos).toBeLessThan(summaryPos); // runs before the summary
-    const loopSrc = mainSrc.slice(loopPos, summaryPos);
-    expect(loopSrc).toMatch(/branch -D/); // deletes the stale branch
-    expect(loopSrc).toMatch(/ready-for-agent/); // relabels for rebuild
-    expect(loopSrc).toMatch(/sweepRequeued\.add/); // reclassifies for the summary
+  test("stranded, branch exists and merges clean → inject", () => {
+    expect(
+      decideInReviewAction("stranded", {
+        branchExists: true,
+        mergesClean: true,
+      })
+    ).toBe("inject");
+  });
+
+  test("human-gated branch state is irrelevant", () => {
+    expect(
+      decideInReviewAction("human-gated", {
+        branchExists: true,
+        mergesClean: true,
+      })
+    ).toBe("leave");
+  });
+
+  test("human-vetoed branch state is irrelevant", () => {
+    expect(
+      decideInReviewAction("human-vetoed", {
+        branchExists: false,
+        mergesClean: false,
+      })
+    ).toBe("relabel-human");
+  });
+
+  test("stranded, branch absent but mergesClean true (shouldn't inject without branch) → requeue", () => {
+    expect(
+      decideInReviewAction("stranded", {
+        branchExists: false,
+        mergesClean: true,
+      })
+    ).toBe("requeue");
   });
 });

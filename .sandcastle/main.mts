@@ -52,6 +52,7 @@ import { prComponents, CompletedIssue } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
+  decideInReviewAction,
   bucketIssues,
   buildRunSummary,
 } from "./reconcile.mts";
@@ -308,42 +309,46 @@ function reconciliationSweep(): {
     }));
     const classification = classifyInReviewIssue(prs);
 
-    if (classification === "human-gated") {
+    const branch = issueBranch(id);
+    const branchExists = branchExistsWithWork(id);
+    const mergesClean = branchExists && mergesCleanIntoMain(branch);
+    const action = decideInReviewAction(classification, {
+      branchExists,
+      mergesClean,
+    });
+
+    if (action === "leave") {
       console.log(`  #${id} — human-gated (open PR exists); leaving untouched`);
-    } else if (classification === "human-vetoed") {
+    } else if (action === "relabel-human") {
       console.log(
         `  #${id} — human-vetoed (closed/merged PR, no open PR) → ready-for-human`
       );
       relabel(id, "ready-for-human", ["in-review"]);
+    } else if (action === "inject") {
+      // Branch still applies to main — just never got a PR (e.g. a prior run
+      // crashed before Phase 3). Inject it for a cheap PR, no rebuild.
+      console.log(
+        `  #${id} — stranded; branch ${branch} merges clean → injecting into this run for PR`
+      );
+      sweepInjected.add(id);
+      completedFromSweep.push({
+        id,
+        title: issue.title,
+        branch,
+        parents: [],
+      });
     } else {
-      // stranded: no PR references this issue
-      const branch = issueBranch(id);
-      if (branchExistsWithWork(id) && mergesCleanIntoMain(branch)) {
-        // Branch still applies to main — just never got a PR (e.g. a prior run
-        // crashed before Phase 3). Inject it for a cheap PR, no rebuild.
-        console.log(
-          `  #${id} — stranded; branch ${branch} merges clean → injecting into this run for PR`
-        );
-        sweepInjected.add(id);
-        completedFromSweep.push({
-          id,
-          title: issue.title,
-          branch,
-          parents: [],
-        });
-      } else {
-        // No branch, no work, OR a stale branch that conflicts with current
-        // main. Requeue NOW (before the plan loop) so this run rebuilds it from
-        // scratch — relabel ready-for-agent and delete any stale branch so
-        // Phase 2 recuts it fresh from main (a lingering branch is only rebased
-        // onto base, keeping its conflicting history).
-        console.log(
-          `  #${id} — stranded; no usable branch (missing or conflicts with main) → ready-for-agent for fresh rebuild`
-        );
-        git(`branch -D ${branch}`); // no-op (null) if the branch doesn't exist
-        relabel(id, "ready-for-agent", ["in-review"]);
-        sweepRequeued.add(id);
-      }
+      // requeue: no branch, no work, OR a stale branch that conflicts with main.
+      // Requeue NOW (before the plan loop) so this run rebuilds it from scratch —
+      // relabel ready-for-agent and delete any stale branch so Phase 2 recuts it
+      // fresh from main (a lingering branch is only rebased onto base, keeping its
+      // conflicting history).
+      console.log(
+        `  #${id} — stranded; no usable branch (missing or conflicts with main) → ready-for-agent for fresh rebuild`
+      );
+      git(`branch -D ${branch}`); // no-op (null) if the branch doesn't exist
+      relabel(id, "ready-for-agent", ["in-review"]);
+      sweepRequeued.add(id);
     }
   }
 

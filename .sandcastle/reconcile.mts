@@ -24,6 +24,23 @@ export type InReviewClassification =
   | "human-vetoed"
   | "stranded";
 
+// Action the sweep should take for a single in-review issue.
+//   leave         — human-gated (open PR exists); do nothing
+//   relabel-human — human-vetoed; relabel ready-for-human
+//   inject        — stranded, branch exists and merges clean; inject for Phase 3 PR
+//   requeue       — stranded, no usable branch; relabel ready-for-agent, delete stale branch
+export type InReviewAction = "leave" | "relabel-human" | "inject" | "requeue";
+
+export function decideInReviewAction(
+  classification: InReviewClassification,
+  opts: { branchExists: boolean; mergesClean: boolean }
+): InReviewAction {
+  if (classification === "human-gated") return "leave";
+  if (classification === "human-vetoed") return "relabel-human";
+  // stranded
+  return opts.branchExists && opts.mergesClean ? "inject" : "requeue";
+}
+
 export function classifyInReviewIssue(prs: PrRef[]): InReviewClassification {
   if (prs.some((pr) => pr.state === "OPEN")) return "human-gated";
   if (prs.some((pr) => pr.state === "CLOSED" || pr.state === "MERGED"))
