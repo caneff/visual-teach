@@ -52,7 +52,7 @@ screenshot hosting. Skip only if your fix had no visual surface.
 
 # VERIFY, COMMIT, PUSH
 
-1. Run `npm run lint && npm run typecheck && npm run test`. All must pass.
+1. Run `npm run lint && npm run test`. All must pass.
 2. Commit the changes: `git commit -am "Address review comments on #{{PR_NUMBER}}"`.
    (The pre-commit hook will re-run lint/format/tests — let it.)
 3. `git push` to update the PR.

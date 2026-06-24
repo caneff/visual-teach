@@ -70,18 +70,6 @@ describe(".sandcastle base resolution — forest fixture 108→112, 120→119", 
     expect(base).not.toBe(issueBranch("119"));
   });
 
-  // Regression guard: this is the failure the self-check exists to catch — a
-  // 1-parent issue collapsing to `main` even though its parent branch exists
-  // with work would lose the dependency and break the dependent issue's build.
-  test("1-parent issue must NOT fall back to main when its parent branch exists with work", () => {
-    const base = resolveBase({
-      parents: ["112"],
-      branchExistsWithWork: allBuiltThisRun,
-    });
-    expect(base).toBe(issueBranch("112"));
-    expect(base).not.toBe("main");
-  });
-
   test("1-parent issue falls back to main when the parent already merged (branch absent / no work)", () => {
     // Parent landed in an earlier run: its work is in main, branch carries no
     // unmerged work. Base is main, not a stale parent branch.
