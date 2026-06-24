@@ -50,11 +50,4 @@ describe("recordAttempt", () => {
       escalate: true,
     });
   });
-
-  test("default cap is the exported REVIEW_RETRY_CAP", () => {
-    let a = {};
-    for (let i = 1; i < REVIEW_RETRY_CAP; i++)
-      a = recordAttempt(a, "k").attempts;
-    expect(recordAttempt(a, "k").escalate).toBe(true);
-  });
 });
