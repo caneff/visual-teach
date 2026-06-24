@@ -92,15 +92,24 @@ Once the bot works, blank out the old personal `GH_TOKEN=` line in
 
 ### Step 5b — Bot email
 
-The commit-author email is the App's no-reply address, in this exact shape:
+The commit-author email is the bot account's no-reply address, in this exact shape:
 
 ```
-<APP_ID>+<app-slug>[bot]@users.noreply.github.com
+<BOT_USER_ID>+<app-slug>[bot]@users.noreply.github.com
 ```
 
-Example: App ID `1234567`, name `sandcastle-bot` →
-`1234567+sandcastle-bot[bot]@users.noreply.github.com`. Using this makes GitHub
-link commits to the bot's avatar.
+`<BOT_USER_ID>` is the numeric **user ID of the bot account** — NOT the App ID
+(they differ, and using the App ID leaves commits unlinked: GitHub shows a
+fallback avatar instead of the bot's). Fetch it once the App is installed:
+
+```bash
+gh api '/users/<app-slug>[bot]' --jq .id
+# e.g. /users/sandcastle-bot[bot] → 296302627
+```
+
+Example: bot user ID `296302627`, name `sandcastle-bot` →
+`296302627+sandcastle-bot[bot]@users.noreply.github.com`. Only when the prefix is
+the bot's user ID does GitHub link commits to the bot's avatar.
 
 ### CI (GitHub Actions)
 
