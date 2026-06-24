@@ -32,7 +32,7 @@ afterEach(() => {
 
 // Import once; the helper reads process.env at call time, not at module load.
 const { sandboxIdentity, sandboxConfig } =
-  await import("../.sandcastle/sandbox-identity.mts");
+  await import("../sandbox-identity.mts");
 
 // ── sandboxConfig ─────────────────────────────────────────────────────────────
 

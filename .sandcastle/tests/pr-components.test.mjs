@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import { prComponents } from "../.sandcastle/pr-components.mts";
+import { prComponents } from "../pr-components.mts";
 
 // One PR per connected dependency component (issue #127). Components are the
 // connected pieces of the parent-edge graph over the issues completed THIS run.

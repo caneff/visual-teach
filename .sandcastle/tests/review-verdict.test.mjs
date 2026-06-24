@@ -1,5 +1,5 @@
 import { test, expect, describe } from "vitest";
-import { parseSpecVerdict } from "../.sandcastle/review-verdict.mts";
+import { parseSpecVerdict } from "../review-verdict.mts";
 
 // The reviewer emits a sentinel line because sandbox.run has no structured
 // output (issue #130). Gate on an EXPLICIT FAIL only; everything else passes.
