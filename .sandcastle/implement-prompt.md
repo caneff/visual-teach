@@ -26,11 +26,23 @@ Pay extra attention to test files that touch the relevant parts of the code.
 
 # EXECUTION
 
-Use the **`/tdd` skill** (vendored at `.claude/skills/tdd/`) and follow it — do
-not improvise your own test rhythm. Its load-bearing rules: one vertical slice
-at a time (RED: one failing test → GREEN: minimal code to pass → REPEAT), never
-write all tests first then all code, test observable behavior through the public
-interface (not source shape), refactor only once green.
+First decide whether this issue has **new observable behavior** to drive out
+test-first. Pure deletions, refactors, doc/config edits, and "move X to Y" tasks
+usually do not — their acceptance criteria are end-state facts (a file is gone, a
+script no longer exists, a string is present), not behavior. Forcing red-green
+onto these produces filesystem-shape assertions dressed up as TDD slices — the
+exact "crap tests" `/tdd` warns against.
+
+- **No new behavior** (deletion / refactor / docs / config): skip red-green. Make
+  the change, then assert the end-state as plain verification (or just confirm the
+  existing suite still passes). Do not manufacture a test file to have something
+  to go RED on.
+- **New behavior**: use the **`/tdd` skill** (vendored at `.claude/skills/tdd/`)
+  and follow it — do not improvise your own test rhythm. Its load-bearing rules:
+  one vertical slice at a time (RED: one failing test → GREEN: minimal code to
+  pass → REPEAT), never write all tests first then all code, test observable
+  behavior through the public interface (not source shape), refactor only once
+  green.
 
 # FEEDBACK LOOPS
 
