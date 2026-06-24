@@ -104,6 +104,39 @@ describe("bucketIssues", () => {
     expect(result[0]).toMatchObject({ bucket: "repaired-sweep-requeued" });
   });
 
+  // Regression: a sweep-injected branch whose Phase-3 merge conflicted is moved
+  // to sweepRequeued (and may still be in builtThisRun + sweepInjected from the
+  // injection). It must report as re-queued, never "PR opened" (the #114 loop).
+  test("injected branch that conflicted (requeued, no PR) → repaired-sweep-requeued, not -pr", () => {
+    const result = bucketIssues(
+      makeOpts({
+        openIssues: [
+          { number: 114, title: "stale", labels: ["ready-for-agent"] },
+        ],
+        builtThisRun: new Set(["114"]),
+        sweepInjected: new Set(["114"]),
+        sweepRequeued: new Set(["114"]),
+        prAssignments: new Map(), // no PR landed
+      })
+    );
+    expect(result[0].bucket).toBe("repaired-sweep-requeued");
+    expect(result[0].prNumber).toBeUndefined();
+  });
+
+  // Honesty gate: injected, not requeued, but no PR assigned → don't claim a
+  // sweep repair PR; fall back to built-this-run rather than lying.
+  test("injected without a PR number → not repaired-sweep-pr", () => {
+    const result = bucketIssues(
+      makeOpts({
+        openIssues: [{ number: 13, title: "noPR", labels: ["in-review"] }],
+        builtThisRun: new Set(["13"]),
+        sweepInjected: new Set(["13"]),
+        prAssignments: new Map(),
+      })
+    );
+    expect(result[0].bucket).not.toBe("repaired-sweep-pr");
+  });
+
   test("in-review issue not built this run → human-gated-pr", () => {
     const result = bucketIssues(
       makeOpts({

@@ -82,19 +82,25 @@ export function bucketIssues(options: {
     const labelSet = new Set(issue.labels);
     const prNumber = options.prAssignments.get(id);
 
-    if (options.builtThisRun.has(id)) {
-      const bucket = options.sweepInjected.has(id)
-        ? "repaired-sweep-pr"
-        : "built-this-run";
-      return { number: issue.number, title: issue.title, bucket, prNumber };
-    }
-
+    // Requeued takes precedence over builtThisRun: a sweep-injected branch whose
+    // Phase-3 merge conflicted is moved from sweepInjected → sweepRequeued and
+    // relabeled ready-for-agent. It may still appear in builtThisRun (it was
+    // injected), but it produced no PR — report it re-queued, not "PR opened".
     if (options.sweepRequeued.has(id)) {
       return {
         number: issue.number,
         title: issue.title,
         bucket: "repaired-sweep-requeued",
       };
+    }
+
+    if (options.builtThisRun.has(id)) {
+      // Only claim a sweep repair "PR opened" when a PR actually landed.
+      const bucket =
+        options.sweepInjected.has(id) && prNumber != null
+          ? "repaired-sweep-pr"
+          : "built-this-run";
+      return { number: issue.number, title: issue.title, bucket, prNumber };
     }
 
     if (labelSet.has("in-review"))

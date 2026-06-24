@@ -881,6 +881,20 @@ if (components.length === 0) {
         console.error(
           `  ✗ ${leaf.id} (${leaf.branch}) conflicted merging into ${prBranch}; excluded from the PR head`
         );
+        // A sweep-injected stranded branch that no longer merges cleanly is
+        // stale (main moved on while it sat in-review). Re-stranding it would
+        // loop forever: next run re-injects, re-conflicts, re-skips. Per the
+        // reconciliation design, fall back to a fresh re-implement — hand it
+        // back to the agent queue and reclassify it for the summary so it isn't
+        // falsely reported as "PR opened".
+        if (sweepInjected.has(leaf.id)) {
+          relabel(leaf.id, "ready-for-agent", ["in-review"]);
+          sweepInjected.delete(leaf.id);
+          sweepRequeued.add(leaf.id);
+          console.error(
+            `    ↳ #${leaf.id} was sweep-injected; stale branch → ready-for-agent for re-implement`
+          );
+        }
       }
     }
     git(`worktree remove --force ${wt}`);
