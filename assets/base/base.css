@@ -336,10 +336,40 @@ a code {
 
 /* ====== print ====== */
 @media print {
+  /* Force light palette — dark backgrounds are near-black on paper and waste ink.
+     Resets all 9 base tokens and color-scheme so the browser's own UA dark styles also revert. */
+  :root,
+  :root[data-theme="dark"] {
+    --vt-ink: #1a1f2b;
+    --vt-muted: #5b6472;
+    --vt-accent: #1a73e8;
+    --vt-accent-fg: #ffffff;
+    --vt-rule: #e3e6ea;
+    --vt-paper: #ffffff;
+    --vt-good: #0d7d4d;
+    --vt-bad: #c5221f;
+    --vt-warn: #f9ab00;
+    color-scheme: light;
+  }
+
+  /* Screen-only interactive chrome: hide the theme toggle (fixed, top-right)
+     and code copy buttons so they do not print over the lesson content. */
+  .vt-theme-toggle,
+  .vt-code-copy {
+    display: none;
+  }
+
+  /* Non-option quiz buttons (vt-quiz-check, vt-reset) are hidden —
+     interactivity is meaningless on paper.
+     Quiz options (.vt-quiz button.opt) intentionally still print: the
+     display:none here (spec 0,1,1) is overridden by
+     .vt-quiz button.opt { display:block } (spec 0,2,1) so all options
+     stay visible, making a printed quiz self-contained and answerable on paper. */
   .vt-quiz button,
   .vt-reset {
     display: none;
   }
+
   .vt-diagram {
     border: 1px solid #ccc;
     background: none;
