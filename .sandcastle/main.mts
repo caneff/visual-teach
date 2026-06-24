@@ -158,6 +158,16 @@ function branchExistsWithWork(parentId: string): boolean {
   return branchHasWork(branch);
 }
 
+// Whether `branch` still merges into main without conflict. merge-tree writes
+// the merged tree and exits non-zero (git() → null) when the merge would
+// conflict — a read-only check, no worktree or index mutation. A stranded
+// branch that fails this is stale (main moved on while it sat in-review): it
+// must be rebuilt from scratch, not injected to Phase 3 where it would only
+// conflict again.
+function mergesCleanIntoMain(branch: string): boolean {
+  return git(`merge-tree --write-tree main ${branch}`) !== null;
+}
+
 // add/remove as separate calls so a no-op remove never blocks the add.
 function relabel(id: string, add: string, remove: string[]): void {
   gh(`issue edit ${id} --add-label "${add}"`);
@@ -320,9 +330,11 @@ function reconciliationSweep(): {
     } else {
       // stranded: no PR references this issue
       const branch = issueBranch(id);
-      if (branchExistsWithWork(id)) {
+      if (branchExistsWithWork(id) && mergesCleanIntoMain(branch)) {
+        // Branch still applies to main — just never got a PR (e.g. a prior run
+        // crashed before Phase 3). Inject it for a cheap PR, no rebuild.
         console.log(
-          `  #${id} — stranded; branch ${branch} has work → injecting into this run for PR`
+          `  #${id} — stranded; branch ${branch} merges clean → injecting into this run for PR`
         );
         sweepInjected.add(id);
         completedFromSweep.push({
@@ -333,9 +345,15 @@ function reconciliationSweep(): {
           group: "",
         });
       } else {
+        // No branch, no work, OR a stale branch that conflicts with current
+        // main. Requeue NOW (before the plan loop) so this run rebuilds it from
+        // scratch — relabel ready-for-agent and delete any stale branch so
+        // Phase 2 recuts it fresh from main (a lingering branch is only rebased
+        // onto base, keeping its conflicting history).
         console.log(
-          `  #${id} — stranded; no branch / no work → ready-for-agent`
+          `  #${id} — stranded; no usable branch (missing or conflicts with main) → ready-for-agent for fresh rebuild`
         );
+        git(`branch -D ${branch}`); // no-op (null) if the branch doesn't exist
         relabel(id, "ready-for-agent", ["in-review"]);
         sweepRequeued.add(id);
       }

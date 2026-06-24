@@ -82,11 +82,12 @@ export function bucketIssues(options: {
     const labelSet = new Set(issue.labels);
     const prNumber = options.prAssignments.get(id);
 
-    // Requeued takes precedence over builtThisRun: a sweep-injected branch whose
-    // Phase-3 merge conflicted is moved from sweepInjected → sweepRequeued and
-    // relabeled ready-for-agent. It may still appear in builtThisRun (it was
-    // injected), but it produced no PR — report it re-queued, not "PR opened".
-    if (options.sweepRequeued.has(id)) {
+    // A requeued-but-not-PR'd issue reports re-queued. Requeue happens two ways:
+    // up front in the sweep (stale branch deleted) or post-Phase-3 (its merge
+    // conflicted). Either may also sit in builtThisRun. Gate on prNumber: if the
+    // run went on to rebuild it and open a PR, report THAT (fall through to
+    // built-this-run below) — only a genuinely PR-less requeue is "re-queued".
+    if (options.sweepRequeued.has(id) && prNumber == null) {
       return {
         number: issue.number,
         title: issue.title,
