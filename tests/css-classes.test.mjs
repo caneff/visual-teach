@@ -364,3 +364,79 @@ test("progress-bar fill transition is disabled under prefers-reduced-motion", ()
     "progress-bar-fill transition must be removed under reduced-motion"
   ).toMatch(/\.vt-progress-bar-fill[^{]*\{[^}]*transition:\s*none/);
 });
+
+// ====== @media print hardening ======
+
+function extractMediaBlock(source, query) {
+  const start = source.indexOf(query);
+  if (start < 0) return "";
+  let depth = 0;
+  for (let i = start; i < source.length; i++) {
+    if (source[i] === "{") depth++;
+    else if (source[i] === "}" && --depth === 0)
+      return source.slice(start, i + 1);
+  }
+  return "";
+}
+
+const printBlock = extractMediaBlock(css, "@media print");
+
+test("print block forces light theme — dark backgrounds waste ink and are unreadable on paper", () => {
+  // The print block must reset the 9 base tokens to their light values and
+  // set color-scheme: light so the browser's own UA dark styles also revert.
+  expect(printBlock, "print block must set color-scheme: light").toMatch(
+    /color-scheme:\s*light/
+  );
+  expect(printBlock, "print block must reset --vt-paper to white").toMatch(
+    /--vt-paper:\s*#ffffff/
+  );
+  expect(printBlock, "print block must reset --vt-ink to dark").toMatch(
+    /--vt-ink:\s*#1a1f2b/
+  );
+});
+
+test("print block hides the theme toggle so it does not print over page 1", () => {
+  expect(printBlock, ".vt-theme-toggle must be display:none in print").toMatch(
+    /\.vt-theme-toggle[^{]*\{[^}]*display:\s*none/
+  );
+});
+
+test("print block hides code copy buttons so they do not print as empty boxes", () => {
+  expect(printBlock, ".vt-code-copy must be display:none in print").toMatch(
+    /\.vt-code-copy[^{]*\{[^}]*display:\s*none/
+  );
+});
+
+test("atomic teaching blocks have break-inside:avoid so they do not split across printed pages", () => {
+  expect(printBlock, ".vt-quiz must have break-inside:avoid in print").toMatch(
+    /\.vt-quiz[^{]*\{[^}]*break-inside:\s*avoid/
+  );
+  expect(
+    printBlock,
+    ".vt-callout must have break-inside:avoid in print"
+  ).toMatch(/\.vt-callout[^{]*\{[^}]*break-inside:\s*avoid/);
+  expect(printBlock, ".vt-code must have break-inside:avoid in print").toMatch(
+    /\.vt-code[^{]*\{[^}]*break-inside:\s*avoid/
+  );
+  expect(
+    printBlock,
+    ".vt-diagram must have break-inside:avoid in print"
+  ).toMatch(/\.vt-diagram[^{]*\{[^}]*break-inside:\s*avoid/);
+  expect(
+    printBlock,
+    ".vt-table tr must have break-inside:avoid in print"
+  ).toMatch(/\.vt-table\s+tr[^{]*\{[^}]*break-inside:\s*avoid/);
+  expect(printBlock, ".vt-split must have break-inside:avoid in print").toMatch(
+    /\.vt-split[^{]*\{[^}]*break-inside:\s*avoid/
+  );
+});
+
+test("print block documents that quiz options still print — the no-op specificity is intentional", () => {
+  // .vt-quiz button { display:none } is overridden by .vt-quiz button.opt { display:block }
+  // (higher specificity 0,2,1 > 0,1,1) so quiz options correctly print; only non-option
+  // buttons are hidden. A comment in the print block must make this intent explicit.
+  expect(
+    printBlock,
+    "print block must document the intentional quiz-option specificity"
+  ).toMatch(/quiz.*opt|opt.*quiz|options.*print|print.*options/i);
+});

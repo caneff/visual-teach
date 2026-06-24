@@ -261,6 +261,10 @@
 }
 
 @media print {
+  .vt-diagram,
+  .vt-split {
+    break-inside: avoid;
+  }
   .vt-diagram {
     border: 1px solid #ccc;
     background: none;
