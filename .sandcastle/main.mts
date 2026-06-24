@@ -55,6 +55,7 @@ import {
   bucketIssues,
   buildRunSummary,
 } from "./reconcile.mts";
+import { parseSandcastleWorktrees } from "./worktrees.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
@@ -424,18 +425,21 @@ const copyToWorktree = ["node_modules"];
 // only to name the throwaway PR head branches the host builds at Phase 3.
 const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
 
-// Drop leftover issue worktrees from earlier runs so each branch is recut fresh
-// from its resolved base. Otherwise sandcastle reuses the stale checkout (built
-// on old main) and probes origin for a local-only branch it can't find, spamming
-// "Could not fetch from origin". Branch refs and their commits persist — only
-// the checkout dirs go; the onWorktreeReady rebase re-aligns whatever's recut.
-for (const m of (git(`worktree list --porcelain`) ?? "").matchAll(
-  /^worktree (.+)$/gm
-)) {
-  if (m[1].includes("/.sandcastle/worktrees/"))
-    git(`worktree remove --force ${m[1]}`);
+// Remove all .sandcastle/worktrees/* checkout dirs. Branch refs and commits
+// persist — only the checkout dirs go. Called at run start (crash-recovery net
+// for a run that died before cleanup) and at run end (after Phase 3, once
+// per-issue worktrees are dead). The onWorktreeReady rebase re-aligns any
+// branch that is recut from its resolved base.
+function gcWorktrees(): void {
+  for (const path of parseSandcastleWorktrees(
+    git(`worktree list --porcelain`) ?? ""
+  )) {
+    git(`worktree remove --force ${path}`);
+  }
+  git(`worktree prune`);
 }
-git(`worktree prune`);
+
+gcWorktrees();
 // Branch the top-level runs (planner, PR consolidator) report against — used
 // only to name their log files the way sandcastle would by default.
 const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
@@ -897,7 +901,7 @@ if (components.length === 0) {
       agent: sandcastle.claudeCode("claude-sonnet-4-6"),
       promptFile: "./.sandcastle/pr-prompt.md",
       promptArgs: {
-        RUN_BRANCH: prBranch,
+        MERGE_HEAD: prBranch,
         // One markdown line per issue in THIS component: id, title, branch.
         ISSUES: issues
           .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
@@ -942,6 +946,10 @@ for (const issue of allCompleted) {
       `stale branch deleted → ready-for-agent for a fresh rebuild`
   );
 }
+
+// End-of-run worktree GC: remove any issue checkout dirs that Phase 3 left
+// behind. PRs are open; the worktrees are dead.
+gcWorktrees();
 
 // ---------------------------------------------------------------------------
 // End-of-run bucketed summary: account for every open issue in exactly one
