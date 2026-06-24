@@ -29,11 +29,11 @@ test("teach-course SKILL.md: prohibits hand-rolling placeholder content", () => 
 });
 
 test("teach-course SKILL.md: defines valid missing-component finding", () => {
-  expect(teachCourseSkill).toMatch(/"missing component" finding is valid/i);
+  expect(teachCourseSkill).toContain('"missing component" finding is valid');
 });
 
 test("teach-course SKILL.md: states no-demand → no-gap rule", () => {
-  expect(teachCourseSkill).toMatch(/there is no gap.+there is no demand/i);
+  expect(teachCourseSkill).toContain("there is no gap — there is no demand");
 });
 
 test("teach-course SKILL.md: points at the methodology ADR", () => {
