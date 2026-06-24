@@ -16,10 +16,10 @@
  *   SANDCASTLE_BOT_GIT_EMAIL — git user.email for commits made in-sandbox
  *
  * Wire-up in main.mts:
- *   docker({ env: identity.env })
- *   hooks.sandbox.onSandboxReady: [...identity.gitConfigCommands, ...]
+ *   sandcastle.run({ ...sandboxConfig(identity), ... })
  */
 
+import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { mintInstallationToken } from "./mint-gh-token.mjs";
 
 export interface SandboxIdentity {
@@ -67,4 +67,30 @@ export async function sandboxIdentity(
     ? [{ command: cfgs.join(" && ") }]
     : [];
   return { env, gitConfigCommands };
+}
+
+/**
+ * Returns the sandbox and hooks config that bakes identity into every sandbox
+ * creation site. Spread the result into sandcastle.run() or createSandbox():
+ *   sandcastle.run({ ...sandboxConfig(identity), name: "...", ... })
+ *
+ * The per-issue site adds its own host.onWorktreeReady on top:
+ *   const cfg = sandboxConfig(identity);
+ *   createSandbox({ ...cfg, hooks: { ...cfg.hooks, host: { ... } }, ... })
+ */
+export function sandboxConfig(
+  identity: SandboxIdentity,
+  dockerFn: typeof docker = docker
+) {
+  return {
+    sandbox: dockerFn({ env: identity.env }),
+    hooks: {
+      sandbox: {
+        onSandboxReady: [
+          ...identity.gitConfigCommands,
+          { command: "npm install" },
+        ],
+      },
+    },
+  };
 }
