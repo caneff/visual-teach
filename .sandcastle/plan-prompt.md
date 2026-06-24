@@ -4,7 +4,7 @@ Here are the open issues in the repo:
 
 <issues-json>
 
-!`gh issue list --state open --label ready-for-agent --limit 100 --json number,title,body,labels,comments --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body]}]'`
+!`gh issue list --state open --label ready-for-agent --limit 100 --json number,title,body,labels,comments,parent,blockedBy,issueType --jq '[.[] | {number, title, body, labels: [.labels[].name], comments: [.comments[].body], parent: .parent.number, blockedBy: [.blockedBy.nodes[].number], issueType: .issueType.name}]'`
 
 </issues-json>
 
@@ -16,7 +16,7 @@ These issues are already implemented but not yet merged into `main` (in review, 
 
 <in-flight-json>
 
-!`gh issue list --search "label:in-review,needs-review state:open" --limit 100 --json number,title,body,labels --jq '[.[] | {number, title, body, labels: [.labels[].name]}]'`
+!`gh issue list --search "label:in-review,needs-review state:open" --limit 100 --json number,title,body,labels,parent,blockedBy --jq '[.[] | {number, title, body, labels: [.labels[].name], parent: .parent.number, blockedBy: [.blockedBy.nodes[].number]}]'`
 
 </in-flight-json>
 
@@ -38,9 +38,12 @@ Analyze the issues and build a dependency graph. For each `ready-for-agent` issu
 
 An issue B is **blocked by** issue A if:
 
+- A is listed in B's native `blockedBy` field, or B is listed as a sub-issue of A via B's `parent` field (these GitHub-native relationships are **authoritative** — always honor them)
 - B requires code or infrastructure that A introduces
 - B and A modify overlapping files or modules, making concurrent work likely to produce merge conflicts
 - B's requirements depend on a decision or API shape that A will establish
+
+The native `blockedBy` / `parent` fields are recorded by whoever authored the issues (e.g. the `/to-issues` skill) and are the ground truth for declared dependencies. Treat them as hard edges, then **infer additional** blockers from the prose/file-overlap heuristics above on top. When these fields are empty (a tracker without dependency support, or an issue authored before they were set), fall back entirely to inference from the issue text.
 
 An issue is **unblocked** if it has zero blocking dependencies on any other open issue, ready-for-agent or in-flight.
 
