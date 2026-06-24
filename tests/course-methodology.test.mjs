@@ -21,23 +21,19 @@ const teachBaseSkill = readFileSync(teachBaseSkillPath, "utf8");
 // ── teach-course SKILL.md: probe methodology guard ───────────────────────────
 
 test("teach-course SKILL.md: states probe may only exercise blocks the skill emits", () => {
-  expect(teachCourseSkill).toMatch(
-    /only.*block.*skill.*emit|only.*emit|only test.*block.*emit|probe.*only.*blocks.*skill.*generat|only.*blocks.*skill.*actually/i
-  );
+  expect(teachCourseSkill).toContain("A probe may only exercise");
 });
 
 test("teach-course SKILL.md: prohibits hand-rolling placeholder content", () => {
-  expect(teachCourseSkill).toMatch(/hand.roll|placeholder.*content|fabricat/i);
+  expect(teachCourseSkill).toContain("hand-roll placeholder content");
 });
 
 test("teach-course SKILL.md: defines valid missing-component finding", () => {
-  expect(teachCourseSkill).toMatch(/missing.*component|gap/i);
+  expect(teachCourseSkill).toMatch(/"missing component" finding is valid/i);
 });
 
 test("teach-course SKILL.md: states no-demand → no-gap rule", () => {
-  expect(teachCourseSkill).toMatch(
-    /no.*demand.*no.*gap|no.*gap.*no.*demand|demand/i
-  );
+  expect(teachCourseSkill).toMatch(/there is no gap.+there is no demand/i);
 });
 
 test("teach-course SKILL.md: points at the methodology ADR", () => {
@@ -53,23 +49,20 @@ test("ADR 0003 exists", () => {
 });
 
 test("ADR 0003: carries the no-placeholder guard", () => {
-  expect(adr).toMatch(/hand.roll|placeholder.*content|fabricat/i);
+  expect(adr).toContain("hand-roll placeholder content");
 });
 
 test("ADR 0003: states probe only exercises blocks the skill emits", () => {
-  expect(adr).toMatch(
-    /only.*block.*skill|block.*skill.*emit|block.*skill.*actually emit|blocks.*skill.*generat/i
-  );
+  expect(adr).toContain("A probe may only exercise");
 });
 
 test("ADR 0003: records the retracted/removed image-component finding", () => {
-  expect(adr).toMatch(/retract|manufactured|removed|empty/i);
-  expect(adr).toContain("#86");
+  expect(adr).toContain("removed (#86)");
 });
 
 test("ADR 0003: lists the deliberate non-components (plot, numeric input)", () => {
-  expect(adr).toMatch(/xy.?plot|chart/i);
-  expect(adr).toMatch(/numeric|free.?text/i);
+  expect(adr).toMatch(/XY plot/i);
+  expect(adr).toMatch(/free-text quiz/i);
 });
 
 // ── teach-base: frozen A/B control baseline ──────────────────────────────────
@@ -83,8 +76,8 @@ test("teach-base SKILL.md: name frontmatter is teach-base", () => {
 });
 
 test("teach-base SKILL.md: documented as A/B control baseline — do not edit", () => {
-  expect(teachBaseSkill).toMatch(/A\/B|control|baseline/i);
-  expect(teachBaseSkill).toMatch(/do not edit|frozen|never.edit/i);
+  expect(teachBaseSkill).toContain("A/B control baseline");
+  expect(teachBaseSkill).toContain("do not edit");
 });
 
 test("teach-base SKILL.md: contains no vt-* class references", () => {
