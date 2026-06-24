@@ -56,6 +56,12 @@ import {
   buildRunSummary,
 } from "./reconcile.mts";
 import { parseSandcastleWorktrees } from "./worktrees.mts";
+import {
+  REVIEW_RETRY_CAP,
+  readAttempts,
+  writeAttempts,
+  recordAttempt,
+} from "./retry-policy.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
@@ -173,24 +179,6 @@ function mergesCleanIntoMain(branch: string): boolean {
 function relabel(id: string, add: string, remove: string[]): void {
   gh(`issue edit ${id} --add-label "${add}"`);
   for (const label of remove) gh(`issue edit ${id} --remove-label "${label}"`);
-}
-
-// Review-retry cap. A needs-review issue is re-reviewed (cheaply, on its
-// existing branch) up to this many times before we give up on review-only and
-// escalate to a full re-implement. Without a cap, a deterministically-broken
-// branch would re-review and re-fail every run forever.
-const REVIEW_RETRY_CAP = 2;
-const ATTEMPTS_FILE = ".sandcastle/review-attempts.json";
-
-function readAttempts(): Record<string, number> {
-  try {
-    return JSON.parse(readFileSync(ATTEMPTS_FILE, "utf8"));
-  } catch {
-    return {};
-  }
-}
-function writeAttempts(a: Record<string, number>): void {
-  writeFileSync(ATTEMPTS_FILE, JSON.stringify(a, null, 2));
 }
 
 // ---------------------------------------------------------------------------
@@ -720,7 +708,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   //   spec-fail    → ready-for-agent (re-implement), or ready-for-human at cap
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
-  const attempts = readAttempts();
+  let attempts = readAttempts();
   const completedIssues: CompletedIssue[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
@@ -740,13 +728,13 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         ...(issue.mode === "full" && issue.group ? { group: issue.group } : {}),
       });
     } else if (kind === "needs-review") {
-      attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
-      if (attempts[issue.id] >= REVIEW_RETRY_CAP) {
+      const r = recordAttempt(attempts, issue.id);
+      attempts = r.attempts;
+      if (r.escalate) {
         // Cheap re-review failed REVIEW_RETRY_CAP times — the branch can't be
         // salvaged by review alone. Escalate to a full implement pass (which
         // can actually change the code) against current main.
         relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
-        delete attempts[issue.id];
         console.warn(
           `  ${issue.id} hit review-retry cap (${REVIEW_RETRY_CAP}); back to ready-for-agent for a full re-implement`
         );
@@ -759,22 +747,21 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       // "built the wrong thing" — so send it back to ready-for-agent. Cap the
       // re-implements with a distinct counter so a persistently-misunderstood
       // issue doesn't loop forever; at the cap, hand it to a human.
-      const key = `spec-${issue.id}`;
-      attempts[key] = (attempts[key] ?? 0) + 1;
-      if (attempts[key] >= REVIEW_RETRY_CAP) {
+      const r = recordAttempt(attempts, `spec-${issue.id}`);
+      attempts = r.attempts;
+      if (r.escalate) {
         relabel(issue.id, "ready-for-human", [
           "ready-for-agent",
           "needs-review",
           "in-review",
         ]);
-        delete attempts[key];
         console.warn(
           `  ${issue.id} failed spec review ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`
         );
       } else {
         relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
         console.warn(
-          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${attempts[key]}/${REVIEW_RETRY_CAP})`
+          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${r.count}/${REVIEW_RETRY_CAP})`
         );
       }
     }
