@@ -36,7 +36,7 @@ Authors (the `/teach` agent) rebuild this each time, and it drifts between lesso
    checklists, themed callouts) with **zero new authoring model** to learn.
 3. Adopt-by-subtraction: a lesson adopts by _deleting_ its inline CSS/JS and
    linking two assets.
-4. Stay an **add-on** to `/teach` — never fork it, never reimplement its pedagogy.
+4. Own the authoring skill — the `/teach` fork bundles the component library and seeds it explicitly.
 5. No build step, no server, no dependency. Lessons keep opening from `file://`.
 
 ## 3a. Design principle — richness is the point
@@ -69,9 +69,8 @@ err toward expressive, not minimal.
 - Quiz reveal + persisted checklist work from `file://` in a modern browser.
 - Lessons stay readable and print correctly with **JS disabled** (progressive
   enhancement, not a JS-blank page).
-- Composition actually happens in practice (see §7 + ADR 0002 evidence).
-- A new lesson in a fresh workspace is born with `vt-*` blocks via Compose
-  auto-seeding (ADR 0002 evidence).
+- A new lesson in a fresh workspace is born with `vt-*` blocks, seeded by the
+  owned `/teach` skill on its first run (ADR 0006).
 
 ## 6. Solution overview
 
@@ -86,36 +85,25 @@ durable, and printable (the `/teach` charter turns laziness OFF for deliverables
 Class+CSS markup is fully styled with JS off; a custom-element/MDX lesson is blank
 until JS runs. Graceful degradation is a requirement, not a nicety.
 
-Distributed as a **skill** (`SKILL.md` + the three assets as its bundle). The skill
-is an **add-on that composes with an unmodified `/teach`** — **ADR 0002**.
+Distributed as an owned fork of `/teach` (`.claude/skills/teach/`), with the component
+collection bundled under `assets/` and per-component seeding built into the skill — **ADR 0006**.
 
-## 7. How it reaches `/teach` (the core risk)
+## 7. How the component library reaches lessons
 
-There is **no programmatic guarantee** — `/teach` has `disable-model-invocation:
-true`, which blocks every programmatic invocation path (Skill tool, subagent
-preload, hooks, CLI, permissions — verified exhaustively, ADR 0002). Only a human
-typing `/teach` starts it, and a wrapper skill is impossible.
+visual-teach owns the `/teach` fork (`.claude/skills/teach/`). The fork bundles
+the full component collection under `assets/` and injects an explicit
+per-component seeding protocol directly into the skill (ADR 0006). There is no
+longer a third-party boundary to work around.
 
-Reliability comes from the **filesystem**, most-reliable first:
+**Seeding is the skill's first action.** When the owned `/teach` starts in a fresh
+workspace, it copies the component assets into `./assets/` before authoring the
+first lesson. Subsequent lessons in the same workspace inherit the assets
+automatically.
 
-1. **Filesystem (primary).** Once the assets + cheatsheet sit in `./assets/`,
-   `/teach` reuses them by its _own_ charter ("read `./assets/` and reuse"). This
-   is `/teach`'s instruction to itself, not our hope.
-2. **Compose / auto-invoke (booster).** The model may auto-invoke visual-teach
-   (it is model-invocable, not blocked) mid-`/teach` if the description matches.
-   On fresh workspaces this also seeds `./assets/` spontaneously (5/5 evidence,
-   ADR 0002).
-
-**Empirical evidence (5/5).** A `teach-base` copy (only the flag removed) run by
-clean-context subagents on five fresh workspaces, neutral prompts that never
-mentioned visual-teach: all five spontaneously seeded `./assets/` and authored
-with `vt-*` blocks. Fresh-workspace auto-adoption is **high**, not low. Caveat:
-faithful proxy, not the real flagged `/teach`; gold-standard check (a human
-running real `/teach`) still pending. See ADR 0002.
-
-**Cold start:** a brand-new workspace has an empty `./assets/`. Compose auto-seeding
-(backed by the 5/5 evidence above) is the floor — the Author seeds the files on the
-first lesson by its own instinct. No explicit verb needed. See ADR 0004.
+**A/B baseline.** `teach-base` (the pristine upstream, flag removed) is the frozen
+control arm for quality comparisons. The delta between a `teach` run and a
+`teach-base` run on the same spec measures the value the component library adds.
+See `docs/ab-comparison-methodology.md`.
 
 ## 8. Scope — block set
 
@@ -176,7 +164,7 @@ offer later as a diagrams-only opt-in); annotated-code; tabs; **runnable-code**;
 | recap + next-CTA (new) | ADD                                         | "what you earned" + next-lesson call-to-action                                                                                                                                                                                                                                                                                               |
 | dark mode              | **v1** (was deferred)                       | token overrides under `[data-theme="dark"]` + `prefers-color-scheme`; optional toggle                                                                                                                                                                                                                                                        |
 | teacher                | KEEP + RAISE (**prototyped**)               | SVG cap icon, question-starter chips, self-explanation "Try this" prompt, community pointer. `assets/components/teacher-box/demo.html`.                                                                                                                                                                                                      |
-| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `assets/base/demo.html`.                                                                                                                                                                                                 |
+| footer/sources         | KEEP + RAISE (**prototyped**)               | numbered reference list, source-type icons (spec/doc/video/forum), companion-reference slot, verified-date meta. `assets/base/demo.html`.                                                                                                                                                                                                    |
 | prose base             | KEEP + RAISE (**prototyped**)               | code block (`.vt-code`, filename+copy); **Prism.js** highlighting, vendored, themed from `--vt-*` tokens (dark-mode automatic — `assets/components/code/demo.html`); manual token-emphasis (`pcode` idea); blockquote, figure+caption, external-link ↗. Defer drop-caps; syntax theme = own concern.                                         |
 
 ### Theming
@@ -194,17 +182,13 @@ HTML _is_ the source — no JSON/MDX/markdown intermediate. Author links the two
 assets and uses `vt-*` blocks; `data-key` on a checklist replaces hand-picked
 localStorage keys. (Full markup: `assets/visual-teach.md`.)
 
-## 9. Invocation: Compose-only
+## 9. Invocation
 
-visual-teach has no explicit verb. It operates in **Compose** mode only:
-auto-invoked mid-`/teach` as the model picks up asset files from `./assets/`.
+visual-teach has no explicit verb. The owned `/teach` skill seeds the component
+assets on its first action in a fresh workspace, then authors lessons using `vt-*`
+blocks per the Catalog. No separate seeding step is needed by the user.
 
-Cold-start seeding is handled by Compose auto-seeding (ADR 0002: 5/5 fresh
-workspaces seeded spontaneously). There is no bulk-migration or retrofit verb —
-the filesystem channel (`/teach` reuses whatever is in `./assets/` by its own
-charter) means every future lesson in the workspace benefits once the assets exist.
-
-See ADR 0004 for the decision record.
+See ADR 0006 for the owned-fork decision record.
 
 ## 10. The hard bet: runnable code (deferred)
 
@@ -253,9 +237,8 @@ sandbox or multi-language runner.
 1. ~~Diagram block in v1?~~ **Resolved → full CSS diagram vocabulary** (`.vt-diagram`
    /`.vt-node`/`.vt-flow`/`.vt-row`/`.vt-col`/`.vt-split`) + opt-in mermaid; sketch
    look deferred. See §8 + §3a.
-2. **Auto-adoption in the real flagged `/teach`** — strong proxy evidence, not yet
-   confirmed in a real session. Mitigated by the seed floor.
-3. **Same-model/session-context** in the 5/5 test — real-world variance unknown.
+2. ~~Auto-adoption in the real flagged `/teach`~~ — resolved by owning the fork (ADR 0006).
+3. ~~Same-model/session-context in the 5/5 test~~ — resolved; seeding is now explicit.
 4. ~~Dark mode — deferred~~ **→ v1** (token overrides; prototyping).
 5. **Authors reach past the block set** (invented `vt-map`, misused token names) —
    inert, harmless, but informs which blocks to add next + cheatsheet wording.
@@ -264,7 +247,7 @@ sandbox or multi-language runner.
 ## References
 
 - ADR 0001 — copy assets into each workspace (`docs/adr/0001-*`)
-- ADR 0002 — add-on that composes, not a fork (`docs/adr/0002-*`)
-- `CONTEXT.md` — glossary (visual-teach, Lesson, Compose, …)
-- ADR 0004 — Compose-only, no Convert verb (`docs/adr/0004-*`)
+- ADR 0006 — owned fork, fork decision record (`docs/adr/0006-*`)
+- ADR 0004 — no Convert verb (`docs/adr/0004-*`)
+- `CONTEXT.md` — glossary (visual-teach, Component, Catalog, …)
 - `docs/visual-plan-analysis.md` — the research that motivated the split
