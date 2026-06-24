@@ -50,6 +50,10 @@ independent of however the change was built.
 
 5. **Preserve functionality**: Never change what the code does - only how it does it. All original features, outputs, and behaviors must remain intact.
 
+6. **Apply project standards** (these override the generic guidance above on any conflict — e.g. they forbid consolidating deliberately duplicated component helpers):
+   - For changes under `assets/`: @CODING_STANDARDS.md
+   - For changes under `.sandcastle/`: @.sandcastle/CODING_STANDARDS.md
+
 # GATES (always run, even if you change nothing)
 
 These are pass/fail checks independent of any refactor. Run them every review.
