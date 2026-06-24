@@ -48,7 +48,7 @@ import {
   buildMultiParentBase,
 } from "./base-resolution.mts";
 import { prComponents, CompletedIssue } from "./pr-components.mts";
-import { parseSpecVerdict } from "./review-verdict.mts";
+import { parseSpecVerdict, isHarnessError } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
   decideInReviewAction,
@@ -639,6 +639,11 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           }
           return { issue, kind: "done" as const };
         } catch (e) {
+          // A harness fault (the review prompt couldn't be assembled) is not a
+          // bad branch — it fails identically for every issue, so swallowing it
+          // to needs-review would burn retry caps and mislabel good work.
+          // Rethrow so allSettled surfaces it and the run aborts (below).
+          if (isHarnessError(e)) throw e;
           console.error(`  ⚠ ${issue.id} review failed, will re-review: ${e}`);
           return { issue, kind: "needs-review" as const };
         }
@@ -649,12 +654,27 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   );
 
   // Log any pipelines that threw outright (sandbox crash, network, etc.).
+  let harnessFault: unknown = null;
   for (const [i, outcome] of settled.entries()) {
     if (outcome.status === "rejected") {
       console.error(
         `  ✗ ${work[i]!.id} (${work[i]!.branch}) failed: ${outcome.reason}`
       );
+      if (isHarnessError(outcome.reason)) harnessFault ??= outcome.reason;
     }
+  }
+
+  // A harness fault means a prompt's preprocessor command failed — the harness
+  // itself is broken and will fail identically for every issue. Abort the whole
+  // run BEFORE the label-transition loop below, so no good branch gets mislabeled
+  // and no retry cap is burned. A human fixes the prompt and re-runs; the issues
+  // keep whatever label Phase 1 left them with.
+  if (harnessFault) {
+    throw new Error(
+      `Aborting run: review harness fault — a prompt's preprocessor command ` +
+        `failed, which breaks review for every issue. Fix the prompt and re-run. ` +
+        `Cause: ${harnessFault}`
+    );
   }
 
   // Transition each issue's label the moment its outcome is known, so the NEXT
