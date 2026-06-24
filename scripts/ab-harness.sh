@@ -59,6 +59,10 @@ OUT=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --out)
+      if [[ $# -lt 2 ]]; then
+        echo "error: --out requires an argument" >&2
+        exit 1
+      fi
       OUT="$2"
       shift 2
       ;;
