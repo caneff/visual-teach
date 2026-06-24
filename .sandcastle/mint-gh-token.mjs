@@ -46,7 +46,6 @@ export function buildJwt(appId, privateKey) {
 
 /**
  * Load and validate GitHub App credentials from environment variables.
- * Expands literal \n sequences in the private key (common in CI env vars).
  * @returns {{ appId: string, privateKey: string, installationId: string }}
  */
 export function loadCredentials() {
