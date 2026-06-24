@@ -881,20 +881,11 @@ if (components.length === 0) {
         console.error(
           `  ✗ ${leaf.id} (${leaf.branch}) conflicted merging into ${prBranch}; excluded from the PR head`
         );
-        // A sweep-injected stranded branch that no longer merges cleanly is
-        // stale (main moved on while it sat in-review). Re-stranding it would
-        // loop forever: next run re-injects, re-conflicts, re-skips. Per the
-        // reconciliation design, fall back to a fresh re-implement — hand it
-        // back to the agent queue and reclassify it for the summary so it isn't
-        // falsely reported as "PR opened".
-        if (sweepInjected.has(leaf.id)) {
-          relabel(leaf.id, "ready-for-agent", ["in-review"]);
-          sweepInjected.delete(leaf.id);
-          sweepRequeued.add(leaf.id);
-          console.error(
-            `    ↳ #${leaf.id} was sweep-injected; stale branch → ready-for-agent for re-implement`
-          );
-        }
+        // No requeue here: any issue left without a PR — a conflicting leaf, OR a
+        // non-leaf that a spurious parent edge made unmergeable — is repaired
+        // uniformly by the post-Phase-3 strand reconciliation below, which also
+        // deletes the stale branch so the rebuild cuts fresh. (Superseded #149's
+        // narrow sweepInjected-leaf-only check, which missed both those cases.)
       }
     }
     git(`worktree remove --force ${wt}`);
@@ -939,6 +930,34 @@ if (components.length === 0) {
     }
   }
   console.log(`\n${components.length} PR(s) opened.`);
+}
+
+// ---------------------------------------------------------------------------
+// Post-Phase-3 strand reconciliation: make "end a run in-review with no PR"
+// structurally impossible.
+//
+// Every completed issue should now carry a PR (its component opened one). Any
+// that does NOT — a leaf whose merge conflicted, or a non-leaf an unrelated
+// parent edge pulled in but never merged — would otherwise be left in-review
+// with a stale branch: a strand that loops forever (next run's sweep re-injects
+// the same branch, it re-conflicts, re-skips).
+//
+// Repair it outcome-based, blind to leaf/group/injection nuance: relabel
+// ready-for-agent, and DELETE the stale issue branch. Deletion is required, not
+// cosmetic — Phase 2 only cuts a fresh branch from main when one does not exist;
+// a lingering branch is merely rebased onto base and keeps its conflicting
+// history. Move it sweepInjected → sweepRequeued so the summary reports it
+// re-queued, never "PR opened".
+for (const issue of allCompleted) {
+  if (prAssignments.has(issue.id)) continue;
+  relabel(issue.id, "ready-for-agent", ["in-review", "needs-review"]);
+  git(`branch -D ${issue.branch}`);
+  sweepInjected.delete(issue.id);
+  sweepRequeued.add(issue.id);
+  console.error(
+    `  ✗ #${issue.id} (${issue.branch}) completed but no PR opened (stranded); ` +
+      `stale branch deleted → ready-for-agent for a fresh rebuild`
+  );
 }
 
 // ---------------------------------------------------------------------------

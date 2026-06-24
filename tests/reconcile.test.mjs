@@ -270,4 +270,19 @@ describe("main.mts — reconciliation sweep wiring", () => {
     // The sweep passes allCompleted (or pushes to it) for Phase 3 to open PRs
     expect(mainSrc).toMatch(/allCompleted\.push|sweepInjected/);
   });
+
+  test("post-Phase-3 strand reconciliation requeues every PR-less completed issue", () => {
+    // After the PR-opening loop, any completed issue absent from prAssignments
+    // must be relabeled ready-for-agent, have its stale branch deleted, and be
+    // moved into sweepRequeued. This is what makes ending a run stranded (#114,
+    // #100) impossible. Assert the loop exists after Phase 3 and does all three.
+    const summaryPos = mainSrc.lastIndexOf("buildRunSummary"); // call site, not the import
+    const loopPos = mainSrc.indexOf("prAssignments.has(issue.id)");
+    expect(loopPos).toBeGreaterThan(0);
+    expect(loopPos).toBeLessThan(summaryPos); // runs before the summary
+    const loopSrc = mainSrc.slice(loopPos, summaryPos);
+    expect(loopSrc).toMatch(/branch -D/); // deletes the stale branch
+    expect(loopSrc).toMatch(/ready-for-agent/); // relabels for rebuild
+    expect(loopSrc).toMatch(/sweepRequeued\.add/); // reclassifies for the summary
+  });
 });
