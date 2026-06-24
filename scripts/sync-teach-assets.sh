@@ -3,8 +3,8 @@
 # distributable). Run this after any change to the component library so the
 # bundled skill stays in lockstep with the source.
 #
-# visual-teach.css and visual-teach.js are aggregated bundles that the skill
-# never seeds directly (it copies per-component files), so they are excluded.
+# The library is Base + per-component files (no aggregate bundle — see ADR 0009),
+# so a plain copy is the whole sync.
 #
 # Usage: scripts/sync-teach-assets.sh
 
@@ -14,6 +14,5 @@ SRC="$REPO_ROOT/assets"
 DEST="$REPO_ROOT/.claude/skills/teach/assets"
 
 cp -r "$SRC/." "$DEST/"
-rm -f "$DEST/visual-teach.css" "$DEST/visual-teach.js"
 
 echo "Synced $SRC -> $DEST"

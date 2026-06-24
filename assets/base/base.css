@@ -1,6 +1,7 @@
-/* base — shared lesson stylesheet (tokens, page shell, recap, source card, metabar, objectives, mission, sources, print).
-   Extracted from visual-teach.css. Component CSS (callout, table, chip/pill/badge/level/kbd,
-   checklist, quiz, code block, Prism tokens, diagram, math, teacher-box) lives in its own file. */
+/* base — the always-linked stylesheet spine (tokens, page shell, recap, source card, metabar, objectives, mission, sources, print).
+   Component CSS (callout, table, chip/pill/badge/level/kbd, checklist, quiz,
+   code block, Prism tokens, diagram, math, teacher-box) lives in its own file —
+   every Component is self-contained so it can be copied on its own. */
 
 :root {
   --vt-ink: #1a1f2b; /* body text */

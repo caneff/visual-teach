@@ -1,5 +1,22 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { wireQuiz } from "../assets/visual-teach.js";
+import { readFileSync } from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+import { wireQuiz } from "../assets/components/quiz/quiz.js";
+
+const QUIZ_SRC = readFileSync(
+  resolve(
+    dirname(fileURLToPath(import.meta.url)),
+    "../assets/components/quiz/quiz.js"
+  ),
+  "utf8"
+);
+// Evaluate quiz.js as a plain script so its own auto-wiring loop (_doWireQuiz)
+// runs against the current DOM — the component's self-contained resilience,
+// which used to be checked via the monolith's init()/BLOCKS registry.
+function autoWire() {
+  new Function(QUIZ_SRC)();
+}
 
 function makeQuiz(html) {
   const div = document.createElement("div");
@@ -368,5 +385,32 @@ describe("quiz — multi-select mode", () => {
     const fb = q.querySelector(".feedback");
     expect(fb.classList.contains("good")).toBe(true);
     expect(fb.textContent).toContain("A and C are correct.");
+  });
+});
+
+// ── Self-wiring isolation ─────────────────────────────────────────────────────
+// A malformed quiz must not stop sibling quizzes from wiring. With per-component
+// delivery this is the component's own concern (its auto-wire loop try/catches
+// each block), not a central dispatcher's.
+describe("quiz — auto-wire isolation", () => {
+  it("a valid quiz still wires when preceded by a malformed one", () => {
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    document.body.innerHTML = `
+      <div class="vt-quiz" data-answer="0">
+        <button class="opt">A</button>
+        <!-- malformed: no .feedback, wireQuiz throws -->
+      </div>
+      <div class="vt-quiz" data-answer="1">
+        <button class="opt">Wrong</button>
+        <button class="opt">Correct</button>
+        <div class="feedback"></div>
+        <template class="why-good">Yes!</template>
+        <div class="vt-quiz-live" aria-live="polite" aria-atomic="true"></div>
+      </div>
+    `;
+    expect(() => autoWire()).not.toThrow();
+    const quizzes = document.querySelectorAll(".vt-quiz");
+    expect(quizzes[1].getAttribute("role")).toBe("group");
+    vi.restoreAllMocks();
   });
 });

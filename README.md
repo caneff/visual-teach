@@ -1,9 +1,11 @@
 # visual-teach
 
-A component library for teaching lessons: one stylesheet
-([`assets/visual-teach.css`](./assets/visual-teach.css)) and one script ([`assets/visual-teach.js`](./assets/visual-teach.js)) that give
-lesson HTML a consistent look and interactive behavior through `vt-*` CSS
-classes. Think Bootstrap for lessons, not a renderer or a framework.
+A component library for teaching lessons: a Base spine
+([`assets/base/base.css`](./assets/base/base.css) + [`assets/base/base.js`](./assets/base/base.js))
+plus a collection of self-contained, copyable components that give lesson HTML a
+consistent look and interactive behavior through `vt-*` CSS classes. There is no
+aggregate bundle — a lesson links Base and only the components it uses. Think
+Bootstrap for lessons, not a renderer or a framework.
 
 It does not own a lesson format, a schema, or any pedagogy. That is the job of
 the [`/teach`](./.claude/skills/teach/) skill — the owned fork of the
@@ -12,12 +14,13 @@ component library and seeding rules directly.
 
 ## What you get
 
-- [`assets/visual-teach.css`](./assets/visual-teach.css) styles every `vt-*` block from 9 themeable color
-  tokens. It works in light and dark, and prints cleanly.
-- [`assets/visual-teach.js`](./assets/visual-teach.js) is an ES module that wires up the interactive blocks:
-  quizzes with per-option feedback, checklists that persist to `localStorage`,
-  copy buttons on code blocks, auto-injected section anchors, and Prism syntax
-  highlighting.
+- [`assets/base/base.css`](./assets/base/base.css) + each component's CSS style every `vt-*` block from
+  9 themeable color tokens. They work in light and dark, and print cleanly.
+- [`assets/base/base.js`](./assets/base/base.js) is the always-linked spine (theme bridge/toggle,
+  section anchors); each component ships its own plain UMD/IIFE script that wires
+  its block — quizzes with per-option feedback, checklists that persist to
+  `localStorage`, copy buttons on code blocks, Prism syntax highlighting. (Not ES
+  modules — they load over `file://` without CORS.)
 - [`assets/visual-teach.md`](./assets/visual-teach.md) is the component catalog, the index of all
   components and how to use them. Read it before authoring.
 - [`assets/prism/`](./assets/prism/) holds the bundled Prism grammars (HTML, CSS, JS, Python, SQL,
@@ -48,9 +51,13 @@ See `docs/ab-comparison-methodology.md` for how to run a quality A/B comparison.
 Link the assets in each lesson (paths relative to `lessons/`):
 
 ```html
-<link rel="stylesheet" href="../assets/visual-teach.css" />
+<link rel="stylesheet" href="../assets/base/base.css" />
+<link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+<!-- ...one <link> per component the lesson uses... -->
 <!-- ... lesson body ... -->
-<script src="../assets/visual-teach.js"></script>
+<script src="../assets/base/base.js"></script>
+<script src="../assets/components/quiz/quiz.js"></script>
+<!-- ...one <script> per interactive component... -->
 ```
 
 The `/teach` skill seeds the assets into a new workspace on its first run and

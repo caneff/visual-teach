@@ -5,10 +5,12 @@ Glossary for the project. Terms only — no implementation details, no decisions
 
 ## Glossary
 
-**visual-teach** — A component library for teaching lessons: one stylesheet
-(`visual-teach.css`) + one script (`visual-teach.js`) that supply look and
-interactive behavior to lessons via conventional CSS classes (compare: Bootstrap,
-not a renderer). The owned `/teach` skill (`teach`) bundles the component
+**visual-teach** — A component library for teaching lessons: a Base spine
+(`base.css` + `base.js`) plus a collection of copyable Components that supply
+look and interactive behavior to lessons via conventional CSS classes (compare:
+Bootstrap, not a renderer). There is no aggregate bundle — a lesson links Base
+and only the Components it uses; each Component is self-contained so it can be
+copied on its own. The owned `/teach` skill (`teach`) bundles the component
 library and seeds it into a workspace on its first run. visual-teach does _not_
 own a lesson format, a schema, or a validator, and it does _not_ reimplement
 `/teach`'s pedagogy.

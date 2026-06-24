@@ -162,3 +162,9 @@ td {
   border-bottom: 1px solid var(--vt-rule);
   vertical-align: top;
 }
+
+@media print {
+  .vt-table tr {
+    break-inside: avoid;
+  }
+}

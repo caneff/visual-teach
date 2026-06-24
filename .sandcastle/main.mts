@@ -54,8 +54,17 @@ import {
   decideInReviewAction,
   bucketIssues,
   buildRunSummary,
+  OpenIssue,
+  PrRef,
 } from "./reconcile.mts";
+import { parseOpenIssues, parsePrsClosingIssues } from "./github-parse.mts";
 import { parseSandcastleWorktrees } from "./worktrees.mts";
+import {
+  REVIEW_RETRY_CAP,
+  readAttempts,
+  writeAttempts,
+  recordAttempt,
+} from "./retry-policy.mts";
 import { execSync } from "node:child_process";
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { z } from "zod";
@@ -175,93 +184,32 @@ function relabel(id: string, add: string, remove: string[]): void {
   for (const label of remove) gh(`issue edit ${id} --remove-label "${label}"`);
 }
 
-// Review-retry cap. A needs-review issue is re-reviewed (cheaply, on its
-// existing branch) up to this many times before we give up on review-only and
-// escalate to a full re-implement. Without a cap, a deterministically-broken
-// branch would re-review and re-fail every run forever.
-const REVIEW_RETRY_CAP = 2;
-const ATTEMPTS_FILE = ".sandcastle/review-attempts.json";
-
-function readAttempts(): Record<string, number> {
-  try {
-    return JSON.parse(readFileSync(ATTEMPTS_FILE, "utf8"));
-  } catch {
-    return {};
-  }
-}
-function writeAttempts(a: Record<string, number>): void {
-  writeFileSync(ATTEMPTS_FILE, JSON.stringify(a, null, 2));
-}
-
 // ---------------------------------------------------------------------------
 // Reconciliation sweep helpers
 // ---------------------------------------------------------------------------
 
 // Fetch all open issues (all labels) for the bucketed run summary.
-function listAllOpenIssues(): {
-  number: number;
-  title: string;
-  labels: string[];
-}[] {
-  const out = gh(
-    `issue list --state open --limit 200 --json number,title,labels`
+function listAllOpenIssues(): OpenIssue[] {
+  return parseOpenIssues(
+    gh(`issue list --state open --limit 200 --json number,title,labels`)
   );
-  if (!out) return [];
-  const raw: { number: number; title: string; labels: { name: string }[] }[] =
-    JSON.parse(out);
-  return raw.map((i) => ({
-    number: i.number,
-    title: i.title,
-    labels: i.labels.map((l) => l.name),
-  }));
 }
 
 // Query GitHub for all PRs and build a map of issueNumber → PRs that close it.
 // Uses closingIssuesReferences (the field GitHub populates when a PR body
-// contains a closing keyword such as "Closes #N").
-function getPrsReferencingIssues(): Map<
-  number,
-  { number: number; state: string }[]
-> {
+// contains a closing keyword such as "Closes #N"). The gh calls are the IO; the
+// fragile response parsing lives in github-parse.mts (tested there).
+function getPrsReferencingIssues(): Map<number, PrRef[]> {
   const nameWithOwner =
     gh(`repo view --json nameWithOwner --jq .nameWithOwner`) ?? "";
   const [owner, repo] = nameWithOwner.split("/");
   if (!owner || !repo) return new Map();
 
-  const raw = gh(
-    `api graphql -f 'query={ repository(owner: "${owner}", name: "${repo}") { pullRequests(first: 100, states: [OPEN, CLOSED, MERGED]) { nodes { number state closingIssuesReferences(first: 20) { nodes { number } } } } } }'`
+  return parsePrsClosingIssues(
+    gh(
+      `api graphql -f 'query={ repository(owner: "${owner}", name: "${repo}") { pullRequests(first: 100, states: [OPEN, CLOSED, MERGED]) { nodes { number state closingIssuesReferences(first: 20) { nodes { number } } } } } }'`
+    )
   );
-  if (!raw) return new Map();
-
-  let data: {
-    data?: {
-      repository?: {
-        pullRequests?: {
-          nodes?: {
-            number: number;
-            state: string;
-            closingIssuesReferences?: { nodes?: { number: number }[] };
-          }[];
-        };
-      };
-    };
-  };
-  try {
-    data = JSON.parse(raw);
-  } catch {
-    return new Map();
-  }
-
-  const prs = data?.data?.repository?.pullRequests?.nodes ?? [];
-  const map = new Map<number, { number: number; state: string }[]>();
-  for (const pr of prs) {
-    for (const issue of pr.closingIssuesReferences?.nodes ?? []) {
-      const n = issue.number;
-      if (!map.has(n)) map.set(n, []);
-      map.get(n)!.push({ number: pr.number, state: pr.state });
-    }
-  }
-  return map;
 }
 
 // ---------------------------------------------------------------------------
@@ -302,11 +250,7 @@ function reconciliationSweep(): {
 
   for (const issue of inReview) {
     const id = String(issue.number);
-    const rawPrs = prsForIssues.get(issue.number) ?? [];
-    const prs = rawPrs.map((pr) => ({
-      number: pr.number,
-      state: pr.state as "OPEN" | "CLOSED" | "MERGED",
-    }));
+    const prs = prsForIssues.get(issue.number) ?? [];
     const classification = classifyInReviewIssue(prs);
 
     const branch = issueBranch(id);
@@ -720,7 +664,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   //   spec-fail    → ready-for-agent (re-implement), or ready-for-human at cap
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
-  const attempts = readAttempts();
+  let attempts = readAttempts();
   const completedIssues: CompletedIssue[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
@@ -740,13 +684,13 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         ...(issue.mode === "full" && issue.group ? { group: issue.group } : {}),
       });
     } else if (kind === "needs-review") {
-      attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
-      if (attempts[issue.id] >= REVIEW_RETRY_CAP) {
+      const r = recordAttempt(attempts, issue.id);
+      attempts = r.attempts;
+      if (r.escalate) {
         // Cheap re-review failed REVIEW_RETRY_CAP times — the branch can't be
         // salvaged by review alone. Escalate to a full implement pass (which
         // can actually change the code) against current main.
         relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
-        delete attempts[issue.id];
         console.warn(
           `  ${issue.id} hit review-retry cap (${REVIEW_RETRY_CAP}); back to ready-for-agent for a full re-implement`
         );
@@ -759,22 +703,21 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       // "built the wrong thing" — so send it back to ready-for-agent. Cap the
       // re-implements with a distinct counter so a persistently-misunderstood
       // issue doesn't loop forever; at the cap, hand it to a human.
-      const key = `spec-${issue.id}`;
-      attempts[key] = (attempts[key] ?? 0) + 1;
-      if (attempts[key] >= REVIEW_RETRY_CAP) {
+      const r = recordAttempt(attempts, `spec-${issue.id}`);
+      attempts = r.attempts;
+      if (r.escalate) {
         relabel(issue.id, "ready-for-human", [
           "ready-for-agent",
           "needs-review",
           "in-review",
         ]);
-        delete attempts[key];
         console.warn(
           `  ${issue.id} failed spec review ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`
         );
       } else {
         relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
         console.warn(
-          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${attempts[key]}/${REVIEW_RETRY_CAP})`
+          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${r.count}/${REVIEW_RETRY_CAP})`
         );
       }
     }
