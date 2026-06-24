@@ -40,9 +40,8 @@
 //   "scripts": { "sandcastle": "npx tsx .sandcastle/main.mts" }
 
 import * as sandcastle from "@ai-hero/sandcastle";
-import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
 import { addressOpenPRs } from "./address.mts";
-import { sandboxIdentity } from "./sandbox-identity.mts";
+import { sandboxIdentity, sandboxConfig } from "./sandbox-identity.mts";
 import {
   resolveBase,
   issueBranch,
@@ -407,15 +406,6 @@ const MAX_ITERATIONS = 20;
 // Installation tokens are short-lived (~1h); minting per run keeps them fresh.
 const identity = await sandboxIdentity();
 
-// Hooks run inside the sandbox before the agent starts each iteration.
-// npm install ensures the sandbox always has fresh dependencies.
-// Git identity commands (if any) come first so commits in-sandbox use the bot identity.
-const hooks = {
-  sandbox: {
-    onSandboxReady: [...identity.gitConfigCommands, { command: "npm install" }],
-  },
-};
-
 // Copy node_modules from the host into the worktree before each sandbox
 // starts. Avoids a full npm install from scratch; the hook above handles
 // platform-specific binaries and any packages added since the last copy.
@@ -489,8 +479,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // It outputs a <plan> JSON block — Output.object parses and validates it.
   // -------------------------------------------------------------------------
   const plan = await sandcastle.run({
-    hooks,
-    sandbox: docker({ env: identity.env }),
+    ...sandboxConfig(identity),
     name: "planner",
     logging: logging("planner", headBranch),
     // One iteration is enough: the planner just needs to read and reason,
@@ -610,25 +599,24 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       // stale branch replays its commits onto the base. Best-effort: abort on
       // conflict and proceed; the retry cap escalates a branch that can't be
       // salvaged.
-      const sandboxHooks = {
-        ...hooks,
-        host: {
-          onWorktreeReady: [
-            {
-              command: `git rebase ${base} || git rebase --abort`,
-            },
-          ],
-        },
-      };
-
+      const cfg = sandboxConfig(identity);
       const sandbox = await sandcastle.createSandbox({
         branch: issue.branch,
         // New branches are cut from the resolved base — the parent's branch (so
         // they contain just that chain's work) or main. (Ignored if the branch
         // already exists — the rebase hook above refreshes those.)
         baseBranch: base,
-        sandbox: docker({ env: identity.env }),
-        hooks: sandboxHooks,
+        ...cfg,
+        hooks: {
+          ...cfg.hooks,
+          host: {
+            onWorktreeReady: [
+              {
+                command: `git rebase ${base} || git rebase --abort`,
+              },
+            ],
+          },
+        },
         copyToWorktree,
       });
 
@@ -902,8 +890,7 @@ if (components.length === 0) {
     // Push the assembled head host-side so the agent only has to open the PR.
     git(`push -u --force-with-lease origin ${prBranch}`);
     await sandcastle.run({
-      hooks,
-      sandbox: docker({ env: identity.env }),
+      ...sandboxConfig(identity),
       name: `pr-consolidator-${n + 1}`,
       logging: logging(`pr-consolidator-${n + 1}`, headBranch),
       maxIterations: 1,

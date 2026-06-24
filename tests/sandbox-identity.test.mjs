@@ -31,7 +31,40 @@ afterEach(() => {
 });
 
 // Import once; the helper reads process.env at call time, not at module load.
-const { sandboxIdentity } = await import("../.sandcastle/sandbox-identity.mts");
+const { sandboxIdentity, sandboxConfig } =
+  await import("../.sandcastle/sandbox-identity.mts");
+
+// ── sandboxConfig ─────────────────────────────────────────────────────────────
+
+test("sandboxConfig: calls dockerFn with identity.env", () => {
+  const identity = { env: { GH_TOKEN: "tok" }, gitConfigCommands: [] };
+  let captured = null;
+  sandboxConfig(identity, (opts) => {
+    captured = opts;
+    return {};
+  });
+  expect(captured).toEqual({ env: { GH_TOKEN: "tok" } });
+});
+
+test("sandboxConfig: gitConfigCommands and npm install land in onSandboxReady", () => {
+  const gitCmd = { command: "git config user.name Bot" };
+  const identity = { env: {}, gitConfigCommands: [gitCmd] };
+  const cfg = sandboxConfig(identity, () => ({}));
+  const ready = cfg.hooks.sandbox.onSandboxReady;
+  expect(ready).toContainEqual(gitCmd);
+  expect(ready).toContainEqual({ command: "npm install" });
+  const gitIdx = ready.findIndex((c) => c.command === gitCmd.command);
+  const npmIdx = ready.findIndex((c) => c.command === "npm install");
+  expect(gitIdx).toBeLessThan(npmIdx);
+});
+
+test("sandboxConfig: onSandboxReady is exactly [npm install] when no gitConfigCommands", () => {
+  const identity = { env: {}, gitConfigCommands: [] };
+  const cfg = sandboxConfig(identity, () => ({}));
+  expect(cfg.hooks.sandbox.onSandboxReady).toEqual([
+    { command: "npm install" },
+  ]);
+});
 
 // ── no-op branch: bot vars unset ─────────────────────────────────────────────
 
@@ -47,44 +80,18 @@ test("sandbox-identity: no-op when bot vars unset — gitConfigCommands is empty
 
 // ── identity branch: all bot vars set ────────────────────────────────────────
 
-test("sandbox-identity: GH_TOKEN present when token var set", async () => {
+test("sandbox-identity: env and gitConfigCommands are fully populated when all bot vars set", async () => {
   process.env.SANDCASTLE_BOT_GH_TOKEN = "ghp_test_token";
   process.env.SANDCASTLE_BOT_GIT_NAME = "Sandcastle Bot";
   process.env.SANDCASTLE_BOT_GIT_EMAIL = "bot@example.com";
 
   const id = await sandboxIdentity();
   expect(id.env.GH_TOKEN).toBe("ghp_test_token");
-});
-
-test("sandbox-identity: gitConfigCommands include user.name command when name set", async () => {
-  process.env.SANDCASTLE_BOT_GH_TOKEN = "ghp_test_token";
-  process.env.SANDCASTLE_BOT_GIT_NAME = "Sandcastle Bot";
-  process.env.SANDCASTLE_BOT_GIT_EMAIL = "bot@example.com";
-
-  const id = await sandboxIdentity();
-  const cmds = id.gitConfigCommands.map((c) => c.command);
-  expect(cmds.some((c) => c.includes("user.name"))).toBe(true);
-});
-
-test("sandbox-identity: gitConfigCommands include user.email command when email set", async () => {
-  process.env.SANDCASTLE_BOT_GH_TOKEN = "ghp_test_token";
-  process.env.SANDCASTLE_BOT_GIT_NAME = "Sandcastle Bot";
-  process.env.SANDCASTLE_BOT_GIT_EMAIL = "bot@example.com";
-
-  const id = await sandboxIdentity();
-  const cmds = id.gitConfigCommands.map((c) => c.command);
-  expect(cmds.some((c) => c.includes("user.email"))).toBe(true);
-});
-
-test("sandbox-identity: gitConfigCommands embed the actual name and email values", async () => {
-  process.env.SANDCASTLE_BOT_GH_TOKEN = "ghp_test_token";
-  process.env.SANDCASTLE_BOT_GIT_NAME = "Sandcastle Bot";
-  process.env.SANDCASTLE_BOT_GIT_EMAIL = "bot@example.com";
-
-  const id = await sandboxIdentity();
-  const cmds = id.gitConfigCommands.map((c) => c.command);
-  expect(cmds.some((c) => c.includes("Sandcastle Bot"))).toBe(true);
-  expect(cmds.some((c) => c.includes("bot@example.com"))).toBe(true);
+  const cmd = id.gitConfigCommands.map((c) => c.command).join(" && ");
+  expect(cmd).toMatch(/user\.name/);
+  expect(cmd).toMatch(/user\.email/);
+  expect(cmd).toContain("Sandcastle Bot");
+  expect(cmd).toContain("bot@example.com");
 });
 
 test("sandbox-identity: name+email collapse into ONE chained command (no .git/config.lock race)", async () => {
