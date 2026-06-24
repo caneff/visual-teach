@@ -7,13 +7,14 @@
     "serve": "python3 -m http.server 8000",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "typecheck": "echo 'No TypeScript — skipping'",
+    "typecheck": "tsc -p .sandcastle/tsconfig.json",
     "sync-teach-assets": "bash scripts/sync-teach-assets.sh",
     "prepare": "husky"
   },
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
     "@eslint/js": "^10.0.1",
+    "@types/node": "^26.0.0",
     "eslint": "^10.5.0",
     "globals": "^17.6.0",
     "husky": "^9.1.7",
@@ -21,6 +22,7 @@
     "lint-staged": "^17.0.7",
     "playwright": "^1.61.0",
     "prettier": "^3.8.4",
+    "typescript": "^6.0.3",
     "vitest": "^4.1.9",
     "zod": "^4.4.3"
   },
