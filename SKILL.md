@@ -6,9 +6,9 @@ when_to_use: Whenever a teaching lesson HTML file is being written or edited —
 
 # visual-teach
 
-A passive component library for teaching lessons: one stylesheet
-(`assets/visual-teach.css`) + one script (`assets/visual-teach.js`) that supply
-look and behavior via `vt-*` CSS classes. It does **not** own a lesson format, a
+A passive component library for teaching lessons: a Base spine
+(`assets/base/base.css` + `assets/base/base.js`) plus copyable Components — no
+aggregate bundle — that supply look and behavior via `vt-*` CSS classes. It does **not** own a lesson format, a
 schema, or pedagogy — that's `/teach`'s job (`mattpocock/skills`,
 `skills/productivity/teach`). visual-teach only makes lesson HTML rich and
 consistent. No `/teach` installed → there's nothing to enrich; install it first.

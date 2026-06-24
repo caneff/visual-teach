@@ -1,4 +1,4 @@
-/* checklist component — extracted from visual-teach.js */
+/* checklist component */
 
 function _ensure(block, selectors) {
   var blockClass =

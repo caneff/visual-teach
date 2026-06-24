@@ -3,10 +3,20 @@
    and Prism syntax highlighting initialisation. */
 
 function _ensure(block, sels) {
+  var blockClass =
+    Array.from(block.classList).find(function (c) {
+      return c.startsWith("vt-");
+    }) || block.className;
   var ok = true;
   sels.forEach(function (sel) {
     if (!block.querySelector(sel)) {
-      console.warn("visual-teach: missing " + sel + " — left inert");
+      console.warn(
+        "visual-teach: " +
+          blockClass +
+          " missing required " +
+          sel +
+          " — left inert"
+      );
       ok = false;
     }
   });

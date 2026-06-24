@@ -74,11 +74,13 @@ err toward expressive, not minimal.
 
 ## 6. Solution overview
 
-A workspace's `./assets/` gets three files (copied in, per **ADR 0001**):
-`visual-teach.css`, `visual-teach.js`, `visual-teach.md` (authoring cheatsheet).
-Lessons use documented `vt-*` classes + `data-*` attributes; `visual-teach.js`
-scans on load and wires behavior. **Class-convention progressive enhancement** —
-no framework, build, custom-element runtime, or MCP.
+A workspace's `./assets/` gets the component library copied in (per **ADR 0001**;
+per-component, not an aggregate bundle — see **ADR 0009**): the Base spine
+(`base/base.css` + `base/base.js`), the `visual-teach.md` catalog, and the
+Components the lessons use. Lessons use documented `vt-*` classes + `data-*`
+attributes; each component's script scans on load and wires its block.
+**Class-convention progressive enhancement** — no framework, build,
+custom-element runtime, or MCP.
 
 Why progressive enhancement over web components / MDX: lessons must be beautiful,
 durable, and printable (the `/teach` charter turns laziness OFF for deliverables).
@@ -208,7 +210,7 @@ sandbox or multi-language runner.
 - [x] Block-walk complete — all 9 walked + 4 new blocks + dark mode; verdicts below
 - [ ] Build the diagram vocabulary (decided §8: nodes/flow/lanes/split + mermaid)
 - [ ] Vendor Prism.js (core + curated langs: python/sql/clike/js/bash) + token theme into `assets/`
-- [ ] Fold prototyped blocks into `visual-teach.css` + `showcase.html` (table, pill,
+- [ ] Fold prototyped blocks into their component CSS + `showcase.html` (table, pill,
       shell+new blocks already dark via folded tokens; code block; teacher; footer)
 - [ ] Work the polish backlog (§11a)
 - [ ] Cheatsheet hardening: "tokens are not classes" (model misused `vt-ink`)
@@ -220,7 +222,7 @@ sandbox or multi-language runner.
 - **Table** (`assets/components/table/demo.html`): recommended-column interface,
   comparison-matrix header labels, key/value formatting, zebra striping. Header
   column / cell-status / row-emphasis / density look done; the four above need
-  another pass before folding into `visual-teach.css` + showcase.
+  another pass before folding into the component CSS + showcase.
 - **Pill count/step badge** (`assets/components/chip/demo.html`): badge sizing in general,
   and the inline "Step 3 of 7" formatting. Rest of the pill set looks done.
 - **Neutral color** — the neutral pill/variant (`--vt-soft` bg + `--vt-muted`

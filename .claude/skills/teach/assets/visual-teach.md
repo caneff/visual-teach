@@ -9,32 +9,28 @@ components on one page.
 When a topic needs an interaction the catalog can't express, build a bespoke
 component in `./assets/` and place it alongside the `vt-*` blocks.
 
-## Linking — two paths
+## Linking — base + pick your components
 
-### Option A — monolithic bundle (backwards-compatible)
-
-```html
-<link rel="stylesheet" href="../assets/visual-teach.css" />
-<script src="../assets/visual-teach.js"></script>
-```
-
-> **Do NOT add `type="module"` to the `<script>` tag above.** `visual-teach.js`
-> is a plain UMD/IIFE script, not an ES module. Adding `type="module"` causes
-> browsers to load it under CORS rules — which blocks file:// delivery with a
-> CORS policy error, silently disabling all interactive components (quizzes,
-> checklists, theme toggle, copy buttons). The primary delivery mode is file://,
-> so this footgun kills the whole page with no visible error unless you inspect
-> the console.
-
-### Option B — base + pick your components
+Link the Base spine, then add only the CSS and JS for the components this lesson
+uses. There is no aggregate bundle: each component is self-contained so it can be
+copied on its own.
 
 ```html
 <link rel="stylesheet" href="../assets/base/base.css" />
 <link rel="stylesheet" href="../assets/components/callout/callout.css" />
 <!-- add only the component CSS files this lesson needs -->
 <script src="../assets/base/base.js"></script>
-<!-- add interactive component scripts as needed -->
+<!-- add interactive component scripts as needed, e.g.: -->
+<script src="../assets/components/quiz/quiz.js"></script>
 ```
+
+> **Do NOT add `type="module"` to these `<script>` tags.** `base.js` and the
+> component scripts are plain UMD/IIFE scripts, not ES modules. Adding
+> `type="module"` causes browsers to load them under CORS rules — which blocks
+> file:// delivery with a CORS policy error, silently disabling all interactive
+> components (quizzes, checklists, theme toggle, copy buttons). The primary
+> delivery mode is file://, so this footgun kills the whole page with no visible
+> error unless you inspect the console.
 
 ## Page shell
 

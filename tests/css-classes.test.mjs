@@ -1,17 +1,65 @@
-// CSS contract for visual-teach.css — the single source of truth that every
+// CSS contract for the shipped stylesheets — the Base spine plus every
+// Component CSS file, which together are the single source of truth that every
 // documented vt-* selector is defined and a handful of rule-body invariants
-// hold. Pure presence is data-driven (one list); rule-body checks that carry
-// real signal (no raw hex, token usage, the flow-vs-flex separation) are spelled
+// hold. (There is no aggregate bundle; this reads exactly what lessons link.)
+// Pure presence is data-driven (one list); rule-body checks that carry real
+// signal (no raw hex, token usage, the flow-vs-flex separation) are spelled
 // out below. (Behavior of JS-wired blocks lives in the jsdom tests.)
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
+import { readFileSync, readdirSync } from "fs";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { test, expect } from "vitest";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const css = readFileSync(resolve(__dir, "../assets/visual-teach.css"), "utf8");
+const assets = resolve(__dir, "../assets");
+const componentsDir = join(assets, "components");
+const cssFiles = [
+  join(assets, "base", "base.css"),
+  ...readdirSync(componentsDir)
+    .map((name) => join(componentsDir, name, `${name}.css`))
+    .filter((p) => existsSyncCss(p)),
+];
+function existsSyncCss(p) {
+  try {
+    readFileSync(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+const css = cssFiles.map((p) => readFileSync(p, "utf8")).join("\n");
 
-const ruleBody = (re) => css.match(re)?.[0] ?? "";
+// Brace-matched extraction of every `@media <query>` block (per-component CSS
+// has one print block per file, where the old monolith had a single trailing
+// one — so first-match is no longer enough; collect them all).
+function allMediaBlocks(source, query) {
+  const out = [];
+  let from = 0,
+    start;
+  while ((start = source.indexOf(query, from)) >= 0) {
+    let depth = 0;
+    let end = source.length;
+    for (let i = start; i < source.length; i++) {
+      if (source[i] === "{") depth++;
+      else if (source[i] === "}" && --depth === 0) {
+        end = i + 1;
+        break;
+      }
+    }
+    out.push(source.slice(start, end));
+    from = end;
+  }
+  return out;
+}
+
+// Main-rule checks must not match a selector's @media print variant, which the
+// old single-file ordering avoided by putting print last. Strip print blocks.
+const mainCss = allMediaBlocks(css, "@media print").reduce(
+  (acc, block) => acc.replace(block, ""),
+  css
+);
+
+const ruleBody = (re) => mainCss.match(re)?.[0] ?? "";
 const NO_HEX = /#[0-9a-fA-F]{3,8}(?![0-9a-fA-F])/;
 
 // Every documented selector must be defined somewhere in the CSS. One list,
@@ -367,19 +415,7 @@ test("progress-bar fill transition is disabled under prefers-reduced-motion", ()
 
 // ====== @media print hardening ======
 
-function extractMediaBlock(source, query) {
-  const start = source.indexOf(query);
-  if (start < 0) return "";
-  let depth = 0;
-  for (let i = start; i < source.length; i++) {
-    if (source[i] === "{") depth++;
-    else if (source[i] === "}" && --depth === 0)
-      return source.slice(start, i + 1);
-  }
-  return "";
-}
-
-const printBlock = extractMediaBlock(css, "@media print");
+const printBlock = allMediaBlocks(css, "@media print").join("\n");
 
 test("print block forces light theme — dark backgrounds waste ink and are unreadable on paper", () => {
   // The print block must reset the 9 base tokens to their light values and

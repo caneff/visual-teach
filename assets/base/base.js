@@ -1,48 +1,7 @@
-/* base — shared lesson behaviour (theme bridge/toggle, anchors, a11y helpers).
-   Extracted from visual-teach.js. Component behaviour (quiz, checklist, code
-   block, Prism, KaTeX, diagrams) lives in its own file. */
-
-function announce(liveRegion, text) {
-  if (liveRegion) liveRegion.textContent = text;
-}
-
-function blockLabel(el) {
-  return (
-    Array.from(el.classList).find(function (c) {
-      return c.startsWith("vt-");
-    }) || el.className
-  );
-}
-
-// Check that block contains every required child selector. Warns for each
-// missing one and returns false if any are absent so the wirer can bail out.
-function ensure(block, selectors) {
-  var blockClass = blockLabel(block);
-  var ok = true;
-  selectors.forEach(function (sel) {
-    if (!block.querySelector(sel)) {
-      console.warn(
-        "visual-teach: " +
-          blockClass +
-          " missing required " +
-          sel +
-          " — left inert"
-      );
-      ok = false;
-    }
-  });
-  return ok;
-}
-
-// Feedback line: a verdict glyph (✔ / ✘) followed by the explanation HTML.
-function verdict(ok, html) {
-  return (
-    '<span class="vt-fb-verdict">' +
-    (ok ? "&#10004;" : "&#10008;") +
-    "</span> " +
-    html
-  );
-}
+/* base — the always-linked spine: theme bridge/toggle, section anchors, init.
+   Block-level helpers (announce/ensure/verdict) and component behaviour (quiz,
+   checklist, code, Prism, KaTeX, diagrams) each live in their own component
+   file — every Component is self-contained so it can be copied on its own. */
 
 /* Theme bridge: let an embedding parent (e.g. an iframe-based before/after
    compare page) set the lesson theme via postMessage({vtTheme:'dark'|'light'}).
@@ -149,9 +108,6 @@ function init() {
 // Plain-script export (no ESM `export`) lets lessons load this with a classic
 // <script src> that works from file:// — no module CORS, no local server.
 var vtBase = {
-  announce: announce,
-  ensure: ensure,
-  verdict: verdict,
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
   wireAnchors: wireAnchors,

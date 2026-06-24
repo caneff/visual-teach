@@ -187,7 +187,7 @@ test("AGENTS.md: mentions machine-enforced showcase", () => {
 });
 
 // ── type="module" hardening — assertions preserved in the catalog ──
-test(`catalog: warns against type="module" on visual-teach.js script`, () => {
+test(`catalog: warns against type="module" on the base/component scripts`, () => {
   expect(index).toMatch(
     /type="module".*break|break.*type="module"|do not.*type="module"|not.*type="module"|type="module".*not|plain.*script|not.*ES module|CORS/i
   );

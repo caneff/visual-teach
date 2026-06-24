@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const JS_SRC = readFileSync(
-  resolve(__dirname, "../assets/visual-teach.js"),
+  resolve(__dirname, "../assets/components/code/code.js"),
   "utf8"
 );
 

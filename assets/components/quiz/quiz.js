@@ -1,4 +1,4 @@
-/* quiz component — extracted from visual-teach.js */
+/* quiz component */
 
 function _announce(r, t) {
   if (r) r.textContent = t;

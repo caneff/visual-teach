@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { JSDOM } from "jsdom";
-import vtVisualTeach from "../assets/visual-teach.js";
+import vtVisualTeach from "../assets/components/diagram/diagram.js";
 
 describe("vt-flow markFlowRows", () => {
   it("exports markFlowRows", () => {

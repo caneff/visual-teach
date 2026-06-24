@@ -17,13 +17,7 @@ This skill exercises the `teach-base` skill non-interactively. `teach-base` norm
 
 ```sh
 mkdir -p ./assets
-cp -R /home/caneff/src/visual-teach/assets/visual-teach.css \
-      /home/caneff/src/visual-teach/assets/visual-teach.js \
-      /home/caneff/src/visual-teach/assets/visual-teach.md \
-      /home/caneff/src/visual-teach/assets/mermaid.js \
-      /home/caneff/src/visual-teach/assets/prism \
-      /home/caneff/src/visual-teach/assets/katex \
-      ./assets/
+cp -R /home/caneff/src/visual-teach/assets/. ./assets/
 ```
 
 Seeding the assets is the **only** visual-teach instruction this harness gives. Do not tell teach-base how to author — no "use `vt-*` blocks", no "build from the cheatsheet", no "never inline". teach-base reads `./assets/` on its own and decides per its own rules what to reuse from the library and what to build bespoke for the topic. Steering it toward the catalog suppresses the custom components teach-base would otherwise build.

@@ -181,3 +181,12 @@ code.vt-pcode {
   text-shadow: none;
   white-space: pre;
 }
+
+@media print {
+  .vt-code {
+    break-inside: avoid;
+  }
+  .vt-code-copy {
+    display: none;
+  }
+}

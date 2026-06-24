@@ -10,7 +10,7 @@ linter can't see. They are not a restatement of general clean-code advice.
 
 ## Rules
 
-1. **Never add `type="module"` to the `visual-teach.js` / `base.js` `<script>`.**
+1. **Never add `type="module"` to the `base.js` or any component `<script>`.**
    They are plain UMD/IIFE scripts. `type="module"` makes the browser load them
    under CORS, which is blocked over `file://` — silently disabling every
    interactive block (quizzes, checklists, theme toggle, copy buttons) with no
