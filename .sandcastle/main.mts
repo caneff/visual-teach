@@ -48,7 +48,7 @@ import {
   issueBranch,
   buildMultiParentBase,
 } from "./base-resolution.mts";
-import { prComponents } from "./pr-components.mts";
+import { prComponents, CompletedIssue } from "./pr-components.mts";
 import { parseSpecVerdict } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
@@ -279,13 +279,7 @@ function getPrsReferencingIssues(): Map<
 function reconciliationSweep(): {
   sweepInjected: Set<string>;
   sweepRequeued: Set<string>;
-  completedFromSweep: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[];
+  completedFromSweep: CompletedIssue[];
 } {
   const inReview = listIssues("in-review");
   if (inReview.length === 0) {
@@ -303,13 +297,7 @@ function reconciliationSweep(): {
 
   const sweepInjected = new Set<string>();
   const sweepRequeued = new Set<string>();
-  const completedFromSweep: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[] = [];
+  const completedFromSweep: CompletedIssue[] = [];
 
   for (const issue of inReview) {
     const id = String(issue.number);
@@ -342,7 +330,6 @@ function reconciliationSweep(): {
           title: issue.title,
           branch,
           parents: [],
-          group: "",
         });
       } else {
         // No branch, no work, OR a stale branch that conflicts with current
@@ -462,13 +449,7 @@ const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 // bookkeeping — no git mutation. `parents` feeds back into the next planner
 // iteration (so dependent issues can declare these as parents) and drives the
 // Phase 3 head merge.
-const allCompleted: {
-  id: string;
-  title: string;
-  branch: string;
-  parents: string[];
-  group: string;
-}[] = [];
+const allCompleted: CompletedIssue[] = [];
 
 // Phase 0: clear pending review comments on open sandcastle PRs before taking
 // on new issue work. Once per run — humans don't comment mid-run, so a
@@ -757,13 +738,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   //   nothing      → left ready-for-agent for a clean retry
   // Only `done` issues are accumulated into the consolidated PR.
   const attempts = readAttempts();
-  const completedIssues: {
-    id: string;
-    title: string;
-    branch: string;
-    parents: string[];
-    group: string;
-  }[] = [];
+  const completedIssues: CompletedIssue[] = [];
   for (const outcome of settled) {
     if (outcome.status !== "fulfilled") continue;
     const { issue, kind } = outcome.value;
@@ -778,10 +753,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
         id: issue.id,
         title: issue.title,
         branch: issue.branch,
-        // review-only issues have no plan entry, hence no declared parents/group.
-        // An empty group means "no topic" — it groups only by dependency edges.
         parents: issue.mode === "full" ? issue.parents : [],
-        group: issue.mode === "full" ? issue.group : "",
+        ...(issue.mode === "full" && issue.group ? { group: issue.group } : {}),
       });
     } else if (kind === "needs-review") {
       attempts[issue.id] = (attempts[issue.id] ?? 0) + 1;
