@@ -115,7 +115,6 @@ const html = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>visual-teach · showcase</title>
 <link rel="stylesheet" href="${baseCss}">
-<link rel="stylesheet" href="../assets/katex/katex.min.css">
 ${componentCssLinks}
 <style>
 /* showcase-only chrome — not part of the library */
@@ -143,7 +142,6 @@ ${prismScripts}
 <script src="${baseJs}"></script>
 ${componentJsScripts}
 <script src="../assets/mermaid.js"></script>
-<script src="../assets/katex/auto-render.min.js"></script>
 </body>
 </html>`;
 

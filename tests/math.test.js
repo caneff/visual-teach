@@ -98,6 +98,27 @@ describe("initKatex — inline math via renderMathInElement", () => {
   });
 });
 
+describe("initKatex — self-loads KaTeX when absent", () => {
+  it("injects katex css + js + auto-render when katex global is missing", () => {
+    setup('<div class="vt-math">\\gamma</div>');
+    const scripts = [...document.querySelectorAll("head script")].map((s) =>
+      s.getAttribute("src")
+    );
+    const links = [...document.querySelectorAll("head link")].map((l) =>
+      l.getAttribute("href")
+    );
+    expect(links.some((h) => h && h.endsWith("katex/katex.min.css"))).toBe(
+      true
+    );
+    expect(scripts.some((s) => s && s.endsWith("katex/katex.min.js"))).toBe(
+      true
+    );
+    expect(
+      scripts.some((s) => s && s.endsWith("katex/auto-render.min.js"))
+    ).toBe(false); // auto-render loads only after katex.min.js resolves
+  });
+});
+
 describe("initKatex — error resilience", () => {
   it("leaves raw text when katex.renderToString throws", () => {
     globalThis.katex = {
