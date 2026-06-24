@@ -1,6 +1,6 @@
 # visual-teach owns a fork of /teach; the add-on stance is retired
 
-Status: accepted
+Status: superseded by ADR 0010
 
 ## Context
 

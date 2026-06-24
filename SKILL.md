@@ -26,26 +26,67 @@ consistent header without dragging in optional pedagogical chrome.
 
 ## How it reaches `/teach`
 
-`/teach` consumes the components from the **filesystem**: once the asset files
-sit in a workspace's `./assets/`, `/teach` reuses them by its own charter ("read
-`./assets/` and build from the components already there"). So the one job that
-matters is **getting those files into `./assets/`** — then author with `vt-*`
-blocks per the index, never inlining a per-lesson `<style>`/`<script>`. The
-blocks are a **floor, not a ceiling**: keep building bespoke `./assets/`
-components when a topic needs an interaction the catalog can't express, so lessons
-don't turn samesy (see the index's "floor, not a ceiling" note).
+Invoke this skill before authoring lessons to seed reusable `vt-*` components
+instead of inlining CSS/JS. Once the asset files sit in a workspace's
+`./assets/`, `/teach` (upstream `mattpocock/skills`) discovers and reuses them
+under its own "read `./assets/` and build from the components already there"
+rule. The blocks are a **floor, not a ceiling**: keep building bespoke
+`./assets/` components when a topic needs an interaction the catalog can't
+express, so lessons don't turn samesy (see the index's "floor, not a ceiling"
+note).
 
-**Seeding is this skill's first action.** When this skill is active during a
-`/teach` authoring or extension turn and the workspace `./assets/` lacks the
-library, copy the assets in from **this skill's own bundled `assets/` directory**
-— the `assets/` folder that ships alongside this `SKILL.md` in the skill's base
-directory (for a normal global install, `~/.claude/skills/visual-teach/assets/`).
-Use the skill base directory announced when this skill loads; do **not** hardcode
-a developer checkout path. From the workspace root:
+**Seeding is this skill's first action.** Source is **this skill's own bundled
+`assets/` directory** — the `assets/` folder that ships alongside this `SKILL.md`
+(for a normal global install, `~/.claude/skills/visual-teach/assets/`). Use the
+skill base directory announced when this skill loads; do **not** hardcode a
+developer checkout path.
+
+## Per-component seeding
+
+Seed components on demand — **never copy the entire bundled collection**. The
+workspace `./assets/` receives only what the lesson actually uses, keeping a
+no-math course free of KaTeX and a no-diagram course free of Mermaid.
+
+**Always seed base on the first lesson:**
 
 ```sh
 mkdir -p ./assets
-cp -R "<this skill's base dir>/assets/." ./assets/
+cp "<this skill's base dir>/assets/base/base.css" ./assets/base.css
+cp "<this skill's base dir>/assets/base/base.js"  ./assets/base.js
 ```
 
-Do this before the first lesson.
+**For each component this lesson uses, copy its files flat into `./assets/`:**
+
+| Component used | Copy from skill assets                               | Heavy dep also needed                |
+| -------------- | ---------------------------------------------------- | ------------------------------------ |
+| `callout`      | `components/callout/callout.css`                     | —                                    |
+| `code`         | `components/code/code.css`, `code.js`                | `prism/` → `./assets/prism/`         |
+| `table`        | `components/table/table.css`                         | —                                    |
+| `chip`         | `components/chip/chip.css`                           | —                                    |
+| `quiz`         | `components/quiz/quiz.css`, `quiz.js`                | —                                    |
+| `checklist`    | `components/checklist/checklist.css`, `checklist.js` | —                                    |
+| `diagram`      | `components/diagram/diagram.css`, `diagram.js`       | `mermaid.js` → `./assets/mermaid.js` |
+| `math`         | `components/math/math.css`, `math.js`                | `katex/` → `./assets/katex/`         |
+| `teacher-box`  | `components/teacher-box/teacher-box.css`             | —                                    |
+
+**Example — lesson with callout + quiz (no math, no diagram):**
+
+```sh
+cp "<this skill's base dir>/assets/components/callout/callout.css" ./assets/callout.css
+cp "<this skill's base dir>/assets/components/quiz/quiz.css"       ./assets/quiz.css
+cp "<this skill's base dir>/assets/components/quiz/quiz.js"        ./assets/quiz.js
+# ./assets/ now has: base.css base.js callout.css quiz.css quiz.js
+# No katex/, no prism/, no mermaid.js
+```
+
+**Example — lesson with math:**
+
+```sh
+cp "<this skill's base dir>/assets/components/math/math.css" ./assets/math.css
+cp "<this skill's base dir>/assets/components/math/math.js"  ./assets/math.js
+cp -R "<this skill's base dir>/assets/katex" ./assets/katex
+```
+
+Reuse is the default, not the exception. Before authoring each lesson, check
+`./assets/` — if a component's files are already there, link them directly. Only
+copy what is missing.

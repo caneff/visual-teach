@@ -10,16 +10,16 @@ Glossary for the project. Terms only — no implementation details, no decisions
 look and interactive behavior to lessons via conventional CSS classes (compare:
 Bootstrap, not a renderer). There is no aggregate bundle — a lesson links Base
 and only the Components it uses; each Component is self-contained so it can be
-copied on its own. The owned `/teach` skill (`teach`) bundles the component
-library and seeds it into a workspace on its first run. visual-teach does _not_
-own a lesson format, a schema, or a validator, and it does _not_ reimplement
-`/teach`'s pedagogy.
+copied on its own. visual-teach does _not_ own a lesson format, a schema, or a
+validator, and it does _not_ reimplement `/teach`'s pedagogy. It is invoked before
+`/teach` to seed per-component assets into the workspace.
 
-**/teach** — The owned fork of the upstream `mattpocock/skills` teaching skill,
-living at `.claude/skills/teach/`. Owns lesson authoring, the teaching workspace,
+**/teach** — The upstream `mattpocock/skills` teaching skill
+(`skills/productivity/teach`). Owns lesson authoring, the teaching workspace,
 mission, zone-of-proximal-development, citations, and multi-session learning
-state. Bundles the component library under `assets/` and seeds it into the
-workspace on its first run via an explicit per-component seeding protocol.
+state. When visual-teach is installed, invoke it first so that assets are seeded
+before `/teach` authors lessons. Upstream `/teach` discovers and reuses whatever
+is in `./assets/` by its own charter.
 
 **teach-base** — The frozen, pristine A/B control baseline. A copy of the
 upstream `/teach` with only `disable-model-invocation` removed so it can be
@@ -28,13 +28,6 @@ and seeds no assets. Lessons it produces are plain hand-written HTML — the
 control arm for quality A/B comparisons. **Do not edit:** modifying it silently
 invalidates any comparison that uses it as the baseline. See
 `docs/ab-comparison-methodology.md`.
-
-**treatment twin** — The A/B treatment arm. An invocable copy of the owned `teach`
-skill derived on-demand by `scripts/derive-treatment.sh`: `teach` with only
-`disable-model-invocation` stripped, byte-identical to `teach` in every other
-respect. Because it is generated, not hand-authored, it cannot drift from `teach`.
-Paired with `teach-base` for side-by-side comparisons — the delta between the two
-arms measures the value the component library adds. See `docs/ab-comparison-methodology.md`.
 
 **Component** — A self-contained, copyable CSS/JS unit in the component
 collection. Each component lives under `assets/components/<name>/` and ships a
