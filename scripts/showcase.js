@@ -102,7 +102,6 @@ const sections = components
     return `
 <!-- ─── ${title} ─────────────────────────────────────────────────────── -->
 <div class="sc-component" id="component-${name}">
-<p class="sc-label">${title}</p>
 ${styleBlock}${body}
 </div>`;
   })
@@ -118,13 +117,11 @@ const html = `<!DOCTYPE html>
 ${componentCssLinks}
 <style>
 /* showcase-only chrome — not part of the library */
-.sc-label {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: .7rem; text-transform: uppercase; letter-spacing: .1em;
-  color: var(--vt-muted); margin: 2.5rem 0 .4rem;
-  border-top: 1px dashed var(--vt-rule); padding-top: 1.2rem;
+.sc-component {
+  margin-bottom: 3rem;
+  border-top: 1px dashed var(--vt-rule);
+  padding-top: 1.2rem;
 }
-.sc-component { margin-bottom: 3rem; }
 h3 { font-family: "Helvetica Neue", Arial, sans-serif; font-size: 1.02rem; margin: 1.8rem 0 .4rem; }
 /* Reset the <main> elements spliced from component demos so base.css's
    max-width/margin/padding only applies to the outer showcase <main>. */
