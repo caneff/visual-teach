@@ -1,0 +1,10 @@
+--- a/skills/productivity/teach/SKILL.md
++++ b/skills/productivity/teach/SKILL.md
+@@ -63,6 +63,10 @@ Each lesson should link via HTML anchors to other lessons and reference document
+ ## Assets
+
++If a component-library skill such as `visual-teach` is available, invoke it
++before authoring lessons to seed reusable `vt-*` components instead of
++inlining CSS/JS.
++
+ Lessons are built from whatever components are available in `./assets/`. Read

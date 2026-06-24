@@ -8,9 +8,9 @@ aggregate bundle — a lesson links Base and only the components it uses. Think
 Bootstrap for lessons, not a renderer or a framework.
 
 It does not own a lesson format, a schema, or any pedagogy. That is the job of
-the [`/teach`](./.claude/skills/teach/) skill — the owned fork of the
-[upstream `/teach`](https://github.com/mattpocock/skills) that bundles the
-component library and seeding rules directly.
+the upstream [`/teach`](https://github.com/mattpocock/skills) skill
+(`mattpocock/skills`, `skills/productivity/teach`). visual-teach seeds reusable
+components into the workspace and then steps back; `/teach` authors the lessons.
 
 ## What you get
 
@@ -38,11 +38,10 @@ splits, a flex playground), and a source/footer card set.
 
 ## Skills
 
-| Skill                         | Role                                                                                                                                            |
-| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `.claude/skills/teach/`       | **The authoring skill.** Owned fork of upstream `/teach` with the component library bundled and per-component seeding built in.                 |
-| `.claude/skills/teach-base/`  | **Frozen A/B control.** Pristine upstream `/teach` minus the invocation flag. Never edit — modifications silently invalidate prior comparisons. |
-| `scripts/derive-treatment.sh` | **A/B treatment twin.** Generates an invocable copy of `teach` (minus `disable-model-invocation`) for side-by-side quality comparisons.         |
+| Skill                          | Role                                                                                                                                            |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.claude/skills/visual-teach/` | **This skill.** Seeds per-component assets; invoked before `/teach` so lessons have rich `vt-*` blocks.                                         |
+| `.claude/skills/teach-base/`   | **Frozen A/B control.** Pristine upstream `/teach` minus the invocation flag. Never edit — modifications silently invalidate prior comparisons. |
 
 See `docs/ab-comparison-methodology.md` for how to run a quality A/B comparison.
 

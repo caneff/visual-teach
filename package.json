@@ -8,7 +8,6 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "typecheck": "tsc -p .sandcastle/tsconfig.json",
-    "sync-teach-assets": "bash scripts/sync-teach-assets.sh",
     "prepare": "husky"
   },
   "devDependencies": {
