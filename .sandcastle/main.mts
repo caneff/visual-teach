@@ -66,7 +66,14 @@ import {
   recordAttempt,
 } from "./retry-policy.mts";
 import { execSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
+import {
+  mkdirSync,
+  readFileSync,
+  writeFileSync,
+  existsSync,
+  readdirSync,
+  unlinkSync,
+} from "node:fs";
 import { z } from "zod";
 
 // Sandcastle forwards .sandcastle/.env into sandboxes but never into the host
@@ -131,6 +138,41 @@ const VERBOSE =
   process.env.SANDCASTLE_VERBOSE != null &&
   process.env.SANDCASTLE_VERBOSE !== "0";
 mkdirSync(".sandcastle/logs", { recursive: true });
+
+// Logs are append-only and gitignored. Sandcastle delimits each run with a
+// `--- Run started: <ISO ts> ---` header, so we can keep just recent runs:
+// drop everything before the first header newer than the cutoff. Runs at start,
+// before this run logs, so the live run is never trimmed. Keeps stable filenames.
+// A log with no run inside the window is emptied (all its runs are stale).
+// ponytail: parse the header we already emit; no run-index/db needed.
+const LOG_RETENTION_DAYS = 14;
+function pruneOldRuns(dir: string, cutoffMs: number) {
+  const hdr = /^--- Run started: (.+?) ---$/;
+  for (const name of readdirSync(dir)) {
+    if (!name.endsWith(".log")) continue;
+    const file = `${dir}/${name}`;
+    const lines = readFileSync(file, "utf8").split("\n");
+    let keepFrom = lines.length; // no recent run found → empty the file
+    for (let i = 0; i < lines.length; i++) {
+      const m = lines[i].match(hdr);
+      if (m && Date.parse(m[1]) >= cutoffMs) {
+        keepFrom = i;
+        break;
+      }
+    }
+    if (keepFrom === 0) continue; // already all-recent
+    const kept = lines.slice(keepFrom).join("\n");
+    if (kept.trim() === "")
+      unlinkSync(file); // no recent runs → drop the file
+    else writeFileSync(file, kept);
+  }
+}
+try {
+  pruneOldRuns(
+    ".sandcastle/logs",
+    Date.now() - LOG_RETENTION_DAYS * 86_400_000
+  );
+} catch {}
 
 // Build the per-run logging option, mirroring sandcastle's default filename
 // (<sanitized-branch>-<name>.log under .sandcastle/logs/) so existing
