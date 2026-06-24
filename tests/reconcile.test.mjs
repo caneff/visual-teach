@@ -123,6 +123,21 @@ describe("bucketIssues", () => {
     expect(result[0].prNumber).toBeUndefined();
   });
 
+  // Requeued up front (stale branch), then rebuilt and PR'd in the SAME run:
+  // the fresh PR is the truth — report built-this-run with its PR, not re-queued.
+  test("requeued then rebuilt + PR'd this run → built-this-run with PR", () => {
+    const result = bucketIssues(
+      makeOpts({
+        openIssues: [{ number: 100, title: "rebuilt", labels: ["in-review"] }],
+        builtThisRun: new Set(["100"]),
+        sweepRequeued: new Set(["100"]),
+        prAssignments: new Map([["100", 200]]),
+      })
+    );
+    expect(result[0].bucket).toBe("built-this-run");
+    expect(result[0].prNumber).toBe(200);
+  });
+
   // Honesty gate: injected, not requeued, but no PR assigned → don't claim a
   // sweep repair PR; fall back to built-this-run rather than lying.
   test("injected without a PR number → not repaired-sweep-pr", () => {
