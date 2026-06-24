@@ -34,7 +34,7 @@ interface (not source shape), refactor only once green.
 
 # FEEDBACK LOOPS
 
-Before committing, run `npm run typecheck` and `npm run test` to ensure the tests pass.
+Before committing, run `npm run test` to ensure the tests pass.
 
 # VISUAL PROOF (before / after)
 
@@ -47,11 +47,10 @@ unchanged code, before you edit) and after, upload both to R2, and write
 
 Make a git commit. The commit message must:
 
-1. Start with `RALPH:` prefix
-2. Include task completed + PRD reference
-3. Key decisions made
-4. Files changed
-5. Blockers or notes for next iteration
+1. Include task completed + PRD reference
+2. Key decisions made
+3. Files changed
+4. Blockers or notes for next iteration
 
 Keep it concise.
 

@@ -145,5 +145,4 @@ Use `$GITHUB_TOKEN` anywhere `gh` or `git` needs to authenticate as the bot.
 ## Notes
 
 - Tokens expire in ~1 hour. Re-run the one-liner to refresh.
-- The App consumes no seat and is ToS-clean (preferred over a PAT on a
-  second account). See `docs/adr/0005-bot-github-app-identity.md` for context.
+- The App consumes no seat and is ToS-clean (preferred over a PAT on a second account).

@@ -48,9 +48,7 @@ independent of however the change was built.
    - Remove helpful abstractions that improve code organization
    - Make the code harder to debug or extend
 
-5. **Apply project standards**: Follow the coding standards defined in @.sandcastle/CODING_STANDARDS.md
-
-6. **Preserve functionality**: Never change what the code does - only how it does it. All original features, outputs, and behaviors must remain intact.
+5. **Preserve functionality**: Never change what the code does - only how it does it. All original features, outputs, and behaviors must remain intact.
 
 # GATES (always run, even if you change nothing)
 
@@ -58,7 +56,7 @@ These are pass/fail checks independent of any refactor. Run them every review.
 
 Tests and type checking are enforced mechanically by CI
 (`.github/workflows/ci.yml`) on the PR, so they are not your job to babysit. You
-still run `npm run test` / `npm run typecheck` after any refactor _you_ commit
+still run `npm run test` after any refactor _you_ commit
 (see EXECUTION), but the authoritative green gate is CI.
 
 1. **Visual proof is present and real.** This repo is visual, so a code change to
