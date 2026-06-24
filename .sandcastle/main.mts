@@ -991,7 +991,14 @@ for (const issue of allCompleted) {
     sweepRequeued,
     prAssignments,
   });
-  console.log(buildRunSummary(bucketed));
+  const summary = buildRunSummary(bucketed);
+  console.log(summary);
+  // Persist the summary — per-run filename so it survives the next run (the
+  // per-agent logs overwrite). This is the run's ground-truth outcome and is
+  // otherwise lost when the terminal scrolls.
+  // ponytail: summary only; tee the whole orchestrator stdout if the sweep
+  // trace is also needed for debugging.
+  writeFileSync(`.sandcastle/logs/run-${runId}.log`, summary);
 }
 
 console.log("\nAll done.");
