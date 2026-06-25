@@ -11,12 +11,9 @@
 }
 
 /* inline SVG: responsive + inherit --vt-ink so currentColor strokes theme with light/dark */
-/* KNOWN ISSUE (#9, deferred): max-width:100% defeats the overflow-x:auto above —
-   a wide SVG shrinks to fit the column instead of scrolling (mush for dense diagrams).
-   To make it scroll instead: set max-width:none here AND add min-width:0 to .vt-diagram
-   (it's a `main` grid item; default min-width:auto = the SVG's intrinsic width, which
-   blows the column out — verified via prototype). Both rules required; max-width:none
-   alone overflows the whole page. Also flips mobile from shrink-to-fit to scroll. */
+/* max-width:100% keeps normal (non-wide) diagrams shrink-to-fit on mobile.
+   Wide diagrams (auto-detected by wireBreakout()) get max-width:none + min-width:0 via
+   base.css so the SVG can scroll at full size instead of shrinking (#9, fixed in #203). */
 .vt-diagram svg {
   display: block;
   max-width: 100%;

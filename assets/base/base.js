@@ -96,11 +96,63 @@ function wireAnchors() {
   });
 }
 
+/* For each candidate block in <main> (table-wrap, code, diagram), measure its
+   natural (max-content) width via an off-screen clone — SVG max-width is lifted
+   on the clone so a wide SVG is not falsely capped to the column. Toggle
+   .vt-wide when the natural width exceeds the column width at rest. */
+function wireBreakout() {
+  var doc = document;
+  var main = doc.querySelector("main");
+  if (!main) return;
+
+  function applyBreakout() {
+    var candidates = main.querySelectorAll(
+      ".vt-table-wrap, .vt-code, .vt-diagram"
+    );
+    if (!candidates.length) return;
+
+    // Strip any stale .vt-wide so getBoundingClientRect gives the at-rest column width.
+    candidates.forEach(function (el) {
+      el.classList.remove("vt-wide");
+    });
+
+    // All candidates share the same prose column — measure once.
+    var columnWidth = candidates[0].getBoundingClientRect().width;
+
+    candidates.forEach(function (el) {
+      // Measure the block's natural (max-content) width via an off-screen clone.
+      var clone = el.cloneNode(true);
+      clone.style.cssText =
+        "position:absolute;top:-9999px;left:-9999px;" +
+        "width:max-content;max-width:none;visibility:hidden;";
+      // Lift svg max-width so a wide SVG is not capped by the column CSS rule.
+      clone.querySelectorAll("svg").forEach(function (svg) {
+        svg.style.maxWidth = "none";
+      });
+      doc.body.appendChild(clone);
+      var naturalWidth = clone.scrollWidth;
+      doc.body.removeChild(clone);
+
+      el.classList.toggle("vt-wide", naturalWidth > columnWidth);
+    });
+  }
+
+  applyBreakout();
+
+  // Re-evaluate on resize (column width changes with viewport).
+  var _resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(_resizeTimer);
+    _resizeTimer = setTimeout(applyBreakout, 150);
+  });
+}
+
 function init() {
   wireAnchors();
   if (typeof window !== "undefined") {
     wireThemeBridge(window);
     wireThemeToggle(window);
+    wireBreakout();
   }
 }
 
@@ -111,6 +163,7 @@ var vtBase = {
   wireThemeBridge: wireThemeBridge,
   wireThemeToggle: wireThemeToggle,
   wireAnchors: wireAnchors,
+  wireBreakout: wireBreakout,
   init: init,
 };
 if (typeof module !== "undefined" && module.exports) {

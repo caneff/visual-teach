@@ -88,6 +88,11 @@ main > .vt-code.vt-wide {
 /* diagrams fill their track */
 main > .vt-diagram.vt-wide {
   width: 100%;
+  min-width: 0; /* grid items default to min-width:auto = SVG intrinsic width; 0 lets overflow-x:auto clip */
+}
+/* Fix #9: let a wide SVG keep full size and scroll in the frame instead of shrinking to mush */
+main > .vt-diagram.vt-wide svg {
+  max-width: none;
 }
 
 /* page shell */
