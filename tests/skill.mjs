@@ -34,7 +34,7 @@ test("base.css defines the 9 --vt-* tokens", () => {
 
 test("base.css has dark mode rules", () => {
   const css = readFileSync(join(root, "assets/base/base.css"), "utf8");
-  expect(css).toMatch(/@media\s*\(\s*prefers-color-scheme\s*:\s*dark\s*\)/);
+  expect(css).toMatch(/light-dark\(/);
   expect(css).toMatch(/:root\[data-theme="dark"\]/);
 });
 
