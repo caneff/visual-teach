@@ -2,7 +2,7 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests",
-  testMatch: "visual.spec.js",
+  testMatch: ["visual.spec.js", "media-state.spec.js"],
   fullyParallel: true,
   retries: 0,
   reporter: [["html", { open: "never", outputFolder: "playwright-report" }]],
