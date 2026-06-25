@@ -51,17 +51,17 @@ test.describe("print media", () => {
     const copy = page.locator(".vt-code-copy");
     await expect(copy).toBeHidden();
 
-    // Light-theme token is active even if data-theme="dark" is set
-    await page.evaluate(() => {
+    // Light-theme token is active even if data-theme="dark" is set.
+    // Read a resolved background-color, not the raw --vt-paper property:
+    // light-dark() only resolves when the token is used as a real color value.
+    const paper = await page.evaluate(() => {
       document.documentElement.dataset.theme = "dark";
+      const probe = document.createElement("div");
+      probe.style.backgroundColor = "var(--vt-paper)";
+      document.body.appendChild(probe);
+      return window.getComputedStyle(probe).backgroundColor;
     });
-    const paper = await page.evaluate(() =>
-      window
-        .getComputedStyle(document.documentElement)
-        .getPropertyValue("--vt-paper")
-        .trim()
-    );
-    expect(paper).toBe("#ffffff");
+    expect(paper).toBe("rgb(255, 255, 255)");
   });
 
   test("callout demo — callout block has break-inside: avoid in print", async ({
