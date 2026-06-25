@@ -212,15 +212,9 @@
 /* split — before / after two-panel */
 .vt-split {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1rem;
   margin: 1rem 0;
-}
-
-@media (max-width: 480px) {
-  .vt-split {
-    grid-template-columns: 1fr;
-  }
 }
 
 .vt-split-panel {
