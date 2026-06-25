@@ -19,3 +19,6 @@ course-tests/*
 # Playwright
 playwright-report/
 test-results/
+
+# Saved deep-research output (local only, do not check in)
+.research/
