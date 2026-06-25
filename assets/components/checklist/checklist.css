@@ -93,9 +93,3 @@
     display: none;
   }
 }
-
-@media (prefers-reduced-motion: reduce) {
-  .vt-progress-bar-fill {
-    transition: none;
-  }
-}

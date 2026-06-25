@@ -78,12 +78,14 @@ h1 {
   line-height: 1.2;
   margin: 0.3rem 0 0.5rem;
   letter-spacing: -0.01em;
+  text-wrap: balance; /* even multi-line headings */
 }
 .vt-lede {
   font-size: 1.1rem;
   color: var(--vt-muted);
   font-style: italic;
   margin-bottom: 0.5rem;
+  text-wrap: balance;
 }
 .vt-meta {
   font-family: "Helvetica Neue", Arial, sans-serif;
@@ -98,6 +100,7 @@ h2 {
   padding-bottom: 0.3rem;
   border-bottom: 2px solid var(--vt-rule);
   position: relative;
+  text-wrap: balance;
 }
 h2 .vt-num {
   color: var(--vt-accent);
@@ -363,5 +366,16 @@ a code {
   }
   .vt-split {
     grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Honor reduced-motion globally so every component inherits it — no per-file
+   opt-in (WCAG 2.3.3). Kills transitions + animations site-wide. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition: none !important;
+    animation: none !important;
   }
 }
