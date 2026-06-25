@@ -10,7 +10,6 @@ function url(path) {
   return `file://${resolve(root, path)}`;
 }
 
-// Helper: read a pseudo-element CSS property via getComputedStyle
 async function pseudoStyle(page, selector, pseudo, prop) {
   return page.evaluate(
     ({ selector, pseudo, prop }) => {
@@ -21,6 +20,12 @@ async function pseudoStyle(page, selector, pseudo, prop) {
     { selector, pseudo, prop }
   );
 }
+
+const WCAG_OPTIONS = {
+  axeOptions: {
+    runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa"] },
+  },
+};
 
 // ── Print ──────────────────────────────────────────────────────────────────
 
@@ -40,11 +45,9 @@ test.describe("print media", () => {
 
     await page.emulateMedia({ media: "print" });
 
-    // Theme toggle is hidden in print
     const toggle = page.locator(".vt-theme-toggle");
     await expect(toggle).toBeHidden();
 
-    // Code copy is hidden in print
     const copy = page.locator(".vt-code-copy");
     await expect(copy).toBeHidden();
 
@@ -208,7 +211,6 @@ test.describe("dir=rtl", () => {
     await page.goto(url("assets/components/diagram/demo.html"));
     await page.waitForLoadState("networkidle");
 
-    // Set RTL on the html element
     await page.evaluate(() => {
       document.documentElement.setAttribute("dir", "rtl");
     });
@@ -231,32 +233,20 @@ test.describe("axe a11y", () => {
     await page.goto(url("assets/components/quiz/demo.html"));
     await page.waitForLoadState("networkidle");
     await injectAxe(page);
-    await checkA11y(page, undefined, {
-      axeOptions: {
-        runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa"] },
-      },
-    });
+    await checkA11y(page, undefined, WCAG_OPTIONS);
   });
 
   test("checklist demo — no axe violations", async ({ page }) => {
     await page.goto(url("assets/components/checklist/demo.html"));
     await page.waitForLoadState("networkidle");
     await injectAxe(page);
-    await checkA11y(page, undefined, {
-      axeOptions: {
-        runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa"] },
-      },
-    });
+    await checkA11y(page, undefined, WCAG_OPTIONS);
   });
 
   test("callout demo — no axe violations", async ({ page }) => {
     await page.goto(url("assets/components/callout/demo.html"));
     await page.waitForLoadState("networkidle");
     await injectAxe(page);
-    await checkA11y(page, undefined, {
-      axeOptions: {
-        runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "wcag21aa"] },
-      },
-    });
+    await checkA11y(page, undefined, WCAG_OPTIONS);
   });
 });
