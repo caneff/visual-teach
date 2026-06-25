@@ -120,7 +120,6 @@ function wireBreakout() {
     var columnWidth = candidates[0].getBoundingClientRect().width;
 
     candidates.forEach(function (el) {
-      // Measure the block's natural (max-content) width via an off-screen clone.
       var clone = el.cloneNode(true);
       clone.style.cssText =
         "position:absolute;top:-9999px;left:-9999px;" +
@@ -139,11 +138,10 @@ function wireBreakout() {
 
   applyBreakout();
 
-  // Re-evaluate on resize (column width changes with viewport).
-  var _resizeTimer;
+  var resizeTimer;
   window.addEventListener("resize", function () {
-    clearTimeout(_resizeTimer);
-    _resizeTimer = setTimeout(applyBreakout, 150);
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(applyBreakout, 150);
   });
 }
 
