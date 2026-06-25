@@ -19,14 +19,15 @@ function tryRead(p) {
   }
 }
 
-const cssFiles = [
+const css = [
   join(assets, "base", "base.css"),
   ...readdirSync(componentsDir).map((name) =>
     join(componentsDir, name, `${name}.css`)
   ),
-].filter((p) => tryRead(p) !== null);
-
-const css = cssFiles.map((p) => tryRead(p)).join("\n");
+]
+  .map(tryRead)
+  .filter(Boolean)
+  .join("\n");
 
 // Parse into an AST (strips comments) then generate back to a normalized
 // string — we search this rather than the raw source, so comment text
