@@ -17,6 +17,7 @@
   border-bottom: 1px solid var(--vt-rule);
 }
 .vt-code-copy {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -29,6 +30,13 @@
   transition:
     color 0.15s,
     border-color 0.15s;
+}
+/* Expand the hit area to 44×44 (WCAG 2.5.5) without growing the visible
+   ~22px button — the compact code-header keeps its tight look. */
+.vt-code-copy::after {
+  content: "";
+  position: absolute;
+  inset: -11px;
 }
 .vt-code-copy:hover {
   color: var(--vt-accent);
