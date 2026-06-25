@@ -28,3 +28,17 @@ for (const { name, path } of PAGES) {
     });
   });
 }
+
+for (const { name, path } of PAGES) {
+  test(`${name} dark-theme screenshot`, async ({ page }) => {
+    await page.goto(`file://${resolve(root, path)}`);
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "dark";
+    });
+    await expect(page).toHaveScreenshot(`${name}-dark.png`, {
+      fullPage: true,
+      maxDiffPixelRatio: 0.02,
+    });
+  });
+}

@@ -50,6 +50,7 @@ function wireChecklist(list) {
   var barWrap = document.createElement("div");
   barWrap.className = "vt-progress-bar";
   barWrap.setAttribute("role", "progressbar");
+  barWrap.setAttribute("aria-label", "Checklist progress");
   barWrap.setAttribute("aria-valuemin", "0");
   barWrap.setAttribute("aria-valuemax", "100");
   barWrap.setAttribute("aria-valuenow", "0");
