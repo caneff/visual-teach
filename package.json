@@ -3,6 +3,9 @@
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:visual": "playwright test",
+    "test:visual:update": "playwright test --update-snapshots",
+    "docker:regen-baselines": "docker run --rm -v \"$(pwd):/work\" -w /work mcr.microsoft.com/playwright:v1.61.1-jammy npm run test:visual:update",
     "showcase": "node scripts/showcase.js",
     "serve": "python3 -m http.server 8000",
     "lint": "eslint . && npm run lint:css",
@@ -14,6 +17,7 @@
   "devDependencies": {
     "@ai-hero/sandcastle": "^0.10.0",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.61.1",
     "@types/node": "^26.0.0",
     "eslint": "^10.5.0",
     "globals": "^17.6.0",
