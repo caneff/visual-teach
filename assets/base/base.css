@@ -54,15 +54,45 @@
 }
 body {
   font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.125rem;
   color: var(--vt-ink);
   margin: 0;
   background: var(--vt-paper);
   line-height: 1.6;
 }
 main {
-  max-width: 760px;
+  --vt-measure: 700px;
+  --vt-frame: calc(var(--vt-measure) * 1.35);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) min(var(--vt-measure), 100%) minmax(
+      0,
+      1fr
+    );
+  max-width: var(--vt-frame);
   margin: 0 auto;
   padding: 3rem 1.5rem 5rem;
+}
+main > * {
+  grid-column: 2;
+}
+/* left-anchored breakout: left edge stays with prose, extends right into gutter */
+main > .vt-wide {
+  grid-column: 2 / -1;
+}
+/* small tables/code are content-sized — a barely-over-measure block won't sprawl */
+main > .vt-table-wrap.vt-wide,
+main > .vt-code.vt-wide {
+  width: max-content;
+  max-width: 100%;
+}
+/* diagrams fill their track */
+main > .vt-diagram.vt-wide {
+  width: 100%;
+  min-width: 0; /* grid items default to min-width:auto = SVG intrinsic width; 0 lets overflow-x:auto clip */
+}
+/* wide diagrams only: normal diagrams keep shrink-to-fit; wide ones scroll at full size */
+main > .vt-diagram.vt-wide svg {
+  max-width: none;
 }
 
 /* page shell */

@@ -106,6 +106,23 @@ components, not all nine.
 | math        | equations, formulas, or symbolic notation (KaTeX)                                                      | [components/math/demo.html](components/math/demo.html)               |
 | teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                  | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
 
+## Automatic breakout — wide tables, code, and diagrams
+
+Wide tables (`vt-table-wrap`), code blocks (`vt-code`), and diagrams (`vt-diagram`)
+that are **direct children of `<main>`** automatically break out of the prose column
+when their content is wider than the measure. `base.js` measures each block on load
+and re-evaluates on window resize; it adds or removes `.vt-wide` accordingly.
+
+**Do not add `.vt-wide` by hand.** The class is JS-managed — any hand-placed class
+will be overwritten on load. A block that genuinely fits in the prose column stays
+there; only blocks whose content actually overflows break out.
+
+- **No JS / JS disabled:** nothing widens. Tables and code blocks scroll horizontally
+  via `overflow-x: auto`; diagrams shrink to fit (the pre-JS default).
+- **Layout shift:** only the wide minority jump on first load; this is accepted.
+- **Wide diagrams with SVG:** a wide SVG keeps full size and scrolls within the frame
+  (does not shrink to mush). Normal diagrams keep their shrink-to-fit mobile behavior.
+
 ## Quiz authoring rules
 
 Keep option text to roughly equal visible length. Use uniform inline `<code>` so

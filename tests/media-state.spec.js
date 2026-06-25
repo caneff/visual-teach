@@ -226,6 +226,141 @@ test.describe("dir=rtl", () => {
   });
 });
 
+// ── Grid layout geometry ───────────────────────────────────────────────────
+
+test.describe("main grid layout", () => {
+  test("body has 18px font-size", async ({ page }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    const fontSize = await page.evaluate(
+      () => window.getComputedStyle(document.body).fontSize
+    );
+    expect(fontSize).toBe("18px");
+  });
+
+  test("main is a CSS grid", async ({ page }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    const display = await page.evaluate(
+      () => window.getComputedStyle(document.querySelector("main")).display
+    );
+    expect(display).toBe("grid");
+  });
+
+  test(".vt-wide is left-anchored — same left edge as prose, wider to the right", async ({
+    page,
+  }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const prose = document.createElement("p");
+      prose.id = "test-prose";
+      prose.textContent = "Probe";
+      const wide = document.createElement("div");
+      wide.className = "vt-wide";
+      wide.id = "test-wide";
+      wide.textContent = "Wide probe";
+      main.appendChild(prose);
+      main.appendChild(wide);
+    });
+    const [proseLeft, proseRight, wideLeft, wideRight] = await page.evaluate(
+      () => {
+        const pr = document
+          .getElementById("test-prose")
+          .getBoundingClientRect();
+        const wr = document.getElementById("test-wide").getBoundingClientRect();
+        return [pr.left, pr.right, wr.left, wr.right];
+      }
+    );
+    expect(wideLeft).toBe(proseLeft);
+    expect(wideRight).toBeGreaterThan(proseRight);
+  });
+});
+
+// ── wireBreakout auto-detection ───────────────────────────────────────────
+
+test.describe("wireBreakout", () => {
+  test("narrow SVG diagram does NOT gain .vt-wide", async ({ page }) => {
+    await page.goto(url("assets/components/diagram/demo.html"));
+    await page.waitForLoadState("networkidle");
+
+    const hasWide = await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const diagram = document.createElement("div");
+      diagram.className = "vt-diagram";
+      diagram.id = "test-narrow-diagram";
+      // SVG intrinsic width 200px — fits well inside the 700px prose column
+      diagram.innerHTML =
+        '<svg width="200" height="100" viewBox="0 0 200 100"><rect width="200" height="100"/></svg>';
+      main.appendChild(diagram);
+      window.vtBase.wireBreakout();
+      return document
+        .getElementById("test-narrow-diagram")
+        .classList.contains("vt-wide");
+    });
+    expect(hasWide).toBe(false);
+  });
+
+  test("resize re-evaluates breakout — stale .vt-wide removed when diagram shrinks", async ({
+    page,
+  }) => {
+    await page.goto(url("assets/components/diagram/demo.html"));
+    await page.waitForLoadState("networkidle");
+
+    // Start wide (1500px SVG), confirm .vt-wide added.
+    await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const diagram = document.createElement("div");
+      diagram.className = "vt-diagram";
+      diagram.id = "test-resize-diagram";
+      diagram.innerHTML =
+        '<svg width="1500" height="100" viewBox="0 0 1500 100"><rect width="1500" height="100"/></svg>';
+      main.appendChild(diagram);
+      window.vtBase.wireBreakout();
+    });
+    const wideBefore = await page.evaluate(() =>
+      document
+        .getElementById("test-resize-diagram")
+        .classList.contains("vt-wide")
+    );
+    expect(wideBefore).toBe(true);
+
+    // Replace the SVG with a narrow one then manually fire applyBreakout via resize.
+    // wireBreakout debounces on resize; calling wireBreakout() again re-runs applyBreakout.
+    const wideAfter = await page.evaluate(() => {
+      const diagram = document.getElementById("test-resize-diagram");
+      diagram.innerHTML =
+        '<svg width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100"/></svg>';
+      // Re-run wireBreakout to pick up the new SVG (simulates post-resize evaluation).
+      window.vtBase.wireBreakout();
+      return diagram.classList.contains("vt-wide");
+    });
+    expect(wideAfter).toBe(false);
+  });
+
+  test("wide SVG diagram auto-gains .vt-wide", async ({ page }) => {
+    await page.goto(url("assets/components/diagram/demo.html"));
+    await page.waitForLoadState("networkidle");
+
+    const hasWide = await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const diagram = document.createElement("div");
+      diagram.className = "vt-diagram";
+      diagram.id = "test-wide-diagram";
+      // SVG intrinsic width 1500px — well beyond the 700px prose column
+      diagram.innerHTML =
+        '<svg width="1500" height="100" viewBox="0 0 1500 100"><rect width="1500" height="100"/></svg>';
+      main.appendChild(diagram);
+      window.vtBase.wireBreakout();
+      return document
+        .getElementById("test-wide-diagram")
+        .classList.contains("vt-wide");
+    });
+    expect(hasWide).toBe(true);
+  });
+});
+
 // ── Axe accessibility ──────────────────────────────────────────────────────
 
 test.describe("axe a11y", () => {
