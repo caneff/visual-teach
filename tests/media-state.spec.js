@@ -226,6 +226,58 @@ test.describe("dir=rtl", () => {
   });
 });
 
+// ── Grid layout geometry ───────────────────────────────────────────────────
+
+test.describe("main grid layout", () => {
+  test("body has 18px font-size", async ({ page }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    const fontSize = await page.evaluate(
+      () => window.getComputedStyle(document.body).fontSize
+    );
+    expect(fontSize).toBe("18px");
+  });
+
+  test("main is a CSS grid", async ({ page }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    const display = await page.evaluate(
+      () => window.getComputedStyle(document.querySelector("main")).display
+    );
+    expect(display).toBe("grid");
+  });
+
+  test(".vt-wide is left-anchored — same left edge as prose, wider to the right", async ({
+    page,
+  }) => {
+    await page.goto(url("assets/base/demo.html"));
+    await page.waitForLoadState("networkidle");
+    await page.evaluate(() => {
+      const main = document.querySelector("main");
+      const prose = document.createElement("p");
+      prose.id = "test-prose";
+      prose.textContent = "Probe";
+      const wide = document.createElement("div");
+      wide.className = "vt-wide";
+      wide.id = "test-wide";
+      wide.textContent = "Wide probe";
+      main.appendChild(prose);
+      main.appendChild(wide);
+    });
+    const [proseLeft, proseRight, wideLeft, wideRight] = await page.evaluate(
+      () => {
+        const pr = document
+          .getElementById("test-prose")
+          .getBoundingClientRect();
+        const wr = document.getElementById("test-wide").getBoundingClientRect();
+        return [pr.left, pr.right, wr.left, wr.right];
+      }
+    );
+    expect(wideLeft).toBe(proseLeft);
+    expect(wideRight).toBeGreaterThan(proseRight);
+  });
+});
+
 // ── Axe accessibility ──────────────────────────────────────────────────────
 
 test.describe("axe a11y", () => {

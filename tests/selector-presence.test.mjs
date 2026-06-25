@@ -101,6 +101,12 @@ const DEFINED = [
   ".vt-eq",
   // inline SVG inside vt-diagram
   ".vt-diagram svg",
+  // breakout geometry
+  ".vt-wide",
+  "main>.vt-wide",
+  "main>.vt-table-wrap.vt-wide",
+  "main>.vt-code.vt-wide",
+  "main>.vt-diagram.vt-wide",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {
