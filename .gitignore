@@ -15,3 +15,7 @@ probe-adoption.sh
 course-tests/*
 !course-tests/CHECKLIST.md
 !course-tests/FINDINGS.md
+
+# Playwright
+playwright-report/
+test-results/
