@@ -74,7 +74,6 @@ for (const name of COMPONENTS) {
   });
 }
 
-// Interactive components must ship a JS file.
 const JS_COMPONENTS = ["quiz", "checklist", "code", "diagram", "math"];
 for (const name of JS_COMPONENTS) {
   test(`component ${name} ships its own JS file`, () => {
