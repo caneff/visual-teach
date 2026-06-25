@@ -1,7 +1,6 @@
 import { test, expect } from "@playwright/test";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
