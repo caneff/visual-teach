@@ -25,7 +25,7 @@
 }
 .vt-pill.warn {
   background: var(--vt-warn);
-  color: #000;
+  color: var(--vt-warn-fg);
 }
 
 /* pill — outline */
@@ -47,7 +47,7 @@
   border-color: var(--vt-bad);
 }
 .vt-pill.outline.warn {
-  color: #9a6b00;
+  color: var(--vt-warn-dk);
   border-color: var(--vt-warn);
 }
 
@@ -97,7 +97,7 @@
 }
 .vt-level.intermediate {
   background: var(--vt-warn-soft);
-  color: #9a6b00;
+  color: var(--vt-warn-dk);
 }
 .vt-level.advanced {
   background: var(--vt-bad-soft);

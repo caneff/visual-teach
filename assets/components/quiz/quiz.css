@@ -14,7 +14,7 @@
 .vt-quiz button.opt {
   display: block;
   width: 100%;
-  text-align: left;
+  text-align: start;
   font: inherit;
   font-size: 0.95rem;
   background: var(--vt-soft);
