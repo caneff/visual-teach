@@ -24,3 +24,7 @@ Five canonical triage labels, default vocabulary (needs-triage, needs-info, read
 ### Domain docs
 
 Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+
+### Testing standards
+
+See `TESTING_STANDARDS.md`. Rule summary: test behavior in jsdom; CSS correctness via stylelint; no prose change-detectors; no source-grep tests.

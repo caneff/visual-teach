@@ -43,7 +43,7 @@ td {
 
 /* table — header column (first column = row headers) */
 .vt-table th[scope="row"] {
-  text-align: left;
+  text-align: start;
   text-transform: none;
   letter-spacing: 0;
   font-size: 0.9rem;
@@ -143,7 +143,7 @@ td {
   font-size: 0.95rem;
 }
 .vt-kv th[scope="row"] {
-  text-align: left;
+  text-align: start;
   text-transform: none;
   letter-spacing: 0;
   font-size: 0.92rem;

@@ -13,6 +13,8 @@
   --vt-good: #0d7d4d; /* quiz correct, checklist done */
   --vt-bad: #c5221f; /* quiz wrong */
   --vt-warn: #f9ab00; /* caution callout */
+  --vt-warn-fg: #000; /* text on warn fill (dark for contrast on amber) */
+  --vt-warn-dk: #9a6b00; /* dark amber for outline/foreground warn uses */
 }
 
 /* derived tints */

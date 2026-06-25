@@ -266,11 +266,13 @@
     break-inside: avoid;
   }
   .vt-diagram {
-    border: 1px solid #ccc;
+    /* stylelint-disable-next-line color-no-hex */
+    border: 1px solid #ccc; /* neutral print grey, independent of theme tokens */
     background: none;
   }
   .vt-node,
   .vt-box {
+    /* stylelint-disable-next-line color-no-hex */
     border: 1px solid #ccc;
   }
   .vt-split {
