@@ -163,16 +163,26 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 </footer>
 ```
 
-## Theming — override any of the 9 tokens in the lesson `<head>`:
+## Theming — pick ONE course accent and set it once:
 
-```html
-<style>
-  :root {
-    --vt-accent: #4338ca;
-    --vt-accent-fg: #fff;
-  }
-</style>
+Choose a single accent for the **whole course** and apply it identically to every
+lesson. The accent is the course's visual identity — varying it per lesson makes
+the course read as a pile of unrelated one-offs, not one coherent series. Vary
+lessons by the **components** they use (see the catalog), never by recoloring.
+
+Set the override **once** in your shared course stylesheet (the one every lesson
+already links), so consistency is automatic and you never hand-copy a color:
+
+```css
+/* course.css — linked by every lesson, alongside base.css */
+:root {
+  --vt-accent: #4338ca;
+  --vt-accent-fg: #fff;
+}
 ```
+
+If you must inline it in a lesson `<head>` instead, use the **same** values in
+every lesson — do not give each lesson its own color.
 
 A flat `:root` override is safe for **all 9 tokens** in both light and dark mode.
 vt's forced-dark rule uses `:root[data-theme="dark"]` (specificity 0,2,0), which
