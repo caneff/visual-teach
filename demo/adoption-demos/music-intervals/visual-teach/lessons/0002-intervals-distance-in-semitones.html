@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 — Intervals: Distance in Semitones</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Twelve Notes · Lesson 2<span class="pill">~9 min</span></p>
+  <h1>Intervals: Distance in Semitones</h1>
+  <p class="sub">An interval is just how far apart two notes are — counted on the grid you already know.</p>
+</header>
+
+<p>In <a href="0001-the-twelve-notes-and-the-keyboard.html">Lesson 1</a> you
+learned the grid: twelve semitones, repeating. Now the core skill of the whole
+course. An <em class="term">interval</em> is the distance between two notes,
+measured as a <strong>number of semitones</strong>.<sup class="ref"><a href="#s1">1</a></sup>
+That's it — count the keys between the two notes (white and black alike) and you
+have the interval. This single skill is what lets you stop guessing.</p>
+
+<h2>How to count, exactly</h2>
+
+<p>Put your finger on the lower note. Step up one key at a time — counting each
+key you land on — until you reach the higher note. The number of steps is the
+interval in semitones. <strong>Do not count the starting key as one;</strong>
+count the <em>moves</em>, not the keys.</p>
+
+<div class="callout note">
+  <p class="label">Worked example</p>
+  <p>From <strong>C</strong> up to <strong>G</strong>: C→C♯ (1), C♯→D (2), D→D♯
+  (3), D♯→E (4), E→F (5), F→F♯ (6), F♯→G (7). Seven semitones. That interval has
+  a name — a <strong>perfect fifth</strong> — and it's the most stable,
+  "open"-sounding distance after the octave.</p>
+</div>
+
+<h2>The five intervals to know by name</h2>
+
+<p>You don't need all of them yet — just these five everyday distances. Notice
+how <em class="term">consonance</em> (how smooth or "resolved" two notes sound
+together) tracks loosely with these familiar distances.</p>
+
+<table>
+  <thead><tr><th>Semitones</th><th>Name</th><th>Feel</th></tr></thead>
+  <tbody>
+    <tr><td class="num">1</td><td>Half step</td><td>Tense, adjacent — wants to move</td></tr>
+    <tr><td class="num">2</td><td>Whole step</td><td>The basic "scale" step</td></tr>
+    <tr><td class="num">4</td><td>Major third</td><td>Bright, happy — bottom of a major chord</td></tr>
+    <tr><td class="num">7</td><td>Perfect fifth</td><td>Open and stable — power-chord sound</td></tr>
+    <tr><td class="num">12</td><td>Octave</td><td>Same note name, fully resolved</td></tr>
+  </tbody>
+</table>
+
+<p>The <strong>whole step</strong> (2) and <strong>half step</strong> (1) are the
+two you'll lean on hardest — in <a href="0003-building-the-major-scale.html">Lesson
+3</a> the entire major scale is built out of just those two.</p>
+
+<h2>Practice: the interval trainer</h2>
+
+<p>This is the heart of the lesson — a tight feedback loop. Two keys light up:
+the bottom note in <span style="color:var(--accent);font-weight:700">red</span>,
+the top in <span style="color:var(--accent-2);font-weight:700">blue</span>. First
+<strong>count the semitones</strong>, then <strong>name the interval</strong>.
+You get feedback instantly. Aim for a streak where you don't have to count
+slowly — that's the skill becoming automatic.</p>
+
+<div class="widget" id="trainer">
+  <div class="q-meta">Interval Trainer · count, then name</div>
+  <div class="kbd-wrap"><div id="trainer-kb"></div></div>
+  <p class="prompt" data-prompt></p>
+  <div class="choices" data-count></div>
+  <div data-name></div>
+  <div class="feedback" data-feedback></div>
+  <button class="btn" data-next>Next pair →</button>
+  <div class="score" data-score></div>
+</div>
+
+<div class="callout win">
+  <p class="label">Your win this lesson</p>
+  <p>Given any two notes on the keyboard you can count the semitones between them
+  and name the common intervals. You're measuring distance on purpose — the exact
+  thing scales are made of.</p>
+</div>
+
+<h2>Why this matters for the mission</h2>
+<p>A scale, a chord, a melody that "sounds right" — all of them are just specific
+patterns of intervals. Once distance is something you <em>measure</em> instead of
+<em>feel for</em>, you can reproduce and transpose those patterns anywhere. Next
+lesson turns two of these intervals into a recipe for any major scale.</p>
+
+<h2>Go deeper — primary source</h2>
+<p>Read <a href="https://openmusictheory.github.io/intervals.html">Open Music
+Theory: <em>Intervals and dyads</em></a> — a clear, rigorous definition of
+intervals as distance. For drill beyond this page, try
+<a href="https://www.teoria.com/en/exercises/intervals.php">teoria.com's interval
+exercises</a>. All sources in <a href="../RESOURCES.md">RESOURCES.md</a>; terms in
+the <a href="../reference/0001-glossary.html">glossary</a> and the
+<a href="../reference/0002-intervals-and-scales-cheatsheet.html">cheat sheet</a>.</p>
+
+<p class="sources cite" id="s1">
+<strong>1.</strong> "An interval is the distance between two pitches, usually
+measured as a number of steps" —
+<a href="https://openmusictheory.github.io/intervals.html">openmusictheory.github.io/intervals.html</a>.
+</p>
+
+<div class="footer-reminder">
+  <strong>I'm your teacher — ask me anything.</strong> If a particular interval
+  keeps tripping you up, tell me which one and I'll generate a focused drill or
+  explain the pattern a different way. Asking followups is part of the method.
+</div>
+
+<nav class="lesson-nav">
+  <a href="0001-the-twelve-notes-and-the-keyboard.html">← Lesson 1: The Keyboard</a>
+  <a href="../reference/0002-intervals-and-scales-cheatsheet.html">Cheat sheet</a>
+  <a href="0003-building-the-major-scale.html">Lesson 3: Major Scale →</a>
+</nav>
+
+<script src="../assets/keyboard.js"></script>
+<script>
+  startIntervalTrainer(
+    document.getElementById("trainer"),
+    document.getElementById("trainer-kb")
+  );
+</script>
+</body>
+</html>

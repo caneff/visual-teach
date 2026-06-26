@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — The Twelve Notes and the Keyboard</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Twelve Notes · Lesson 1<span class="pill">~7 min</span></p>
+  <h1>The Twelve Notes and the Keyboard</h1>
+  <p class="sub">The smallest true mental model: an octave is twelve equal steps that repeat forever.</p>
+</header>
+
+<p>You already make sounds you like on your instrument. The reason this course
+can get you from <em>guessing</em> to <em>building on purpose</em> (your
+<a href="../MISSION.md">mission</a>) is that all of Western music sits on one
+simple grid. Learn the grid and everything later — intervals, scales, keys — is
+just counting on it. This lesson installs the grid. No interval names, no scales
+yet. One win: <strong>read any note on the keyboard and know why its name comes
+back around.</strong></p>
+
+<h2>One octave = twelve equal semitones</h2>
+
+<p>Pick any note and the next note that sounds "the same but higher" is its
+<em class="term">octave</em>. The space between them is divided into
+<strong>twelve equal steps</strong>. Each smallest step is a
+<em class="term">semitone</em> (also called a half step) — the smallest move in
+this system.<sup class="ref"><a href="#s1">1</a></sup> There is nothing between
+two adjacent keys; the semitone is the atom.</p>
+
+<p>The piano keyboard is simply this grid drawn out. Count every key — white
+<em>and</em> black — from one C to the next C and you pass exactly twelve keys.
+The numbers below each key are the semitone count from the left-hand C.</p>
+
+<div class="kbd-wrap"><div id="grid-kb"></div></div>
+
+<div class="callout note">
+  <p class="label">Notice the pattern of black keys</p>
+  <p>Black keys come in a group of <strong>two</strong>, then a group of
+  <strong>three</strong>, then repeat. That grouping is your map: the white key
+  just left of the group of two is always <strong>C</strong>. Find the two-black
+  group and you can never be lost on a keyboard.</p>
+</div>
+
+<h2>Why some notes have two names</h2>
+
+<p>A black key sits between two white keys, so it can be named from either side.
+The black key between C and D is <strong>C♯</strong> ("C sharp", a semitone
+<em>above</em> C) or <strong>D♭</strong> ("D flat", a semitone <em>below</em> D).
+Same key, two spellings — <em class="term">sharp</em> means "one semitone up,"
+<em class="term">flat</em> means "one semitone down."<sup class="ref"><a href="#s1">1</a></sup>
+Which spelling we use depends on the key we're in; you'll see that in Lesson 3.</p>
+
+<p>Also notice: there is <strong>no black key</strong> between E–F and between
+B–C. Those white-key neighbours are already only a semitone apart.</p>
+
+<h2>Try it: the note explorer</h2>
+
+<p>Click any key. It tells you the note, and lights up <strong>every other key
+with the same name</strong> across the keyboard — that repetition is
+<em class="term">octave equivalence</em>: the same twelve names cycle over and
+over, just higher or lower.</p>
+
+<div class="widget">
+  <div class="kbd-wrap"><div id="explore-kb"></div></div>
+  <div class="feedback" id="explore-fb" style="font-weight:700;">Click a key to begin…</div>
+</div>
+
+<div class="callout">
+  <p class="label">The whole idea in one line</p>
+  <p>Twelve semitone steps, named C · C♯ · D · D♯ · E · F · F♯ · G · G♯ · A · A♯ · B,
+  then it starts over at C an octave higher. Everything else is counting on this
+  cycle.</p>
+</div>
+
+<h2>Quick recall</h2>
+<p>Close-book retrieval beats re-reading. Answer from memory — getting one wrong
+is the point; the feedback is the lesson.</p>
+
+<div class="widget" id="quiz"></div>
+
+<div class="callout win">
+  <p class="label">Your win this lesson</p>
+  <p>You can find C from the black-key groups, read any note, and explain why
+  note names repeat. That grid is the foundation for measuring distance, which
+  is <a href="0002-intervals-distance-in-semitones.html">Lesson 2</a>.</p>
+</div>
+
+<h2>Go deeper — primary source</h2>
+<p>The single best next thing to read is Ricci Adams' free, animated
+<a href="https://www.musictheory.net/lessons">musictheory.net lessons</a> —
+start with <strong>"Steps and Accidentals."</strong> It reinforces semitones,
+sharps, and flats with sound. Background reference:
+<a href="https://en.wikipedia.org/wiki/Semitone">Wikipedia: Semitone</a>.
+See also <a href="../RESOURCES.md">RESOURCES.md</a> and the
+<a href="../reference/0001-glossary.html">glossary</a>.</p>
+
+<p class="sources cite" id="s1">
+<strong>1.</strong> "Semitone … the smallest step," and sharp/flat = one semitone
+up/down — <a href="https://en.wikipedia.org/wiki/Semitone">en.wikipedia.org/wiki/Semitone</a>.
+</p>
+
+<div class="footer-reminder">
+  <strong>I'm your teacher — ask me anything.</strong> Stuck on where C is, or
+  why E–F has no black key between them? Reply with your question and I'll work
+  through it with you, or build you a custom drill. Followups are how lessons get
+  tuned to you.
+</div>
+
+<nav class="lesson-nav">
+  <span class="disabled">← Previous</span>
+  <a href="../reference/0001-glossary.html">Glossary</a>
+  <a href="0002-intervals-distance-in-semitones.html">Lesson 2: Intervals →</a>
+</nav>
+
+<script src="../assets/keyboard.js"></script>
+<script src="../assets/quiz.js"></script>
+<script>
+  // A labeled two-octave keyboard with semitone numbers from the left C.
+  (function () {
+    const kb = renderKeyboard(document.getElementById("grid-kb"),
+      { octaves: 2, startOctave: 4, trailingC: true });
+    // number every key by its semitone distance from the left-hand C
+    Object.keys(kb.bySemi).map(Number).sort((a,b)=>a-b).forEach(s => kb.badge(s, s));
+  })();
+
+  // Interactive note explorer: click → name + light all same-named keys.
+  (function () {
+    const fb = document.getElementById("explore-fb");
+    const kb = renderKeyboard(document.getElementById("explore-kb"),
+      { octaves: 2, startOctave: 4, trailingC: true, onKey: onClick });
+    function onClick(abs) {
+      kb.clear();
+      const pc = ((abs % 12) + 12) % 12;
+      Object.keys(kb.bySemi).map(Number).forEach(s => {
+        if ((((s % 12) + 12) % 12) === pc) kb.highlight(s, "lit");
+      });
+      const nm = kb.names[pc];
+      fb.innerHTML = `<span style="color:var(--accent-2)">${nm}</span> — ` +
+        `every <strong>${nm.split("/")[0]}</strong> on the keyboard is lit. ` +
+        `Same name, different octave.`;
+    }
+  })();
+
+  mountQuiz(document.getElementById("quiz"), [
+    { q: "How many semitones make one octave?",
+      choices: ["Seven", "Twelve", "Eight"], answer: 1,
+      why: "Twelve equal semitones fill an octave before the names repeat." },
+    { q: "A semitone is best described as the…",
+      choices: ["widest leap", "average gap", "smallest step"], answer: 2,
+      why: "A semitone is the smallest step — one key to its nearest neighbour." },
+    { q: "Which white-key pair has NO black key between them?",
+      choices: ["C and D", "E and F", "G and A"], answer: 1,
+      why: "E–F (and B–C) are already a single semitone apart." },
+    { q: "The black key above C can also be named…",
+      choices: ["B flat", "D flat", "G flat"], answer: 1,
+      why: "C♯ and D♭ are the same key — a semitone above C, a semitone below D." }
+  ]);
+</script>
+</body>
+</html>
