@@ -6,8 +6,13 @@ both the usage doc and the rendering proof. See `demo/showcase.html` for all
 components on one page.
 
 **These blocks are a floor, not a ceiling.** `vt-*` covers the commodity parts.
-When a topic needs an interaction the catalog can't express, build a bespoke
-component in `./assets/` and place it alongside the `vt-*` blocks.
+Before reaching for the nearest block, ask what interaction actually practices
+this lesson's tangible win — _then_ map it to a component. If the win is to
+**produce or manipulate** something (write a regex, write a flex rule, trace a
+binary search), a pick-an-option `vt-quiz` only tests recognition, not the skill.
+Build the bespoke live exercise (a free-input box, a draggable, a stepper) in
+`./assets/` alongside the `vt-*` blocks — that the catalog _could_ show a quiz is
+not a reason to settle for one.
 
 ## Linking — base + pick your components
 
