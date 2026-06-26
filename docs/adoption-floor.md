@@ -207,6 +207,12 @@ bespoke "do-it-live" exercises and slightly deeper edge-case coverage — the
 ceiling behavior this whole study was protecting. The shorter `floor-minimal` is
 the fallback if description length ever needs trimming.
 
+**Shipped:** `floor-composes` is now the live `SKILL.md` description — the
+frontmatter's `description` + `when_to_use` were folded into the single
+`floor-composes` `description` blob (the exact text validated above; the body was
+already byte-identical). The candidate files in `scripts/adoption-candidates/`
+are retained for reproducibility.
+
 ### Clean control-vs-treatment re-run on all 6 subjects (floor-composes)
 
 With the contamination removed and `floor-composes` chosen, the original

@@ -1,7 +1,6 @@
 ---
 name: visual-teach
-description: Rich interactive blocks for teaching lessons — quizzes with feedback, persisted checklists, callouts, annotated code, themeable styling. Use when authoring, building, or improving a teaching lesson's HTML (especially with the `/teach` skill): emit `vt-*` blocks linked to shared assets instead of inlining per-lesson CSS/JS.
-when_to_use: Whenever a teaching lesson HTML file is being written or edited — a `/teach` lesson, or any standalone lesson. Reach for it the moment you would otherwise inline a quiz, checklist, callout, or lesson stylesheet.
+description: "`visual-teach` is the styling + behavior floor under every teaching lesson — link its Base first, then use ready-made `vt-*` blocks for the standard parts. The floor goes under any lesson HTML (especially `/teach`), including heavily custom or interactive ones: use the blocks for the commodity parts and build your bespoke exercise on top, never instead of it."
 ---
 
 # visual-teach
