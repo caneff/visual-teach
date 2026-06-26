@@ -63,11 +63,13 @@
       </h2>
       <p>
         Use the ◐ toggle (top-right, injected by <code>base.js</code>) to switch
-        light/dark. Dark tokens live under
-        <code>:root[data-theme="dark"]</code>. An author's flat
-        <code>:root { --vt-accent }</code> override is specificity (0,1,0); the
-        dark block is (0,2,0), so vt's dark-safe accent correctly wins over a
-        light-mode accent on a dark background.
+        light/dark. Every color token is defined with
+        <code>light-dark(light, dark)</code>, and
+        <code>:root[data-theme="dark"]</code> just flips
+        <code>color-scheme</code>. So a flat
+        <code>:root { --vt-accent: #hex }</code> override replaces
+        <em>both</em> sides at once and breaks dark mode — override with a
+        <code>light-dark()</code> pair instead.
       </p>
 
       <div class="vt-recap">
