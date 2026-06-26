@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merge vs Rebase — Cheat Sheet</title>
+    <link rel="stylesheet" href="../assets/course.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="lesson-nav">
+        <a href="../lessons/0001-the-two-shapes-of-history.html">← Lessons</a>
+        <span>Git Merge vs Rebase — Reference</span>
+        <span></span>
+      </nav>
+
+      <h1>Merge vs Rebase — Cheat Sheet</h1>
+      <p class="subhead">
+        Quick reference for the three-lesson course. Print or bookmark.
+      </p>
+
+      <!-- ─── Golden rule ─── -->
+
+      <div class="golden-rule">
+        Golden rule: never rebase commits that exist outside your local
+        repository.
+      </div>
+
+      <!-- ─── What each command does ─── -->
+
+      <div class="ref-section">
+        <h2>What each command does to the graph</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>git merge</th>
+              <th>git rebase</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Graph shape</td>
+              <td>Branching (diamond)</td>
+              <td>Linear</td>
+            </tr>
+            <tr>
+              <td>Creates merge commit?</td>
+              <td>Yes — two parents</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td>Existing commit hashes</td>
+              <td>Unchanged</td>
+              <td>New hashes for every replayed commit</td>
+            </tr>
+            <tr>
+              <td>Safe on shared branches?</td>
+              <td>Yes</td>
+              <td><strong>No</strong></td>
+            </tr>
+            <tr>
+              <td>Rewrites history?</td>
+              <td>No</td>
+              <td>Yes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ─── Decision rules ─── -->
+
+      <div class="ref-section">
+        <h2>Decision rules</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Situation</th>
+              <th>Command</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Branch is local-only; update from main before PR</td>
+              <td><code>git rebase main</code></td>
+            </tr>
+            <tr>
+              <td>Shared branch needs latest main</td>
+              <td><code>git merge main</code></td>
+            </tr>
+            <tr>
+              <td>Integrate a finished feature; record the boundary</td>
+              <td><code>git merge --no-ff feature</code></td>
+            </tr>
+            <tr>
+              <td>Squash WIP commits on a private branch</td>
+              <td><code>git rebase -i HEAD~N</code></td>
+            </tr>
+            <tr>
+              <td>Push after rebasing</td>
+              <td><code>git push --force-with-lease</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ─── Conflict resolution ─── -->
+
+      <div class="ref-section">
+        <h2>Conflict resolution mid-rebase</h2>
+
+        <div class="command-row">
+          <div class="cmd-cell">1. Edit the conflicted file</div>
+          <div>
+            Remove <code>&lt;&lt;&lt;</code> / <code>===</code> /
+            <code>&gt;&gt;&gt;</code> markers; keep the correct code
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git add &lt;file&gt;</code></div>
+          <div>
+            Stage the resolved file — do <em>not</em> <code>git commit</code>
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git rebase --continue</code></div>
+          <div>Resume — git moves to the next commit; repeat if needed</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git rebase --abort</code></div>
+          <div>
+            Cancel the rebase entirely; branch returns to pre-rebase state
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Recovery ─── -->
+
+      <div class="ref-section">
+        <h2>Recovery after a bad rebase</h2>
+
+        <div class="command-row">
+          <div class="cmd-cell"><code>git reflog</code></div>
+          <div>
+            List every HEAD position; find the entry just before the rebase
+            started
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git reset --hard HEAD@{N}</code></div>
+          <div>
+            Return the branch to that position — complete undo of the rebase
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git reset --hard &lt;hash&gt;</code></div>
+          <div>Same thing, using the hash directly from the reflog output</div>
+        </div>
+
+        <p
+          style="
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-family: system-ui, sans-serif;
+            color: #555;
+          "
+        >
+          The reflog retains entries for 90 days by default. Unreachable commits
+          (the originals from before a rebase) are available until git
+          garbage-collects them.
+        </p>
+      </div>
+
+      <!-- ─── Key commands ─── -->
+
+      <div class="ref-section">
+        <h2>Command reference</h2>
+
+        <div class="command-row">
+          <div class="cmd-cell"><code>git merge main</code></div>
+          <div>
+            Merge main into current branch; creates a merge commit if histories
+            have diverged
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git merge --no-ff feature</code></div>
+          <div>
+            Merge and always create a merge commit (no fast-forward), even if
+            one isn't needed
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git rebase main</code></div>
+          <div>Replay current branch's commits on top of main's tip</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git rebase -i HEAD~N</code></div>
+          <div>
+            Interactive rebase of the last N commits — squash, reword, reorder
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git push --force-with-lease</code></div>
+          <div>
+            Force-push only if the remote hasn't changed since your last fetch
+          </div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git reflog</code></div>
+          <div>Show every HEAD position ever recorded locally</div>
+        </div>
+        <div class="command-row">
+          <div class="cmd-cell"><code>git log --graph --oneline</code></div>
+          <div>
+            Compact ASCII view of the commit graph — see merge vs rebase shapes
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── The mental model in one picture ─── -->
+
+      <div class="ref-section">
+        <h2>The two shapes — at a glance</h2>
+
+        <pre>
+Merge:
+A ── B ── C ── M          ← main (M = merge commit, two parents)
+          \   /
+           D ─ E
+
+Rebase (then fast-forward merge):
+A ── B ── C ── D' ── E'   ← main (linear; D' and E' are new commits)
+</pre
+        >
+      </div>
+
+      <!-- ─── Sources ─── -->
+
+      <div class="ref-section">
+        <h2>Sources</h2>
+        <ul style="font-family: system-ui, sans-serif; font-size: 0.9rem">
+          <li>
+            <a
+              href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+              target="_blank"
+              rel="noopener"
+              >Pro Git §3.6 — Rebasing</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://git-scm.com/docs/git-rebase"
+              target="_blank"
+              rel="noopener"
+              >git-rebase — Official Reference</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://git-scm.com/docs/git-merge"
+              target="_blank"
+              rel="noopener"
+              >git-merge — Official Reference</a
+            >
+          </li>
+          <li>
+            <a
+              href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing"
+              target="_blank"
+              rel="noopener"
+              >Atlassian: Merging vs. Rebasing</a
+            >
+          </li>
+        </ul>
+      </div>
+
+      <nav class="lesson-footer">
+        <a href="../lessons/0001-the-two-shapes-of-history.html">← Lesson 1</a>
+        <a href="../lessons/0003-rebase-without-fear.html">← Lesson 3</a>
+      </nav>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Lesson 2 — Choosing Between Merge and Rebase · Git Merge vs Rebase
+    </title>
+    <link rel="stylesheet" href="../assets/course.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="lesson-nav">
+        <a href="0001-the-two-shapes-of-history.html">← Lesson 1</a>
+        <span>Git: Merge vs Rebase</span>
+        <a href="0003-rebase-without-fear.html">Lesson 3 →</a>
+      </nav>
+
+      <span class="lesson-badge">Lesson 2 of 3</span>
+      <h1>Choosing Between Merge and Rebase</h1>
+      <p class="subhead">
+        You know what each command <em>does</em> to the graph. This lesson
+        builds the decision skill: given a real scenario, which one do you reach
+        for?
+      </p>
+
+      <!-- ─── The one question ─── -->
+
+      <h2>The question that settles most cases</h2>
+
+      <blockquote>
+        Have the commits on this branch been pushed somewhere that a teammate
+        could have based work on?
+      </blockquote>
+
+      <p>
+        <strong>Yes → Use merge.</strong>
+        Rebasing rewrites your commits into new ones with new hashes. If your
+        teammate already has the originals, their local history and yours will
+        have diverged — two different commits claiming the same ancestry.
+        Untangling that is painful.
+        <span class="cite"
+          >(<a
+            href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing"
+            target="_blank"
+            rel="noopener"
+            >Atlassian: The Golden Rule of Rebasing</a
+          >)</span
+        >
+      </p>
+
+      <p>
+        <strong>No → Rebase is available.</strong>
+        A branch that only exists on your machine, or that only you push to and
+        no one else has checked out, can be freely rebased. You are the only one
+        who has ever seen those commit hashes.
+      </p>
+
+      <p>
+        One question eliminates most of the danger. The rest of the decision is
+        about preference, legibility of history, and team conventions.
+      </p>
+
+      <hr />
+
+      <!-- ─── Five scenarios ─── -->
+
+      <h2>Five concrete scenarios</h2>
+
+      <h3>Scenario A — Tidy up a local branch before opening a PR</h3>
+      <p>
+        You have been working on <code>feature/login</code> for two days. The
+        branch has never been pushed. You want to clean it up before code
+        review.
+      </p>
+      <p>
+        <strong>Rebase.</strong>
+        <code>git rebase main</code> brings your branch current with main and
+        produces a clean linear diff that is easy for reviewers to read. Since
+        the branch is local-only, no one else's history is affected.
+      </p>
+
+      <h3>Scenario B — Integrate a finished feature into main</h3>
+      <p>
+        A feature branch is approved and ready to land. You want a permanent
+        record that "this feature shipped here."
+      </p>
+      <p>
+        <strong>Merge with <code>--no-ff</code>.</strong>
+        <code>git merge --no-ff feature/login</code> forces a merge commit even
+        when a fast-forward is possible, preserving the feature boundary in
+        history. That boundary is useful for archaeology ("when did auth land?")
+        and rollbacks.
+        <span class="cite"
+          >(<a
+            href="https://git-scm.com/docs/git-merge"
+            target="_blank"
+            rel="noopener"
+            >git-merge docs: --no-ff</a
+          >)</span
+        >
+      </p>
+
+      <h3>Scenario C — Update a long-running shared branch</h3>
+      <p>
+        Three teammates push to <code>develop</code> daily. You need to
+        integrate last week's hotfixes from <code>main</code>.
+      </p>
+      <p>
+        <strong>Merge.</strong>
+        The branch is shared. <code>git merge main</code> adds a merge commit
+        recording the integration event. It adds a node to the graph, but it
+        doesn't rewrite anything anyone else has already pulled.
+      </p>
+
+      <h3>Scenario D — Your solo feature branch needs the latest main</h3>
+      <p>
+        You pushed your feature branch to GitHub yesterday for safekeeping, but
+        only you commit to it and no one else has checked it out. You want to
+        incorporate today's main changes.
+      </p>
+      <p>
+        <strong>Rebase — with one extra step.</strong>
+        <code>git rebase main</code>, then
+        <code>git push --force-with-lease</code>.
+        <code>--force-with-lease</code> is safer than <code>--force</code>: it
+        aborts if the remote has new commits you haven't fetched, which protects
+        you from overwriting someone else's accidental push to your branch.
+        <span class="cite"
+          >(<a
+            href="https://git-scm.com/docs/git-push"
+            target="_blank"
+            rel="noopener"
+            >git-push docs: --force-with-lease</a
+          >)</span
+        >
+      </p>
+
+      <h3>Scenario E — Squash messy WIP commits before review</h3>
+      <p>
+        You pushed five "WIP", "fix", "oops" commits to your personal branch.
+        You want to collapse them into one clean commit before the PR is
+        reviewed.
+      </p>
+      <p>
+        <strong>Interactive rebase.</strong>
+        <code>git rebase -i HEAD~5</code> opens an editor where you mark each
+        commit as <code>pick</code>, <code>squash</code>, or
+        <code>reword</code>. Squash the WIP commits into the one real commit.
+        Then force-push. The branch is yours and unmerged, so rewriting is safe.
+      </p>
+
+      <hr />
+
+      <!-- ─── Decision rules ─── -->
+
+      <h2>The short-form rules</h2>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Situation</th>
+            <th>Command</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Branch is local-only, update from main before PR</td>
+            <td><code>git rebase main</code></td>
+            <td>Linear history, clean diff for reviewers</td>
+          </tr>
+          <tr>
+            <td>Shared branch needs latest main</td>
+            <td><code>git merge main</code></td>
+            <td>Never rewrite commits others have based work on</td>
+          </tr>
+          <tr>
+            <td>Feature lands in main, preserve boundary</td>
+            <td><code>git merge --no-ff</code></td>
+            <td>Merge commit captures "feature shipped here"</td>
+          </tr>
+          <tr>
+            <td>Squash WIP commits before review (private branch)</td>
+            <td><code>git rebase -i HEAD~N</code></td>
+            <td>Rewrite is safe; produce one clean commit</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <hr />
+
+      <!-- ─── Quiz ─── -->
+
+      <h2>Decision practice</h2>
+      <p>
+        Each scenario below has one best answer. Work through each one before
+        reading the explanation — the effort of deciding is what builds the
+        reflex.
+      </p>
+
+      <div class="quiz">
+        <div class="quiz-question">
+          <p>
+            Your <code>feature/login</code> branch has never been pushed. You
+            want to bring it current with <code>main</code> before opening a PR.
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git merge main — preserve the branching history in the PR
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git rebase main — clean linear history; safe because branch is
+              local-only
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git cherry-pick the relevant commits from main
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Open the PR from the diverged branch without updating it
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            Rebase is the right call. The branch is local — no one else has
+            based work on your commits. After rebasing, the PR diff will be
+            clean and current with main, making review easier.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            Three teammates are actively committing to <code>develop</code>. You
+            need to bring in a hotfix from <code>main</code>.
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git rebase main — a linear history is cleaner for a long-lived
+              branch
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git merge main — shared branch; never rebase commits teammates are
+              based on
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Either is fine — the choice doesn't matter for a shared branch
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git cherry-pick only the hotfix commit
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            Merge. Three people are committing to <code>develop</code> and have
+            pulled its commits. Rebasing would rewrite the history they've based
+            work on, creating divergence that's difficult to untangle.
+            Cherry-pick <em>could</em> work in some situations but changes the
+            commit hash of the hotfix.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            You pushed five "WIP" commits to your personal feature branch. No
+            one else works on it. You want to squash them into one tidy commit
+            before code review.
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git merge --squash — this is exactly what squash merges are for
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Delete the branch, cherry-pick the work onto a new one
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git rebase -i HEAD~5 to squash, then git push --force-with-lease
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Leave them — history should be an honest record of how work
+              happened
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            Interactive rebase is the right tool.
+            <code>git rebase -i HEAD~5</code> opens an editor where you mark the
+            WIP commits as <code>squash</code> — they collapse into the
+            preceding commit. Force-push is safe because only you use this
+            branch. (<code>git merge --squash</code> is used from the
+            <em>target</em> branch to bring in a squashed copy; it doesn't
+            reshape <em>your</em> branch.)
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            A feature branch is approved and ready to land in <code>main</code>.
+            Your team wants a clear record in git log of when each feature was
+            integrated.
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git rebase feature then git merge — cleanest possible log
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git merge --no-ff feature — forces a merge commit that records the
+              integration event
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git cherry-pick each commit from the feature branch
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git push the feature commits directly to main
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            <code>--no-ff</code> (no fast-forward) forces a merge commit even
+            when one isn't strictly required. That commit says "this feature
+            landed here, at this time, from this branch" — which is exactly the
+            record your team wants. Fast-forwarding after a rebase would produce
+            a straight line and lose that boundary.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            You pushed your feature branch last week for safekeeping. Only you
+            push to it, and your teammates have never mentioned checking it out.
+            Today you want to update it from main.
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git merge main — safest choice since the branch is on a remote
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git rebase main, then git push --force-with-lease — safe if you
+              are truly the only user
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Leave it diverged; update only when opening a PR
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git merge main, then immediately squash all merge commits before
+              pushing
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            Rebase is fine here — <em>if</em> you are confident no one else has
+            checked out the branch. The key safeguard is
+            <code>--force-with-lease</code> instead of <code>--force</code>: it
+            refuses to push if the remote has new commits you haven't fetched,
+            protecting you from accidentally overwriting someone else's
+            accidental push. If you're ever unsure whether a colleague has the
+            branch, default to merge.
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Primary source ─── -->
+
+      <div class="primary-source">
+        <strong>Primary source for this lesson</strong>
+        <a
+          href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing"
+          target="_blank"
+          rel="noopener"
+        >
+          Atlassian: Merging vs. Rebasing
+        </a>
+        — scenario-based walkthrough with commit-graph diagrams. The "Golden
+        Rule of Rebasing" section directly grounds the decision rule you
+        practiced here. Read it after completing the quiz.
+      </div>
+
+      <!-- ─── Followup ─── -->
+
+      <div class="followup-reminder">
+        <strong>Questions?</strong>
+        Uncertain about a scenario not covered here — a specific branching
+        strategy your team uses, or a situation where the rules seem to
+        conflict? Describe it to your teacher agent and it will help you reason
+        through the decision.
+      </div>
+
+      <nav class="lesson-footer">
+        <a href="0001-the-two-shapes-of-history.html"
+          >← Lesson 1: The Two Shapes of History</a
+        >
+        <a href="0003-rebase-without-fear.html"
+          >Lesson 3: Rebase Without Fear →</a
+        >
+      </nav>
+    </div>
+    <script src="../assets/quiz.js"></script>
+  </body>
+</html>

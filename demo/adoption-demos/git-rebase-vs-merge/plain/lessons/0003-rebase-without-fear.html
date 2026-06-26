@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 3 — Rebase Without Fear · Git Merge vs Rebase</title>
+    <link rel="stylesheet" href="../assets/course.css" />
+  </head>
+  <body>
+    <div class="page">
+      <nav class="lesson-nav">
+        <a href="0002-choosing-between-merge-and-rebase.html">← Lesson 2</a>
+        <span>Git: Merge vs Rebase</span>
+        <span></span>
+      </nav>
+
+      <span class="lesson-badge">Lesson 3 of 3</span>
+      <h1>Rebase Without Fear</h1>
+      <p class="subhead">
+        Rebase fear comes from two sources: "I'll lose work" and "I'll break a
+        teammate's history." Both are real risks — and both have concrete
+        safeguards. This lesson gives you those safeguards and the workflow to
+        apply them every time.
+      </p>
+
+      <!-- ─── Golden rule ─── -->
+
+      <h2>The golden rule</h2>
+
+      <div class="golden-rule">
+        Never rebase commits that exist outside your local repository.
+      </div>
+
+      <p>
+        More precisely: never rebase commits that someone else might have based
+        work on.
+        <span class="cite"
+          >(<a
+            href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+            target="_blank"
+            rel="noopener"
+            >Pro Git §3.6: The Perils of Rebasing</a
+          >)</span
+        >
+      </p>
+
+      <p>
+        Here is why. When you rebase, git replaces your commits with new ones
+        that have new hashes (as you saw in
+        <a href="0001-the-two-shapes-of-history.html">Lesson 1</a>). If a
+        teammate has already pulled the original commits and based new work on
+        them, their history and yours now contain two different commits that
+        both claim to descend from the same ancestor. When they pull again, git
+        sees two divergent branches where there should be one. Untangling that
+        is genuinely painful.
+      </p>
+
+      <p>
+        The safeguard is simple: before rebasing, ask whether the branch is
+        shared. If yes — use
+        <a href="0002-choosing-between-merge-and-rebase.html">merge instead</a>.
+        If it is truly yours alone, rebase freely.
+      </p>
+
+      <hr />
+
+      <!-- ─── Reflog ─── -->
+
+      <h2>Your safety net: <code>git reflog</code></h2>
+
+      <p>
+        The reflog is a local journal of every position <code>HEAD</code> has
+        ever pointed to, including positions that no longer exist on any branch.
+        <span class="cite"
+          >(<a
+            href="https://git-scm.com/docs/git-reflog"
+            target="_blank"
+            rel="noopener"
+            >git-reflog docs</a
+          >)</span
+        >
+        When you rebase, your original commits are not deleted — the branch
+        pointer simply moves to new commits. The reflog still knows where you
+        were.
+      </p>
+
+      <pre>
+$ git reflog
+
+3f1a2c0 HEAD@{0}: rebase (finish): returning to refs/heads/feature
+8b3e4d1 HEAD@{1}: rebase (pick): E — add login form
+2c7f9a3 HEAD@{2}: rebase (pick): D — scaffold auth routes
+e4a1b0c HEAD@{3}: checkout: moving from feature to feature
+a92d1f5 HEAD@{4}: commit: E — add login form    ← original E
+71bc30e HEAD@{5}: commit: D — scaffold auth routes  ← original D
+</pre
+      >
+
+      <p>To undo the entire rebase and return to exactly where you were:</p>
+
+      <pre>
+$ git reflog                      # find the entry just before the rebase started
+$ git reset --hard HEAD@{4}       # or paste the hash directly: git reset --hard a92d1f5
+</pre
+      >
+
+      <p>
+        This is not a workaround — it is the designed recovery path. Knowing it
+        exists turns "rebase is dangerous" into "rebase is reversible."
+      </p>
+
+      <div class="insight">
+        The reflog is your parachute. It records every state HEAD has been in,
+        for as long as the entry is retained (90 days by default). A rebase gone
+        wrong is almost always undoable with the reflog.
+      </div>
+
+      <hr />
+
+      <!-- ─── Conflicts ─── -->
+
+      <h2>Resolving conflicts mid-rebase</h2>
+
+      <p>
+        When git replays your commits onto the new base, it may pause at a
+        commit where your changes conflict with what's already there. This is
+        identical to a merge conflict — same markers, same tools — with one
+        difference in how you signal completion.
+      </p>
+
+      <h3>What it looks like</h3>
+
+      <pre>
+$ git rebase main
+
+Auto-merging src/auth/routes.js
+CONFLICT (content): Merge conflict in src/auth/routes.js
+error: could not apply a92d1f5... D — scaffold auth routes
+hint: Resolve all conflicts manually, mark them as resolved with
+hint: "git add/rm &lt;conflicted_files&gt;", then run "git rebase --continue".
+</pre
+      >
+
+      <h3>Resolution steps</h3>
+
+      <ol>
+        <li>
+          <strong>Open the conflicted file.</strong> Look for conflict markers:
+          <pre>
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+// code from main (the new base)
+=======
+// code from your commit D
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; a92d1f5 D — scaffold auth routes
+</pre
+          >
+        </li>
+        <li>
+          <strong>Edit the file to what it should be.</strong>
+          Delete all three marker lines (<code>&lt;&lt;&lt;</code>,
+          <code>===</code>, <code>&gt;&gt;&gt;</code>) and keep only the correct
+          code.
+        </li>
+        <li>
+          <strong>Stage the resolved file</strong> — do <em>not</em> create a
+          commit:
+          <pre>
+$ git add src/auth/routes.js
+</pre
+          >
+        </li>
+        <li>
+          <strong>Continue the rebase:</strong>
+          <pre>
+$ git rebase --continue
+</pre
+          >
+          Git moves to the next commit. If that commit also conflicts, the cycle
+          repeats.
+          <span class="cite"
+            >(<a
+              href="https://git-scm.com/docs/git-rebase"
+              target="_blank"
+              rel="noopener"
+              >git-rebase docs: --continue</a
+            >)</span
+          >
+        </li>
+      </ol>
+
+      <h3>Abort cleanly if you get stuck</h3>
+      <p>
+        If at any point you want to abandon the rebase and return to your
+        original branch state:
+      </p>
+
+      <pre>
+$ git rebase --abort
+</pre
+      >
+
+      <p>
+        <code>--abort</code> is a clean, complete undo — your branch returns to
+        exactly what it was before you started the rebase. Use it freely if a
+        conflict overwhelms you; you can always start again when you are ready.
+      </p>
+
+      <div class="warning">
+        <strong>Do not run <code>git commit</code> during a rebase.</strong>
+        When resolving a conflict, stage the file with <code>git add</code> and
+        then run <code>git rebase --continue</code>. Running
+        <code>git commit</code> creates an unexpected extra commit and disrupts
+        the rebase sequence.
+      </div>
+
+      <hr />
+
+      <!-- ─── Force push ─── -->
+
+      <h2>Pushing a rebased branch</h2>
+
+      <p>
+        After rebasing, your local branch has diverged from the remote — your
+        new commits don't share ancestry with the old ones on the server. A
+        plain <code>git push</code> will be rejected. You need to force-push:
+      </p>
+
+      <pre>
+$ git push --force-with-lease
+</pre
+      >
+
+      <p>
+        <code>--force-with-lease</code> is safer than <code>--force</code>. It
+        checks that the remote tip matches what you last fetched. If someone
+        else has pushed to your branch since your last fetch,
+        <code>--force-with-lease</code> aborts rather than silently overwriting
+        their work.
+        <span class="cite"
+          >(<a
+            href="https://git-scm.com/docs/git-push"
+            target="_blank"
+            rel="noopener"
+            >git-push docs: --force-with-lease</a
+          >)</span
+        >
+        Use it as your default for all post-rebase pushes.
+      </p>
+
+      <hr />
+
+      <!-- ─── Checklist ─── -->
+
+      <h2>Safe rebase workflow</h2>
+      <p>
+        Apply this checklist before every rebase. The first gate is the only one
+        that can't be bypassed.
+      </p>
+
+      <ul class="checklist">
+        <li>
+          Is this branch pushed to a shared remote where a teammate could have
+          pulled from it?<br />
+          <em>If yes: use <code>git merge main</code> instead. Stop here.</em
+          ><br />
+          <em>If no: continue.</em>
+        </li>
+        <li>
+          Run the rebase:<br />
+          <code>git rebase main</code>
+        </li>
+        <li>
+          Conflict? For each conflicted file:<br />
+          edit the file → <code>git add &lt;file&gt;</code> →
+          <code>git rebase --continue</code>
+        </li>
+        <li>
+          Stuck or something looks wrong?<br />
+          <code>git rebase --abort</code> — restores your branch completely
+        </li>
+        <li>
+          Rebase succeeded but you want to undo it?<br />
+          <code>git reflog</code> → find the commit just before the rebase →
+          <code>git reset --hard &lt;hash&gt;</code>
+        </li>
+        <li>
+          Push the rebased branch:<br />
+          <code>git push --force-with-lease</code>
+        </li>
+      </ul>
+
+      <hr />
+
+      <!-- ─── Quiz ─── -->
+
+      <h2>Putting it all together</h2>
+      <p>
+        These questions interleave material from all three lessons. The goal is
+        to build connected recall, not isolated facts.
+      </p>
+
+      <div class="quiz">
+        <div class="quiz-question">
+          <p>
+            You just ran <code>git rebase main</code> and the result looks
+            wrong. The rebase completed — there is no rebase in progress. What
+            is the first command you run to undo it?
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git reset --hard main
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git reflog — to find the commit hash from just before the rebase
+              started
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git checkout main — then re-create the branch from there
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git rebase --abort — to cancel the rebase in progress
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            <code>git reflog</code> is the right first move. Find the entry
+            labeled something like
+            <em>commit: E — your last real commit</em> from before the rebase
+            started, then <code>git reset --hard &lt;hash&gt;</code>. (<code
+              >git rebase --abort</code
+            >
+            only works <em>during</em> a rebase; once it completes, there is
+            nothing to abort.)
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            Mid-rebase, git pauses with a conflict in <code>src/auth.js</code>.
+            After you edit the file to resolve it, what is the correct sequence
+            of commands?
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git commit -m "resolve conflict" → git rebase --continue
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git add src/auth.js → git rebase --continue
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git merge --continue → git rebase --continue
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git stash → git rebase --continue
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            Stage with <code>git add</code>, then
+            <code>git rebase --continue</code>. Do <em>not</em> run
+            <code>git commit</code> — that would insert an unexpected extra
+            commit into the rebase sequence. Rebase creates the commit for you
+            when you call <code>--continue</code>.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            You pushed your feature branch yesterday. A colleague mentioned they
+            cloned the repo and checked out your branch to try something. Today
+            you want to rebase it. What do you do?
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              Rebase anyway — your colleague can run git pull --rebase to catch
+              up
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Rebase and then send your colleague the new branch hash directly
+            </button>
+            <button class="quiz-option" data-correct="true">
+              Use git merge main instead — the branch is shared now
+            </button>
+            <button class="quiz-option" data-correct="false">
+              Ask your colleague to delete their local copy first, then rebase
+              and force-push
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            The moment someone else checks out your branch, it is effectively
+            shared. Rebasing and force-pushing rewrites commits they have based
+            work on — leaving their local branch diverged with no clean path
+            forward. Merge is the safe choice, even if the resulting graph is
+            less tidy.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            After a successful rebase, you try <code>git push</code>. Git
+            rejects it. What is the safest command to push the rebased branch?
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              git push — it will work on the next attempt after git fetch
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git push --force — ensures your local state overwrites the remote
+            </button>
+            <button class="quiz-option" data-correct="true">
+              git push --force-with-lease — force-pushes only if the remote
+              hasn't changed since your last fetch
+            </button>
+            <button class="quiz-option" data-correct="false">
+              git push --no-verify — skips the check that is blocking the push
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            <code>--force-with-lease</code> is the right tool. It behaves like
+            <code>--force</code> but adds one safety check: if someone else has
+            pushed to the remote branch since your last fetch, it aborts. This
+            protects you from silently overwriting a teammate's accidental push
+            to your branch. Make it your habit whenever you force-push after a
+            rebase.
+          </div>
+        </div>
+
+        <div class="quiz-question">
+          <p>
+            What does <code>git reflog</code> show that
+            <code>git log</code> does not?
+          </p>
+          <div class="quiz-options">
+            <button class="quiz-option" data-correct="false">
+              The full diff of every commit in the repository
+            </button>
+            <button class="quiz-option" data-correct="false">
+              All commits on all branches, including remote branches
+            </button>
+            <button class="quiz-option" data-correct="true">
+              Every position HEAD has pointed to, including commits no longer
+              reachable from any branch
+            </button>
+            <button class="quiz-option" data-correct="false">
+              The commit graph across the last 90 days of git history
+            </button>
+          </div>
+          <div class="quiz-feedback">
+            The reflog records <em>HEAD movements</em>, not just reachable
+            commits. Commits that have been abandoned by a rebase — no longer
+            pointed to by any branch or tag — disappear from
+            <code>git log</code> but remain in <code>git reflog</code>. That is
+            what makes it the recovery tool for a rebase gone wrong.
+          </div>
+        </div>
+      </div>
+
+      <!-- ─── Primary source ─── -->
+
+      <div class="primary-source">
+        <strong>Primary source for this lesson</strong>
+        <a
+          href="https://git-scm.com/docs/git-rebase"
+          target="_blank"
+          rel="noopener"
+        >
+          git-rebase — Official Reference Manual
+        </a>
+        (git-scm.com) — the authoritative flag-by-flag reference for every
+        option covered here:
+        <code>--continue</code>, <code>--abort</code>,
+        <code>--force-with-lease</code>. Bookmark it for the edge cases you will
+        inevitably hit in production.
+      </div>
+
+      <!-- ─── Followup ─── -->
+
+      <div class="followup-reminder">
+        <strong>Questions?</strong>
+        If you have had a bad rebase experience in the past — a force-push
+        disaster, a colleague who was upset — describe it to your teacher agent.
+        It can help you diagnose what went wrong and how to handle the same
+        situation safely next time.
+      </div>
+
+      <nav class="lesson-footer">
+        <a href="0002-choosing-between-merge-and-rebase.html"
+          >← Lesson 2: Choosing Between Them</a
+        >
+        <a href="../reference/merge-rebase-cheatsheet.html"
+          >Reference cheat sheet →</a
+        >
+      </nav>
+    </div>
+    <script src="../assets/quiz.js"></script>
+  </body>
+</html>

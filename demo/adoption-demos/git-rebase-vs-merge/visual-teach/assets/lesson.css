@@ -1,0 +1,493 @@
+/* lesson.css — shared stylesheet for the Git Merge vs Rebase course */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 18px;
+}
+
+body {
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.7;
+  color: #1a1a1a;
+  background: #fff;
+  margin: 0;
+  padding: 2rem 1rem 5rem;
+}
+
+.lesson-wrap {
+  max-width: 66ch;
+  margin: 0 auto;
+}
+
+/* ── Navigation ── */
+.lesson-nav {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-bottom: 2.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lesson-nav a {
+  color: #2563eb;
+  text-decoration: none;
+}
+.lesson-nav a:hover {
+  text-decoration: underline;
+}
+
+.lesson-nav .course-title {
+  font-weight: 600;
+}
+
+/* ── Headings ── */
+h1 {
+  font-size: 1.85rem;
+  font-weight: normal;
+  line-height: 1.2;
+  margin: 0 0 0.3rem;
+}
+
+.lesson-meta {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 2.25rem;
+}
+
+h2 {
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin: 2.75rem 0 0.6rem;
+}
+
+h3 {
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: normal;
+  margin: 1.75rem 0 0.4rem;
+}
+
+/* ── Body text ── */
+p {
+  margin: 0 0 1rem;
+}
+
+/* ── Code ── */
+code {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.855em;
+  background: #f3f4f6;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  color: #1e293b;
+}
+
+pre {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.84rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-left: 3px solid #6366f1;
+  padding: 1rem 1.25rem;
+  border-radius: 0 4px 4px 0;
+  overflow-x: auto;
+  line-height: 1.55;
+  margin: 1rem 0 1.5rem;
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  font-size: 1em;
+  color: inherit;
+}
+
+/* ── Commit graph ── */
+.commit-graph {
+  background: #0f172a;
+  color: #cbd5e1;
+  border: none;
+  border-radius: 8px;
+  padding: 1.25rem 1.5rem;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  margin: 1rem 0 1.75rem;
+}
+
+.commit-graph .m {
+  color: #60a5fa;
+} /* main branch */
+.commit-graph .b {
+  color: #a78bfa;
+} /* feature branch */
+.commit-graph .mc {
+  color: #34d399;
+} /* merge commit */
+.commit-graph .rb {
+  color: #fbbf24;
+} /* rebased commits */
+.commit-graph .lbl {
+  color: #64748b;
+} /* labels */
+
+/* ── Callouts ── */
+.callout {
+  background: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  padding: 0.85rem 1rem 0.85rem 1rem;
+  margin: 1.5rem 0;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.93rem;
+}
+
+.callout.warning {
+  background: #fff7ed;
+  border-color: #f97316;
+}
+
+.callout.danger {
+  background: #fef2f2;
+  border-color: #ef4444;
+}
+
+.callout.success {
+  background: #f0fdf4;
+  border-color: #22c55e;
+}
+
+.callout-label {
+  display: block;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  color: #3b82f6;
+}
+
+.callout.warning .callout-label {
+  color: #f97316;
+}
+.callout.danger .callout-label {
+  color: #ef4444;
+}
+.callout.success .callout-label {
+  color: #16a34a;
+}
+
+/* ── Key insight ── */
+.insight {
+  background: #1e1b4b;
+  color: #e0e7ff;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin: 1.75rem 0;
+  font-size: 0.93rem;
+  line-height: 1.65;
+}
+
+.insight .insight-label {
+  display: block;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Tables ── */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.86rem;
+  margin: 1.25rem 0 1.75rem;
+}
+
+th {
+  background: #f1f5f9;
+  font-weight: 700;
+  text-align: left;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+
+td {
+  padding: 0.55rem 0.85rem;
+  border: 1px solid #e2e8f0;
+  vertical-align: top;
+}
+
+tr:nth-child(even) td {
+  background: #fafafa;
+}
+
+/* ── Quiz ── */
+.quiz-section {
+  margin: 2.75rem 0;
+}
+
+.quiz-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.2rem 1.25rem;
+  margin-bottom: 1.1rem;
+  background: #fff;
+}
+
+.quiz-question {
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.8rem;
+}
+
+.quiz-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.quiz-option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.84rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  color: #374151;
+  transition:
+    background 0.12s,
+    border-color 0.12s;
+  line-height: 1.45;
+}
+
+.quiz-option:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.quiz-option.correct {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #14532d;
+  font-weight: 600;
+}
+
+.quiz-option.incorrect {
+  background: #fee2e2;
+  border-color: #dc2626;
+  color: #7f1d1d;
+}
+
+.quiz-option:disabled {
+  cursor: default;
+}
+
+.quiz-feedback {
+  display: none;
+  margin-top: 0.7rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.83rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 5px;
+  line-height: 1.5;
+}
+
+.quiz-feedback.show {
+  display: block;
+}
+.quiz-feedback.correct-fb {
+  background: #f0fdf4;
+  color: #166534;
+}
+.quiz-feedback.incorrect-fb {
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+
+/* ── Primary source ── */
+.primary-source {
+  margin: 2.5rem 0 1.5rem;
+  padding: 0.95rem 1.1rem;
+  background: #fafafa;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.84rem;
+}
+
+.primary-source .src-label {
+  display: block;
+  font-weight: 700;
+  font-size: 0.71rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+}
+
+.primary-source a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.primary-source a:hover {
+  text-decoration: underline;
+}
+
+.primary-source p {
+  margin: 0.3rem 0 0;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+/* ── Followup reminder ── */
+.followup {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.83rem;
+  color: #6b7280;
+}
+
+/* ── Footer nav ── */
+.lesson-footer-nav {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.82rem;
+}
+
+.lesson-footer-nav a {
+  color: #2563eb;
+  text-decoration: none;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid #2563eb;
+  border-radius: 5px;
+  white-space: nowrap;
+}
+
+.lesson-footer-nav a:hover {
+  background: #eff6ff;
+}
+.lesson-footer-nav .spacer {
+  flex: 1;
+}
+
+/* ── Checklist ── */
+ol.steps {
+  padding-left: 1.5rem;
+  font-family:
+    system-ui,
+    -apple-system,
+    sans-serif;
+  font-size: 0.9rem;
+  margin: 0.75rem 0 1.5rem;
+}
+
+ol.steps li {
+  padding: 0.3rem 0;
+  line-height: 1.6;
+}
+
+ol.steps li code {
+  font-size: 0.9em;
+}
+
+/* ── Print ── */
+@media print {
+  .quiz-section,
+  .followup,
+  .lesson-footer-nav,
+  .lesson-nav {
+    display: none;
+  }
+  body {
+    padding: 0;
+    color: #000;
+  }
+  pre,
+  .commit-graph {
+    break-inside: avoid;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  html {
+    font-size: 16px;
+  }
+  h1 {
+    font-size: 1.5rem;
+  }
+  .lesson-footer-nav {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .lesson-footer-nav a {
+    text-align: center;
+  }
+}

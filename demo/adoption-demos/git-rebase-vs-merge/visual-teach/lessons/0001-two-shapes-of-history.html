@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 1 — The Two Shapes of History</title>
+    <link rel="stylesheet" href="../assets/style.css" />
+  </head>
+  <body>
+    <main>
+      <p class="lesson-progress">Lesson 1 of 3 · Git Merge vs Rebase</p>
+      <h1>The Two Shapes of History</h1>
+      <p class="lesson-meta">
+        ~12 minutes · Next:
+        <a href="0002-choosing-between-them.html">Choosing Between Them →</a>
+      </p>
+
+      <p>
+        You have been merging everything into main and it works — but your
+        <code>git log --graph</code> looks like a subway map. There is a second
+        path: <code>git rebase</code>, which produces a completely different
+        shape of history. Before you can choose between them confidently, you
+        need to see exactly what each command does to the commit graph.
+      </p>
+
+      <h2>What is a commit graph?</h2>
+
+      <p>
+        Every git commit stores a pointer to its parent commit. That chain of
+        pointers forms a directed acyclic graph — what
+        <code>git log --graph</code> renders as branching lines. Most commits
+        have one parent; a merge commit has two. The shape of that graph is what
+        <code>merge</code> and <code>rebase</code> change in fundamentally
+        different ways.
+      </p>
+
+      <h2>What <code>git merge</code> does</h2>
+
+      <p>
+        When you run <code>git merge feature</code> from <code>main</code>, git
+        finds the nearest common ancestor of both branches, then creates a
+        <strong>new merge commit</strong> with exactly two parent pointers — the
+        tip of <code>main</code> and the tip of <code>feature</code>. The
+        branching structure is recorded permanently in the graph.
+      </p>
+
+      <pre><code>Before merge:
+
+      A---B---C   ← feature
+     /
+D---E---F---G     ← main
+
+After  git merge feature  (run from main):
+
+      A---B---C
+     /         \
+D---E---F---G---H   ← main
+                ^
+                merge commit H has two parents: G and C</code></pre>
+
+      <p>
+        The key property:
+        <strong>the graph is permanent evidence of what happened.</strong>
+        Anyone reading the history can see that commits A, B, C came from a
+        separate branch and rejoined main at H. The merge commit H carries two
+        parent SHAs — that is what makes it a merge commit.
+      </p>
+      <cite
+        >Source:
+        <a
+          href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging"
+          target="_blank"
+          >Pro Git §3.2 — Basic Branching and Merging</a
+        ></cite
+      >
+
+      <h2>What <code>git rebase</code> does</h2>
+
+      <p>
+        When you run <code>git rebase main</code> from the
+        <code>feature</code> branch, git takes each commit on
+        <code>feature</code> that is not on <code>main</code> and
+        <strong>replays</strong> them one by one on top of the current tip of
+        <code>main</code>. The result looks as though the feature work was
+        always built on the latest main — a straight line.
+      </p>
+
+      <pre><code>Before rebase:
+
+      A---B---C   ← feature
+     /
+D---E---F---G     ← main
+
+After  git rebase main  (run from feature):
+
+                  A'--B'--C'  ← feature
+                 /
+D---E---F---G   ← main (unchanged)</code></pre>
+
+      <p>
+        The primes matter: A′, B′, C′ are <em>new commits</em>. They contain the
+        same diff as A, B, C but they have
+        <strong>different SHA hashes</strong>, because their parent is now G
+        instead of E. The old commits A, B, C still exist in git's object store
+        until garbage-collected, but the <code>feature</code> branch pointer now
+        follows the new linear chain.
+      </p>
+
+      <div class="callout warning">
+        <strong>New hashes — always.</strong> Rebase never moves existing
+        commits; it creates copies with a new parent. Because a commit's SHA is
+        a hash of its content <em>plus</em> its parent SHA, any change of parent
+        produces a new hash. This is why shared branches and rebase are
+        dangerous — and it is the root of the golden rule you will learn in
+        Lesson 3.
+      </div>
+      <cite
+        >Source:
+        <a
+          href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+          target="_blank"
+          >Pro Git §3.6 — Rebasing</a
+        ></cite
+      >
+
+      <h2>Side by side</h2>
+
+      <p>
+        <code>git merge</code> is <em>additive</em>: it appends a new merge
+        commit that records the join, preserving the full branching shape.
+        <code>git rebase</code> is <em>reconstructive</em>: it rebuilds your
+        commits with a new starting point, erasing the branching shape and
+        producing a line.
+      </p>
+
+      <table class="command-table">
+        <tr>
+          <th>Property</th>
+          <th>git merge</th>
+          <th>git rebase</th>
+        </tr>
+        <tr>
+          <td>Commit hashes on feature</td>
+          <td>Unchanged</td>
+          <td>All change</td>
+        </tr>
+        <tr>
+          <td>History shape</td>
+          <td>Branching graph</td>
+          <td>Linear line</td>
+        </tr>
+        <tr>
+          <td>Records when branches joined</td>
+          <td>Yes (merge commit)</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td>Creates a new commit</td>
+          <td>Yes (merge commit)</td>
+          <td>Yes (replayed copies)</td>
+        </tr>
+      </table>
+
+      <section class="quiz-section">
+        <h2>Check your understanding</h2>
+        <p>Answer from memory, then click to see if you are right.</p>
+
+        <div class="quiz-question" data-correct="b">
+          <p class="quiz-prompt">
+            After running <code>git merge feature</code>, how many parent
+            commits does the resulting merge commit have?
+          </p>
+          <ul class="quiz-options">
+            <li data-key="a">One parent — only the previous tip of main</li>
+            <li data-key="b">
+              Two parents — the tip of main and the tip of feature
+            </li>
+            <li data-key="c">
+              Three parents — the common ancestor plus both tips
+            </li>
+            <li data-key="d">Zero parents — merge commits are root commits</li>
+          </ul>
+          <p class="quiz-explanation" hidden>
+            A merge commit records exactly two parent SHAs: the branch you were
+            on (<code>main</code>) and the branch you merged in
+            (<code>feature</code>). This dual-parent pointer is what lets
+            <code>git log --graph</code> draw the branching lines backward
+            through history. The common ancestor is computed internally but is
+            not stored as a parent.
+          </p>
+        </div>
+
+        <div class="quiz-question" data-correct="c">
+          <p class="quiz-prompt">
+            You rebase your feature branch. What is true of the replayed commits
+            (A′, B′, C′) compared to the originals (A, B, C)?
+          </p>
+          <ul class="quiz-options">
+            <li data-key="a">
+              They have identical SHA hashes — only the branch pointer moves
+            </li>
+            <li data-key="b">
+              They are gone — rebase deletes the original commits
+            </li>
+            <li data-key="c">
+              They have new SHA hashes — the same diff, a new parent
+            </li>
+            <li data-key="d">
+              They gain an extra parent pointing back to the old base
+            </li>
+          </ul>
+          <p class="quiz-explanation" hidden>
+            A SHA is a hash of the commit's content <em>plus</em> its parent
+            SHA. Because rebase changes the parent (from the old base E to the
+            new base G), the hash changes — even when the diff is byte-for-byte
+            identical. The originals A, B, C are not deleted; they just become
+            unreachable from the branch pointer.
+          </p>
+        </div>
+
+        <div class="quiz-question" data-correct="a">
+          <p class="quiz-prompt">
+            A coworker needs to audit exactly when two lines of work were
+            combined. Which history gives them that answer?
+          </p>
+          <ul class="quiz-options">
+            <li data-key="a">
+              A merged history — the merge commit records the exact join point
+            </li>
+            <li data-key="b">
+              A rebased history — the linear chain is easier to read through
+            </li>
+            <li data-key="c">
+              Both histories preserve the same information about the join
+            </li>
+            <li data-key="d">
+              Neither history records when the two branches rejoined
+            </li>
+          </ul>
+          <p class="quiz-explanation" hidden>
+            Only a merge commit records the exact moment two histories
+            converged. In a rebased history the feature commits appear to be
+            direct descendants of main — the fact that they were developed on a
+            separate branch is erased. That traceability trade-off is one of the
+            real factors in the merge vs rebase decision.
+          </p>
+        </div>
+      </section>
+
+      <div class="primary-source">
+        <div class="label">Primary Source</div>
+        <p>
+          <a
+            href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+            target="_blank"
+            ><strong>Pro Git, Chapter 3.6 — Rebasing</strong></a
+          >
+          by Scott Chacon &amp; Ben Straub (free online). Written by a git core
+          contributor. Section 3.6 covers exactly what this lesson teaches; read
+          section 3.2 alongside it for the full merge picture. This is the most
+          authoritative and honest treatment of the trade-offs.
+        </p>
+      </div>
+
+      <div class="followup-reminder">
+        <strong>Something unclear?</strong> Ask your teacher. Good prompts:
+        <em>"Draw the graph for this sequence of commands: …"</em> or
+        <em
+          >"What happens if fast-forward is possible — does merge still create a
+          merge commit?"</em
+        >
+      </div>
+
+      <nav class="lesson-nav">
+        <span></span>
+        <a class="next" href="0002-choosing-between-them.html"
+          >Choosing Between Them</a
+        >
+      </nav>
+    </main>
+    <script src="../assets/quiz.js"></script>
+  </body>
+</html>
