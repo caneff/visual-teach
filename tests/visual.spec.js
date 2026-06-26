@@ -18,27 +18,38 @@ const PAGES = [
   { name: "teacher-box", path: "assets/components/teacher-box/demo.html" },
 ];
 
+const WIDTH = 1280;
+
+// Capture a content-sized fixed viewport instead of a fullPage screenshot.
+// fullPage rounds the captured height ±1px between runs (the page's layout
+// height is fractional), and toHaveScreenshot hard-fails on any dimension
+// mismatch — a flaky gate. The page's scrollHeight is deterministic, so we
+// size the viewport to it and screenshot that: the dimension is now stable,
+// and maxDiffPixelRatio still absorbs trivial pixel differences.
+async function shoot(page, path, snapshot, before) {
+  await page.setViewportSize({ width: WIDTH, height: 720 });
+  await page.goto(`file://${resolve(root, path)}`);
+  await page.waitForLoadState("networkidle");
+  if (before) await before();
+  const height = await page.evaluate(
+    () => document.documentElement.scrollHeight
+  );
+  await page.setViewportSize({ width: WIDTH, height });
+  await expect(page).toHaveScreenshot(snapshot, { maxDiffPixelRatio: 0.02 });
+}
+
 for (const { name, path } of PAGES) {
   test(`${name} default-theme screenshot`, async ({ page }) => {
-    await page.goto(`file://${resolve(root, path)}`);
-    await page.waitForLoadState("networkidle");
-    await expect(page).toHaveScreenshot(`${name}.png`, {
-      fullPage: true,
-      maxDiffPixelRatio: 0.02,
-    });
+    await shoot(page, path, `${name}.png`);
   });
 }
 
 for (const { name, path } of PAGES) {
   test(`${name} dark-theme screenshot`, async ({ page }) => {
-    await page.goto(`file://${resolve(root, path)}`);
-    await page.waitForLoadState("networkidle");
-    await page.evaluate(() => {
-      document.documentElement.dataset.theme = "dark";
-    });
-    await expect(page).toHaveScreenshot(`${name}-dark.png`, {
-      fullPage: true,
-      maxDiffPixelRatio: 0.02,
-    });
+    await shoot(page, path, `${name}-dark.png`, () =>
+      page.evaluate(() => {
+        document.documentElement.dataset.theme = "dark";
+      })
+    );
   });
 }
