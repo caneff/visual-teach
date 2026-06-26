@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>merge vs rebase — Quick Reference</title>
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/callout.css" />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <link rel="stylesheet" href="../assets/chip.css" />
+    <link rel="stylesheet" href="../assets/code.css" />
+    <link rel="stylesheet" href="../assets/commit-graph.css" />
+    <style>
+      :root {
+        --vt-accent: #6d28d9;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">git · companion reference</p>
+      <h1><code>merge</code> vs <code>rebase</code> — Quick Reference</h1>
+      <p class="vt-lede">
+        The compressed essence of the course: glossary, the decision rule, the
+        commands, and how to bail out. Built to print on one or two pages and
+        live next to your keyboard.
+      </p>
+      <p class="vt-meta">
+        Companion to Lessons
+        <a href="../lessons/0001-two-shapes-of-history.html">0001</a>,
+        <a href="../lessons/0002-choosing-merge-or-rebase.html">0002</a>, and
+        <a href="../lessons/0003-rebase-without-fear.html">0003</a> · verified
+        2026-06-25
+      </p>
+
+      <h2><span class="vt-num">1</span>The two shapes, at a glance</h2>
+
+      <div class="vt-gitgraph">
+        <svg viewBox="0 0 600 150" role="img"
+             aria-label="merge keeps a branching graph with a merge commit M; rebase produces one straight line.">
+          <!-- MERGE -->
+          <text class="vt-gg-ref muted" x="8" y="20">merge — branching graph</text>
+          <path class="vt-gg-edge main" d="M40 110 H148" />
+          <path class="vt-gg-edge main" d="M156 110 H236" />
+          <path class="vt-gg-edge feature" d="M152 105 C 175 80, 175 60, 196 52" />
+          <path class="vt-gg-edge feature" d="M204 52 H252" />
+          <path class="vt-gg-edge feature" d="M260 52 C 285 60, 285 92, 300 104" />
+          <circle class="vt-gg-node main" cx="40" cy="110" r="11" />
+          <circle class="vt-gg-node main" cx="152" cy="110" r="11" />
+          <circle class="vt-gg-node feature" cx="200" cy="52" r="11" />
+          <circle class="vt-gg-node feature" cx="256" cy="52" r="11" />
+          <circle class="vt-gg-node merge" cx="308" cy="110" r="12" />
+          <text class="vt-gg-hash" x="308" y="110" style="fill: var(--vt-accent-fg)">M</text>
+          <text class="vt-gg-ref main" x="328" y="110">main</text>
+          <!-- REBASE -->
+          <text class="vt-gg-ref muted" x="372" y="20">rebase — linear</text>
+          <path class="vt-gg-edge main" d="M404 80 H448" />
+          <path class="vt-gg-edge replayed" d="M456 80 H500" />
+          <path class="vt-gg-edge replayed" d="M508 80 H552" />
+          <circle class="vt-gg-node main" cx="404" cy="80" r="11" />
+          <circle class="vt-gg-node main" cx="452" cy="80" r="11" />
+          <circle class="vt-gg-node replayed" cx="504" cy="80" r="11" />
+          <circle class="vt-gg-node replayed" cx="556" cy="80" r="11" />
+        </svg>
+        <div class="vt-gg-legend">
+          <span class="vt-gg-key main">main commit</span>
+          <span class="vt-gg-key feature">feature commit</span>
+          <span class="vt-gg-key merge">merge commit (2 parents)</span>
+          <span class="vt-gg-key replayed">replayed copy (new hash)</span>
+        </div>
+        <p class="vt-gg-caption">
+          <strong>merge</strong> ties two lines together with a merge commit and
+          keeps the real, branching history. <strong>rebase</strong> copies your
+          commits onto a new base, one after another, producing a straight line
+          of brand-new commits.
+        </p>
+      </div>
+
+      <h2><span class="vt-num">2</span>Glossary</h2>
+
+      <table class="vt-kv">
+        <tbody>
+          <tr>
+            <th scope="row">commit</th>
+            <td>
+              A snapshot plus a pointer to its parent(s), named by a unique hash.
+              Commits are immutable — you never "edit" one, you replace it.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">branch</th>
+            <td>
+              A movable label pointing at one commit (its tip). Cheap; it is just
+              a name.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>HEAD</code></th>
+            <td>Where you are right now — the commit your working tree is built on.</td>
+          </tr>
+          <tr>
+            <th scope="row">merge commit</th>
+            <td>
+              A commit with <em>two</em> parents that joins two branches. The
+              fingerprint that a merge happened.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">fast-forward</th>
+            <td>
+              A "merge" with nothing to reconcile: the branch label just slides
+              forward. No merge commit is created.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">replay</th>
+            <td>
+              What rebase does: re-apply each of your commits onto a new base,
+              creating a new commit (new hash) for each.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">base</th>
+            <td>
+              The commit your branch was built on. Rebase changes it — that is
+              the whole point.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">linear history</th>
+            <td>One straight line of commits, no forks. The shape rebase produces.</td>
+          </tr>
+          <tr>
+            <th scope="row">reflog</th>
+            <td>
+              A local log of everywhere <code>HEAD</code> has been. Your undo
+              button — even after a rebase.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">force-push</th>
+            <td>
+              <code>git push --force</code>: overwrite the remote branch with your
+              rewritten history. Safe on a private branch; dangerous on a shared one.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2><span class="vt-num">3</span>The decision rule</h2>
+
+      <div class="vt-callout insight">
+        <strong>One question decides it:</strong> have these commits been pushed
+        and possibly used by someone else?
+        <strong>Yes → merge.</strong> <strong>No → rebase is safe</strong> (and
+        usually tidier).
+      </div>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr>
+              <th>Situation</th>
+              <th>Use</th>
+              <th>Why</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Tidy up my local feature branch before a PR</td>
+              <td><span class="vt-pill good sm">rebase</span></td>
+              <td>Commits are private; a clean line is easier to review.</td>
+            </tr>
+            <tr>
+              <td>Update my branch with the latest <code>main</code></td>
+              <td><span class="vt-pill good sm">rebase</span></td>
+              <td>Replays your work on top of new main; no noise merge commit.</td>
+            </tr>
+            <tr>
+              <td>Integrate <code>main</code> into a long-running shared branch</td>
+              <td><span class="vt-pill sm">merge</span></td>
+              <td>Others have the branch — rewriting it would clobber their work.</td>
+            </tr>
+            <tr>
+              <td>Land a finished feature into <code>main</code></td>
+              <td><span class="vt-pill sm">merge</span></td>
+              <td>Records honestly that a feature was integrated, when.</td>
+            </tr>
+            <tr>
+              <td>Anything already pushed and shared</td>
+              <td><span class="vt-pill sm">merge</span></td>
+              <td>The golden rule: never rebase shared commits.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2><span class="vt-num">4</span>Command reference</h2>
+
+      <div class="vt-code">
+        <div class="vt-code-head"><span>everyday commands</span></div>
+        <pre><code class="language-bash"># Merge another branch into the one you're on
+git merge main              # may create a merge commit
+git merge --no-ff feature   # force a merge commit even if fast-forward possible
+
+# Rebase the current branch onto a new base
+git rebase main             # replay my commits on top of main
+git pull --rebase           # update: fetch, then rebase instead of merge
+
+# Mid-rebase, after a conflict
+git status                  # see what's conflicted
+git add &lt;file&gt;              # mark each conflict resolved
+git rebase --continue       # resume replaying
+git rebase --abort          # bail out — back to exactly where you started
+
+# The safety net
+git reflog                  # list everywhere HEAD has been
+git reset --hard HEAD@{1}   # jump HEAD back to a previous position</code></pre>
+      </div>
+
+      <h2><span class="vt-num">5</span>The golden rule &amp; recovery</h2>
+
+      <div class="vt-callout risk">
+        <strong>Golden rule —</strong> Do not rebase commits that exist outside
+        your repository and that people may have based work on.
+        <em>(Pro Git, "The Perils of Rebasing.")</em> Translation: never rebase
+        anything you've already pushed and shared.
+      </div>
+
+      <div class="vt-callout success">
+        <strong>Recovery in three lines —</strong> A rebase went wrong? You are
+        not stuck. If you're <em>mid-rebase</em>: <code>git rebase --abort</code>.
+        If it <em>already finished</em> and looks wrong: <code>git reflog</code>,
+        find the line just before the rebase, then
+        <code>git reset --hard HEAD@{n}</code>. Reflog keeps entries for ~90 days.
+      </div>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"
+              >Pro Git §3.6 — Rebasing</a
+            >
+            <span class="note">— mental model + golden rule.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-rebase">git-rebase manual</a>
+            <span class="note">— flag behavior.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-reflog">git-reflog manual</a>
+            <span class="note">— the recovery net.</span>
+          </li>
+        </ul>
+        <div class="meta">Reference · verified 2026-06-25</div>
+      </footer>
+    </main>
+    <script src="../assets/base.js"></script>
+  </body>
+</html>

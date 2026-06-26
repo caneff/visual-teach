@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>visual-teach · adoption demos</title>
+    <style>
+      :root {
+        --bg: #fafaf8;
+        --fg: #1a1a1a;
+        --muted: #666;
+        --rule: #ddd;
+        --card: #fff;
+        --ok: #1a7f4b;
+        --no: #b23b3b;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #16161a;
+          --fg: #e8e8e8;
+          --muted: #9a9a9a;
+          --rule: #333;
+          --card: #1f1f24;
+          --ok: #4cc88a;
+          --no: #e07a7a;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          15px/1.5 system-ui,
+          -apple-system,
+          Segoe UI,
+          Roboto,
+          sans-serif;
+      }
+      header {
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--rule);
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        z-index: 2;
+      }
+      h1 {
+        font-size: 1.05rem;
+        margin: 0 0 0.15rem;
+      }
+      .sub {
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1rem;
+        align-items: center;
+        margin-top: 0.75rem;
+      }
+      label {
+        font-size: 0.8rem;
+        color: var(--muted);
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      select {
+        font: inherit;
+        padding: 0.3rem 0.5rem;
+        background: var(--card);
+        color: var(--fg);
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+      }
+      .verdict {
+        margin-left: auto;
+        font-size: 0.8rem;
+        font-weight: 600;
+      }
+      .verdict.ok {
+        color: var(--ok);
+      }
+      .verdict.no {
+        color: var(--no);
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1px;
+        background: var(--rule);
+        height: calc(100vh - 118px);
+      }
+      .pane {
+        display: flex;
+        flex-direction: column;
+        background: var(--card);
+        min-height: 0;
+      }
+      .pane h2 {
+        margin: 0;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.82rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--rule);
+        color: var(--muted);
+      }
+      .pane h2 .tag {
+        font-weight: 700;
+      }
+      .pane.before h2 .tag {
+        color: var(--no);
+      }
+      .pane.after h2 .tag {
+        color: var(--ok);
+      }
+      iframe {
+        flex: 1;
+        width: 100%;
+        border: 0;
+        background: #fff;
+      }
+      @media (max-width: 760px) {
+        main {
+          grid-template-columns: 1fr;
+          height: auto;
+        }
+        iframe {
+          height: 80vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>visual-teach · adoption demos</h1>
+      <div class="sub">
+        Same frozen <code>teach-base</code> pedagogy, same spec, both arms. Only
+        variable: whether <code>visual-teach</code> was <em>available</em>
+        (never mentioned in the prompt). The right pane fired it on its own —
+        or didn't.
+      </div>
+      <div class="controls">
+        <label
+          >Subject
+          <select id="subject"></select>
+        </label>
+        <label
+          >Lesson
+          <select id="lesson"></select>
+        </label>
+        <span class="verdict" id="verdict"></span>
+      </div>
+    </header>
+    <main>
+      <div class="pane before">
+        <h2><span class="tag">plain</span> — teach-base only (control)</h2>
+        <iframe id="left" title="plain lesson"></iframe>
+      </div>
+      <div class="pane after">
+        <h2>
+          <span class="tag">+ visual-teach</span> — available, auto-fired
+          (treatment)
+        </h2>
+        <iframe id="right" title="visual-teach lesson"></iframe>
+      </div>
+    </main>
+
+    <script>
+      // Add a subject by appending here. `plain`/`visual` are lesson filenames
+      // under <id>/plain/lessons and <id>/visual-teach/lessons (they may differ
+      // per arm). `adopted` drives the verdict badge.
+      const SUBJECTS = [
+        {
+          id: "git-rebase-vs-merge",
+          label: "git rebase vs merge",
+          adopted: true,
+          model: "opus",
+          lessons: [
+            {
+              label: "1 · Two shapes of history",
+              plain: "0001-two-shapes-of-history.html",
+              visual: "0001-two-shapes-of-history.html",
+            },
+            {
+              label: "2 · Choosing between them",
+              plain: "0002-choosing-between-them.html",
+              visual: "0002-choosing-merge-or-rebase.html",
+            },
+            {
+              label: "3 · Rebase without fear",
+              plain: "0003-rebase-without-fear.html",
+              visual: "0003-rebase-without-fear.html",
+            },
+          ],
+        },
+      ];
+
+      const $ = (id) => document.getElementById(id);
+      const subjectSel = $("subject");
+      const lessonSel = $("lesson");
+
+      SUBJECTS.forEach((s, i) => {
+        subjectSel.add(new Option(s.label, i));
+      });
+
+      function fillLessons() {
+        const s = SUBJECTS[subjectSel.value];
+        lessonSel.innerHTML = "";
+        s.lessons.forEach((l, i) => lessonSel.add(new Option(l.label, i)));
+        const v = $("verdict");
+        v.textContent = s.adopted
+          ? `auto-fired ✓ (${s.model})`
+          : `not adopted ✗ (${s.model})`;
+        v.className = "verdict " + (s.adopted ? "ok" : "no");
+        render();
+      }
+
+      function render() {
+        const s = SUBJECTS[subjectSel.value];
+        const l = s.lessons[lessonSel.value];
+        $("left").src = `${s.id}/plain/lessons/${l.plain}`;
+        $("right").src = `${s.id}/visual-teach/lessons/${l.visual}`;
+      }
+
+      subjectSel.addEventListener("change", fillLessons);
+      lessonSel.addEventListener("change", render);
+      fillLessons();
+    </script>
+  </body>
+</html>

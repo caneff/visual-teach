@@ -1,47 +1,40 @@
-/* Shared quiz widget — works across all lessons in this course.
- *
- * Markup contract:
- *   .quiz-question           wrapper for one question
- *     p                      the question text
- *     .quiz-options          button container
- *       button.quiz-option   each option; data-correct="true" marks the answer
- *     .quiz-feedback         explanation shown after answering
- */
-(function () {
-  "use strict";
+/* quiz.js — shared interactive recall component for the course.
+   A lesson marks up a multiple-choice question declaratively; this wires the
+   immediate-feedback loop. No build step, no dependencies.
 
-  function initQuiz() {
-    document.querySelectorAll(".quiz-question").forEach(function (block) {
-      var options = block.querySelectorAll(".quiz-option");
+   Markup contract:
+     <div class="quiz" data-quiz>
+       <p class="q">Question text</p>
+       <button class="opt" data-correct>Right answer</button>
+       <button class="opt">Wrong answer</button>
+       <div class="feedback" data-when="right">Shown on a correct pick…</div>
+       <div class="feedback" data-when="wrong">Shown on a wrong pick…</div>
+     </div>
 
-      options.forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          if (block.dataset.answered) return;
-          block.dataset.answered = "1";
+   Put the explanation in the data-when="right" block so the learner always
+   ends on the reasoning, however they answered. */
 
-          var isCorrect = btn.dataset.correct === "true";
-          var feedback = block.querySelector(".quiz-feedback");
+document.addEventListener("click", function (e) {
+  var btn = e.target.closest(".quiz [data-quiz] .opt, .quiz .opt");
+  if (!btn) return;
+  var quiz = btn.closest(".quiz");
+  if (!quiz || quiz.dataset.answered) return;
 
-          options.forEach(function (opt) {
-            opt.disabled = true;
-            if (opt.dataset.correct === "true") {
-              opt.classList.add("correct");
-            } else if (opt === btn && !isCorrect) {
-              opt.classList.add("incorrect");
-            }
-          });
+  var correct = btn.hasAttribute("data-correct");
 
-          if (feedback) {
-            feedback.classList.add("visible");
-          }
-        });
-      });
-    });
-  }
+  // Lock the quiz and reveal the truth on every option.
+  quiz.dataset.answered = "true";
+  quiz.querySelectorAll(".opt").forEach(function (b) {
+    b.disabled = true;
+    if (b.hasAttribute("data-correct")) b.classList.add("correct");
+    else if (b === btn) b.classList.add("incorrect");
+  });
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initQuiz);
-  } else {
-    initQuiz();
-  }
-})();
+  var rightFb = quiz.querySelector('.feedback[data-when="right"]');
+  var wrongFb = quiz.querySelector('.feedback[data-when="wrong"]');
+
+  // Always show the reasoning (the "right" block). On a miss, also show the
+  // short corrective note first.
+  if (!correct && wrongFb) wrongFb.classList.add("show", "wrong");
+  if (rightFb) rightFb.classList.add("show", correct ? "right" : "wrong");
+});
