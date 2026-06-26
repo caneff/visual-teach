@@ -24,6 +24,11 @@ subject is discarded.
 
 ## Result: 4 of 6 adopted on opus
 
+> **⚠️ Superseded — this run used the contaminated `teach-base` control (see the
+> A/B section below). On a valid control the result is 12/12 adoption; the two ❌
+> rows here are artifacts. Kept for history. Skip to "Clean control-vs-treatment
+> re-run" for the current numbers.**
+
 | Subject                            | Adopted? | Notes                                                                                                                                                                                                          |
 | ---------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | git rebase vs merge                | ✅       | full component library, unprompted                                                                                                                                                                             |
@@ -46,6 +51,12 @@ a substitute for it. So both ❌ rows are genuine misses, not correct abstention
 and the target on this subject set is 6/6 — see the corrected finding below.
 
 ## Open finding: adoption ≠ strictly-better output
+
+> **⚠️ Largely resolved / refuted by the clean re-run below.** The "catalog pulls
+> toward the nearest block, abandoning bespoke" tension did **not** reproduce on a
+> valid control with `floor-composes`: treatment built bespoke live exercises
+> 11/12 vs control 6/12 (regex included — a live tester both reps, not a quiz).
+> Kept for history; see "Clean control-vs-treatment re-run."\*\*
 
 Adoption raises the **consistency and polish floor**; the risk is reaching for
 the _nearest block_ and stopping there, leaving the **bespoke-interactivity
