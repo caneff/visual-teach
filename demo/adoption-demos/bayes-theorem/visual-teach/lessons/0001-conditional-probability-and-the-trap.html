@@ -1,30 +1,27 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Conditional probability and the trap — Bayes Lesson 1</title>
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <link rel="stylesheet" href="../assets/math.css" />
-    <link rel="stylesheet" href="../assets/katex/katex.min.css" />
-    <script src="../assets/base.js"></script>
-    <script src="../assets/katex/katex.min.js"></script>
-    <script src="../assets/katex/auto-render.min.js"></script>
-    <script src="../assets/math.js"></script>
-    <script src="../assets/quiz.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Conditional probability and the trap — Bayes' theorem · Lesson 1</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/math/math.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/math/math.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Bayes' Theorem · Lesson 1</p>
+      <p class="vt-kicker">Bayes' theorem · Lesson 1</p>
       <h1>Conditional probability and the trap</h1>
       <p class="vt-lede">
-        Conditioning is just zooming into a sub-group — and the direction you
-        zoom changes the answer.
+        What <span>\(P(A \mid B)\)</span> actually means — and why quietly
+        flipping it is the mistake behind nearly every scary test result.
       </p>
 
       <div class="vt-metabar">
@@ -37,188 +34,254 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Say what <span>\(P(A \mid B)\)</span> means in plain words.</li>
-          <li>Show, with counts, why <span>\(P(A \mid B) \neq P(B \mid A)\)</span>.</li>
-          <li>Name the famous confusion that flips them — before it ever fools you.</li>
+          <li>Read <span>\(P(A \mid B)\)</span> aloud and say exactly which group it restricts you to.</li>
+          <li>Explain why <span>\(P(A \mid B)\)</span> and <span>\(P(B \mid A)\)</span> are usually different numbers.</li>
+          <li>Spot the swap when someone treats a test's accuracy as your chance of being sick.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> the screening result that
-        scared you — "positive on a 99% accurate test" — is a conditional read in
-        the <em>wrong direction</em>. Get the direction straight here, and the
-        rest of the course is arithmetic.
+        <strong>Why this matters for your goal:</strong> the panic you feel at a
+        positive test comes from reading <em>"the test is 99% accurate"</em> as
+        <em>"I'm 99% likely to be sick."</em> Those are two different
+        conditionals. Naming them apart is the whole game — everything else in
+        this course builds on it.
       </div>
 
-      <h2><span class="vt-num">1</span>What the bar really means</h2>
-
+      <h2><span class="vt-num">1</span>Conditioning is just zooming in</h2>
       <p>
-        The notation <span>\(P(A \mid B)\)</span> reads "the probability of
-        <strong>A given B</strong>." The bar <span>\(\mid\)</span> is an
-        instruction: <em>throw away every case where B is false, then ask how
-        often A happens in what's left.</em> You are not looking at everyone
-        anymore — you've <strong>zoomed into the B sub-group</strong>.
-      </p>
-
-      <div class="vt-callout info">
-        <strong>Conditioning = changing the denominator.</strong> Unconditional
-        probability divides by <em>everyone</em>. A conditional probability
-        divides by <em>only the group you conditioned on</em>. Same world, smaller
-        crowd.
-      </div>
-
-      <h2><span class="vt-num">2</span>A crowd you can count</h2>
-
-      <p>
-        Forget formulas. Picture <strong>1,000 people at a concert</strong>. Two
-        things might be true of any person: they're wearing the band's
-        <strong>T-shirt</strong>, and/or they <strong>know every lyric</strong>.
-        Here is the actual crowd:
-      </p>
-
-      <div class="vt-table-wrap">
-        <table class="vt-table compact">
-          <thead>
-            <tr>
-              <th>Group</th>
-              <th>How many</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Wearing the T-shirt</th><td>200</td></tr>
-            <tr><th scope="row">Know every lyric</th><td>100</td></tr>
-            <tr class="vt-row-key"><th scope="row">Both — shirt <em>and</em> lyrics</th><td>80</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <p>Now zoom, one direction at a time, using only the counts above:</p>
-
-      <p>
-        <strong>Zoom into the T-shirt wearers</strong> (200 people). How many know
-        the lyrics? 80. So
-        <span>\(P(\text{lyrics} \mid \text{shirt}) = \tfrac{80}{200} = 40\%\)</span>.
+        Forget formulas for a moment. A conditional probability is what you get
+        when you <strong>throw away everyone who doesn't match a condition</strong>
+        and recount inside what's left. That's it. The condition is a spotlight;
+        you only score the people standing in it.
       </p>
       <p>
-        <strong>Zoom into the lyric-knowers</strong> (100 people). How many wear
-        the shirt? 80. So
-        <span>\(P(\text{shirt} \mid \text{lyrics}) = \tfrac{80}{100} = 80\%\)</span>.
+        Picture a town of 1,000 people. Some carry umbrellas; some are out in the
+        rain. Here are the counts:
+      </p>
+
+      <table class="vt-kv">
+        <tbody>
+          <tr><th scope="row">It is raining</th><td>200 people are out in it</td></tr>
+          <tr><th scope="row">…of those, carrying an umbrella</th><td>180 people</td></tr>
+          <tr><th scope="row">Carrying an umbrella (rain or shine)</th><td>250 people</td></tr>
+          <tr><th scope="row">…of those, actually in the rain</th><td>180 people</td></tr>
+        </tbody>
+      </table>
+
+      <p>
+        "The chance someone has an umbrella <em>given</em> it's raining" zooms
+        into the 200 rained-on people and counts umbrellas:
+        <span>\(180/200 = 90\%\)</span>. "The chance it's raining <em>given</em>
+        they have an umbrella" zooms into the 250 umbrella-carriers instead:
+        <span>\(180/250 = 72\%\)</span>. Same 180 people in the numerator —
+        <strong>different group in the denominator</strong>. That denominator
+        swap is the entire idea.
       </p>
 
       <div class="vt-callout insight">
-        <strong>Same 80 people on top — different crowd on the bottom.</strong>
-        40% one way, 80% the other. The overlap never changed; the group you
-        divided by did. That is the whole reason
-        <span>\(P(A \mid B) \neq P(B \mid A)\)</span>.
+        <strong>The one-line definition.</strong> <span>\(P(A \mid B)\)</span> is
+        a fraction whose denominator is "everyone where <span>\(B\)</span> is
+        true," and whose numerator is "…of those, the ones where
+        <span>\(A\)</span> is also true." Change the condition, change the
+        denominator, change the answer.
       </div>
 
-      <h2><span class="vt-num">3</span>When the gap is enormous</h2>
-
+      <h2><span class="vt-num">2</span>Reading the notation</h2>
       <p>
-        The concert numbers are close enough to feel harmless. Real screening is
-        not. Consider: <em>nearly everyone who is pregnant is a woman</em>, so
-        <span>\(P(\text{woman} \mid \text{pregnant}) \approx 100\%\)</span>. But
-        <em>most women are not pregnant right now</em>, so
-        <span>\(P(\text{pregnant} \mid \text{woman})\)</span> is small. Flip the
-        bar and you go from "almost certain" to "unlikely" — same two facts.
+        The vertical bar reads <em>"given"</em> — and everything after it is the
+        group you've zoomed into.
       </p>
 
-      <div class="vt-callout warn">
-        <strong>This is the trap.</strong> Confusing
-        <span>\(P(A \mid B)\)</span> with <span>\(P(B \mid A)\)</span> has a name:
-        the <strong>confusion of the inverse</strong> (in courtrooms, the
-        "prosecutor's fallacy"). It's what makes "the test is positive in 99% of
-        sick people" feel like "you're 99% likely to be sick." Those are opposite
-        directions of the bar.
-      </div>
+      <div class="vt-math vt-eq">P(A \mid B) \;=\; \frac{\text{count of } A \text{ and } B}{\text{count of } B}</div>
 
-      <h2><span class="vt-num">4</span>Catch it yourself</h2>
+      <p class="vt-gloss">
+        Read aloud: "the probability of A, given B" — meaning, among only the
+        B cases, how often A also holds.
+      </p>
 
       <p>
-        A clinic reports: <em>"Of patients who truly have the condition, 95% test
-        positive."</em> Which probability is that?
+        Order matters and it is easy to get backwards. <span>\(P(\text{umbrella}
+        \mid \text{rain})\)</span> is about a rainy crowd; <span>\(P(\text{rain}
+        \mid \text{umbrella})\)</span> is about an umbrella-carrying crowd. The
+        thing <em>before</em> the bar is what you're measuring; the thing
+        <em>after</em> the bar is the room you're standing in.
+      </p>
+
+      <h2><span class="vt-num">3</span>The trap: a conditional is not symmetric</h2>
+      <p>
+        Here is the misconception this whole course exists to fix. In general,
+      </p>
+
+      <div class="vt-math vt-eq">P(A \mid B) \;\neq\; P(B \mid A)</div>
+
+      <p>
+        They are answers to different questions, so there is no reason they'd be
+        equal. A blunt example makes it stick: nearly everyone out in heavy rain
+        gets wet, so <span>\(P(\text{wet} \mid \text{rain}) \approx 1\)</span>.
+        But plenty of wet people got that way from a shower, a pool, a spilled
+        drink — so <span>\(P(\text{rain} \mid \text{wet})\)</span> is much
+        smaller. Flip the bar and the number can collapse.
+      </p>
+
+      <div class="vt-versus">
+        <div>
+          <span class="lbl">What the test tells you</span>
+          <span class="big"><span>\(P(\text{positive} \mid \text{disease})\)</span></span>
+          <p class="vt-gloss">Of people who <em>have</em> the disease, how many test positive. This is the test's accuracy — often 99%.</p>
+        </div>
+        <div>
+          <span class="lbl">What you actually want</span>
+          <span class="big"><span>\(P(\text{disease} \mid \text{positive})\)</span></span>
+          <p class="vt-gloss">Of people who <em>test positive</em>, how many really have the disease. This is your real risk — and it can be far lower.</p>
+        </div>
+      </div>
+
+      <div class="vt-callout warn">
+        <strong>This is the base-rate trap in seed form.</strong> Hearing "99%
+        accurate" and feeling "99% likely to be sick" silently swaps
+        <span>\(P(\text{positive} \mid \text{disease})\)</span> for
+        <span>\(P(\text{disease} \mid \text{positive})\)</span>. Lesson 3 shows
+        how far apart those two can be. For now, just catch the swap.
+      </div>
+
+      <h2><span class="vt-num">4</span>Recall — before you peek</h2>
+      <p class="vt-reveal-hint">
+        Say your answer out loud first, then click to check. Retrieving it from
+        memory is what makes it stick — far more than re-reading.
+      </p>
+
+      <details class="vt-reveal">
+        <summary>In <span>\(P(A \mid B)\)</span>, which letter names the group you zoom into — the denominator?</summary>
+        <div class="answer">
+          <strong>B</strong> — the condition, the part after the bar. You restrict
+          to all the B cases and ask how often A also holds among them.
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>Why is <span>\(P(\text{rain} \mid \text{umbrella})\)</span> smaller than <span>\(P(\text{umbrella} \mid \text{rain})\)</span> in our town?</summary>
+        <div class="answer">
+          Same 180 people on top, but different denominators: 250 umbrella-carriers
+          vs. 200 rained-on people. More people carry umbrellas than are caught in
+          the rain, so dividing by the bigger group gives the smaller fraction.
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>A test is "99% accurate." Which conditional is that — and which one do you actually care about?</summary>
+        <div class="answer">
+          "99% accurate" is <span>\(P(\text{positive} \mid \text{disease})\)</span>
+          — accuracy among the sick. You care about
+          <span>\(P(\text{disease} \mid \text{positive})\)</span> — your risk given
+          your positive result. Different denominators, potentially very different
+          numbers.
+        </div>
+      </details>
+
+      <h2><span class="vt-num">5</span>Practice — name the conditional</h2>
+      <p>
+        Each statement describes one conditional. Pick the expression that says
+        the same thing. Wrong picks explain themselves; keep going until it's
+        green.
       </p>
 
       <div aria-live="polite" class="vt-quiz-live"></div>
-      <div class="vt-quiz" data-answer="1">
-        <p class="q">Which statement matches "95% of those who have it test positive"?</p>
-        <button class="opt"><code>P(have it | positive) = 0.95</code></button>
-        <button class="opt"><code>P(positive | have it) = 0.95</code></button>
-        <button class="opt"><code>P(positive | healthy) = 0.95</code></button>
-        <button class="opt"><code>P(have it | negative) = 0.95</code></button>
+
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">
+          "Of the patients who truly have the disease, 99% get a positive result."
+        </p>
+        <button class="opt"><code>P(positive | disease)</code></button>
+        <button class="opt"><code>P(disease | positive)</code></button>
+        <button class="opt"><code>P(positive | healthy)</code></button>
+        <button class="opt"><code>P(disease | negative)</code></button>
 
         <template class="why-good">
-          Exactly. We zoomed into the people who <em>have it</em> and asked how
-          many test positive — that's <code>P(positive | have it)</code>.
-          It says nothing yet about how likely you are to have it after a positive.
+          The group is "patients who truly have the disease" (the condition,
+          after the bar) and we're measuring how many test positive — exactly
+          <code>P(positive | disease)</code>.
         </template>
-        <template class="why-bad">Check which group the sentence zooms into first — that group goes after the bar.</template>
-        <template data-opt="0">
-          That's the <em>reversed</em> reading — sick given positive. It's the
-          number you actually care about, but it is <strong>not</strong> what the
-          clinic reported. Don't let the two swap.
+        <template class="why-bad">Read it as "zoom into ___, then measure ___." The group you zoom into goes after the bar.</template>
+        <template data-opt="1">
+          That flips it: this zooms into people who tested positive and asks who's
+          sick. The sentence zooms into the sick and asks who tests positive.
         </template>
         <template data-opt="2">
-          This conditions on people with <em>no</em> condition — a different
-          group entirely from the one in the sentence.
+          The sentence's group is people who <em>have</em> the disease, not the
+          healthy ones — the condition after the bar is wrong here.
         </template>
         <template data-opt="3">
-          This conditions on a negative test, but the sentence starts from people
-          who have the condition.
+          Neither half matches: the sentence is about positive results among the
+          diseased, not disease among negatives.
         </template>
+
         <div class="feedback"></div>
         <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
 
-      <h2><span class="vt-num">5</span>Make it stick</h2>
+      <div class="vt-quiz" data-answer="1">
+        <p class="q">
+          "Among everyone who tested positive, what share actually have the disease?"
+        </p>
+        <button class="opt"><code>P(positive | disease)</code></button>
+        <button class="opt"><code>P(disease | positive)</code></button>
+        <button class="opt"><code>P(positive | healthy)</code></button>
+        <button class="opt"><code>P(negative | disease)</code></button>
 
-      <p class="vt-reveal-hint">
-        Answer out loud from memory first, then reveal. Retrieval is what builds
-        retention.
-      </p>
+        <template class="why-good">
+          The group is "everyone who tested positive" (after the bar) and we
+          measure who's actually diseased — <code>P(disease | positive)</code>.
+          This is the number you actually want after a positive result.
+        </template>
+        <template class="why-bad">Which group does "among everyone who tested positive" put you in? That's the condition, after the bar.</template>
+        <template data-opt="0">
+          That's the test's accuracy — it zooms into the sick. Here we zoom into
+          the people who tested positive instead.
+        </template>
+        <template data-opt="2">
+          This zooms into healthy people; the sentence zooms into people who
+          tested positive.
+        </template>
+        <template data-opt="3">
+          This is about negative results among the diseased — the wrong event and
+          the wrong group.
+        </template>
 
-      <details class="vt-reveal">
-        <summary>Why can \(P(A \mid B)\) and \(P(B \mid A)\) be so different when the overlap is identical?</summary>
-        <div class="answer">
-          Because they divide the same overlap by different groups. The bar fixes
-          which crowd you've zoomed into, and that crowd is the denominator.
-          Different denominator → different fraction, even with the same number on top.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>In "80% of burglars wear gloves," which direction is the bar — and what would the inverse claim?</summary>
-        <div class="answer">
-          That's \(P(\text{gloves} \mid \text{burglar})\). The inverse,
-          \(P(\text{burglar} \mid \text{gloves})\), is tiny — almost everyone
-          wearing gloves is just cold. Treating the first as the second is the
-          prosecutor's fallacy.
-        </div>
-      </details>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
 
       <div class="vt-recap">
         <p class="h">✦ What you earned</p>
-        You can read the bar in the right direction:
-        <span>\(P(A \mid B)\)</span> zooms into B and counts A. Flipping it is a
-        named mistake, not a rounding error — and it's the engine of every
-        scary-test story.
+        A conditional probability zooms into the group named after the bar and
+        recounts. Flip the bar and you flip the denominator — so
+        <span>\(P(A \mid B)\)</span> and <span>\(P(B \mid A)\)</span> are
+        different questions with different answers. "Test accuracy" and "my risk
+        given a positive" are exactly that pair.
       </div>
 
       <div class="vt-teacher">
         <div>
           <p class="h">I'm your teacher — ask me anything</p>
           <p>
-            Stuck on which group goes after the bar in your own example? Paste the
-            sentence and I'll mark the direction with you. Want a harder asymmetry
-            to test yourself on? Ask and I'll invent one.
+            If the bar-flip still feels slippery, tell me and I'll build you a
+            fresh example with whatever numbers you like. A couple of things you
+            might ask right now:
           </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Can you draw the umbrella example as a diagram?</span>
+            <span class="vt-ask">Give me three sentences and let me name each conditional.</span>
+            <span class="vt-ask">When <em>would</em> the two directions be equal?</span>
+          </div>
         </div>
       </div>
 
       <p class="vt-upnext">
         <em>Up next:</em>
         <a href="0002-bayes-theorem.html">Lesson 2 — Bayes' theorem</a>: the one
-        formula that flips the bar <em>correctly</em>, derived in a single step.
+        formula that turns "test accuracy" into "my actual risk," derived in a
+        single honest step.
       </p>
 
       <footer class="vt-sources">
@@ -226,24 +289,25 @@
         <ul class="vt-reflist">
           <li>
             <span class="vt-src-ic" data-type="video"></span
-            ><a href="https://www.youtube.com/watch?v=HZGCoVF3YvM">3Blue1Brown — "Bayes theorem, the geometry of changing beliefs"</a>
-            <span class="note">— start here: conditioning as proportions of areas.</span>
+            ><a href="https://www.3blue1brown.com/lessons/bayes-theorem/">Bayes' theorem — 3Blue1Brown (Grant Sanderson)</a>
+            <span class="note">— primary source. Builds the idea from a representative sample of people; watch the first third for conditioning-as-zooming.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="spec"></span
-            ><a href="https://plato.stanford.edu/entries/bayes-theorem/">Stanford Encyclopedia of Philosophy — "Bayes' Theorem"</a>
-            <span class="note">— precise definition of conditional probability.</span>
+            <span class="vt-src-ic" data-type="video"></span
+            ><a href="https://www.khanacademy.org/math/ap-statistics/probability-ap/stats-conditional-probability/v/bayes-theorem-visualized">Conditional probability with Bayes' Theorem — Khan Academy</a>
+            <span class="note">— short worked video for extra reps.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://en.wikipedia.org/wiki/Conditional_probability">Wikipedia — "Conditional probability"</a>
+            ><a href="https://plato.stanford.edu/entries/bayes-theorem/">Bayes' Theorem — Stanford Encyclopedia of Philosophy</a>
+            <span class="note">— precise definitions if you want the rigorous version.</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
-          <a href="../reference/bayes-cheatsheet.html">Bayes in one page</a>
+          <a href="../reference/glossary.html">Glossary — prior, likelihood, posterior &amp; friends</a>
         </div>
-        <div class="meta">Lesson 0001 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0001 · Bayes' theorem · verified 2026-06-26</div>
       </footer>
     </main>
   </body>

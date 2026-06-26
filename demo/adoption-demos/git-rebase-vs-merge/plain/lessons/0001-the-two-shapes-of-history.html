@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · The two shapes of history</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">git merge vs rebase · Lesson 1 of 3</p>
+  <h1>The two shapes of history</h1>
+  <p class="lede">Merge and rebase are two answers to one question: <em>how do I
+  combine two lines of work?</em> Before you can choose between them, you need to
+  <em>see</em> what each one does to your commit graph. That picture is the whole
+  mental model — get it, and every later decision falls out of it.</p>
+
+  <p class="small">Your win for today: draw both shapes from memory, and explain
+  why rebase produces brand-new commit hashes. No decisions yet — that's
+  <a href="0002-choosing-between-them.html">Lesson&nbsp;2</a>.</p>
+
+  <hr>
+
+  <h2>First, a graph is just dots and arrows</h2>
+  <p>A git history is a graph of commits. Each commit points back to its
+  parent(s). Suppose you branched <code>feature</code> off <code>main</code>,
+  made two commits (<span style="color:#1f5673;font-weight:700">C</span>,
+  <span style="color:#1f5673;font-weight:700">D</span>), and meanwhile a teammate
+  added a commit (<span style="color:#2f6f4f;font-weight:700">E</span>) to
+  <code>main</code>:</p>
+
+  <div class="graph">      A───B<span class="lbl">         &lt;- the common base</span>
+           │
+           ├──<span class="r">C</span>──<span class="r">D</span>   <span class="lbl">(feature)  your work</span>
+           │
+           └──<span class="m">E</span>      <span class="lbl">(main)     their work</span></div>
+  <p class="caption">History has <em>diverged</em>. Both branches share the base
+  <code>B</code>, then go their own way. Now you want your <code>feature</code>
+  to include <code>E</code>. Merge and rebase do this differently.</p>
+
+  <h2>Merge: tie the two lines together with a knot</h2>
+  <p><code>git merge</code> creates one new <strong>merge commit</strong> that has
+  <em>two</em> parents — the tip of each branch. Nothing that already existed is
+  changed. Your <span class="r">C</span> and <span class="r">D</span> keep their
+  exact hashes; the real, branching shape is preserved forever.</p>
+
+  <pre><code># on feature
+$ git merge main</code></pre>
+
+  <div class="graph">      A───B
+           │
+           ├──<span class="r">C</span>──<span class="r">D</span>──<span class="m">M</span>   <span class="lbl">(feature)  M = merge commit, parents D and E</span>
+           │        ╱
+           └──<span class="m">E</span>─────╯</div>
+  <p class="caption"><span class="m">M</span> is the knot. The graph now records a
+  true fact: "these two lines of work existed in parallel and were joined here."</p>
+
+  <div class="callout good">
+    <span class="tag">Merge in one sentence</span>
+    <p>Merge <strong>adds</strong> a commit that joins two histories, preserving
+    the real branching graph exactly as it happened.
+    <a href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">[Pro Git §3.2]</a></p>
+  </div>
+
+  <p><strong>Fast-forward, the special case:</strong> if <code>main</code> hadn't
+  moved (no <span class="m">E</span>), there's nothing to knot together — git just
+  slides the branch pointer forward to your latest commit. No merge commit at all.
+  That's a "fast-forward." It's why some merges create a commit and some don't.</p>
+
+  <h2>Rebase: pick up your work and replant it</h2>
+  <p><code>git rebase</code> takes <em>your</em> commits, sets them aside, moves
+  the base of your branch to the tip of the other branch, and then
+  <strong>replays</strong> your commits one by one on top of the new base.</p>
+
+  <pre><code># on feature
+$ git rebase main</code></pre>
+
+  <div class="graph">      A───B───<span class="m">E</span><span class="lbl">          (main)</span>
+               │
+               └──<span class="r">C'</span>──<span class="r">D'</span>   <span class="lbl">(feature)  replayed on top of E</span></div>
+  <p class="caption">One straight line. As if you'd started your work
+  <em>after</em> <span class="m">E</span> all along. No knot, no fork.</p>
+
+  <div class="callout warn">
+    <span class="tag">Why C' and D', not C and D?</span>
+    <p>A commit's hash is computed from its content <em>and its parent</em>. When
+    rebase replays <span class="r">C</span> onto a new parent
+    (<span class="m">E</span> instead of <span class="m">B</span>), the parent
+    changed, so the hash changes: you get a <em>new commit</em>
+    <span class="r">C'</span>. The old <span class="r">C</span> still exists for
+    now — it's just no longer on the branch. <strong>This is the "rewriting
+    history" people warn about.</strong> It's not destruction; it's <em>copying
+    onto a new base</em>.
+    <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">[Pro Git §3.6]</a></p>
+  </div>
+
+  <h2>The two shapes, side by side</h2>
+  <div class="compare">
+    <div>
+      <h3 class="merge-h">Merge → branching graph</h3>
+      <ul>
+        <li>Adds a merge commit (two parents)</li>
+        <li>Existing commits keep their hashes</li>
+        <li>History shows what <em>actually</em> happened</li>
+        <li>Graph can get tangled with many merges</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="rebase-h">Rebase → linear graph</h3>
+      <ul>
+        <li>Replays your commits onto a new base</li>
+        <li>Produces new commits (new hashes)</li>
+        <li>History is clean, straight, easy to read</li>
+        <li>Rewrites — dangerous if commits are shared</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2>Recall — build the memory now</h2>
+  <p>Don't just nod along. Answer before you reveal; the effort is what makes it
+  stick.</p>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">You run <code>git rebase main</code> on your feature
+    branch. What happens to your original commits' hashes?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="The parent changes, so each replayed commit is recomputed into a brand-new hash.">They change — new commits are created</button></li>
+      <li><button class="opt"
+        data-feedback="Hashes depend on the parent; a new base means new hashes.">They stay exactly the same as before</button></li>
+      <li><button class="opt"
+        data-feedback="Only a true merge creates a merge commit; rebase makes a straight line.">They merge into one combined hash</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">Which command preserves the real, branching shape of
+    history — recording that two lines existed in parallel?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="Merge adds a two-parent commit, leaving the branch structure intact.">Merge keeps the branching graph intact</button></li>
+      <li><button class="opt"
+        data-feedback="Rebase flattens history into a single straight line instead.">Rebase keeps the branching graph intact</button></li>
+      <li><button class="opt"
+        data-feedback="They differ sharply: one branches, one flattens.">Both commands behave identically here</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <h3>One to draw, not click</h3>
+  <details class="reveal">
+    <summary>From memory: sketch what <code>git merge main</code> does to the
+    diverged graph above. Then reveal.</summary>
+    <div class="answer">
+      <p>A new merge commit <span class="m">M</span> appears on
+      <code>feature</code> with <em>two</em> parents — your <span class="r">D</span>
+      and their <span class="m">E</span>. <span class="r">C</span> and
+      <span class="r">D</span> are untouched. The fork stays visible; the merge
+      commit is the knot that ties the two lines together.</p>
+    </div>
+  </details>
+
+  <div class="source-box">
+    <span class="tag">Primary source — read this next</span>
+    <p><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git,
+    §3.6 "Git Branching — Rebasing"</a>. Free, official, and the diagrams mirror
+    the ones above. Read just the first two sections ("The Basic Rebase" and "More
+    Interesting Rebases") — about 8 minutes.</p>
+  </div>
+
+  <div class="followup">
+    <span class="tag">Your teacher is here</span>
+    <p>Stuck on why a hash depends on its parent, or want to run these commands on
+    a throwaway repo and watch the graph change with <code>git log --graph
+    --oneline --all</code>? <strong>Ask me.</strong> That's what I'm here for —
+    follow-up questions are part of the lesson, not an interruption.</p>
+  </div>
+
+  <nav class="lesson-nav">
+    <span class="small">Reference: <a href="../reference/merge-vs-rebase-cheatsheet.html">Cheat sheet &amp; glossary</a></span>
+    <span class="spacer"></span>
+    <a href="0002-choosing-between-them.html">Next: Choosing between them →</a>
+  </nav>
+
+</div>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

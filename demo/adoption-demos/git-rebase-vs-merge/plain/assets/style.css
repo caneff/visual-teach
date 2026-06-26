@@ -1,0 +1,265 @@
+/* ============================================================
+   Shared stylesheet for the "git merge vs rebase" course.
+   Tufte-inspired: serif body, generous margins, muted palette,
+   first-class code + commit-graph styling. Every lesson and
+   reference doc links this file so the course reads as one piece.
+   ============================================================ */
+
+:root {
+  --ink:        #1a1a1a;
+  --paper:      #fdfcf9;
+  --muted:      #6b6256;
+  --rule:       #d8d2c4;
+  --accent:     #7a2e1d;   /* deep rust — used sparingly */
+  --merge:      #2f6f4f;   /* green: merge / preserves graph */
+  --rebase:     #1f5673;   /* blue: rebase / linear graph   */
+  --warn-bg:    #fbf3e7;
+  --warn-edge:  #c98a2b;
+  --good-bg:    #eef5ef;
+  --good-edge:  #2f6f4f;
+  --code-bg:    #f3f0e9;
+  --maxw:       42rem;
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 18px; }
+
+body {
+  font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.55;
+  margin: 0;
+  padding: 4rem 1.5rem 8rem;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; }
+
+/* ---- Course chrome ---------------------------------------- */
+.kicker {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 0.72rem;
+  color: var(--muted);
+  margin: 0 0 0.4rem;
+}
+
+h1 {
+  font-weight: 700;
+  font-size: 2.1rem;
+  line-height: 1.12;
+  margin: 0 0 0.6rem;
+  letter-spacing: -0.01em;
+}
+
+h2 {
+  font-size: 1.35rem;
+  margin: 2.6rem 0 0.6rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+h3 { font-size: 1.08rem; margin: 1.8rem 0 0.4rem; }
+
+p, li { font-size: 1.02rem; }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(122,46,29,0.3); }
+a:hover { border-bottom-color: var(--accent); }
+
+.lede {
+  font-size: 1.16rem;
+  line-height: 1.5;
+  color: #33302a;
+  margin: 0 0 1.4rem;
+}
+
+small, .small { font-size: 0.82rem; color: var(--muted); }
+
+hr { border: none; border-top: 1px solid var(--rule); margin: 2.4rem 0; }
+
+/* ---- Code ------------------------------------------------- */
+code, pre, .graph, kbd {
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.86em;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--muted);
+  border-radius: 4px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+kbd {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0.05em 0.4em;
+  font-size: 0.8em;
+}
+
+/* ---- Commit-graph diagrams -------------------------------- */
+.graph {
+  background: #fffdf8;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  font-size: 0.82rem;
+  line-height: 1.7;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 1.1rem 0;
+}
+.graph .lbl { color: var(--muted); }
+.graph .m { color: var(--merge); font-weight: 700; }
+.graph .r { color: var(--rebase); font-weight: 700; }
+.graph .x { color: var(--accent); font-weight: 700; }
+.caption { font-size: 0.82rem; color: var(--muted); margin: -0.5rem 0 1.6rem; }
+
+/* ---- Callouts --------------------------------------------- */
+.callout {
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  margin: 1.4rem 0;
+  font-size: 0.96rem;
+}
+.callout p:first-child { margin-top: 0; }
+.callout p:last-child { margin-bottom: 0; }
+.callout .tag {
+  font-family: -apple-system, sans-serif;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+.warn { background: var(--warn-bg); border: 1px solid var(--warn-edge); }
+.warn .tag { color: var(--warn-edge); }
+.good { background: var(--good-bg); border: 1px solid var(--good-edge); }
+.good .tag { color: var(--good-edge); }
+.note { background: #eef1f5; border: 1px solid #6f86a3; }
+.note .tag { color: #3f5872; }
+
+/* ---- Two-column compare ----------------------------------- */
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.4rem 0; }
+.compare > div { border: 1px solid var(--rule); border-radius: 6px; padding: 0.9rem 1.1rem; background: #fffdf8; }
+.compare h3 { margin-top: 0; }
+.compare .merge-h { color: var(--merge); }
+.compare .rebase-h { color: var(--rebase); }
+@media (max-width: 36rem) { .compare { grid-template-columns: 1fr; } }
+
+/* ---- Quiz / recall widget --------------------------------- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  background: #fffdf8;
+  padding: 1.1rem 1.2rem;
+  margin: 1.6rem 0;
+}
+.quiz .q-prompt { font-weight: 700; margin: 0 0 0.8rem; }
+.quiz .q-scenario { font-style: italic; color: #33302a; margin: 0 0 0.8rem; }
+.quiz .opts { list-style: none; margin: 0; padding: 0; }
+.quiz .opts li { margin: 0.45rem 0; }
+.quiz .opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.96rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.6rem 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz .opt:hover { background: #f6f2ea; }
+.quiz .opt.correct { background: var(--good-bg); border-color: var(--good-edge); }
+.quiz .opt.wrong   { background: #f8ebe7; border-color: var(--accent); }
+.quiz .opt:disabled { cursor: default; }
+.quiz .feedback {
+  margin-top: 0.9rem;
+  font-size: 0.92rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 5px;
+  display: none;
+}
+.quiz .feedback.show { display: block; }
+.quiz .feedback.ok  { background: var(--good-bg); border: 1px solid var(--good-edge); }
+.quiz .feedback.no  { background: var(--warn-bg); border: 1px solid var(--warn-edge); }
+
+/* ---- Self-check (flip to reveal) -------------------------- */
+.reveal { margin: 1.2rem 0; }
+.reveal summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--accent);
+  padding: 0.5rem 0;
+}
+.reveal[open] summary { margin-bottom: 0.5rem; }
+.reveal .answer { border-left: 3px solid var(--good-edge); padding: 0.2rem 0 0.2rem 0.9rem; }
+
+/* ---- Checklist -------------------------------------------- */
+.checklist { list-style: none; padding: 0; }
+.checklist li { padding-left: 1.8rem; position: relative; margin: 0.55rem 0; }
+.checklist li::before {
+  content: "☐";
+  position: absolute; left: 0; top: 0;
+  color: var(--accent); font-size: 1.1rem;
+}
+
+/* ---- Footer nav ------------------------------------------- */
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem;
+  margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule);
+  font-family: -apple-system, sans-serif; font-size: 0.9rem;
+}
+.lesson-nav a { border: none; }
+.lesson-nav .spacer { flex: 1; }
+
+.followup {
+  margin-top: 2.6rem;
+  background: #f3f0e9;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  font-size: 0.95rem;
+}
+.followup .tag {
+  font-family: -apple-system, sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); display: block; margin-bottom: 0.3rem;
+}
+
+.source-box {
+  margin: 1.8rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  background: #fffdf8;
+}
+.source-box .tag {
+  font-family: -apple-system, sans-serif; font-weight: 700;
+  font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); display: block; margin-bottom: 0.3rem;
+}
+
+/* ---- Print ------------------------------------------------ */
+@media print {
+  body { padding: 0; font-size: 11pt; background: #fff; }
+  .quiz .opt, .followup { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .lesson-nav, .followup { page-break-inside: avoid; }
+  a { color: var(--ink); border: none; }
+}

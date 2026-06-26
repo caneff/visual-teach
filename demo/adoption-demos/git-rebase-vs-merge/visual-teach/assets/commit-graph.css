@@ -1,0 +1,120 @@
+/* commit-graph — shared styling for inline-SVG commit graphs used across the
+   git course. Each lesson hand-authors the <svg> (positions differ), but every
+   graph pulls its colors, dot, edge, and label styling from here so the whole
+   course's graphs look like one family. Drop the SVG inside a .vt-diagram frame
+   so it inherits the breakout/caption behavior from the diagram component. */
+
+.cg {
+  width: 100%;
+  height: auto;
+  font-family: "SF Mono", "JetBrains Mono", "Fira Mono", ui-monospace, monospace;
+}
+
+/* edges (parent links) */
+.cg .cg-edge {
+  fill: none;
+  stroke: var(--vt-rule);
+  stroke-width: 2.5;
+}
+.cg .cg-edge.main {
+  stroke: color-mix(in oklch, var(--vt-muted) 60%, var(--vt-paper));
+}
+.cg .cg-edge.feature {
+  stroke: var(--vt-accent);
+}
+
+/* commit dots */
+.cg .cg-dot {
+  stroke: var(--vt-paper);
+  stroke-width: 2.5;
+}
+.cg .cg-dot.main {
+  fill: var(--vt-muted);
+}
+.cg .cg-dot.feature {
+  fill: var(--vt-accent);
+}
+.cg .cg-dot.merge {
+  fill: var(--vt-good);
+}
+.cg .cg-dot.replay {
+  fill: var(--vt-accent);
+  stroke-dasharray: 0; /* solid; replayed commits are new but real */
+}
+
+/* a faint ghost ring marks the *original* pre-rebase commits */
+.cg .cg-dot.ghost {
+  fill: var(--vt-bad-soft);
+  stroke: var(--vt-bad);
+  stroke-width: 1.5;
+  stroke-dasharray: 3 2;
+}
+
+/* hash + message labels */
+.cg .cg-hash {
+  fill: var(--vt-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.cg .cg-hash.ghost {
+  fill: var(--vt-bad);
+}
+.cg .cg-msg {
+  fill: var(--vt-muted);
+  font-size: 12px;
+}
+
+/* branch / HEAD tags */
+.cg .cg-tag {
+  fill: var(--vt-accent-soft);
+  stroke: var(--vt-accent);
+  stroke-width: 1;
+}
+.cg .cg-tag-main {
+  fill: var(--vt-neutral-soft);
+  stroke: var(--vt-muted);
+  stroke-width: 1;
+}
+.cg .cg-tag-text {
+  fill: var(--vt-ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* legend strip under a graph */
+.cg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+}
+.cg-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.cg-legend .sw {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  flex: none;
+  border: 2px solid var(--vt-paper);
+  box-shadow: 0 0 0 1px var(--vt-rule);
+}
+.cg-legend .sw.main {
+  background: var(--vt-muted);
+}
+.cg-legend .sw.feature {
+  background: var(--vt-accent);
+}
+.cg-legend .sw.merge {
+  background: var(--vt-good);
+}
+.cg-legend .sw.ghost {
+  background: var(--vt-bad-soft);
+  box-shadow: 0 0 0 1px var(--vt-bad);
+}

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference · merge vs rebase cheat sheet &amp; glossary</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  /* reference-only: tighter, table-driven, print-first */
+  table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+  th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  th { font-family: -apple-system, sans-serif; font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+  td code { white-space: nowrap; }
+  dl { margin: 1rem 0; }
+  dt { font-weight: 700; margin-top: 0.9rem; }
+  dd { margin: 0.15rem 0 0; color: #33302a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="kicker">Reference · keep this one</p>
+  <h1>merge vs rebase — cheat sheet &amp; glossary</h1>
+  <p class="lede">The compressed essence of the course. Built to print on one or
+  two pages and pin near your terminal. Lessons fade; this stays.</p>
+
+  <h2>The one decision</h2>
+  <div class="callout note">
+    <span class="tag">Ask this every time</span>
+    <p><strong>"Have these commits been shared with anyone yet?"</strong><br>
+    No → <strong>rebase</strong> freely (private, tidy it up). &nbsp;Yes →
+    <strong>merge</strong> (don't rewrite what others have).</p>
+  </div>
+
+  <h2>What each command does</h2>
+  <table>
+    <thead><tr><th>&nbsp;</th><th class="merge-h">merge</th><th class="rebase-h">rebase</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Graph shape</strong></td><td>Branching — keeps the fork</td><td>Linear — one straight line</td></tr>
+      <tr><td><strong>Creates</strong></td><td>A merge commit (two parents)</td><td>New copies of your commits</td></tr>
+      <tr><td><strong>Existing hashes</strong></td><td>Unchanged</td><td>Changed (C → C′)</td></tr>
+      <tr><td><strong>History records</strong></td><td>What actually happened</td><td>A tidied-up version</td></tr>
+      <tr><td><strong>Safe on shared commits?</strong></td><td>Yes</td><td>No — breaks the Golden Rule</td></tr>
+      <tr><td><strong>Best for</strong></td><td>Shared / long-running branches</td><td>Private cleanup before a PR</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Command quick reference</h2>
+  <table>
+    <thead><tr><th>Goal</th><th>Command</th></tr></thead>
+    <tbody>
+      <tr><td>Merge main into current branch</td><td><code>git merge main</code></td></tr>
+      <tr><td>Rebase current branch onto main</td><td><code>git rebase main</code></td></tr>
+      <tr><td>Update branch, no merge commit</td><td><code>git pull --rebase origin main</code></td></tr>
+      <tr><td>Resume after fixing a conflict</td><td><code>git add &lt;file&gt;</code> → <code>git rebase --continue</code></td></tr>
+      <tr><td>Bail out of a rebase safely</td><td><code>git rebase --abort</code></td></tr>
+      <tr><td>Abort an in-progress merge</td><td><code>git merge --abort</code></td></tr>
+      <tr><td>See where HEAD has been</td><td><code>git reflog</code></td></tr>
+      <tr><td>Undo a rebase you regret</td><td><code>git reset --hard HEAD@{n}</code></td></tr>
+      <tr><td>View the graph</td><td><code>git log --graph --oneline --all</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Conflict-during-rebase routine</h2>
+  <pre><code>git rebase main
+  └─ CONFLICT?
+       1. edit the file, resolve &lt;&lt;&lt;/===/&gt;&gt;&gt; markers
+       2. git add &lt;file&gt;
+       3. git rebase --continue      (repeat per conflicting commit)
+     ...or at any point:
+          git rebase --abort         (restores pre-rebase state)</code></pre>
+
+  <h2>The Golden Rule</h2>
+  <div class="callout warn">
+    <span class="tag">Never break this</span>
+    <p><strong>Never rebase commits that have been pushed and shared.</strong>
+    Rewrite private commits all you like; never rewrite ones others may have built
+    on. <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">[Pro Git §3.6]</a></p>
+  </div>
+
+  <h2 id="glossary">Glossary</h2>
+  <dl>
+    <dt id="commit">Commit</dt>
+    <dd>A snapshot of your project plus a pointer to its parent commit(s).
+    Identified by a hash computed from its content <em>and its parent</em>.</dd>
+
+    <dt id="hash">Commit hash (SHA)</dt>
+    <dd>The unique ID of a commit. Because it depends on the parent, replaying a
+    commit onto a new base yields a <em>new</em> hash — why rebase makes C′.</dd>
+
+    <dt id="base">Base</dt>
+    <dd>The commit a branch starts from. Rebase changes the base, then replays your
+    work on top of the new one.</dd>
+
+    <dt id="merge-commit">Merge commit</dt>
+    <dd>A commit with two parents, created by <code>git merge</code> to join two
+    lines of history. The "knot" that preserves the branching shape.</dd>
+
+    <dt id="fast-forward">Fast-forward</dt>
+    <dd>When the target branch hasn't diverged, git just slides the branch pointer
+    forward — no merge commit needed.</dd>
+
+    <dt id="replay">Replay</dt>
+    <dd>What rebase does: it re-applies each of your commits, in order, on top of
+    the new base, creating new commits as it goes.</dd>
+
+    <dt id="linear">Linear history</dt>
+    <dd>A history with no forks — one straight line of commits. The product of
+    rebasing. Easy to read; hides that parallel work ever happened.</dd>
+
+    <dt id="reflog">Reflog</dt>
+    <dd>Git's private log of every position <code>HEAD</code> has held, kept for
+    weeks. The safety net that makes almost any rebase recoverable.
+    <a href="https://git-scm.com/docs/git-reflog">[docs]</a></dd>
+
+    <dt id="golden-rule">Golden Rule (of rebasing)</dt>
+    <dd>Never rebase commits that have been pushed and shared. The single rule that
+    keeps rebase from clobbering teammates' work.</dd>
+
+    <dt id="shared">Shared vs. private commits</dt>
+    <dd>A commit is <em>shared</em> once pushed where others may have pulled it;
+    until then it's <em>private</em>. The whole merge-vs-rebase safety call.</dd>
+  </dl>
+
+  <hr>
+  <p class="small">Lessons:
+    <a href="../lessons/0001-the-two-shapes-of-history.html">1 · Two shapes</a> ·
+    <a href="../lessons/0002-choosing-between-them.html">2 · Choosing</a> ·
+    <a href="../lessons/0003-rebase-without-fear.html">3 · Without fear</a>.
+    Full source list in <code>RESOURCES.md</code>.</p>
+
+</div>
+</body>
+</html>

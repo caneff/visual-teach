@@ -1,0 +1,152 @@
+/* ====== bayes-calc ======
+   A live posterior calculator. The learner sets three numbers — base rate,
+   sensitivity (true-positive rate), specificity (true-negative rate) — over a
+   fixed population, and the block recomputes the natural-frequency breakdown
+   and the posterior P(condition | positive) on every keystroke. Themed entirely
+   from base tokens so it tracks light/dark automatically. No dependencies. */
+
+.vt-bayescalc {
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  background: var(--vt-soft);
+  padding: 1.1rem 1.2rem 1.3rem;
+  margin: 1.5rem 0;
+}
+
+.vt-bayescalc .bc-controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+}
+@media (max-width: 560px) {
+  .vt-bayescalc .bc-controls {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vt-bayescalc label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+}
+.vt-bayescalc label .bc-name {
+  font-weight: 600;
+  color: var(--vt-ink);
+  font-size: 0.9rem;
+}
+.vt-bayescalc .bc-inwrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.vt-bayescalc input[type="number"] {
+  width: 100%;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid var(--vt-rule);
+  border-radius: 7px;
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+}
+.vt-bayescalc input:focus-visible {
+  outline: 2px solid var(--vt-accent);
+  outline-offset: 1px;
+}
+.vt-bayescalc .bc-unit {
+  color: var(--vt-muted);
+  font-size: 0.85rem;
+}
+
+/* Output region */
+.vt-bayescalc .bc-out {
+  margin-top: 1.2rem;
+  border-top: 1px solid var(--vt-rule);
+  padding-top: 1.1rem;
+}
+
+.vt-bayescalc .bc-story {
+  color: var(--vt-ink);
+  line-height: 1.6;
+  margin: 0 0 1rem;
+}
+.vt-bayescalc .bc-story b {
+  font-variant-numeric: tabular-nums;
+}
+.vt-bayescalc .bc-tp {
+  color: var(--vt-good);
+  font-weight: 600;
+}
+.vt-bayescalc .bc-fp {
+  color: var(--vt-warn-dk);
+  font-weight: 600;
+}
+
+/* The headline posterior */
+.vt-bayescalc .bc-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+.vt-bayescalc .bc-post {
+  font-size: 2.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--vt-accent);
+  font-variant-numeric: tabular-nums;
+}
+.vt-bayescalc .bc-post-lbl {
+  color: var(--vt-muted);
+  font-size: 0.9rem;
+}
+
+/* Stacked bar: real positives (good) vs false alarms (warn) among all positives */
+.vt-bayescalc .bc-bar {
+  display: flex;
+  height: 30px;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-neutral-soft);
+}
+.vt-bayescalc .bc-bar .seg-tp {
+  background: var(--vt-good);
+}
+.vt-bayescalc .bc-bar .seg-fp {
+  background: var(--vt-warn);
+}
+.vt-bayescalc .bc-legend {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--vt-muted);
+}
+.vt-bayescalc .bc-legend .key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.vt-bayescalc .bc-legend .sw {
+  width: 0.85rem;
+  height: 0.85rem;
+  border-radius: 3px;
+  display: inline-block;
+}
+.vt-bayescalc .bc-legend .sw-tp {
+  background: var(--vt-good);
+}
+.vt-bayescalc .bc-legend .sw-fp {
+  background: var(--vt-warn);
+}
+
+.vt-bayescalc .bc-error {
+  color: var(--vt-bad);
+  font-size: 0.85rem;
+  margin-top: 0.6rem;
+}

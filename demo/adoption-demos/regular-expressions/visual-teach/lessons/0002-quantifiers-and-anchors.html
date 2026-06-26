@@ -1,32 +1,31 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Quantifiers and anchors — Regular expressions · Lesson 2</title>
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/code.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/chip.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <link rel="stylesheet" href="../assets/regex-match.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 2 · Quantifiers and anchors — Regular Expressions</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/components/regex-lab/regex-lab.css" />
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Regular expressions · Lesson 2</p>
+      <p class="vt-kicker">Regular Expressions · Lesson 2</p>
       <h1>Quantifiers and anchors</h1>
       <p class="vt-lede">
-        Lesson 1 matched one character at a time. Now you say <em>how many</em>
-        times — and pin a match to a <em>position</em> instead of a character.
-        This is the core skill.
+        Lesson 1 matched one character at a time. Now: <em>how many</em> times,
+        and <em>where</em>. This is the core skill — and where most copy-pasted
+        patterns go wrong.
       </p>
 
       <div class="vt-metabar">
         <span class="item">⏱ <strong>~15 min</strong></span>
-        <span class="item">Needs: <a href="0001-literals-and-character-classes.html"><strong>Lesson 1</strong></a></span>
+        <span class="item">Needs: <strong><a href="0001-literals-and-character-classes.html">Lesson 1</a></strong></span>
         <span class="item"><span class="vt-level beginner">Beginner</span></span>
         <span class="item">Lesson <strong>2</strong> of 3</span>
       </div>
@@ -34,382 +33,266 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Repeat a piece with <code>*</code>, <code>+</code>, <code>?</code>, <code>{n}</code>, and <code>{n,m}</code>.</li>
-          <li>Explain why greedy <code>.*</code> "matches too much" and fix it with lazy <code>.*?</code>.</li>
-          <li>Anchor a match to the start <code>^</code>, end <code>$</code>, or a word boundary <code>\b</code>.</li>
-          <li>Given a target string and a goal, <strong>write the pattern</strong> from scratch.</li>
+          <li>Repeat a piece with <code class="rx">*</code> <code class="rx">+</code> <code class="rx">?</code> and <code class="rx">{n}</code> / <code class="rx">{n,m}</code>.</li>
+          <li>Explain why a greedy <code class="rx">.*</code> "matches too much," and fix it with a lazy <code class="rx">.*?</code>.</li>
+          <li>Anchor a match to a position with <code class="rx">^</code>, <code class="rx">$</code>, and word boundary <code class="rx">\b</code>.</li>
+          <li>Given a target string and a goal, write the pattern.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> "Matches too much" and
-        "matches too little" are the two ways a pasted pattern betrays you. Both
-        live here — in how many times a piece repeats, and in where the match is
-        allowed to begin and end. Master this and you can fix most broken regexes
-        on sight. See your <a href="../MISSION.md">mission</a>.
+        <strong>Why this matters for your goal:</strong> "the pattern grabs too
+        much" is the single most common reason a copy-pasted regex misbehaves.
+        Once you see <em>why</em> greedy matching does that, you stop tweaking
+        blindly and start fixing on purpose.
       </div>
 
-      <h2><span class="vt-num">1</span>A quantifier attaches to the thing before it</h2>
+      <h2><span class="vt-num">1</span>Quantifiers — how many times</h2>
       <p>
-        A quantifier is a suffix that says how many times the
-        <em>immediately preceding</em> piece may repeat — a literal, a
-        <code>.</code>, or a character class. This is the mental shift from Lesson
-        1: instead of writing <code>\d\d\d\d</code>, you write <code>\d{4}</code>.
+        A quantifier attaches to the thing right before it and says how many
+        copies to match. The "thing before" is usually one character or one
+        class — so <code class="rx">\d+</code> means "one or more digits," not
+        "the whole string of stuff."
       </p>
-
-      <div class="vt-table-wrap">
-        <table class="vt-table compact">
-          <thead>
-            <tr>
-              <th>Quantifier</th>
-              <th>Means "the previous piece…"</th>
-              <th>Example</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>*</code></td>
-              <td>zero or more times</td>
-              <td><code>colou*r</code> → "color", "colour", "colouur"</td>
-            </tr>
-            <tr>
-              <td><code>+</code></td>
-              <td>one or more times</td>
-              <td><code>\d+</code> → one or more digits</td>
-            </tr>
-            <tr>
-              <td><code>?</code></td>
-              <td>zero or one time (optional)</td>
-              <td><code>colou?r</code> → "color" or "colour"</td>
-            </tr>
-            <tr>
-              <td><code>{n}</code></td>
-              <td>exactly n times</td>
-              <td><code>\d{4}</code> → exactly four digits</td>
-            </tr>
-            <tr>
-              <td><code>{n,m}</code></td>
-              <td>between n and m times</td>
-              <td><code>\d{2,4}</code> → two to four digits</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="vt-callout info">
-        <strong>Edge cases of <code>{ }</code>:</strong> <code>{n,}</code> means
-        "n or more" (no upper bound); <code>{0,1}</code> is just <code>?</code>;
-        <code>{0,}</code> is <code>*</code>; <code>{1,}</code> is <code>+</code>.
-        The three symbols are shorthand for the common counts.
-      </div>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>\d{4}-\d{2}-\d{2}<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">logged on <mark>2026-06-25</mark> at noon</span>
-        </div>
-        <p class="vt-rx-note">
-          Four digits, hyphen, two digits, hyphen, two digits. Counted
-          quantifiers turn a vague "some numbers and dashes" into a precise date
-          shape.
-        </p>
-      </div>
-
-      <h2><span class="vt-num">2</span>Greedy by default — why <code>.*</code> eats too much</h2>
+      <dl class="rx-gloss">
+        <dt>a*</dt><dd>zero or more <code>a</code> — matches even if there are none</dd>
+        <dt>a+</dt><dd>one or more <code>a</code> — needs at least one</dd>
+        <dt>a?</dt><dd>zero or one <code>a</code> — makes it optional</dd>
+        <dt>a{3}</dt><dd>exactly three <code>a</code></dd>
+        <dt>a{2,4}</dt><dd>between two and four <code>a</code></dd>
+        <dt>a{2,}</dt><dd>two or more <code>a</code> (no upper bound)</dd>
+      </dl>
       <p>
-        Here's the single most common regex surprise. Quantifiers are
-        <strong>greedy</strong>: they grab as much as they possibly can, then
-        give back only the minimum needed to let the rest of the pattern match.
-        Watch <code>".*"</code> try to match a quoted word:
+        Put it on a class to match a run. <code class="rx">\d+</code> grabs each
+        whole number; <code class="rx">\w+</code> grabs each whole word. Try
+        both on the sample:
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>".*"<span class="slash">/</span></span>
+      <div class="rx-lab" data-initial="\d+">
+        <p class="rx-title">Try <code>\d+</code>, then <code>\w+</code>, then <code>\d{4}</code></p>
+        <div class="rx-samples">
+          <pre class="rx-sample">Order 1742 shipped on 2026-06-26 to bay 7.</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">say <mark>"hi" and "bye"</mark> now</span>
-        </div>
-        <p class="vt-rx-note">
-          <strong>Too much.</strong> You wanted "hi". But <code>.*</code> grabbed
-          everything to the end, then backed up to the <em>last</em> quote it
-          could find — swallowing <code>hi" and "bye</code> in one match. Greedy
-          means "as much as possible."
-        </p>
       </div>
-
-      <p>
-        Add a <code>?</code> <em>after</em> a quantifier to make it
-        <strong>lazy</strong>: match as <em>few</em> as possible, then let the
-        rest of the pattern proceed. Same pattern, one extra character:
-      </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>".*?"<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">say <mark>"hi"</mark> and <mark>"bye"</mark> now</span>
-        </div>
-        <p class="vt-rx-note">
-          <strong>Just right.</strong> Lazy <code>.*?</code> stops at the first
-          closing quote, so each quoted span is its own match. The fix for
-          "matches too much" is almost always: make the quantifier lazy, or make
-          the class narrower (e.g. <code>[^"]*</code> — "anything but a quote").
-        </p>
-      </div>
-
-      <div class="vt-callout insight">
-        <strong>Two fixes, one disease.</strong> Over-matching has two cures:
-        make the quantifier <em>lazy</em> (<code>.*?</code>), or make the class
-        <em>narrower</em> so it physically can't cross the boundary
-        (<code>[^"]*</code>). The narrow-class fix is often faster and clearer —
-        prefer it when there's an obvious "stop" character.
-      </div>
-
-      <h2><span class="vt-num">3</span>Anchors — matching a position, not a character</h2>
-      <p>
-        Everything so far consumes characters. <strong>Anchors</strong> are
-        different: they match a <em>position between characters</em> and consume
-        nothing. They're how you say "at the very start," "at the very end," or
-        "at the edge of a word."
-      </p>
-
-      <div class="vt-table-wrap">
-        <table class="vt-table compact">
-          <thead>
-            <tr>
-              <th>Anchor</th>
-              <th>Matches the position…</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>^</code></td>
-              <td>at the start of the string (or line)</td>
-            </tr>
-            <tr>
-              <td><code>$</code></td>
-              <td>at the end of the string (or line)</td>
-            </tr>
-            <tr>
-              <td><code>\b</code></td>
-              <td>at a word boundary — between a <code>\w</code> and a <code>\W</code> (or string edge)</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
       <div class="vt-callout warn">
-        <strong>Two different carets.</strong> <code>^</code> at the
-        <em>start of the pattern</em> is the start anchor. <code>^</code>
-        <em>inside</em> <code>[...]</code> negates the class (Lesson 1). Same
-        symbol, position decides the meaning.
+        <strong>The quantifier binds to one piece.</strong>
+        <code class="rx">go+</code> is "<code>g</code> then one-or-more
+        <code>o</code>" (matches <code>go</code>, <code>goo</code>) — not
+        "one-or-more <code>go</code>." To repeat a group you need
+        <code class="rx">(go)+</code> — that's Lesson 3.
       </div>
 
+      <h2><span class="vt-num">2</span>Greedy vs. lazy — why <code class="rx">.*</code> eats too much</h2>
       <p>
-        Anchors stop a pattern from matching in the wrong place. Compare
-        <code>cat</code> with <code>\bcat\b</code> against the same text:
+        Quantifiers are <strong>greedy</strong> by default: they grab as much as
+        they possibly can, then give characters back only if the rest of the
+        pattern fails. That's the secret behind "it matched way more than I
+        wanted."
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>\bcat\b<span class="slash">/</span></span>
+      <p>
+        Classic trap: you want each
+        <code class="str">&lt;tag&gt;</code>, so you write
+        <code class="rx">&lt;.*&gt;</code>. The greedy <code class="rx">.*</code>
+        races to the end of the line, then backtracks to the <em>last</em>
+        <code>&gt;</code> — swallowing everything between the first and last
+        bracket as one match:
+      </p>
+      <div class="rx-lab" data-initial="&lt;.*&gt;">
+        <p class="rx-title">Greedy: one giant match. Now add a <code>?</code> → <code>&lt;.*?&gt;</code></p>
+        <div class="rx-samples">
+          <pre class="rx-sample">&lt;a&gt; links to &lt;b&gt; and &lt;c&gt;</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">the <mark>cat</mark> in the catalog</span>
-        </div>
-        <p class="vt-rx-note">
-          The <code>\b</code> on each side demands a word boundary, so "cat"
-          matches only as a whole word — the "cat" buried in "catalog" is
-          skipped, because there's no boundary between "cat" and "alog".
-        </p>
+      </div>
+      <p>
+        Add a <code class="rx">?</code> after the quantifier to make it
+        <strong>lazy</strong>: it grabs as <em>little</em> as possible, so
+        <code class="rx">&lt;.*?&gt;</code> stops at the first <code>&gt;</code>
+        and you get each tag separately.
+      </p>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Pattern</th><th>Behaviour</th><th>On <code>&lt;a&gt; … &lt;c&gt;</code></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code class="rx">&lt;.*&gt;</code></td><td>greedy — most possible</td><td>one match, the whole line</td></tr>
+            <tr><td><code class="rx">&lt;.*?&gt;</code></td><td>lazy — least possible</td><td>three matches, one per tag</td></tr>
+            <tr><td><code class="rx">&lt;[^&gt;]*&gt;</code></td><td>"anything but <code>&gt;</code>"</td><td>three matches — often the sharpest fix</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="vt-callout insight">
+        <strong>The deeper fix is usually a class, not laziness.</strong>
+        <code class="rx">[^&gt;]*</code> says "as many non-<code>&gt;</code>
+        characters as possible" — it physically can't cross a <code>&gt;</code>,
+        so it can't overshoot. Reach for "negate the boundary character" before
+        reaching for lazy. <a href="https://swtch.com/~rsc/regexp/regexp1.html">Russ Cox explains why greedy backtracking can get slow ↗</a>
       </div>
 
+      <h2><span class="vt-num">3</span>Anchors — match a position, not a character</h2>
       <p>
-        And <code>^</code>…<code>$</code> wrapped around a pattern means "the
-        <em>whole</em> string must be exactly this" — the workhorse of input
-        validation:
+        Everything so far consumed characters. <em>Anchors</em> are different:
+        they match a <strong>position</strong> between characters and consume
+        nothing. They're how you say "at the start," "at the end," or "at a word
+        edge."
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>^\d{3}-\d{4}$<span class="slash">/</span></span>
+      <dl class="rx-gloss">
+        <dt>^</dt><dd>start of the string (or line, in multiline mode)</dd>
+        <dt>$</dt><dd>end of the string (or line)</dd>
+        <dt>\b</dt><dd>a word boundary — the edge between a <code>\w</code> and a non-<code>\w</code></dd>
+        <dt>\B</dt><dd>a position that is <em>not</em> a word boundary</dd>
+      </dl>
+      <p>
+        Because they're zero-width, the lab marks them with a red caret
+        <span style="color:var(--vt-bad);font-weight:700">|</span> instead of a
+        highlight. Try the bare boundary <code class="str">\b</code> to see every
+        word edge, then the practical <code class="str">\bcat\b</code> to match
+        only the standalone word:
+      </p>
+      <div class="rx-lab" data-initial="\bcat\b">
+        <p class="rx-title">Try <code>\b</code> alone (carets), then <code>\bcat\b</code></p>
+        <div class="rx-samples">
+          <pre class="rx-sample">cat category scatter the cat.</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj"><mark>867-5309</mark></span>
-        </div>
-        <p class="vt-rx-note">
-          With anchors, <code>555-1234 ext 9</code> would <em>fail</em> — the
-          <code>$</code> insists nothing follows the four digits. Without
-          anchors, the same junk string would match the part that fits and pass.
-          Anchors are how validation says "all of it, nothing else."
-        </p>
+      </div>
+      <div class="vt-callout success">
+        <strong>This is how you stop matching inside words.</strong>
+        <code class="rx">\bcat\b</code> skips <code>cat</code>egory and
+        s<code>cat</code>ter because those <code>cat</code>s aren't bounded by
+        word edges — exactly the "matches too much" problem, solved with a
+        position instead of a character.
       </div>
 
-      <h2><span class="vt-num">4</span>The core loop: write the pattern</h2>
-      <p>
-        This is the skill the whole course is built toward. For each task below,
-        a target string and a goal are given. <strong>Write the pattern
-        yourself first</strong> — out loud or on paper — <em>then</em> reveal the
-        answer and compare. Producing it from memory is the effortful retrieval
-        that makes it stick; reading the answer first teaches you almost nothing.
-      </p>
-
-      <p class="vt-reveal-hint">
-        Paste your attempt into <a href="https://regex101.com/">regex101</a>
-        against the target before you reveal — closing your own feedback loop is
-        the point.
-      </p>
-
+      <h2><span class="vt-num">4</span>Recall — produce it from memory</h2>
+      <p class="vt-reveal-hint">Answer before revealing — the effort is the point.</p>
       <details class="vt-reveal">
-        <summary>
-          <strong>Goal:</strong> match a 4-digit year. Target: <code>born 1991 here</code>.
-        </summary>
+        <summary>What's the difference between <code class="rx">a*</code> and <code class="rx">a+</code>?</summary>
         <div class="answer">
-          <code>\d{4}</code> — exactly four digits. (If you must reject 5-digit
-          runs, anchor or bound it; for a bare extract, <code>\d{4}</code> is
-          fine.)
+          <code class="rx">a*</code> matches zero or more <code>a</code> (can
+          match nothing); <code class="rx">a+</code> needs at least one.
         </div>
       </details>
-
       <details class="vt-reveal">
-        <summary>
-          <strong>Goal:</strong> match a US ZIP, optionally with a +4 suffix.
-          Targets: <code>90210</code> and <code>90210-1234</code>.
-        </summary>
+        <summary>You wrote <code class="rx">".*"</code> to grab a quoted string but it swallowed two of them. Why, and what's the fix?</summary>
         <div class="answer">
-          <code>\d{5}(-\d{4})?</code> — five digits, then an
-          <em>optional</em> group of a hyphen and four digits. The <code>?</code>
-          makes the whole <code>(-\d{4})</code> optional. (Groups are Lesson 3 —
-          you just previewed them.)
+          Greedy <code class="rx">.*</code> ran to the last quote, spanning both
+          strings. Make it lazy — <code class="rx">".*?"</code> — or, sharper,
+          forbid the quote: <code class="rx">"[^"]*"</code>.
         </div>
       </details>
-
       <details class="vt-reveal">
-        <summary>
-          <strong>Goal:</strong> validate that the <em>entire</em> input is
-          lowercase letters only. Target: <code>hello</code> (and reject
-          <code>hello1</code>).
-        </summary>
+        <summary>How is <code class="rx">\b</code> different from a space?</summary>
         <div class="answer">
-          <code>^[a-z]+$</code> — start, one or more lowercase letters, end. The
-          anchors are what make it reject <code>hello1</code>: without
-          <code>$</code>, the pattern would happily match the <code>hello</code>
-          and ignore the <code>1</code>.
+          A space is a character the engine consumes. <code class="rx">\b</code>
+          is a zero-width <em>position</em> at a word edge — it also matches at
+          the very start/end of the string and next to punctuation, where there's
+          no space at all.
         </div>
       </details>
-
-      <details class="vt-reveal">
-        <summary>
-          <strong>Goal:</strong> grab the text inside the first pair of
-          parentheses. Target: <code>f(x) + g(y)</code> → you want <code>x</code>.
-        </summary>
-        <div class="answer">
-          <code>\([^)]*\)</code> — a literal <code>(</code>, then "anything that
-          isn't a <code>)</code>" repeated, then a literal <code>)</code>. The
-          <code>\(</code> and <code>\)</code> are escaped because parentheses are
-          metacharacters (Lesson 3). The narrow class <code>[^)]*</code> is the
-          greedy-fix from §2 — it physically can't cross into <code>g(y)</code>.
-        </div>
-      </details>
-
-      <h2><span class="vt-num">5</span>Check yourself</h2>
-      <div aria-live="polite" class="vt-quiz-live"></div>
 
       <div class="vt-quiz" data-answer="1">
-        <p class="q">Why does <code>&lt;.*&gt;</code> match <code>&lt;b&gt;hi&lt;/b&gt;</code> all at once?</p>
-        <button class="opt"><code>.</code> secretly includes the <code>&gt;</code> sign</button>
-        <button class="opt">Greedy <code>.*</code> grabs all it can, then backs up</button>
-        <button class="opt">Anchors force it to span the line</button>
-        <button class="opt">The pattern is invalid and matches nothing</button>
-
+        <p class="q">On the text <code>aaa</code>, how many characters does the greedy <code class="rx">a+</code> match in its first match?</p>
+        <button class="opt">Just one a — the minimum</button>
+        <button class="opt">All three a — the maximum</button>
+        <button class="opt">Zero a — it can skip</button>
+        <button class="opt">Exactly two a only</button>
         <template class="why-good">
-          <strong>Right.</strong> <code>.*</code> takes everything to the end,
-          then gives back just enough to let the final <code>&gt;</code> match —
-          which is the <em>last</em> <code>&gt;</code>. Use <code>&lt;.*?&gt;</code>
-          or <code>&lt;[^&gt;]*&gt;</code> to get one tag.
+          <strong>All three.</strong> <code class="rx">+</code> is greedy: it
+          takes as many <code>a</code> as it can in one match, so the first match
+          is the whole run <code>aaa</code>.
         </template>
-        <template class="why-bad">Not quite — think about how much a greedy quantifier takes.</template>
+        <template class="why-bad">Remember the default behaviour of a bare quantifier.</template>
         <template data-opt="0">
-          <code>.</code> does match <code>&gt;</code> (it's "any character"), but
-          that's not <em>why</em> it spans both tags — greed is.
+          <strong>One</strong> would be the <em>lazy</em> result —
+          <code class="rx">a+?</code>. A bare <code class="rx">+</code> is greedy.
         </template>
-        <template data-opt="2">There are no anchors in this pattern.</template>
-        <template data-opt="3">The pattern is valid; it just over-matches.</template>
-
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <div class="vt-quiz" data-answer="2">
-        <p class="q">Which pattern matches <em>only</em> a string that is exactly three digits?</p>
-        <button class="opt"><code>\d{3}</code></button>
-        <button class="opt"><code>\d+</code></button>
-        <button class="opt"><code>^\d{3}$</code></button>
-        <button class="opt"><code>[0-9]{3,}</code></button>
-
-        <template class="why-good">
-          <strong>Right.</strong> The anchors <code>^</code> and <code>$</code>
-          forbid anything before or after, so only a whole string of exactly
-          three digits passes.
-        </template>
-        <template class="why-bad">Not quite — "only" and "exactly" are doing the work. What forbids extra characters?</template>
-        <template data-opt="0">
-          <code>\d{3}</code> matches three digits <em>anywhere</em> — it would
-          also accept <code>12345</code> by matching the first three.
-        </template>
-        <template data-opt="1">
-          <code>\d+</code> is one-or-more digits, and unanchored — far too loose.
+        <template data-opt="2">
+          <strong>Zero</strong> is <code class="rx">a*</code> territory, and even
+          then it would prefer to match here since <code>a</code>s are present.
         </template>
         <template data-opt="3">
-          <code>{3,}</code> means three <em>or more</em>, and it's unanchored
-          too.
+          <strong>Two</strong> has no basis — greedy takes the whole run, not a
+          fixed count.
         </template>
-
         <div class="feedback"></div>
         <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
 
-      <div class="vt-callout success">
-        <strong>Tangible win:</strong> you can now control repetition and pin a
-        match in place — and you wrote four patterns from scratch. That's the
-        difference between editing a pasted regex and authoring one.
+      <h2><span class="vt-num">5</span>Your win — write the pattern for the goal</h2>
+      <p>
+        Three targets. For each, write a pattern that matches <em>exactly</em>
+        the highlighted goal — no more, no less. The lab tells you the moment you
+        nail it.
+      </p>
+
+      <p><strong>A.</strong> Match each price token, including the <code>$</code> — the values are <code>$19</code>, <code>$4</code>, and <code>$1299</code>.</p>
+      <div class="rx-lab" data-initial="" data-want='["$19","$4","$1299"]'>
+        <p class="rx-title">Goal: $19, $4, $1299</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">Prices: $19, $4 and $1299 today only.</pre>
+        </div>
       </div>
+      <details class="vt-reveal">
+        <summary>Hint / answer for A</summary>
+        <div class="answer">
+          <code>$</code> is a special character (the end anchor), so escape it:
+          <code class="rx">\$\d+</code> — a literal dollar sign followed by one
+          or more digits.
+        </div>
+      </details>
+
+      <p><strong>B.</strong> Pull out each quoted string, quotes included — the goals are <code>"hi"</code> and <code>"bye"</code>. (Beware the greedy trap!)</p>
+      <div class="rx-lab" data-initial="" data-want='["\"hi\"","\"bye\""]'>
+        <p class="rx-title">Goal: "hi" and "bye" — as two separate matches</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">she said "hi" then "bye" quietly</pre>
+        </div>
+      </div>
+      <details class="vt-reveal">
+        <summary>Hint / answer for B</summary>
+        <div class="answer">
+          A greedy <code class="rx">".*"</code> grabs <code>"hi" then "bye"</code>
+          as one match. Go lazy — <code class="rx">".*?"</code> — or forbid the
+          quote — <code class="rx">"[^"]*"</code>. Both give you the two strings.
+        </div>
+      </details>
+
+      <p><strong>C.</strong> Match only the standalone word <code>is</code> — not the <code>is</code> hidden inside <code>this</code> or <code>his</code>.</p>
+      <div class="rx-lab" data-initial="" data-want='["is"]'>
+        <p class="rx-title">Goal: the one standalone "is"</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">this is his list</pre>
+        </div>
+      </div>
+      <details class="vt-reveal">
+        <summary>Hint / answer for C</summary>
+        <div class="answer">
+          Bound it on both sides with word boundaries:
+          <code class="rx">\bis\b</code>. The <code>is</code> in
+          <code>this</code> and <code>his</code> has a letter on one side, so no
+          boundary — they're skipped.
+        </div>
+      </details>
 
       <div class="vt-recap">
         <p class="h">✦ What you earned</p>
-        <code>* + ? {n} {n,m}</code> set how many times the previous piece
-        repeats; quantifiers are greedy unless you add <code>?</code> to make
-        them lazy; and <code>^ $ \b</code> match positions, not characters — the
-        key to validation and whole-word matching.
+        You can control repetition (<code class="rx">* + ? {n,m}</code>), you know
+        why greedy grabs too much and three ways to rein it in (lazy
+        <code class="rx">?</code>, a negated class, or a boundary), and you can
+        anchor a match to a position. You turned three plain-English goals into
+        working patterns.
       </div>
 
       <div class="vt-teacher">
         <div>
-          <p class="h">I'm your teacher — ask me anything</p>
+          <p class="h">I'm your teacher — bring me your "too much" cases</p>
           <p>
-            Greedy vs. lazy trips up almost everyone the first week. If a pattern
-            of yours is grabbing too much, paste it here with the string it's
-            chewing and I'll show you exactly where it backs up — and which of
-            the two fixes is cleaner for your case.
+            Have a real pattern that grabs more than you meant? Paste it with the
+            text it's running on and we'll find the greedy step together. Or try:
           </p>
           <div class="vt-asks">
-            <span class="vt-ask">Walk me through how <code>a.*b</code> backtracks step by step.</span>
-            <span class="vt-ask">When is <code>[^x]*</code> better than <code>.*?</code>?</span>
-            <span class="vt-ask">Does <code>\b</code> count an underscore as part of a word?</span>
+            <span class="vt-ask">Walk me through why <code>".*?"</code> stops where it does.</span>
+            <span class="vt-ask">When is lazy worse than a negated class?</span>
+            <span class="vt-ask">Why did <code>$</code> need a backslash?</span>
           </div>
         </div>
       </div>
@@ -417,8 +300,8 @@
       <p class="vt-upnext">
         <em>Up next:</em>
         <a href="0003-groups-alternation-and-capture.html">Lesson 3 — Groups, alternation, and capture</a>:
-        bundle pieces with <code>(...)</code>, offer choices with <code>|</code>,
-        and <em>extract</em> the fields out of a real log line.
+        repeat whole chunks, match "this or that," and pull fields out of a real
+        log line.
       </p>
 
       <footer class="vt-sources">
@@ -426,37 +309,30 @@
         <ul class="vt-reflist">
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers">MDN — Quantifiers</a>
-            <span class="note">— primary source: greedy-by-default and the lazy modifier, straight from the reference.</span>
+            ><a href="https://www.regular-expressions.info/repeat.html">regular-expressions.info — Repetition &amp; greediness</a>
+            <span class="note">— primary source: the clearest prose on greedy vs. lazy and backtracking.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://www.regular-expressions.info/tutorial.html">regular-expressions.info — Tutorial</a>
-            <span class="note">— best explanation of how backtracking actually works.</span>
+            ><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet">MDN — Quantifiers &amp; assertions cheat sheet</a>
+            <span class="note">— exact table for every quantifier and anchor.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://regex101.com/">regex101 — live tester &amp; debugger</a>
-            <span class="note">— step through greedy vs. lazy yourself.</span>
-          </li>
-          <li>
-            <span class="vt-src-ic" data-type="forum"></span
-            ><a href="https://www.reddit.com/r/regex/">r/regex</a>
+            <span class="vt-src-ic" data-type="spec"></span
+            ><a href="https://swtch.com/~rsc/regexp/regexp1.html">Russ Cox — Regular Expression Matching Can Be Simple And Fast</a>
+            <span class="note">— optional depth: why a runaway greedy <code>.*</code> can be slow.</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
           <a href="../reference/regex-cheatsheet.html">Regex cheat sheet &amp; glossary</a>
         </div>
-        <div class="meta">Lesson 0002 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0002 · verified 2026-06-26</div>
       </footer>
     </main>
 
-    <script src="../assets/prism/prism-core.min.js"></script>
-    <script src="../assets/prism/prism-clike.min.js"></script>
-    <script src="../assets/prism/prism-javascript.min.js"></script>
-    <script src="../assets/base.js"></script>
-    <script src="../assets/code.js"></script>
-    <script src="../assets/quiz.js"></script>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/regex-lab/regex-lab.js"></script>
   </body>
 </html>

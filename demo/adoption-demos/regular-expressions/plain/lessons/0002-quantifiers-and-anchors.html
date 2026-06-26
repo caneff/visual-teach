@@ -1,209 +1,187 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 — Quantifiers &amp; Anchors</title>
-<link rel="stylesheet" href="../assets/course.css">
+<title>Lesson 2 · Quantifiers and Anchors</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/regex-lab.js" defer></script>
 </head>
 <body>
 
-<nav class="crumbs">
-  regex course / <a href="../MISSION.md">mission</a> /
-  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> /
-  <a href="0001-literals-and-character-classes.html">lesson 01</a> / lesson 02
-</nav>
+<header class="masthead">
+  <p class="eyebrow">Regex · Lesson 2 of 3</p>
+  <h1>Quantifiers &amp; Anchors</h1>
+  <p class="subtitle">How many, and where. The core skill: turning single-character matches into real patterns.</p>
+</header>
 
-<p class="eyebrow">Lesson 2 · The core skill</p>
-<h1>Quantifiers &amp; anchors</h1>
-<p class="subtitle">Lesson 1 matched one character at a time. Now: how many
-times — and how to pin a match to a position rather than a character.</p>
+<div class="wrap">
 
-<h2>Quantifiers — “how many of the thing before me”</h2>
+  <div class="callout mission">
+    <span class="label">Why this lesson</span>
+    In <a href="0001-literals-and-character-classes.html">Lesson 1</a> every token
+    matched exactly one position. That's not enough to match “a number” or “the
+    end of a line.” This lesson adds <b>repetition</b> and <b>position</b> — the
+    two ideas that let you write a real pattern for a real task, the heart of
+    your <a href="../MISSION.md">mission</a>.
+  </div>
 
-<p>A quantifier attaches to the item right before it (a character, a class, a
-shorthand) and says how many copies to match.<sup><a href="#c1">1</a></sup></p>
+  <h2>How many: quantifiers</h2>
+  <p>A <b>quantifier</b> goes <em>after</em> a token and says how many times that
+  token repeats.<sup class="cite"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers">[1]</a></sup></p>
+  <table>
+    <tr><th>Token</th><th>Repeats the thing before it…</th></tr>
+    <tr><td><span class="re">*</span></td><td>0 or more times</td></tr>
+    <tr><td><span class="re">+</span></td><td>1 or more times</td></tr>
+    <tr><td><span class="re">?</span></td><td>0 or 1 time (optional)</td></tr>
+    <tr><td><span class="re">{3}</span> / <span class="re">{2,5}</span> / <span class="re">{2,}</span></td><td>exactly 3 / between 2 and 5 / 2 or more</td></tr>
+  </table>
 
-<table>
-  <thead><tr><th>Quantifier</th><th>Means</th><th>So <span class="pat">a{q}</span> matches…</th></tr></thead>
-  <tbody>
-    <tr><td><span class="pat">*</span></td><td>zero or more</td><td><code>""</code>, <code>a</code>, <code>aaaa</code>…</td></tr>
-    <tr><td><span class="pat">+</span></td><td>one or more</td><td><code>a</code>, <code>aaaa</code>… (not empty)</td></tr>
-    <tr><td><span class="pat">?</span></td><td>zero or one (optional)</td><td><code>""</code> or <code>a</code></td></tr>
-    <tr><td><span class="pat">{3}</span></td><td>exactly 3</td><td><code>aaa</code></td></tr>
-    <tr><td><span class="pat">{2,4}</span></td><td>between 2 and 4</td><td><code>aa</code>, <code>aaa</code>, <code>aaaa</code></td></tr>
-    <tr><td><span class="pat">{2,}</span></td><td>2 or more</td><td><code>aa</code>, <code>aaa</code>…</td></tr>
-  </tbody>
-</table>
+  <p>Remember <span class="re">\d</span> grabbing digits one at a time? Add
+  <span class="re">+</span> and it grabs the whole run — finally, “a number.”</p>
 
-<p>Now you can match a <em>number</em>: <span class="pat">\d+</span> is “one or
-more digits.” A whole word of letters: <span class="pat">[a-z]+</span>. An
-optional sign: <span class="pat">-?\d+</span> matches <code>42</code> and
-<code>-42</code>.</p>
+  <div class="strip"
+       data-pattern="\d+"
+       data-sample="Order 12 ships in 3 days, 100 total"
+       data-note="\d+ = one or more digits, so each whole number matches as a unit"></div>
 
-<div class="strip">order <span class="hit">1138</span>, ref <span class="hit">7</span></div>
-<p class="caption"><span class="pat">\d+</span> grabs each run of digits whole — <code>1138</code> and <code>7</code> — because <code>+</code> keeps consuming digits as long as it can.</p>
+  <div class="strip"
+       data-pattern="colou?r"
+       data-sample="color colour colouur"
+       data-note="u? makes the u optional — matches both spellings, but not the double-u typo"></div>
 
-<h2>Greedy vs. lazy — why a pattern “matches too much”</h2>
+  <div class="strip"
+       data-pattern="\d{2,3}"
+       data-sample="1 22 333 4444"
+       data-note="{2,3} = two or three digits; '1' is too short, '4444' matches only its first three"></div>
 
-<p>Here is the single most common source of regex surprise. Quantifiers are
-<strong>greedy</strong> by default: they grab as much as they possibly can,
-then give characters <em>back</em> only if the rest of the pattern can't
-otherwise match.<sup><a href="#c2">2</a></sup></p>
+  <h2>Greedy vs. lazy — why patterns “match too much”</h2>
+  <p>Quantifiers are <b>greedy</b> by default: they grab as much as they
+  possibly can, then hand characters back only if the rest of the pattern can't
+  match otherwise.<sup class="cite"><a href="https://www.regular-expressions.info/repeat.html">[2]</a></sup>
+  This is the single most common reason a copied pattern misbehaves. Watch
+  <span class="re">&lt;.*&gt;</span> swallow everything between the first
+  <code>&lt;</code> and the <em>last</em> <code>&gt;</code>:</p>
 
-<p>Say you want the first HTML tag in <code>&lt;b&gt;hi&lt;/b&gt;</code> and reach
-for <span class="pat">&lt;.*&gt;</span>. Watch what greed does:</p>
+  <div class="strip"
+       data-pattern="&lt;.*&gt;"
+       data-sample="&lt;a&gt;&lt;b&gt;&lt;c&gt;"
+       data-note="GREEDY: .* grabs as much as possible — one giant match, not three tags"></div>
 
-<div class="strip"><span class="hit">&lt;b&gt;hi&lt;/b&gt;</span></div>
-<p class="caption"><span class="pat">&lt;.*&gt;</span> — greedy. <code>.*</code> races to the <em>end</em> of the line, then backtracks just enough to find a final <code>&gt;</code>. You wanted <code>&lt;b&gt;</code>; you got the whole thing.</p>
+  <p>Add a <span class="re">?</span> after the quantifier to make it <b>lazy</b>:
+  grab as little as possible. Now each tag matches on its own.</p>
 
-<p>Add a <code>?</code> after the quantifier to make it <strong>lazy</strong>:
-match as <em>few</em> as possible, expanding only when forced.</p>
+  <div class="strip"
+       data-pattern="&lt;.*?&gt;"
+       data-sample="&lt;a&gt;&lt;b&gt;&lt;c&gt;"
+       data-note="LAZY: .*? grabs the minimum — three separate matches"></div>
 
-<div class="strip"><span class="hit">&lt;b&gt;</span><span class="miss">hi&lt;/b&gt;</span></div>
-<p class="caption"><span class="pat">&lt;.*?&gt;</span> — lazy. <code>.*?</code> takes nothing, then grudgingly grows until the first <code>&gt;</code> matches. Now you get just <code>&lt;b&gt;</code>.</p>
+  <div class="callout">
+    <span class="label">Diagnosis you can now make</span>
+    “My pattern matches too much” almost always means <em>a greedy quantifier
+    ran past where you wanted.</em> Fix: make it lazy (<span class="re">?</span>),
+    or replace <span class="re">.</span> with a tighter class like
+    <span class="re">[^&gt;]</span> that <em>can't</em> cross the boundary.
+  </div>
 
-<div class="note">
-  <span class="callout-label">Note · the mental test</span>
-  Greedy <span class="pat">.*</span> = “take everything, then back off.”
-  Lazy <span class="pat">.*?</span> = “take nothing, then inch forward.” When a
-  match swallows too much, suspect a greedy quantifier first.
+  <h2>Where: anchors</h2>
+  <p>Anchors match a <b>position</b>, not a character — they consume no text.<sup class="cite"><a href="https://www.regular-expressions.info/anchors.html">[3]</a></sup></p>
+  <table>
+    <tr><th>Token</th><th>Matches the position…</th></tr>
+    <tr><td><span class="re">^</span></td><td>at the start of the string</td></tr>
+    <tr><td><span class="re">$</span></td><td>at the end of the string</td></tr>
+    <tr><td><span class="re">\b</span></td><td>at a word boundary (edge of a <span class="re">\w</span> run)</td></tr>
+  </table>
+
+  <div class="strip"
+       data-pattern="\bcat\b"
+       data-sample="cat category scatter the cat."
+       data-note="\b…\b pins to whole words — &quot;category&quot; and &quot;scatter&quot; are skipped"></div>
+
+  <p>The classic combo <span class="re">^…$</span> means “the <em>entire</em>
+  string is exactly this.” It's how you validate input — the pattern must match
+  from the first character to the last, with nothing left over.</p>
+
+  <div class="strip"
+       data-pattern="^\d+$"
+       data-sample="2026"
+       data-note="anchored at both ends: matches only because the whole string is digits"></div>
+
+  <h2>Your turn — recall</h2>
+
+  <div class="quiz" data-answer="1"
+       data-explain="Greedy means the quantifier takes as much as it can, then backtracks only if forced. That's why .* often overshoots.">
+    <p class="q"><span class="n">Q1</span>A quantifier is <em>greedy</em> by default. Greedy means:</p>
+    <button class="opt">Match as little as possible</button>
+    <button class="opt">Match as much as possible</button>
+    <button class="opt">Match exactly three times only</button>
+    <button class="opt">Match the start of string</button>
+  </div>
+
+  <div class="quiz" data-answer="1"
+       data-explain="The + quantifier means one or more of the preceding token. (* allows zero; ? allows zero or one.)">
+    <p class="q"><span class="n">Q2</span>What does <span class="re">+</span> mean after a token?</p>
+    <button class="opt">Zero or one of it</button>
+    <button class="opt">One or more of it</button>
+    <button class="opt">Zero or more of it</button>
+    <button class="opt">Exactly zero of it</button>
+  </div>
+
+  <div class="quiz" data-answer="0"
+       data-explain="$ matches the position at the end of the string (or end of a line in multiline mode). It consumes no character.">
+    <p class="q"><span class="n">Q3</span>What does the <span class="re">$</span> anchor match?</p>
+    <button class="opt">The end of the string</button>
+    <button class="opt">A literal dollar sign character</button>
+    <button class="opt">Zero or more digit characters</button>
+    <button class="opt">The first character matched here</button>
+  </div>
+
+  <h2>Your turn — write one</h2>
+  <p>This is the feedback loop that builds the skill: you're given a string and a
+  goal, you write the pattern, and the engine grades you instantly.</p>
+
+  <div class="lab"
+       data-sample="Order 12 ships in 3 days, 100 total"
+       data-goal="Match each <b>whole number</b> as one unit (so <code>12</code>, not <code>1</code> and <code>2</code>)."
+       data-expect='["12","3","100"]'></div>
+  <p class="cite">Reach for a shorthand class plus a quantifier.</p>
+
+  <div class="lab"
+       data-sample="&lt;a&gt;&lt;b&gt;&lt;c&gt;"
+       data-goal="Match <b>each tag separately</b> — three matches, not one. Beat the greedy default."
+       data-expect='["&lt;a&gt;","&lt;b&gt;","&lt;c&gt;"]'></div>
+  <p class="cite">Two ways to win: make the quantifier lazy, or use a class that
+  can't cross a <code>&gt;</code>. Try both.</p>
+
+  <div class="lab"
+       data-sample="log blog logged the log"
+       data-goal="Match the word <b>log</b> only when it stands alone — not inside <code>blog</code> or <code>logged</code>."
+       data-expect='["log","log"]'></div>
+  <p class="cite">You need a position, not just characters.</p>
+
+  <div class="source">
+    <span class="label">Primary source — read this next</span>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers">MDN — Quantifiers</a>
+    for the exact rules, and
+    <a href="https://www.regular-expressions.info/repeat.html">regular-expressions.info — Repetition</a>
+    for the best explanation of greedy vs. lazy backtracking anywhere. Keep the
+    <a href="../reference/regex-cheatsheet.html">cheat sheet</a> open.
+  </div>
+
+  <div class="followup">
+    <span class="label">Ask your teacher</span>
+    Greedy vs. lazy is the concept learners trip on most. If a lab result
+    surprised you — especially <em>why</em> a greedy match landed where it did —
+    ask me to walk the engine through it character by character before Lesson 3.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0001-literals-and-character-classes.html">← Prev · Literals &amp; Classes</a>
+    <span class="spacer"></span>
+    <a href="0003-groups-alternation-and-capture.html">Next · Groups &amp; Capture →</a>
+  </nav>
+
+  <footer class="tiny">Regex course · Lesson 2 · matching is computed live by your browser's own engine</footer>
 </div>
-
-<h2>Anchors — match a <em>position</em>, not a character</h2>
-
-<p>Everything so far <em>consumes</em> characters. Anchors are different: they
-match a <strong>zero-width position</strong> between characters and assert
-“you're at the right spot.” They eat nothing.<sup><a href="#c3">3</a></sup></p>
-
-<table>
-  <thead><tr><th>Anchor</th><th>Asserts you're at…</th></tr></thead>
-  <tbody>
-    <tr><td><span class="pat">^</span></td><td>the start of the string (or line)</td></tr>
-    <tr><td><span class="pat">$</span></td><td>the end of the string (or line)</td></tr>
-    <tr><td><span class="pat">\b</span></td><td>a word boundary — the edge between a <code>\w</code> and a non-<code>\w</code></td></tr>
-  </tbody>
-</table>
-
-<p>Why they matter: <span class="pat">\d{5}</span> finds five digits
-<em>anywhere</em>, including inside <code>id=987654</code>. But
-<span class="pat">^\d{5}$</span> matches only if the <em>entire</em> string is
-exactly five digits — that's the difference between “contains” and “is.” That's
-how you <em>validate</em>.</p>
-
-<div class="strip"><span class="hit">90210</span> &nbsp; <span class="miss">9021 &nbsp; 902100 &nbsp; id=98765</span></div>
-<p class="caption"><span class="pat">^\d{5}$</span> accepts only <code>90210</code> — five digits, start to end. The others have too few, too many, or extra characters around them.</p>
-
-<p>The word boundary <span class="pat">\b</span> is how you match a whole word
-and not a fragment. <span class="pat">\bcat\b</span> matches <code>cat</code> in
-“the cat sat” but not the <code>cat</code> inside “category.”</p>
-
-<div class="strip">the <span class="hit">cat</span> in <span class="miss">category</span></div>
-<p class="caption"><span class="pat">\bcat\b</span> — boundaries on both sides force a standalone word.</p>
-
-<h2>The feedback loop: write the pattern</h2>
-
-<p>This is where the skill actually forms. Below, <strong>you type a regex</strong>
-and it runs live against real sample strings in your browser — the highlight
-shows exactly what your pattern matches. Aim for all rows to show ✓.
-Effortful retrieval like this is what builds lasting skill, not re-reading.<sup><a href="#c4">4</a></sup></p>
-
-<div class="task"
-     data-flags=""
-     data-cases='[{"text":"42","expect":"42"},{"text":"-42","expect":"-42"},{"text":"007","expect":"007"},{"text":"x","expect":""}]'>
-  <label>1 · Match an optional minus sign followed by one or more digits.</label>
-  <input type="text" placeholder="e.g.  -?\d+" autocomplete="off" spellcheck="false">
-  <button class="check">Run it</button>
-  <div class="result"></div>
-  <p class="hintline">Optional = <code>?</code>. One-or-more = <code>+</code>. Build it from the front.</p>
-</div>
-
-<div class="task"
-     data-flags=""
-     data-cases='[{"text":"90210","expect":"90210"},{"text":"9021","expect":""},{"text":"902100","expect":""},{"text":"id=98765","expect":""}]'>
-  <label>2 · Match a string that <em>is</em> exactly five digits — nothing more, nothing less.</label>
-  <input type="text" placeholder="anchor both ends…" autocomplete="off" spellcheck="false">
-  <button class="check">Run it</button>
-  <div class="result"></div>
-  <p class="hintline">“Is” means anchored start <em>and</em> end. Exactly five = <code>{5}</code>.</p>
-</div>
-
-<div class="task"
-     data-flags=""
-     data-cases='[{"text":"<b>hi</b>","expect":"<b>"},{"text":"<title>x</title>","expect":"<title>"}]'>
-  <label>3 · Match only the <em>first</em> tag — <code>&lt;b&gt;</code>, not the whole line. (Greedy will fail here.)</label>
-  <input type="text" placeholder="reach for lazy…" autocomplete="off" spellcheck="false">
-  <button class="check">Run it</button>
-  <div class="result"></div>
-  <p class="hintline">Start with <code>&lt;</code>, end with <code>&gt;</code>, and make the middle <em>lazy</em> so it stops early.</p>
-</div>
-
-<h2>Recall check</h2>
-
-<div class="quiz" data-correct="0">
-  <p class="quiz-q"><span class="mono">&lt;.*&gt;</span> on <span class="mono">&lt;a&gt;x&lt;/a&gt;</span> matches the whole string. Why?</p>
-  <ul class="choices">
-    <li><button>the star is greedy and grabs as much as it can</button></li>
-    <li><button>the dot cannot ever match an angle bracket</button></li>
-    <li><button>anchors are required for the pattern to work</button></li>
-    <li><button>the star means literally zero of the dot here</button></li>
-  </ul>
-  <p class="verdict"
-     data-ok="Greedy .* runs to the end, then backtracks to the LAST >. Use .*? to stop at the first."
-     data-no="It's greed: .* grabs everything, then gives back just enough to find a final >. The fix is the lazy .*?."></p>
-</div>
-
-<div class="quiz" data-correct="3">
-  <p class="quiz-q">Which matches a string that is <em>only</em> lowercase letters, start to finish?</p>
-  <ul class="choices">
-    <li><button><span class="mono">[a-z]+</span></button></li>
-    <li><button><span class="mono">\b[a-z]+\b</span></button></li>
-    <li><button><span class="mono">^[a-z]?$</span></button></li>
-    <li><button><span class="mono">^[a-z]+$</span></button></li>
-  </ul>
-  <p class="verdict"
-     data-ok="Anchors pin both ends; + requires one or more. Without ^…$, the others match a run inside a longer string."
-     data-no="You need both anchors AND one-or-more: ^[a-z]+$. Bare [a-z]+ matches a fragment of a longer string; ? allows only a single letter."></p>
-</div>
-
-<div class="primary-source">
-  <span class="callout-label">▶ Primary source — read this next</span>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers">MDN
-  — Quantifiers</a> for greedy vs. lazy, and
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Assertions">MDN
-  — Assertions</a> for anchors and <code>\b</code>. Want to <em>see</em> the
-  backtracking? Paste <span class="pat">&lt;.*&gt;</span> into
-  <a href="https://regex101.com/">regex101.com</a> and open its match debugger.
-</div>
-
-<div class="followup">
-  <span class="callout-label">Stuck on something?</span>
-  Ask me anything — e.g. “Why is <code>$</code> zero-width?”, “When would I want
-  greedy on purpose?”, or “Give me three more write-the-pattern drills.” Spacing
-  practice out over days beats one long cram, so come back tomorrow and redo the
-  tasks from memory.
-</div>
-
-<nav class="lesson-nav">
-  <a href="0001-literals-and-character-classes.html">← Lesson 1 — Literals &amp; classes</a>
-  <span class="spacer"></span>
-  <a href="0003-groups-alternation-and-capture.html">Lesson 3 — Groups, alternation &amp; capture →</a>
-</nav>
-
-<h2 id="cites" style="font-size:1rem">Citations</h2>
-<ol style="font-size:0.85rem;color:var(--ink-soft)">
-  <li id="c1"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers">MDN — Quantifiers</a> (<code>* + ?</code>, <code>{n}</code>, <code>{n,m}</code>).</li>
-  <li id="c2"><a href="https://www.regular-expressions.info/tutorial.html">regular-expressions.info — tutorial</a> (greedy matching and backtracking).</li>
-  <li id="c3"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Assertions">MDN — Assertions</a> (<code>^</code>, <code>$</code>, <code>\b</code> as zero-width).</li>
-  <li id="c4"><a href="https://javascript.info/regular-expressions">javascript.info — Regular expressions</a> (runnable practice). Effortful-retrieval rationale is standard learning science.</li>
-</ol>
-
-<footer>
-  Regex course · Lesson 2 of 3 · built on the
-  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> &amp;
-  <a href="../RESOURCES.md">resources</a>.
-</footer>
-
-<script src="../assets/quiz.js"></script>
 </body>
 </html>

@@ -1,40 +1,64 @@
-/* quiz.js — shared interactive recall component for the course.
-   A lesson marks up a multiple-choice question declaratively; this wires the
-   immediate-feedback loop. No build step, no dependencies.
+/* ============================================================
+   quiz.js — reusable recall/decision feedback widget.
+   Zero dependencies. Progressive enhancement: markup is readable
+   without JS; this wires up immediate, automatic feedback.
 
    Markup contract:
      <div class="quiz" data-quiz>
-       <p class="q">Question text</p>
-       <button class="opt" data-correct>Right answer</button>
-       <button class="opt">Wrong answer</button>
-       <div class="feedback" data-when="right">Shown on a correct pick…</div>
-       <div class="feedback" data-when="wrong">Shown on a wrong pick…</div>
+       <p class="q-prompt">Question?</p>
+       <p class="q-scenario">Optional scenario text.</p>
+       <ul class="opts">
+         <li><button class="opt" data-correct
+                 data-feedback="Why this is right.">Answer A</button></li>
+         <li><button class="opt"
+                 data-feedback="Why this is wrong.">Answer B</button></li>
+       </ul>
+       <div class="feedback"></div>
      </div>
 
-   Put the explanation in the data-when="right" block so the learner always
-   ends on the reasoning, however they answered. */
+   - Mark the correct option(s) with the `data-correct` attribute.
+   - Each option may carry its own `data-feedback` explanation.
+   - On click: colours the chosen option, reveals the correct one,
+     prints feedback, and locks the question (retrieval, then truth).
+   ============================================================ */
+(function () {
+  "use strict";
 
-document.addEventListener("click", function (e) {
-  var btn = e.target.closest(".quiz [data-quiz] .opt, .quiz .opt");
-  if (!btn) return;
-  var quiz = btn.closest(".quiz");
-  if (!quiz || quiz.dataset.answered) return;
+  function wire(quiz) {
+    var opts = Array.prototype.slice.call(quiz.querySelectorAll(".opt"));
+    var feedback = quiz.querySelector(".feedback");
 
-  var correct = btn.hasAttribute("data-correct");
+    opts.forEach(function (opt) {
+      opt.addEventListener("click", function () {
+        if (quiz.dataset.answered) return;
+        quiz.dataset.answered = "true";
 
-  // Lock the quiz and reveal the truth on every option.
-  quiz.dataset.answered = "true";
-  quiz.querySelectorAll(".opt").forEach(function (b) {
-    b.disabled = true;
-    if (b.hasAttribute("data-correct")) b.classList.add("correct");
-    else if (b === btn) b.classList.add("incorrect");
-  });
+        var chosenCorrect = opt.hasAttribute("data-correct");
 
-  var rightFb = quiz.querySelector('.feedback[data-when="right"]');
-  var wrongFb = quiz.querySelector('.feedback[data-when="wrong"]');
+        opts.forEach(function (o) {
+          o.disabled = true;
+          if (o.hasAttribute("data-correct")) o.classList.add("correct");
+        });
+        if (!chosenCorrect) opt.classList.add("wrong");
 
-  // Always show the reasoning (the "right" block). On a miss, also show the
-  // short corrective note first.
-  if (!correct && wrongFb) wrongFb.classList.add("show", "wrong");
-  if (rightFb) rightFb.classList.add("show", correct ? "right" : "wrong");
-});
+        if (feedback) {
+          var own = opt.getAttribute("data-feedback");
+          var lead = chosenCorrect ? "Correct. " : "Not quite. ";
+          feedback.textContent = lead + (own || "");
+          feedback.classList.add("show", chosenCorrect ? "ok" : "no");
+        }
+      });
+    });
+  }
+
+  function init() {
+    var quizzes = document.querySelectorAll("[data-quiz]");
+    Array.prototype.forEach.call(quizzes, wire);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
+})();

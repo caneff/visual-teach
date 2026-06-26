@@ -1,77 +1,126 @@
 /* ============================================================================
-   quiz.js — reusable self-check feedback loop for lessons.
-   No dependencies, no network. Drop a <div class="quiz"> with one or more
-   <div class="q"> blocks. Each .q has:
-     - a .prompt
-     - an .opts container of <button class="opt"> ; mark the right one
-       with data-correct="1"
-     - an optional .feedback element whose data-ok / data-no text is shown
-   The script wires click handling, locks the question after the first
-   answer, colours the choice, reveals feedback, and tallies a score.
-   ========================================================================== */
+   quiz.js — tiny reusable feedback-loop widgets for the course.
+   Every lesson ends in a retrieval-practice loop; this is the shared engine.
+
+   window.Quiz.mc(mount, opts)
+     opts.choices : ["...", "..."]      (kept equal length per teach-base rule)
+     opts.answer  : index of correct choice
+     opts.explainRight / opts.explainWrong : feedback strings
+     opts.onResult: function(correct) {}
+   Renders buttons; on click locks in, colours right/wrong, shows explanation.
+
+   window.Quiz.drill(mount, opts)  — endless self-checking drill
+     opts.next()  : returns { promptHtml, choices:[...], answer, explain }
+     opts.render(record) (optional) : called with the question record so the
+                                       caller can draw a keyboard etc.
+   Tracks a running streak/score so practice has immediate feedback + spacing.
+   ============================================================================ */
 (function () {
   "use strict";
 
-  function wireQuestion(q, onAnswered) {
-    var opts = Array.prototype.slice.call(q.querySelectorAll(".opt"));
-    var fb = q.querySelector(".feedback");
+  function el(tag, cls, html) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (html != null) e.innerHTML = html;
+    return e;
+  }
+
+  function mc(mount, opts) {
+    if (typeof mount === "string") mount = document.querySelector(mount);
+    mount.innerHTML = "";
+    var box = el("div", "quiz-choices");
+    var fb = el("div", "quiz-feedback");
     var answered = false;
 
-    opts.forEach(function (btn) {
-      btn.addEventListener("click", function () {
+    opts.choices.forEach(function (text, i) {
+      var b = el("button", "quiz-choice", text);
+      b.type = "button";
+      b.addEventListener("click", function () {
         if (answered) return;
         answered = true;
-        var correct = btn.getAttribute("data-correct") === "1";
-
-        opts.forEach(function (b) {
-          b.disabled = true;
-          if (b.getAttribute("data-correct") === "1") b.classList.add("correct");
+        var correct = i === opts.answer;
+        Array.prototype.forEach.call(box.children, function (c, j) {
+          c.disabled = true;
+          if (j === opts.answer) c.classList.add("right");
+          else if (j === i) c.classList.add("wrong");
         });
-        if (!correct) btn.classList.add("wrong");
-
-        if (fb) {
-          fb.classList.add("show", correct ? "ok" : "no");
-          var msg = fb.getAttribute(correct ? "data-ok" : "data-no");
-          if (msg) fb.innerHTML = (correct ? "✓ " : "✗ ") + msg;
-        }
-        onAnswered(correct);
+        fb.className = "quiz-feedback show " + (correct ? "good" : "bad");
+        fb.innerHTML = (correct ? "✓ " : "✗ ") +
+          (correct ? (opts.explainRight || "Correct.")
+                   : (opts.explainWrong || "Not quite."));
+        if (opts.onResult) opts.onResult(correct);
       });
+      box.appendChild(b);
     });
+    mount.appendChild(box);
+    mount.appendChild(fb);
   }
 
-  function init() {
-    document.querySelectorAll(".quiz").forEach(function (quiz) {
-      var qs = Array.prototype.slice.call(quiz.querySelectorAll(".q"));
-      var total = qs.length;
-      var done = 0, right = 0;
-      var score = quiz.querySelector(".scoreline");
+  function drill(mount, opts) {
+    if (typeof mount === "string") mount = document.querySelector(mount);
+    var score = 0, total = 0, streak = 0, best = 0;
 
-      function update() {
-        if (!score) return;
-        score.textContent =
-          "Answered " + done + " / " + total + "  ·  " +
-          right + " correct";
-      }
-      update();
+    var head = el("div", "drill-head");
+    var stage = el("div", "drill-stage");
+    var prompt = el("div", "drill-prompt");
+    var choices = el("div", "quiz-choices");
+    var fb = el("div", "quiz-feedback");
+    var nextBtn = el("button", "check", "Next question →");
+    nextBtn.type = "button";
+    nextBtn.style.display = "none";
 
-      qs.forEach(function (q) {
-        wireQuestion(q, function (correct) {
-          done++; if (correct) right++;
-          update();
-          if (done === total && score) {
-            score.textContent +=
-              right === total
-                ? "  — perfect. The pattern is in your hands now."
-                : "  — revisit the misses, then try once more.";
-          }
+    mount.innerHTML = "";
+    mount.appendChild(head);
+    stage.appendChild(prompt);
+    mount.appendChild(stage);
+    mount.appendChild(choices);
+    mount.appendChild(fb);
+    mount.appendChild(nextBtn);
+
+    function paintHead() {
+      head.innerHTML =
+        '<span class="drill-score">Score <b>' + score + "/" + total + "</b></span>" +
+        '<span class="drill-streak">Streak <b>' + streak + "</b>' +
+        (best ? ' &middot; best ' + best : "") + "</span>";
+    }
+
+    function ask() {
+      var q = opts.next();
+      prompt.innerHTML = q.promptHtml || "";
+      if (opts.render) opts.render(q, stage);
+      fb.className = "quiz-feedback";
+      fb.innerHTML = "";
+      nextBtn.style.display = "none";
+      choices.innerHTML = "";
+      var answered = false;
+      q.choices.forEach(function (text, i) {
+        var b = el("button", "quiz-choice", text);
+        b.type = "button";
+        b.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          total++;
+          var correct = i === q.answer;
+          if (correct) { score++; streak++; best = Math.max(best, streak); }
+          else streak = 0;
+          Array.prototype.forEach.call(choices.children, function (c, j) {
+            c.disabled = true;
+            if (j === q.answer) c.classList.add("right");
+            else if (j === i) c.classList.add("wrong");
+          });
+          fb.className = "quiz-feedback show " + (correct ? "good" : "bad");
+          fb.innerHTML = (correct ? "✓ " : "✗ ") + (q.explain || "");
+          nextBtn.style.display = "inline-block";
+          paintHead();
         });
+        choices.appendChild(b);
       });
-    });
+    }
+
+    nextBtn.addEventListener("click", ask);
+    paintHead();
+    ask();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
-  }
+  window.Quiz = { mc: mc, drill: drill };
 })();

@@ -1,27 +1,25 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Literals and character classes — Regular expressions · Lesson 1</title>
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/code.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/chip.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <link rel="stylesheet" href="../assets/regex-match.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 1 · Literals and character classes — Regular Expressions</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/components/regex-lab/regex-lab.css" />
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Regular expressions · Lesson 1</p>
+      <p class="vt-kicker">Regular Expressions · Lesson 1</p>
       <h1>Literals and character classes</h1>
       <p class="vt-lede">
-        A regex is a pattern an engine drags across your text, one position at a
-        time, asking "does the pattern fit starting <em>here</em>?" Today you
-        learn what fits a single character.
+        The smallest true mental model: a regex is a pattern the engine drags
+        across your text, one position at a time, asking "does the pattern fit
+        starting <em>here</em>?"
       </p>
 
       <div class="vt-metabar">
@@ -34,337 +32,256 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Explain how the engine scans text left to right, position by position.</li>
-          <li>Match exact text with literal characters, and any character with <code>.</code></li>
-          <li>Match "one character from a set" with <code>[...]</code>, <code>[^...]</code>, and ranges.</li>
-          <li>Use the shorthands <code>\d</code>, <code>\w</code>, <code>\s</code> and their negations.</li>
+          <li>Explain how the engine scans text left-to-right, position by position.</li>
+          <li>Read literal characters and <code class="rx">.</code> in a pattern.</li>
+          <li>Match one character from a set with <code class="rx">[…]</code> and <code class="rx">[^…]</code>.</li>
+          <li>Use the shorthands <code class="rx">\d</code>, <code class="rx">\w</code>, <code class="rx">\s</code> and their negations.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> Every regex you've ever
-        pasted is built from these atoms. Once you can read a pattern one
-        character at a time, the copy-paste-and-hope habit starts to dissolve —
-        you'll see <em>what</em> each piece is asking for. See your
-        <a href="../MISSION.md">mission</a>.
+        <strong>Why this matters for your goal:</strong> you want to stop
+        copy-pasting patterns and hoping. That starts here — every regex you'll
+        ever read is built from these one-character pieces. Get a true picture
+        of "match one position at a time" and the rest of the syntax becomes
+        bolt-ons, not magic.
       </div>
 
-      <h2><span class="vt-num">1</span>The one idea: the engine scans</h2>
+      <h2><span class="vt-num">1</span>A regex is a cursor crawling your text</h2>
       <p>
-        Forget syntax for a second. A regex engine takes your pattern and your
-        text, parks itself at the <em>first</em> position in the text, and asks:
-        does the pattern match starting here? If no, it shifts one position to
-        the right and asks again. It keeps sliding until something matches or it
-        runs off the end. That's the whole loop.
+        Forget syntax for a second. The engine takes your pattern and tries to
+        match it starting at position 0 of the text. If it fails, it slides one
+        character right and tries again. It repeats until something matches or it
+        runs off the end. That sliding cursor is the whole game.
       </p>
       <p>
-        So a pattern is a description of "what would have to be true, starting at
-        some position, for this to count as a match." The simplest description is
-        an exact string — a <strong>literal</strong>.
+        Say the pattern is the literal <code class="rx">cat</code> and the text
+        is <code class="str">a cat</code>. The engine tries each start position
+        until the three letters line up:
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>cat<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">the <mark>cat</mark> sat on the catalog</span>
-        </div>
-        <p class="vt-rx-note">
-          The literal <strong>cat</strong> matches the first run of c-a-t. The
-          engine found it at position 4 and stopped — a basic search returns the
-          <strong>first</strong> match. (It would have found the "cat" in
-          "catalog" too, on a later scan.)
-        </p>
+      <div class="rx-scan">
+        <span class="cur">a</span>…&nbsp; pattern needs <code>c</code> — got <code>a</code>. Slide right.<br />
+        a<span class="cur">&nbsp;</span>… needs <code>c</code> — got space. Slide right.<br />
+        a <span class="done">c·a·t</span> — three in a row. <strong>Match.</strong>
       </div>
-
-      <div class="vt-callout info">
-        <strong>Flavor note</strong> — These patterns are written in the common
-        PCRE / JavaScript style, the same core you'll meet in Python, Java, Go,
-        Ruby, and grep. We're staying inside that portable core all course.
-      </div>
-
-      <h2><span class="vt-num">2</span><code>.</code> — any one character</h2>
-      <p>
-        The dot is the first <em>metacharacter</em>: a character with special
-        meaning. <code>.</code> matches any single character (except a newline,
-        by default). It still matches <strong>exactly one</strong> position —
-        metacharacters describe a character, they don't skip ahead.
-      </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>c.t<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj"><mark>cat</mark> <mark>cot</mark> <mark>cut</mark> c<span class="miss">rr</span>t coast</span>
-        </div>
-        <p class="vt-rx-note">
-          <strong>c.t</strong> = c, then any one character, then t. It matches
-          "cat", "cot", "cut" — but not "crrt" (two characters between) and not
-          "coast" (no t right after one character).
-        </p>
-      </div>
-
-      <div class="vt-callout warn">
-        <strong>The dot is greedy with meaning, not length.</strong> A bare
-        <code>.</code> matches a digit, a space, a punctuation mark — anything.
-        That's often <em>too</em> permissive. When you mean "a letter" or "a
-        digit," say so with a character class. Vagueness is how patterns match
-        too much.
-      </div>
-
-      <h2><span class="vt-num">3</span><code>[...]</code> — one character from a set</h2>
-      <p>
-        Square brackets define a <strong>character class</strong>: a menu of
-        characters, of which the engine must match exactly one. Inside the
-        brackets, list the characters you'll accept. A hyphen makes a
-        <strong>range</strong>: <code>[a-z]</code> is any lowercase letter,
-        <code>[0-9]</code> any digit, <code>[A-Za-z0-9]</code> any letter or
-        digit.
-      </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>gr[ae]y<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">is it <mark>gray</mark> or <mark>grey</mark>?</span>
-        </div>
-        <p class="vt-rx-note">
-          <strong>[ae]</strong> matches one character that is either
-          <code>a</code> or <code>e</code>. So this one pattern catches both
-          spellings — still one character at that position.
-        </p>
-      </div>
-
-      <p>
-        Put a caret <code>^</code> <em>first, inside</em> the brackets to
-        <strong>negate</strong> the set: <code>[^...]</code> matches one
-        character that is <em>not</em> in the list.
-      </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>[^0-9]<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">42<mark>k</mark>99</span>
-        </div>
-        <p class="vt-rx-note">
-          "One character that is not a digit." The engine slides past
-          <code>4</code> and <code>2</code> (both digits, rejected) and matches
-          the first non-digit: <code>k</code>.
-        </p>
-      </div>
-
       <div class="vt-callout insight">
-        <strong>Inside a class, most metacharacters relax.</strong> A
-        <code>.</code> inside <code>[...]</code> is a literal dot;
-        <code>[.?]</code> means "a dot or a question mark," not "any char or a
-        question mark." The characters that still matter inside a class are
-        <code>^</code> (only when first), <code>-</code> (range, unless first or
-        last), <code>]</code>, and <code>\</code>.
+        <strong>The one idea to keep:</strong> a pattern doesn't search "the
+        whole string" in one go. It is checked at a position, character by
+        character. Everything else — classes, quantifiers, anchors — is just
+        describing <em>what to check at the cursor</em>.
       </div>
 
-      <h2><span class="vt-num">4</span>Shorthands: <code>\d \w \s</code></h2>
+      <h2><span class="vt-num">2</span>Literal characters match themselves</h2>
       <p>
-        Some classes come up so often they have one-letter shortcuts. Each still
-        matches exactly one character; the capital-letter version is its
-        negation.
+        Most characters in a pattern are <em>literals</em>: the letter
+        <code class="rx">a</code> matches the character <code>a</code>, the digit
+        <code class="rx">7</code> matches <code>7</code>. A few characters are
+        special (<code>. [ ] ( ) { } * + ? ^ $ | \</code>) — we'll meet them as
+        we go. Everything else is taken at face value.
       </p>
-
-      <div class="vt-table-wrap">
-        <table class="vt-table compact">
-          <thead>
-            <tr>
-              <th>Shorthand</th>
-              <th>Matches one…</th>
-              <th>Same as</th>
-              <th>Negation</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><code>\d</code></td>
-              <td>digit</td>
-              <td><code>[0-9]</code></td>
-              <td><code>\D</code> (non-digit)</td>
-            </tr>
-            <tr>
-              <td><code>\w</code></td>
-              <td>"word" character — letter, digit, or underscore</td>
-              <td><code>[A-Za-z0-9_]</code></td>
-              <td><code>\W</code> (non-word)</td>
-            </tr>
-            <tr>
-              <td><code>\s</code></td>
-              <td>whitespace — space, tab, newline</td>
-              <td><code>[ \t\r\n…]</code></td>
-              <td><code>\S</code> (non-whitespace)</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>\w\w\w-\d\d\d\d<span class="slash">/</span></span>
-        </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">code <mark>ABX-4417</mark> issued</span>
-        </div>
-        <p class="vt-rx-note">
-          Read it left to right: word, word, word, a literal hyphen, then four
-          digits. The hyphen here is <em>outside</em> a class, so it's just a
-          literal dash. Writing the same character four times is clumsy — Lesson
-          2 fixes that with quantifiers.
-        </p>
-      </div>
-
-      <div class="vt-callout success">
-        <strong>Tangible win:</strong> you can now read any pattern made of
-        literals and single-character classes — left to right, one position at a
-        time — and say what each atom accepts. That's most of what you see in the
-        wild.
-      </div>
-
-      <h2><span class="vt-num">5</span>Check yourself</h2>
       <p>
-        Recognition first — pick the answer, get instant feedback, retry until
-        it's right.
+        Try it. The pattern below is the literal word <code class="str">cat</code>.
+        Edit it — type <code class="str">at</code>, then <code class="str">The</code>
+        — and watch every match light up in the sample.
       </p>
+      <div class="rx-lab" data-initial="cat">
+        <p class="rx-title">Live tester — every match is highlighted</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">The cat sat on the cataract by the gate.</pre>
+        </div>
+      </div>
+      <div class="vt-callout info">
+        <strong>Why two matches?</strong> The engine doesn't stop at the first
+        hit when it scans the whole line — it finds <code>cat</code> in
+        <code>cat</code> and again inside <code>cat</code>aract. A pattern
+        matches wherever it fits.
+      </div>
 
-      <div aria-live="polite" class="vt-quiz-live"></div>
+      <h2><span class="vt-num">3</span><code class="rx">.</code> matches any one character</h2>
+      <p>
+        The dot is the first special character worth knowing: it matches
+        <em>any single character</em> (except a newline, by default). It's a
+        wildcard for exactly one position — not zero, not two.
+      </p>
+      <p>
+        The pattern <code class="rx">c.t</code> means "<code>c</code>, then any
+        one character, then <code>t</code>." Watch which words qualify:
+      </p>
+      <div class="rx-lab" data-initial="c.t">
+        <p class="rx-title">Try <code>c.t</code>, then <code>c..t</code></p>
+        <div class="rx-samples">
+          <pre class="rx-sample">cat cot c4t c-t cart cut ct</pre>
+        </div>
+      </div>
+      <div class="vt-callout warn">
+        <strong>Watch the failures.</strong> <code>cart</code> is four letters,
+        so <code class="rx">c.t</code> (exactly three) can't span it; <code>ct</code>
+        has nothing between, so the dot has nothing to match. The dot is greedy
+        for <em>exactly one</em> slot.
+      </div>
+
+      <h2><span class="vt-num">4</span>A character class <code class="rx">[…]</code> matches one from a set</h2>
+      <p>
+        A dot is often too loose — you want "any vowel" or "any digit," not
+        "anything." Square brackets define a <em>character class</em>: it matches
+        exactly one character, drawn from the set inside the brackets.
+      </p>
+      <dl class="rx-gloss">
+        <dt>[aeiou]</dt><dd>one character that is a, e, i, o, or u</dd>
+        <dt>[0-9]</dt><dd>one character in the range 0 to 9 — a hyphen inside a class means "range"</dd>
+        <dt>[A-Za-z]</dt><dd>one letter, upper or lower case — ranges can be stacked</dd>
+        <dt>[^aeiou]</dt><dd>one character that is <em>not</em> a vowel — a leading <code>^</code> negates the set</dd>
+      </dl>
+      <p>
+        Edit the class below. Try <code class="str">[aeiou]</code> to grab the
+        vowels, then <code class="str">[^aeiou ]</code> to grab everything that
+        is neither a vowel nor a space.
+      </p>
+      <div class="rx-lab" data-initial="[aeiou]">
+        <p class="rx-title">One character, from a set you choose</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">regular expressions</pre>
+        </div>
+      </div>
+      <div class="vt-callout insight">
+        <strong>The class still matches one position.</strong> Each highlight is
+        a single character. The brackets don't change "how many" — only "which
+        characters qualify" at the cursor.
+      </div>
+
+      <h2><span class="vt-num">5</span>Shorthands: <code class="rx">\d</code> <code class="rx">\w</code> <code class="rx">\s</code></h2>
+      <p>
+        Three classes come up so often they get shorthand escapes. Each still
+        matches exactly one character:
+      </p>
+      <dl class="rx-gloss">
+        <dt>\d</dt><dd>a digit — identical to <code>[0-9]</code></dd>
+        <dt>\w</dt><dd>a "word" character — a letter, digit, or underscore: <code>[A-Za-z0-9_]</code></dd>
+        <dt>\s</dt><dd>whitespace — a space, tab, or newline</dd>
+        <dt>\D \W \S</dt><dd>the negations — the uppercase version means "anything <em>but</em> that"</dd>
+      </dl>
+      <p>
+        Try <code class="str">\d</code> on the sample, then the negation
+        <code class="str">\D</code>, then <code class="str">\w</code>:
+      </p>
+      <div class="rx-lab" data-initial="\d">
+        <p class="rx-title">Shorthands — flip to the uppercase negation to invert</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">Room 237, level B2 — open 9am.</pre>
+        </div>
+      </div>
+
+      <h2><span class="vt-num">6</span>Recall — before you peek</h2>
+      <p class="vt-reveal-hint">
+        Say the answer out loud first, then reveal. Producing it from memory is
+        what makes it stick — recognising it on screen doesn't.
+      </p>
+      <details class="vt-reveal">
+        <summary>What does <code class="rx">.</code> match, and what's the one common exception?</summary>
+        <div class="answer">
+          Any single character — exactly one position — except a newline, by
+          default.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>How do you say "any character that is <em>not</em> a digit" two different ways?</summary>
+        <div class="answer">
+          <code class="rx">[^0-9]</code> (negated class) or the shorthand
+          <code class="rx">\D</code>.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>Inside <code class="rx">[a-z]</code>, what does the hyphen mean — and how would you match a literal hyphen?</summary>
+        <div class="answer">
+          Between two characters it means a <em>range</em>. To match a literal
+          hyphen, put it first or last in the class: <code class="rx">[-a-z]</code>
+          or <code class="rx">[a-z-]</code>.
+        </div>
+      </details>
 
       <div class="vt-quiz" data-answer="2">
-        <p class="q">What does <code>h[ou]t</code> match?</p>
-        <button class="opt">The literal text <code>h[ou]t</code></button>
-        <button class="opt">Either <code>hot</code> or <code>hout</code></button>
-        <button class="opt">Either <code>hot</code> or <code>hut</code></button>
-        <button class="opt">Any of <code>h</code>, <code>o</code>, <code>u</code>, <code>t</code></button>
-
+        <p class="q">Against the text <code>a3 b? c9</code>, how many characters does <code class="rx">[a-z]\d</code> match in total?</p>
+        <button class="opt">Two characters total</button>
+        <button class="opt">Six characters total</button>
+        <button class="opt">Four characters total</button>
+        <button class="opt">Zero characters total</button>
         <template class="why-good">
-          <strong>Right.</strong> The class <code>[ou]</code> matches exactly one
-          character — either <code>o</code> or <code>u</code> — so the whole
-          pattern is "h, then o-or-u, then t."
+          <strong>Four.</strong> <code>[a-z]\d</code> is a letter then a digit —
+          two characters per match. It matches <code>a3</code> and <code>c9</code>
+          (two matches × two chars = four). <code>b?</code> fails: <code>?</code>
+          isn't a digit.
         </template>
-        <template class="why-bad">Not quite — look at how many characters the class stands for.</template>
+        <template class="why-bad">Not quite — count characters per match, then matches.</template>
         <template data-opt="0">
-          The brackets are special; they define a set, they aren't matched
-          literally.
+          <strong>Two</strong> would be right if it matched one place; but two
+          separate places match, two characters each.
         </template>
         <template data-opt="1">
-          <code>[ou]</code> is <em>one</em> character, not the two-letter
-          sequence "ou".
+          <strong>Six</strong> over-counts — <code>b?</code> doesn't qualify, so
+          only two of the three pairs match.
         </template>
         <template data-opt="3">
-          That's closer to what a bare class alone would do — but the
-          <code>h</code> and <code>t</code> around it are required literals.
+          <strong>Zero</strong> is too pessimistic — <code>a3</code> and
+          <code>c9</code> both fit a letter-then-digit pattern.
         </template>
-
         <div class="feedback"></div>
         <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
 
-      <div class="vt-quiz" data-answer="1">
-        <p class="q">Which pattern matches one character that is <em>not</em> a digit?</p>
-        <button class="opt"><code>[0-9]</code></button>
-        <button class="opt"><code>[^0-9]</code></button>
-        <button class="opt"><code>\d</code></button>
-        <button class="opt"><code>.[0-9]</code></button>
-
-        <template class="why-good">
-          <strong>Right.</strong> A leading <code>^</code> inside the brackets
-          negates the set, so <code>[^0-9]</code> is "any one non-digit." It's
-          the same as <code>\D</code>.
-        </template>
-        <template class="why-bad">Not quite — which one flips the set to mean "not these"?</template>
-        <template data-opt="0">
-          <code>[0-9]</code> matches a digit — the opposite of what's asked.
-        </template>
-        <template data-opt="2">
-          <code>\d</code> is the shorthand for a digit; you want its negation.
-        </template>
-        <template data-opt="3">
-          This is two characters: any char, then a digit. Not a single non-digit.
-        </template>
-
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <h2><span class="vt-num">6</span>Recall from memory</h2>
-      <p class="vt-reveal-hint">
-        Producing the answer yourself — before peeking — is what moves this from
-        "looks familiar" to "I know it." Try each aloud first.
+      <h2><span class="vt-num">7</span>Your win — write a pattern from scratch</h2>
+      <p>
+        Here's the tangible win for Lesson 1. Below is a real-looking line of
+        tokens. Some are valid codes — <strong>one uppercase letter, another
+        uppercase letter, then a digit</strong> (like <code>AB1</code>). Write a
+        pattern that matches <em>exactly those</em> and nothing else.
       </p>
-
-      <details class="vt-reveal">
-        <summary>In one sentence, how does the engine decide where a match starts?</summary>
-        <div class="answer">
-          It tries the pattern at the first position; if that fails it shifts one
-          character right and tries again, repeating until it matches or runs off
-          the end of the text.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>Write a class that matches a single lowercase vowel.</summary>
-        <div class="answer">
-          <code>[aeiou]</code> — five characters listed, the engine matches any
-          one of them.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>What does <code>\w</code> match that <code>[A-Za-z]</code> does not?</summary>
-        <div class="answer">
-          Digits <code>0-9</code> and the underscore <code>_</code>.
-          <code>\w</code> is "word character" = letters, digits, and underscore.
-        </div>
-      </details>
-
       <div class="vt-callout info">
-        <strong>Do it for real (5 min):</strong> open
-        <a href="https://regex101.com/">regex101.com</a>, paste
-        <code>c.t</code> into the pattern box and <code>cat cot cut crrt
-        coast</code> into the test box, and watch the highlights. Then change the
-        dot to <code>[ao]</code> and see the matches shrink. Making it match in
-        front of you is the fastest way to trust the model.
+        <strong>You have everything you need:</strong> a class can be repeated by
+        writing it more than once. No quantifiers required — that's Lesson 2.
+        Think: letter, letter, digit. The lab checks your answer live.
       </div>
+      <div
+        class="rx-lab"
+        data-initial=""
+        data-want='["AB1","XY9"]'
+      >
+        <p class="rx-title">Challenge — match the valid codes only</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">Codes: AB1 XY9 7ZZ qq2 A1B z9</pre>
+        </div>
+      </div>
+      <details class="vt-reveal">
+        <summary>Stuck? Reveal a walk-through (try first!)</summary>
+        <div class="answer">
+          Two uppercase letters then a digit: <code class="rx">[A-Z][A-Z]\d</code>.
+          <code>7ZZ</code> starts with a digit, <code>qq2</code> is lowercase,
+          <code>A1B</code> has a digit in the middle, and <code>z9</code> is only
+          a letter-digit — so none of them qualify. You could also write
+          <code class="rx">[A-Z][A-Z][0-9]</code>; <code>\d</code> and
+          <code>[0-9]</code> are the same thing.
+        </div>
+      </details>
 
       <div class="vt-recap">
         <p class="h">✦ What you earned</p>
-        A regex is matched one position at a time. Literals match themselves,
-        <code>.</code> matches any one character, <code>[...]</code> / <code>[^...]</code>
-        match one character from (or not from) a set, and <code>\d \w \s</code>
-        are the everyday shorthands. You can read single-character patterns now.
+        You can read and write one-character matching: literals,
+        <code class="rx">.</code>, classes <code class="rx">[…]</code> /
+        <code class="rx">[^…]</code>, and the shorthands
+        <code class="rx">\d \w \s</code> — all under one mental model, the cursor
+        that checks one position at a time. You wrote a real pattern unaided.
       </div>
 
       <div class="vt-teacher">
         <div>
           <p class="h">I'm your teacher — ask me anything</p>
           <p>
-            If the "one position at a time" idea still feels slippery, ask me to
-            trace a specific pattern over a specific string, character by
-            character — I'll narrate every step the engine takes. Or throw me a
-            real regex you've pasted before and we'll decode it together.
+            If any highlight surprised you, that's the most useful thing that can
+            happen — bring it to me. A few openers:
           </p>
           <div class="vt-asks">
-            <span class="vt-ask">Trace <code>[A-Z]\d</code> over "A7 b3 C9" for me.</span>
-            <span class="vt-ask">Why does <code>.</code> not match a newline?</span>
-            <span class="vt-ask">When should I use <code>\w</code> vs spelling out a class?</span>
+            <span class="vt-ask">Why did <code>[a-z]</code> miss the uppercase letters?</span>
+            <span class="vt-ask">When would I use <code>\w</code> instead of <code>[A-Za-z]</code>?</span>
+            <span class="vt-ask">Show me a pattern from my own code and read it with me.</span>
           </div>
         </div>
       </div>
@@ -372,8 +289,8 @@
       <p class="vt-upnext">
         <em>Up next:</em>
         <a href="0002-quantifiers-and-anchors.html">Lesson 2 — Quantifiers and anchors</a>:
-        how to say "how many times," tame greedy <code>.*</code>, and match a
-        <em>position</em> instead of a character.
+        how to say "one or more," "optional," and "exactly here," and why a
+        greedy <code class="rx">.*</code> grabs too much.
       </p>
 
       <footer class="vt-sources">
@@ -381,37 +298,30 @@
         <ul class="vt-reflist">
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes">MDN — Character classes</a>
-            <span class="note">— primary source: the authoritative reference for everything in this lesson.</span>
+            ><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions">MDN — Regular expressions guide</a>
+            <span class="note">— primary source: the canonical reference for the flavor we use.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="doc"></span
             ><a href="https://www.regular-expressions.info/charclass.html">regular-expressions.info — Character classes</a>
-            <span class="note">— deeper treatment of class edge cases.</span>
-          </li>
-          <li>
-            <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://regex101.com/">regex101 — live tester</a>
-            <span class="note">— paste any pattern and watch it match.</span>
+            <span class="note">— deeper prose on classes, ranges, and negation.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="forum"></span
-            ><a href="https://stackoverflow.com/questions/tagged/regex">Stack Overflow — regex tag</a>
+            ><a href="https://regex101.com/">regex101.com</a>
+            <span class="note">— paste any pattern and watch it explained token by token (set flavor to ECMAScript).</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
           <a href="../reference/regex-cheatsheet.html">Regex cheat sheet &amp; glossary</a>
         </div>
-        <div class="meta">Lesson 0001 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0001 · verified 2026-06-26</div>
       </footer>
     </main>
 
-    <script src="../assets/prism/prism-core.min.js"></script>
-    <script src="../assets/prism/prism-clike.min.js"></script>
-    <script src="../assets/prism/prism-javascript.min.js"></script>
-    <script src="../assets/base.js"></script>
-    <script src="../assets/code.js"></script>
-    <script src="../assets/quiz.js"></script>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/regex-lab/regex-lab.js"></script>
   </body>
 </html>

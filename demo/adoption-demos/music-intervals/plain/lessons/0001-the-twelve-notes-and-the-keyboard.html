@@ -1,192 +1,213 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 1 · The twelve notes and the keyboard</title>
-<link rel="stylesheet" href="../assets/course.css">
+<title>Lesson 1 · The Twelve Notes and the Keyboard</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/keyboard.css">
+<link rel="stylesheet" href="../assets/quiz.css">
 </head>
 <body>
-<main class="wrap">
-  <p class="eyebrow">Twelve Notes <span class="sep">/</span> Lesson 1 of 3</p>
+<div class="wrap">
+
+  <div class="masthead">
+    <span>Intervals &amp; the Major Scale · Lesson 1 of 3</span>
+    <span><a href="../reference/glossary.html">Glossary</a> · <a href="../MISSION.md">Mission</a></span>
+  </div>
+
   <h1>The twelve notes and the keyboard</h1>
-  <p class="subtitle">The smallest true map of all of music — and it fits in one octave.</p>
+  <p class="subtitle">Before you can measure the distance between two notes, you
+  need the ruler. Here it is — twelve little steps that repeat forever.</p>
 
-  <p class="lead">Western music is built from just <strong>twelve</strong> evenly
-  spaced notes. Past the twelfth, the names start over. Learn that one repeating
-  ruler and the whole keyboard stops being a wall of keys and becomes a map you
-  can read.</p>
+  <p>You already enjoy making sounds on your instrument. The thing that turns
+  guessing into <em>knowing</em> is a single, small mental model: Western music
+  takes the span from one note to the same note higher — an <strong>octave</strong> —
+  and cuts it into <strong>twelve equal steps</strong>. Each step is called a
+  <strong>semitone</strong>, and a semitone is the smallest move you can make.<sup class="cite"><a href="https://www.open.edu/openlearn/history-the-arts/music/an-introduction-music-theory/content-section-5.2" target="_blank" rel="noopener">1</a></sup></p>
 
-  <h2>One step at a time: the semitone</h2>
-  <p>The smallest move in Western music is the <strong>semitone</strong> — also
-  called a <em>half step</em>. On a piano it is the move from any key to the key
-  immediately next to it, <strong>counting the black keys</strong>.<sup class="ref"><a href="#s1">1</a></sup>
-  C up to the black key C♯ is one semitone. E up to F — where there is
-  <em>no</em> black key between them — is also one semitone.</p>
+  <p>The piano keyboard is simply a <em>picture</em> of those twelve steps. We'll
+  use it as our map for the whole course — no staff notation, ever. Every key,
+  white or black, is one semitone from its neighbour.</p>
 
-  <p>Stack twelve of these steps and something remarkable happens: you arrive at a
-  note that sounds like where you began, only higher. That distance is the
-  <strong>octave</strong>, and those twelve steps are the entire alphabet of
-  pitch.<sup class="ref"><a href="#s2">2</a></sup></p>
+  <h2>Read the map</h2>
+  <p>Notice the black keys come in tidy groups of <strong>two</strong> and
+  <strong>three</strong>. That pattern is your anchor: the white key just to the
+  left of the <em>pair</em> of black keys is always <strong>C</strong>. Find C and
+  you can name everything else.</p>
 
-  <h2>The keyboard is the map</h2>
-  <p>The seven <strong>white keys</strong> carry the letter names
-  <strong>A B C D E F G</strong>; after G the letters wrap back to A. The five
-  <strong>black keys</strong> are the in-between notes (the sharps and flats).
-  White and black together make the twelve. Notice the black keys come in a group
-  of <strong>two</strong> then a group of <strong>three</strong> — that visual
-  rhythm is how you find your bearings without reading a single number.</p>
+  <div id="map"></div>
+  <p class="hint" style="font-family:ui-sans-serif,system-ui,sans-serif;font-size:.82rem;color:var(--ink-soft)">
+  The seven letters A&nbsp;B&nbsp;C&nbsp;D&nbsp;E&nbsp;F&nbsp;G name the white keys;
+  the black keys borrow a neighbour's name with a sharp&nbsp;(♯) or flat&nbsp;(♭).
+  More on naming black keys in <a href="0002-intervals-distance-in-semitones.html">Lesson&nbsp;2</a>.</p>
 
-  <div class="kbd-figure">
-    <div class="kbd-scroll">
-      <div class="keyboard" role="img" aria-label="One octave of a piano keyboard, white keys C D E F G A B C and five black keys">
-        <div class="wkey">C</div>
-        <div class="wkey">D</div>
-        <div class="wkey">E</div>
-        <div class="wkey">F</div>
-        <div class="wkey">G</div>
-        <div class="wkey">A</div>
-        <div class="wkey">B</div>
-        <div class="wkey">C</div>
-        <div class="bkey cs">C♯</div>
-        <div class="bkey ds">D♯</div>
-        <div class="bkey fs">F♯</div>
-        <div class="bkey gs">G♯</div>
-        <div class="bkey as">A♯</div>
-      </div>
+  <h2>Count the twelve steps</h2>
+  <p>Press the button to number one octave's worth of keys. Step <b>0</b> is a C;
+  by the time you reach a C again you've taken <strong>twelve</strong> semitones —
+  and the cycle starts over.</p>
+
+  <div id="counter"></div>
+  <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.6rem 0 0">
+    <button class="check" id="btn-count" type="button">Number the 12 steps</button>
+    <button class="check" id="btn-octave" type="button" style="background:var(--accent);border-color:var(--accent)">Light up every C</button>
+    <button class="check" id="btn-clear" type="button" style="background:#8a8478;border-color:#8a8478">Clear</button>
+  </div>
+  <div class="readout" id="counter-readout">Two octaves shown. The same twelve names repeat in each.</div>
+
+  <div class="callout">
+    <span class="label">The big idea</span>
+    Same letter name, higher or lower box on the keyboard = the <strong>same
+    note</strong>, just in another octave. This is <strong>octave equivalence</strong>:
+    a C is a C is a C.<sup class="cite"><a href="https://viva.pressbooks.pub/openmusictheory/chapter/pitch-and-pitch-class/" target="_blank" rel="noopener">2</a></sup>
+    That's why there are really only <strong>twelve</strong> note names, not eighty-eight.
+  </div>
+
+  <h2>Your turn — find the note</h2>
+  <p>This is retrieval practice: no peeking, recall it. I'll name a note; you
+  click any key with that name (any octave counts — that's octave equivalence at
+  work). Immediate feedback, and a streak to chase.</p>
+
+  <div class="practice">
+    <div class="drill-head">
+      <span class="drill-score">Score <b id="d-score">0/0</b></span>
+      <span class="drill-streak">Streak <b id="d-streak">0</b></span>
     </div>
-    <p class="kbd-cap">One octave, C to C. Find the <strong>two-black-key</strong>
-      group: the white key just to its left is always <strong>C</strong>. That is
-      your anchor anywhere on a real piano.</p>
+    <div class="drill-prompt">Find and click any <span class="big" id="d-target">G</span></div>
+    <div id="play"></div>
+    <div class="quiz-feedback" id="d-fb"></div>
   </div>
 
-  <h2>Count the twelve, then watch them repeat</h2>
-  <p>Here is the full <strong>chromatic</strong> climb from C — every semitone,
-  numbered. Step&nbsp;12 is another C: same name, same character, just an octave
-  higher. That sameness is called <strong>octave equivalence</strong>, and it is
-  why a short twelve-note pattern is enough to describe a piano with dozens of
-  keys — the pattern simply repeats.<sup class="ref"><a href="#s3">3</a></sup></p>
-
-  <div class="steps" aria-label="Chromatic scale from C, twelve semitones, then C again">
-    <span class="note-chip on">C·0</span>
-    <span class="note-chip">C♯·1</span>
-    <span class="note-chip">D·2</span>
-    <span class="note-chip">D♯·3</span>
-    <span class="note-chip">E·4</span>
-    <span class="note-chip">F·5</span>
-    <span class="note-chip">F♯·6</span>
-    <span class="note-chip">G·7</span>
-    <span class="note-chip">G♯·8</span>
-    <span class="note-chip">A·9</span>
-    <span class="note-chip">A♯·10</span>
-    <span class="note-chip">B·11</span>
-    <span class="note-chip on">C·12</span>
-  </div>
-  <p class="cite">Twelve equal semitones span the octave; note 0 and note 12 share
-    the name C. The black keys also carry flat names (C♯ = D♭, etc.) — more on
-    that in <a href="0002-intervals-distance-in-semitones.html">Lesson 2</a>.</p>
-
-  <div class="win">
-    <span class="tag">Your win this lesson</span>
-    You can look at any keyboard, find C from the two-black-key group, and explain
-    why the keys keep repeating: <strong>twelve semitones, then the names start
-    over.</strong>
+  <h2>Quick recall</h2>
+  <div class="practice">
+    <p style="margin-top:0"><strong>How many semitones are in one octave?</strong></p>
+    <div id="q1"></div>
   </div>
 
-  <h2>Check yourself</h2>
-  <p>No looking back — answer from memory, then read the feedback. Retrieval is
-  what makes this stick.</p>
-
-  <div class="quiz">
-    <div class="q">
-      <p class="prompt">1. On the keyboard, how many semitones is it from E up to F (no black key sits between them)?</p>
-      <div class="opts">
-        <button class="opt" data-correct="1">One</button>
-        <button class="opt">Two</button>
-        <button class="opt">Six</button>
-      </div>
-      <div class="feedback"
-        data-ok="A semitone is just the next key over — and E→F are neighbours with nothing between."
-        data-no="It's one. E and F are adjacent keys; with no black key between, the gap is a single semitone."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">2. How many semitones make one full octave (where the note names start over)?</p>
-      <div class="opts">
-        <button class="opt">Seven</button>
-        <button class="opt" data-correct="1">Twelve</button>
-        <button class="opt">Eighty</button>
-      </div>
-      <div class="feedback"
-        data-ok="Twelve equal semitones fill the octave — the complete chromatic set."
-        data-no="Twelve. Seven is the number of white-key letters; the octave itself is twelve semitones."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">3. A low C and a high C share one name. The reason is called…</p>
-      <div class="opts">
-        <button class="opt">interval distance</button>
-        <button class="opt" data-correct="1">octave equivalence</button>
-        <button class="opt">semitone counting</button>
-      </div>
-      <div class="feedback"
-        data-ok="Octave equivalence: notes an octave apart sound like the same note, higher or lower."
-        data-no="It's octave equivalence — same name, same character, a full octave apart."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">4. The seven lettered natural notes A–G live on which keys?</p>
-      <div class="opts">
-        <button class="opt" data-correct="1">the white keys</button>
-        <button class="opt">the black keys</button>
-        <button class="opt">the short keys</button>
-      </div>
-      <div class="feedback"
-        data-ok="Right — white keys are the naturals A B C D E F G; black keys are the sharps and flats."
-        data-no="The white keys carry A–G. The black keys are the sharps and flats between them."></div>
-    </div>
-
-    <p class="scoreline"></p>
+  <div class="practice">
+    <p style="margin-top:0"><strong>Go up twelve semitones from a C. You land on a…</strong></p>
+    <div id="q2"></div>
   </div>
 
-  <div class="primary-source">
-    <span class="tag">Read this next — primary source</span>
-    <p style="margin:.3rem 0 0">Wikipedia, <a href="https://en.wikipedia.org/wiki/Semitone">“Semitone.”</a>
-    A precise, well-cited definition of the smallest step and its synonyms (half
-    step / half tone). For an interactive feel, try the
-    <a href="https://www.musictheory.net/exercises/keyboard">Keyboard Note Identification</a>
-    drill — name keys until C, D, E… come without thinking.</p>
+  <div class="callout win">
+    <h3>Your win this lesson</h3>
+    <p style="margin-bottom:0">You can read the keyboard as a map of
+    <strong>twelve repeating semitones</strong>, find any note by anchoring on C,
+    and you know why the same names recur up and down the keys. That ruler is
+    everything we measure with next.</p>
   </div>
 
-  <div class="followup">
-    <span class="tag">Ask your teacher</span>
-    Something not clicking — the two-vs-three black-key pattern, why E→F has no
-    black key, or how this looks on a guitar instead? <strong>Ask me.</strong>
-    I'm your teacher for this course and happy to take it from any angle.
+  <div class="source-box">
+    <span class="label">Primary source — go deeper</span>
+    <a href="https://www.open.edu/openlearn/history-the-arts/music/an-introduction-music-theory/content-section-5.2" target="_blank" rel="noopener">The Open University — “Semitones and tones, and the scale of C major.”</a>
+    A free, university-grade walk through exactly this map. Read section 5.2 once;
+    it will make this lesson click.
   </div>
 
-  <p style="margin-top:1.6rem"><strong>Before next time:</strong> find C on any
-  keyboard you can reach (a real piano, a phone app, a picture) three separate
-  times today. Spacing the recall out is what moves it into long-term memory.</p>
+  <p class="ask"><b>I'm your teacher — ask me anything.</b> Stuck on why black keys
+  have two names, or want more drilling on a tricky spot? Just ask. A good next
+  question: “Why are there only twelve notes and not more?”</p>
 
-  <nav class="lesson-nav">
-    <span class="disabled">← Start of course</span>
-    <a href="0002-intervals-distance-in-semitones.html">Lesson 2: Intervals — distance in semitones →</a>
-  </nav>
+  <div class="lesson-nav">
+    <span class="spacer"></span>
+    <a href="0002-intervals-distance-in-semitones.html">Lesson 2 · Intervals — distance in semitones →</a>
+  </div>
 
-  <h3 id="sources">Sources</h3>
-  <ol class="cite">
-    <li id="s1">Wikipedia, “Semitone.” <a href="https://en.wikipedia.org/wiki/Semitone">en.wikipedia.org/wiki/Semitone</a></li>
-    <li id="s2">Wikipedia, “Chromatic scale.” <a href="https://en.wikipedia.org/wiki/Chromatic_scale">en.wikipedia.org/wiki/Chromatic_scale</a></li>
-    <li id="s3">musictheory.net, Lessons. <a href="https://www.musictheory.net/lessons">musictheory.net/lessons</a></li>
-  </ol>
-
-  <footer class="colophon">
-    Twelve Notes · Lesson 1 · see also the
-    <a href="../reference/glossary.html">glossary</a> and
-    <a href="../reference/major-scale-cheatsheet.html">major-scale cheat sheet</a>.
+  <footer class="fineprint">
+    Sources: [1] The Open University, OpenLearn “An introduction to music theory,” §5.2.
+    [2] Open Music Theory, “Pitch and Pitch Class.” See
+    <a href="../RESOURCES.md">RESOURCES.md</a> for the full list ·
+    <a href="../reference/glossary.html">Course glossary</a>.
   </footer>
-</main>
+
+</div>
+
+<script src="../assets/keyboard.js"></script>
 <script src="../assets/quiz.js"></script>
+<script>
+(function () {
+  var M = window.Music;
+
+  // --- Map keyboard (static, labeled) ---
+  new M.Keyboard("#map", { low: "C4", high: "C6", labels: "white" });
+
+  // --- Counter keyboard ---
+  var kb = new M.Keyboard("#counter", { low: "C4", high: "C6", labels: "white" });
+  var ro = document.getElementById("counter-readout");
+
+  document.getElementById("btn-count").addEventListener("click", function () {
+    kb.clearMarks();
+    for (var i = 0; i <= 12; i++) {
+      var m = M.midi("C4") + i;
+      kb.badge(m, String(i), i === 0 || i === 12 ? "root" : "");
+      kb.highlight(m, i === 0 || i === 12 ? "root" : "hi");
+    }
+    ro.innerHTML = "Zero to twelve: <b>twelve semitones</b> from C up to the next C. " +
+                   "Step 12 is a C again — the cycle repeats.";
+  });
+  document.getElementById("btn-octave").addEventListener("click", function () {
+    kb.clearMarks();
+    ["C4","C5","C6"].forEach(function (n) {
+      kb.highlight(n, "root"); kb.badge(n, "C", "root");
+    });
+    ro.innerHTML = "Every <b>C</b> lit at once — different boxes, same note. " +
+                   "That's <b>octave equivalence</b>.";
+  });
+  document.getElementById("btn-clear").addEventListener("click", function () {
+    kb.clearMarks();
+    ro.textContent = "Two octaves shown. The same twelve names repeat in each.";
+  });
+
+  // --- Find-the-note drill ---
+  var targets = ["G","C","E","A","D","F","B","C#","F#"];
+  var idx = 0, score = 0, total = 0, streak = 0;
+  var tEl = document.getElementById("d-target");
+  var sEl = document.getElementById("d-score");
+  var stEl = document.getElementById("d-streak");
+  var fb = document.getElementById("d-fb");
+
+  function pick() {
+    // avoid repeating the same target twice in a row (no Math.random needed)
+    idx = (idx + 1 + (total % 3)) % targets.length;
+    tEl.textContent = targets[idx];
+    fb.className = "quiz-feedback";
+    fb.textContent = "";
+  }
+
+  var play = new M.Keyboard("#play", {
+    low: "C4", high: "C6", labels: "white",
+    onClick: function (m, name) {
+      var want = M.pc(M.midi(targets[idx] + "4"));
+      total++;
+      if (M.pc(m) === want) {
+        score++; streak++;
+        fb.className = "quiz-feedback show good";
+        fb.textContent = "✓ Yes — " + name + " is a " + targets[idx] + ". Any octave counts.";
+        setTimeout(pick, 650);
+      } else {
+        streak = 0;
+        fb.className = "quiz-feedback show bad";
+        fb.textContent = "✗ That was " + name + ". Re-anchor on C (left of the two black keys) and try again.";
+      }
+      sEl.textContent = score + "/" + total;
+      stEl.textContent = streak;
+    }
+  });
+
+  // --- Recall MC ---
+  window.Quiz.mc("#q1", {
+    choices: ["12 steps", "10 steps", "14 steps", "16 steps"],
+    answer: 0,
+    explainRight: "An octave is split into exactly twelve equal semitones.",
+    explainWrong: "Count again on the keyboard: C up to the next C is twelve semitones."
+  });
+  window.Quiz.mc("#q2", {
+    choices: ["a C note", "an E note", "a G note", "an A note"],
+    answer: 0,
+    explainRight: "Twelve semitones up = one octave, so you land on the same name: C.",
+    explainWrong: "Twelve semitones is one whole octave, which returns the same letter — a C."
+  });
+})();
+</script>
 </body>
 </html>

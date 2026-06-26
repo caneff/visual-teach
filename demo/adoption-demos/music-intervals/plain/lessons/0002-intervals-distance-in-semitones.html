@@ -1,260 +1,240 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 · Intervals — distance in semitones</title>
-<link rel="stylesheet" href="../assets/course.css">
+<title>Lesson 2 · Intervals — Distance in Semitones</title>
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="stylesheet" href="../assets/keyboard.css">
+<link rel="stylesheet" href="../assets/quiz.css">
 </head>
 <body>
-<main class="wrap">
-  <p class="eyebrow">Twelve Notes <span class="sep">/</span> Lesson 2 of 3</p>
-  <h1>Intervals: distance in semitones</h1>
-  <p class="subtitle">Stop saying “those two notes” — start naming the exact distance between them.</p>
+<div class="wrap">
 
-  <p class="lead">An <strong>interval</strong> is just the distance between two
-  notes, and on the keyboard you measure it by <strong>counting semitones</strong>.
-  Learn five everyday intervals and you can name most of what you hear — and start
-  to explain <em>why</em> some pairs sound sweet and others tense.</p>
-
-  <div class="note">
-    <strong>Carrying over from <a href="0001-the-twelve-notes-and-the-keyboard.html">Lesson&nbsp;1</a>:</strong>
-    one semitone = the next key over (black keys counted); twelve semitones = one
-    octave. Everything here is built on that ruler.
+  <div class="masthead">
+    <span>Intervals &amp; the Major Scale · Lesson 2 of 3</span>
+    <span><a href="../reference/glossary.html">Glossary</a> · <a href="../reference/interval-cheatsheet.html">Cheatsheet</a></span>
   </div>
 
-  <h2>How to count an interval</h2>
-  <p>Put a finger on the lower note, then <strong>count every key you cross</strong>
-  — black and white — until you reach the upper note. The number of keys you move
-  is the interval in semitones. <em>Count the steps, not the note names.</em>
-  From C to G that is seven moves:</p>
+  <h1>Intervals — distance in semitones</h1>
+  <p class="subtitle">Why do some notes sound “right” together? Because of the
+  <em>distance</em> between them. Here's how to measure and name it.</p>
 
-  <div class="kbd-figure">
-    <div class="kbd-scroll">
-      <div class="keyboard" role="img" aria-label="Keyboard with C as root and G highlighted, seven semitones apart">
-        <div class="wkey root hl2">C</div>
-        <div class="wkey">D</div>
-        <div class="wkey">E</div>
-        <div class="wkey">F</div>
-        <div class="wkey hl">G</div>
-        <div class="wkey">A</div>
-        <div class="wkey">B</div>
-        <div class="wkey">C</div>
-        <div class="bkey cs">1</div>
-        <div class="bkey ds">3</div>
-        <div class="bkey fs">6</div>
-        <div class="bkey gs">G♯</div>
-        <div class="bkey as">A♯</div>
-      </div>
-    </div>
-    <p class="kbd-cap">C (root, teal) up to G (gold). Crossing C♯·1, D·2, D♯·3,
-      E·4, F·5, F♯·6, G·<strong>7</strong> — a <strong>perfect fifth</strong>.</p>
+  <p>From <a href="0001-the-twelve-notes-and-the-keyboard.html">Lesson&nbsp;1</a> you
+  have the ruler: twelve semitones, repeating. An <strong>interval</strong> is just
+  the distance between two notes, <strong>counted in semitones</strong>.<sup class="cite"><a href="https://viva.pressbooks.pub/openmusictheory/chapter/intervals/" target="_blank" rel="noopener">1</a></sup>
+  That's the whole trick: put a finger on the lower note, walk up key by key —
+  white <em>and</em> black — counting each step, and the number you land on names
+  the interval.</p>
+
+  <div class="callout">
+    <span class="label">How to count</span>
+    Count the <strong>gaps</strong>, not the keys. The lower note is “0.” Each key
+    you move up — including black keys — adds one. Land on the higher note and
+    read the total. That total <em>is</em> the interval's size.
   </div>
 
-  <h2>The five you should own</h2>
-  <p>These cover most of what you'll meet. Memorise the semitone count; the names
-  follow.<sup class="ref"><a href="#s1">1</a></sup></p>
+  <h2>The everyday intervals</h2>
+  <p>You don't need all twelve at once. These five do most of the work, and you'll
+  meet them constantly when we build scales next lesson:</p>
+
+  <div class="chips">
+    <span class="chip"><b>1</b> · half step <small>(semitone)</small></span>
+    <span class="chip"><b>2</b> · whole step <small>(tone)</small></span>
+    <span class="chip"><b>4</b> · major third</span>
+    <span class="chip"><b>7</b> · perfect fifth</span>
+    <span class="chip"><b>12</b> · octave</span>
+  </div>
 
   <table>
-    <thead>
-      <tr><th>Interval</th><th class="num">Semitones</th><th>Example from C</th><th>Feel</th></tr>
-    </thead>
+    <thead><tr><th>Interval</th><th>Semitones</th><th>Rough feel</th></tr></thead>
     <tbody>
-      <tr><td><strong>Half step</strong></td><td class="num">1</td><td>C → C♯</td><td>tense, restless</td></tr>
-      <tr><td><strong>Whole step</strong></td><td class="num">2</td><td>C → D</td><td>open, neutral</td></tr>
-      <tr><td><strong>Major third</strong></td><td class="num">4</td><td>C → E</td><td>bright, “happy”</td></tr>
-      <tr><td><strong>Perfect fifth</strong></td><td class="num">7</td><td>C → G</td><td>stable, strong</td></tr>
-      <tr><td><strong>Octave</strong></td><td class="num">12</td><td>C → C</td><td>same note, higher</td></tr>
+      <tr><td>Half step</td><td class="num">1</td><td>tight, tense, “leaning”</td></tr>
+      <tr><td>Whole step</td><td class="num">2</td><td>a clear, easy step</td></tr>
+      <tr><td>Major third</td><td class="num">4</td><td>bright, sweet, “happy”</td></tr>
+      <tr><td>Perfect fifth</td><td class="num">7</td><td>open, strong, stable</td></tr>
+      <tr><td>Octave</td><td class="num">12</td><td>the same note, higher</td></tr>
     </tbody>
-    <caption>The everyday intervals, counted in semitones. Counts cross-checked
-      against musictheory.net, “Specific Intervals.”</caption>
   </table>
 
-  <h3>See three of them</h3>
-  <div class="kbd-figure">
-    <div class="kbd-scroll">
-      <div class="keyboard" role="img" aria-label="Keyboard showing C to E, a major third of four semitones">
-        <div class="wkey root hl2">C</div>
-        <div class="wkey">D</div>
-        <div class="wkey hl">E</div>
-        <div class="wkey">F</div>
-        <div class="wkey">G</div>
-        <div class="wkey">A</div>
-        <div class="wkey">B</div>
-        <div class="wkey">C</div>
-        <div class="bkey cs">1</div>
-        <div class="bkey ds">3</div>
-        <div class="bkey fs">F♯</div>
-        <div class="bkey gs">G♯</div>
-        <div class="bkey as">A♯</div>
-      </div>
+  <p>That last column is <strong>consonance</strong> — roughly, how settled two
+  notes sound together. Octaves and fifths feel rock-solid and open; the major
+  third is the sweet, “happy” colour; a half step feels tense and wants to move.<sup class="cite"><a href="https://viva.pressbooks.pub/openmusictheory/chapter/intervals/" target="_blank" rel="noopener">1</a></sup>
+  You don't need to memorise feelings — just notice them as you play.</p>
+
+  <h2>See it on the keyboard</h2>
+  <p>Tap an interval. Both notes light up and every semitone in between gets
+  numbered, so you can watch the distance being counted from <b>0</b>.</p>
+
+  <div id="demo"></div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin:.6rem 0 0">
+    <button class="check demo-btn" data-s="1" type="button">Half step · 1</button>
+    <button class="check demo-btn" data-s="2" type="button">Whole step · 2</button>
+    <button class="check demo-btn" data-s="4" type="button">Major third · 4</button>
+    <button class="check demo-btn" data-s="7" type="button">Perfect fifth · 7</button>
+    <button class="check demo-btn" data-s="12" type="button">Octave · 12</button>
+  </div>
+  <div class="readout" id="demo-readout">Pick an interval above — we'll count up from C.</div>
+
+  <h2>Your turn — count and name it</h2>
+  <p>The core skill of this lesson, as a tight feedback loop. Two notes are lit.
+  Count the semitones between them, decide which interval it is, and pick. You'll
+  see the count revealed each time — that's the desirable difficulty that makes it
+  stick.</p>
+
+  <div class="practice">
+    <div class="drill-head">
+      <span class="drill-score">Score <b id="score">0/0</b></span>
+      <span class="drill-streak">Streak <b id="streak">0</b> <span id="best"></span></span>
     </div>
-    <p class="kbd-cap">C → E = 4 semitones = a <strong>major third</strong>. That
-      bright colour is the top of a “happy” chord.</p>
+    <div class="drill-prompt">What is the distance between the two lit notes?</div>
+    <div id="drill-kb"></div>
+    <div class="quiz-choices" id="choices"></div>
+    <div class="quiz-feedback" id="fb"></div>
+    <button class="check" id="next" type="button" style="display:none">Next question →</button>
   </div>
 
-  <div class="kbd-figure">
-    <div class="kbd-scroll">
-      <div class="keyboard" role="img" aria-label="Keyboard showing C to the octave C, twelve semitones">
-        <div class="wkey root hl2">C</div>
-        <div class="wkey">D</div>
-        <div class="wkey">E</div>
-        <div class="wkey">F</div>
-        <div class="wkey">G</div>
-        <div class="wkey">A</div>
-        <div class="wkey">B</div>
-        <div class="wkey hl">C</div>
-        <div class="bkey cs">C♯</div>
-        <div class="bkey ds">D♯</div>
-        <div class="bkey fs">F♯</div>
-        <div class="bkey gs">G♯</div>
-        <div class="bkey as">A♯</div>
-      </div>
-    </div>
-    <p class="kbd-cap">C → C = 12 semitones = the <strong>octave</strong>: the
-      same note name, one full cycle higher.</p>
+  <div class="callout win">
+    <h3>Your win this lesson</h3>
+    <p style="margin-bottom:0">Given any two notes on the keyboard, you can
+    <strong>count the semitones</strong> between them and <strong>name</strong> the
+    common interval. You're no longer guessing why notes clash or click — you can
+    measure it.</p>
   </div>
 
-  <h2>A first word on consonance</h2>
-  <p>Some pairs sound settled and "open," others sound tense. As a rough rule,
-  the <strong>octave</strong> (12) and the <strong>perfect fifth</strong> (7) are
-  the most consonant — stable enough to end a song on. The <strong>major third</strong>
-  (4) is sweet and bright. A bare <strong>half step</strong> (1) is the most
-  dissonant — two keys rubbing right next to each other.<sup class="ref"><a href="#s2">2</a></sup>
-  You don't need the physics; you only need to connect the <em>count</em> to the
-  <em>feeling</em>.</p>
-
-  <div class="win">
-    <span class="tag">Your win this lesson</span>
-    Given any two keys, you can count the semitones between them and name the
-    common intervals — <strong>1 half, 2 whole, 4 major third, 7 fifth, 12
-    octave.</strong>
+  <div class="source-box">
+    <span class="label">Primary source — go deeper</span>
+    <a href="https://viva.pressbooks.pub/openmusictheory/chapter/intervals/" target="_blank" rel="noopener">Open Music Theory — “Intervals.”</a>
+    The precise, trustworthy definition of interval size, with the same
+    count-the-semitones logic. (Later it adds “quality” names — skim that part;
+    counting is what you need now.) For drilling by ear, the
+    <a href="https://www.musictheory.net/exercises" target="_blank" rel="noopener">musictheory.net trainers</a>
+    are excellent spaced practice between sessions.
   </div>
 
-  <h2>Now you count</h2>
-  <p>Each keyboard below highlights a <span style="color:#2f6b66"><strong>root
-  (teal)</strong></span> and a <span style="color:#b8893b"><strong>target
-  (gold)</strong></span>. Count the semitones in your head, choose the name, then
-  read the feedback. Mixing the five together like this is the practice that
-  builds real recall.</p>
+  <p class="ask"><b>I'm your teacher — ask me anything.</b> Want the names of the
+  intervals we skipped (3, 5, 6 semitones…), or why a fifth sounds so “open”? Ask.
+  Try: “Why is 7 semitones called a <em>fifth</em> if it's seven steps?”</p>
 
-  <div class="quiz">
-    <div class="q">
-      <p class="prompt">1. Count the gap, then name it:</p>
-      <div class="kbd-scroll">
-        <div class="keyboard" role="img" aria-label="C root to G target">
-          <div class="wkey root hl2">C</div><div class="wkey">D</div><div class="wkey">E</div>
-          <div class="wkey">F</div><div class="wkey hl">G</div><div class="wkey">A</div>
-          <div class="wkey">B</div><div class="wkey">C</div>
-          <div class="bkey cs">C♯</div><div class="bkey ds">D♯</div><div class="bkey fs">F♯</div>
-          <div class="bkey gs">G♯</div><div class="bkey as">A♯</div>
-        </div>
-      </div>
-      <div class="opts" style="margin-top:.8rem">
-        <button class="opt" data-correct="1">Perfect fifth</button>
-        <button class="opt">Major third</button>
-        <button class="opt">Octave above</button>
-      </div>
-      <div class="feedback"
-        data-ok="C→G is seven semitones — the strong, stable perfect fifth."
-        data-no="Count the keys: C♯,D,D♯,E,F,F♯,G = 7 semitones = a perfect fifth."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">2. Count the gap, then name it:</p>
-      <div class="kbd-scroll">
-        <div class="keyboard" role="img" aria-label="C root to E target">
-          <div class="wkey root hl2">C</div><div class="wkey">D</div><div class="wkey hl">E</div>
-          <div class="wkey">F</div><div class="wkey">G</div><div class="wkey">A</div>
-          <div class="wkey">B</div><div class="wkey">C</div>
-          <div class="bkey cs">C♯</div><div class="bkey ds">D♯</div><div class="bkey fs">F♯</div>
-          <div class="bkey gs">G♯</div><div class="bkey as">A♯</div>
-        </div>
-      </div>
-      <div class="opts" style="margin-top:.8rem">
-        <button class="opt">Perfect fifth</button>
-        <button class="opt" data-correct="1">Major third</button>
-        <button class="opt">Single semitone</button>
-      </div>
-      <div class="feedback"
-        data-ok="C→E is four semitones — the bright major third."
-        data-no="C→E counts C♯,D,D♯,E = 4 semitones = a major third."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">3. Count the gap, then name it:</p>
-      <div class="kbd-scroll">
-        <div class="keyboard" role="img" aria-label="E root to F target, one semitone">
-          <div class="wkey">C</div><div class="wkey">D</div><div class="wkey root hl2">E</div>
-          <div class="wkey hl">F</div><div class="wkey">G</div><div class="wkey">A</div>
-          <div class="wkey">B</div><div class="wkey">C</div>
-          <div class="bkey cs">C♯</div><div class="bkey ds">D♯</div><div class="bkey fs">F♯</div>
-          <div class="bkey gs">G♯</div><div class="bkey as">A♯</div>
-        </div>
-      </div>
-      <div class="opts" style="margin-top:.8rem">
-        <button class="opt">A whole step</button>
-        <button class="opt" data-correct="1">A half step</button>
-        <button class="opt">A major third</button>
-      </div>
-      <div class="feedback"
-        data-ok="E→F are neighbours with no black key between — one semitone, a half step."
-        data-no="E and F sit side by side with nothing between: one semitone = a half step."></div>
-    </div>
-
-    <div class="q">
-      <p class="prompt">4. How many semitones is the octave C → C?</p>
-      <div class="opts">
-        <button class="opt">Seven</button>
-        <button class="opt" data-correct="1">Twelve</button>
-        <button class="opt">Eleven</button>
-      </div>
-      <div class="feedback"
-        data-ok="Twelve semitones complete the octave and bring back the name C."
-        data-no="Twelve — the full chromatic cycle from Lesson 1 lands on C again."></div>
-    </div>
-
-    <p class="scoreline"></p>
+  <div class="lesson-nav">
+    <a href="0001-the-twelve-notes-and-the-keyboard.html">← Lesson 1</a>
+    <span class="spacer"></span>
+    <a href="0003-building-the-major-scale.html">Lesson 3 · Building the major scale →</a>
   </div>
 
-  <div class="primary-source">
-    <span class="tag">Read this next — primary source</span>
-    <p style="margin:.3rem 0 0">musictheory.net,
-    <a href="https://www.musictheory.net/lessons/31">Lesson 31: “Specific Intervals.”</a>
-    It shows how the semitone count turns into named qualities (major, minor,
-    perfect). Then drill your ear and eye with the
-    <a href="https://www.musictheory.net/exercises/keyboard">keyboard exercises</a>.</p>
-  </div>
-
-  <div class="followup">
-    <span class="tag">Ask your teacher</span>
-    Want more interval names (the fourth, the sixth), or a trick for spotting the
-    fifth instantly, or why the fifth sounds so stable? <strong>Ask me</strong> —
-    that's exactly what I'm here for.
-  </div>
-
-  <p style="margin-top:1.6rem"><strong>Before next time:</strong> pick two random
-  keys a few times today and count the semitones between them out loud. You're
-  about to use this counting to <em>build whole scales</em> in
-  <a href="0003-building-the-major-scale.html">Lesson&nbsp;3</a>.</p>
-
-  <nav class="lesson-nav">
-    <a href="0001-the-twelve-notes-and-the-keyboard.html">← Lesson 1: The twelve notes</a>
-    <a href="0003-building-the-major-scale.html">Lesson 3: Building the major scale →</a>
-  </nav>
-
-  <h3 id="sources">Sources</h3>
-  <ol class="cite">
-    <li id="s1">musictheory.net, “Specific Intervals.” <a href="https://www.musictheory.net/lessons/31">musictheory.net/lessons/31</a></li>
-    <li id="s2">Wikipedia, “Consonance and dissonance.” <a href="https://en.wikipedia.org/wiki/Consonance_and_dissonance">en.wikipedia.org/wiki/Consonance_and_dissonance</a></li>
-  </ol>
-
-  <footer class="colophon">
-    Twelve Notes · Lesson 2 · see also the
-    <a href="../reference/glossary.html">glossary</a> and
-    <a href="../reference/major-scale-cheatsheet.html">major-scale cheat sheet</a>.
+  <footer class="fineprint">
+    Source: [1] Open Music Theory, “Intervals.” Full list in
+    <a href="../RESOURCES.md">RESOURCES.md</a> ·
+    <a href="../reference/interval-cheatsheet.html">Interval cheatsheet</a> ·
+    <a href="../reference/glossary.html">Glossary</a>.
   </footer>
-</main>
+
+</div>
+
+<script src="../assets/keyboard.js"></script>
 <script src="../assets/quiz.js"></script>
+<script>
+(function () {
+  var M = window.Music;
+
+  // ---- Demo keyboard ----
+  var demo = new M.Keyboard("#demo", { low: "C4", high: "C6", labels: "white" });
+  var dro = document.getElementById("demo-readout");
+  var INAMES = { 1:"a half step", 2:"a whole step", 4:"a major third", 7:"a perfect fifth", 12:"an octave" };
+
+  function showInterval(kb, root, semis) {
+    kb.clearMarks();
+    var top = root + semis;
+    for (var i = 0; i <= semis; i++) {
+      var m = root + i;
+      if (i === 0)       { kb.highlight(m, "root"); kb.badge(m, "0", "root"); }
+      else if (i === semis) { kb.highlight(m, "hi2"); kb.badge(m, String(i)); }
+      else               { kb.badge(m, String(i), "muted"); }
+    }
+    return top;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".demo-btn"), function (b) {
+    b.addEventListener("click", function () {
+      var s = +b.dataset.s;
+      showInterval(demo, M.midi("C4"), s);
+      dro.innerHTML = "C up to " + M.name(M.midi("C4") + s) +
+        " is <b>" + s + " semitone" + (s === 1 ? "" : "s") + "</b> — that's " +
+        INAMES[s] + ".";
+    });
+  });
+
+  // ---- Count-and-name drill ----
+  var SET = [
+    { s: 1,  name: "half step" },
+    { s: 2,  name: "whole step" },
+    { s: 4,  name: "major third" },
+    { s: 7,  name: "perfect fifth" },
+    { s: 12, name: "octave" }
+  ];
+  // Fixed choice order so answer length never cues the correct option.
+  var CHOICES = ["half step", "whole step", "major third", "perfect fifth", "octave"];
+  var ROOTS = ["C4","D4","E4","F4","G4","A4"];
+
+  var kb = new M.Keyboard("#drill-kb", { low: "C4", high: "C6", labels: "white" });
+  var choicesEl = document.getElementById("choices");
+  var fb = document.getElementById("fb");
+  var nextBtn = document.getElementById("next");
+  var scoreEl = document.getElementById("score");
+  var streakEl = document.getElementById("streak");
+  var bestEl = document.getElementById("best");
+
+  var score = 0, total = 0, streak = 0, best = 0, cur = null, seq = 0;
+
+  function nextQ() {
+    seq++;
+    var item = SET[(seq * 2 + 1) % SET.length];           // deterministic shuffle
+    var root = M.midi(ROOTS[(seq * 3) % ROOTS.length]);
+    cur = { s: item.s, name: item.name, root: root, top: root + item.s };
+    kb.clearMarks();
+    kb.highlight(cur.root, "root");
+    kb.highlight(cur.top, "hi2");
+    fb.className = "quiz-feedback";
+    fb.textContent = "";
+    nextBtn.style.display = "none";
+    choicesEl.innerHTML = "";
+    CHOICES.forEach(function (nm) {
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "quiz-choice";
+      btn.textContent = nm;
+      btn.addEventListener("click", function () { answer(nm, btn); });
+      choicesEl.appendChild(btn);
+    });
+  }
+
+  function answer(nm, btn) {
+    total++;
+    var correct = nm === cur.name;
+    if (correct) { score++; streak++; best = Math.max(best, streak); }
+    else streak = 0;
+    Array.prototype.forEach.call(choicesEl.children, function (c) {
+      c.disabled = true;
+      if (c.textContent === cur.name) c.classList.add("right");
+      else if (c === btn) c.classList.add("wrong");
+    });
+    // reveal the count on the keyboard
+    for (var i = 0; i <= cur.s; i++) {
+      kb.badge(cur.root + i, String(i), i === 0 ? "root" : (i === cur.s ? "" : "muted"));
+    }
+    fb.className = "quiz-feedback show " + (correct ? "good" : "bad");
+    fb.innerHTML = (correct ? "✓ " : "✗ ") +
+      M.name(cur.root) + " to " + M.name(cur.top) + " is <b>" + cur.s +
+      " semitones</b> — a <b>" + cur.name + "</b>.";
+    nextBtn.style.display = "inline-block";
+    scoreEl.textContent = score + "/" + total;
+    streakEl.textContent = streak;
+    bestEl.textContent = best ? "· best " + best : "";
+  }
+
+  nextBtn.addEventListener("click", nextQ);
+  nextQ();
+})();
+</script>
 </body>
 </html>

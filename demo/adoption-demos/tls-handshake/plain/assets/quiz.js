@@ -1,132 +1,154 @@
 /* ============================================================================
-   Shared interactive components for "The TLS Handshake" course.
-   Two feedback-loop widgets, both progressively-enhanced (work from markup):
+   quiz.js — reusable recall/practice widgets for the TLS course.
+   No dependencies. Lessons declare questions in HTML data-* attributes or via
+   small inline config objects; this file wires up the feedback loop.
 
-     1. .quiz        — multiple-choice retrieval practice with instant feedback.
-     2. .seq         — order-the-steps builder (click cards into sequence,
-                       checked position-by-position) for the handshake recall.
+   Three widgets, each built around an immediate, automatic feedback loop:
 
-   No dependencies. Each lesson links this file and supplies the data in markup.
-   Styling hooks live in quiz.css (a sibling component).
-   ============================================================================ */
+   1. [data-quiz]            multiple-choice recall. Reveals correct/incorrect
+                            instantly, with an explanation. Answers should be
+                            equal length (the lesson's job, not enforced here).
+   2. [data-order]          drag-free sequence ordering (click up/down). Used in
+                            lesson 2 to order the handshake messages.
+   3. [data-flip]           self-graded flashcard (click to reveal). Storage-
+                            strength retrieval; honour system.
+
+   All widgets keep a tiny tally and print a one-line score so the learner gets
+   a sense of progress within the lesson.
+   ========================================================================== */
+
 (function () {
   "use strict";
 
-  /* ---- 1. Multiple-choice recall ---------------------------------------- */
-  function initQuiz(quiz) {
-    var questions = quiz.querySelectorAll(".question");
-    var scoreEl = quiz.querySelector(".quiz-score");
-    var answered = 0, correctCount = 0;
+  /* ---- 1. Multiple-choice recall --------------------------------------- */
+  // Markup:
+  // <div data-quiz>
+  //   <p class="q">Question text…</p>
+  //   <button data-correct>Right answer</button>
+  //   <button>Wrong answer</button>
+  //   <div class="why" hidden>Explanation shown after answering.</div>
+  // </div>
+  function initQuiz(root) {
+    var buttons = Array.prototype.slice.call(root.querySelectorAll("button"));
+    var why = root.querySelector(".why");
+    var answered = false;
 
-    questions.forEach(function (q) {
-      var choices = q.querySelectorAll(".choice");
-      var feedback = q.querySelector(".feedback");
-      var locked = false;
-
-      choices.forEach(function (btn) {
-        btn.addEventListener("click", function () {
-          if (locked) return;
-          locked = true;
-          answered++;
-          var isCorrect = btn.dataset.correct === "true";
-          if (isCorrect) correctCount++;
-
-          choices.forEach(function (c) {
-            c.disabled = true;
-            if (c.dataset.correct === "true") c.classList.add("is-correct");
-          });
-          if (!isCorrect) btn.classList.add("is-wrong");
-
-          if (feedback) {
-            var why = (isCorrect ? btn.dataset.why : btn.dataset.why) ||
-                      feedback.dataset.explain || "";
-            feedback.innerHTML =
-              '<span class="verdict ' + (isCorrect ? "ok" : "no") + '">' +
-              (isCorrect ? "Correct" : "Not quite") + "</span> " + why;
-            feedback.classList.add("shown");
-          }
-          if (scoreEl) {
-            scoreEl.textContent =
-              correctCount + " / " + questions.length + " recalled";
-          }
+    buttons.forEach(function (btn) {
+      btn.classList.add("quiz-opt");
+      btn.addEventListener("click", function () {
+        if (answered) return;
+        answered = true;
+        var correct = btn.hasAttribute("data-correct");
+        buttons.forEach(function (b) {
+          b.disabled = true;
+          if (b.hasAttribute("data-correct")) b.classList.add("opt-correct");
         });
+        if (!correct) btn.classList.add("opt-wrong");
+        if (why) why.hidden = false;
+        root.dispatchEvent(new CustomEvent("quiz:answered",
+          { bubbles: true, detail: { correct: correct } }));
       });
     });
   }
 
-  /* ---- 2. Order-the-steps builder --------------------------------------- */
-  function initSeq(seq) {
-    var pool = seq.querySelector(".seq-pool");
-    var slotWrap = seq.querySelector(".seq-answer");
-    var feedback = seq.querySelector(".seq-feedback");
-    var resetBtn = seq.querySelector(".seq-reset");
-    var cards = Array.prototype.slice.call(pool.querySelectorAll(".seq-card"));
-    var placed = [];
+  /* ---- 2. Sequence ordering -------------------------------------------- */
+  // Markup:
+  // <div data-order>
+  //   <ol class="order-list">
+  //     <li data-pos="2">Second item…</li>  (rendered shuffled by author)
+  //     <li data-pos="1">First item…</li>
+  //   </ol>
+  //   <button class="order-check">Check order</button>
+  //   <p class="order-result" hidden></p>
+  // </div>
+  function initOrder(root) {
+    var list = root.querySelector(".order-list");
+    var items = Array.prototype.slice.call(list.children);
+    var result = root.querySelector(".order-result");
 
-    function render() {
-      // pool shows only unplaced cards, in their (shuffled) DOM order
-      cards.forEach(function (c) {
-        c.style.display = placed.indexOf(c) === -1 ? "" : "none";
+    items.forEach(function (li) {
+      var ctrl = document.createElement("span");
+      ctrl.className = "order-ctrl";
+      var up = document.createElement("button");
+      up.type = "button"; up.textContent = "▲"; up.title = "move up";
+      var down = document.createElement("button");
+      down.type = "button"; down.textContent = "▼"; down.title = "move down";
+      up.addEventListener("click", function () {
+        if (li.previousElementSibling)
+          list.insertBefore(li, li.previousElementSibling);
       });
-      slotWrap.innerHTML = "";
-      placed.forEach(function (c, i) {
-        var slot = document.createElement("div");
-        slot.className = "seq-slot";
-        slot.innerHTML = '<span class="seq-num">' + (i + 1) + "</span>" +
-                         '<span class="seq-label">' + c.textContent + "</span>";
-        slot.addEventListener("click", function () {
-          placed.splice(i, 1);
-          feedback.classList.remove("shown");
-          render();
-        });
-        slotWrap.appendChild(slot);
+      down.addEventListener("click", function () {
+        if (li.nextElementSibling)
+          list.insertBefore(li.nextElementSibling, li);
       });
-      if (placed.length === cards.length) check();
-    }
-
-    function check() {
-      var allRight = placed.every(function (c, i) {
-        return parseInt(c.dataset.order, 10) === i + 1;
-      });
-      var firstWrong = -1;
-      placed.forEach(function (c, i) {
-        var ok = parseInt(c.dataset.order, 10) === i + 1;
-        if (!ok && firstWrong === -1) firstWrong = i + 1;
-      });
-      feedback.classList.add("shown");
-      if (allRight) {
-        feedback.innerHTML =
-          '<span class="verdict ok">Correct sequence</span> ' +
-          (seq.dataset.win || "That is the TLS 1.3 flow.");
-      } else {
-        feedback.innerHTML =
-          '<span class="verdict no">Not yet</span> Position ' + firstWrong +
-          " is out of order. Click a card in the answer row to send it back, " +
-          "then try again.";
-      }
-    }
-
-    cards.forEach(function (c) {
-      c.addEventListener("click", function () {
-        if (placed.indexOf(c) !== -1) return;
-        placed.push(c);
-        feedback.classList.remove("shown");
-        render();
-      });
+      ctrl.appendChild(up); ctrl.appendChild(down);
+      li.insertBefore(ctrl, li.firstChild);
     });
-    if (resetBtn) {
-      resetBtn.addEventListener("click", function () {
-        placed = [];
-        feedback.classList.remove("shown");
-        feedback.innerHTML = "";
-        render();
+
+    root.querySelector(".order-check").addEventListener("click", function () {
+      var now = Array.prototype.slice.call(list.children);
+      var ok = now.every(function (li, i) {
+        return parseInt(li.getAttribute("data-pos"), 10) === i + 1;
       });
-    }
-    render();
+      now.forEach(function (li, i) {
+        li.classList.remove("pos-ok", "pos-no");
+        var right = parseInt(li.getAttribute("data-pos"), 10) === i + 1;
+        li.classList.add(right ? "pos-ok" : "pos-no");
+      });
+      result.hidden = false;
+      result.textContent = ok
+        ? "✓ Correct — that is the TLS 1.3 message order."
+        : "Not yet. Items in red are out of place — read the hint and try again.";
+      result.className = "order-result " + (ok ? "is-ok" : "is-no");
+    });
   }
 
-  document.addEventListener("DOMContentLoaded", function () {
-    document.querySelectorAll(".quiz").forEach(initQuiz);
-    document.querySelectorAll(".seq").forEach(initSeq);
-  });
+  /* ---- 3. Flashcard flip ----------------------------------------------- */
+  // Markup:
+  // <div data-flip>
+  //   <div class="flip-front">Prompt…</div>
+  //   <div class="flip-back" hidden>Answer…</div>
+  // </div>
+  function initFlip(root) {
+    var back = root.querySelector(".flip-back");
+    var hint = document.createElement("div");
+    hint.className = "flip-hint";
+    hint.textContent = "Think, then click to reveal ▸";
+    root.insertBefore(hint, root.firstChild);
+    root.addEventListener("click", function () {
+      var show = back.hidden;
+      back.hidden = !show;
+      hint.textContent = show
+        ? "Click to hide ▾"
+        : "Think, then click to reveal ▸";
+    });
+  }
+
+  /* ---- Score tally ------------------------------------------------------ */
+  function initScore() {
+    var bars = document.querySelectorAll("[data-score]");
+    if (!bars.length) return;
+    var total = document.querySelectorAll("[data-quiz]").length;
+    var right = 0, done = 0;
+    document.addEventListener("quiz:answered", function (e) {
+      done += 1;
+      if (e.detail.correct) right += 1;
+      bars.forEach(function (b) {
+        b.textContent = "Recall so far: " + right + " / " + done +
+          (done === total ? " — deck complete." : "");
+      });
+    });
+  }
+
+  /* ---- Boot ------------------------------------------------------------- */
+  function boot() {
+    document.querySelectorAll("[data-quiz]").forEach(initQuiz);
+    document.querySelectorAll("[data-order]").forEach(initOrder);
+    document.querySelectorAll("[data-flip]").forEach(initFlip);
+    initScore();
+  }
+
+  if (document.readyState === "loading")
+    document.addEventListener("DOMContentLoaded", boot);
+  else boot();
 })();

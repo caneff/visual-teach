@@ -1,198 +1,252 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 · The handshake, step by step</title>
-<link rel="stylesheet" href="../assets/styles.css">
+<title>Lesson 2 — The handshake, step by step</title>
+<link rel="stylesheet" href="../assets/course.css">
 <link rel="stylesheet" href="../assets/quiz.css">
-<script src="../assets/quiz.js" defer></script>
 </head>
 <body>
 
-<header class="masthead">
-  <p class="eyebrow">The TLS Handshake · Lesson 2 of 3</p>
-  <h1>The handshake, step by step</h1>
-  <p class="subtitle">Four messages, one shared key that was never sent.</p>
-</header>
-
-<div class="win">
-  <strong>Your win for this lesson:</strong> put the TLS 1.3 handshake messages
-  in order, say what each one carries, and explain how both sides end up with the
-  same secret key without ever transmitting it.
-</div>
-
-<p>
-  In <a href="0001-what-tls-protects.html">Lesson 1</a> we set the goal:
-  confidentiality, integrity, authentication, established with a client, a
-  server, and a CA. Now we watch them do it. TLS 1.3 is deliberately lean — the
-  full handshake is <strong>one round trip</strong>.<sup class="ref"><a href="#s-cf2">1</a></sup>
-  Picture the connection as four messages.
-</p>
-
-<h2>The flow, end to end</h2>
-
-<figure class="flow">
-  <div class="flow-ends"><span>💻 Client</span><span>Server 🖥️</span></div>
-
-  <div class="flow-msg to-server">
-    <span class="dir">→</span> ClientHello
-    <small>"Here are the TLS versions and ciphers I support — and here's my Diffie-Hellman <em>key share</em> (a public value)."</small>
-  </div>
-
-  <div class="flow-msg to-client">
-    <span class="dir">←</span> ServerHello <span style="opacity:.6">+ Certificate + Finished</span>
-    <small>"I pick this version and cipher; here's <em>my</em> key share, my certificate proving I'm this hostname, and a Finished proving I hold the key."</small>
-  </div>
-
-  <div class="flow-msg to-server">
-    <span class="dir">→</span> Finished
-    <small>"I've checked your certificate and derived the same key. Here's my Finished. We're secure."</small>
-  </div>
-
-  <div class="flow-msg" style="background:var(--good-bg); border-color:#bfe0cb;">
-    🔒 Application data flows, encrypted
-    <small>HTTP requests and responses, now confidential and tamper-evident.</small>
-  </div>
-</figure>
-
-<p>
-  That's it at altitude. Three handshake messages and you're encrypted. Now the
-  two ideas that make it work.
-</p>
-
-<h2>Idea 1 — the key share, and a secret never sent</h2>
-
-<p>
-  The deep magic is in those "key shares." TLS 1.3 uses an <strong>ephemeral
-  Diffie-Hellman</strong> exchange. Treat it as a black box with one remarkable
-  property:<sup class="ref"><a href="#s-rfc">2</a></sup>
-</p>
-
-<div class="aside contrast">
-  <span class="label">The Diffie-Hellman property</span>
-  Each side generates a temporary keypair and sends only the <strong>public</strong>
-  half (its key share). Combine <em>your private</em> half with <em>their public</em>
-  half, and you compute a number. The remarkable part: they combine <em>their
-  private</em> half with <em>your public</em> half and compute the
-  <strong>same number</strong>. An eavesdropper sees both public shares and still
-  cannot derive it.
-</div>
-
-<p>
-  So the session key is never transmitted — it is <em>independently derived</em>
-  on each end from one private value (kept secret) and one public value (sent in
-  the clear). The wire only ever carries public shares. That single property is
-  why an attacker recording the entire handshake still can't read the traffic.
-</p>
-
-<p>
-  "Ephemeral" means those keypairs are thrown away after the session. Even if the
-  server's long-term private key later leaks, today's recorded traffic stays
-  unreadable — a guarantee called <strong>forward secrecy</strong>. TLS 1.3
-  <em>requires</em> this; TLS 1.2 merely allowed it.<sup class="ref"><a href="#s-blog">3</a></sup>
-</p>
-
-<div class="aside">
-  <span class="label">Contrast · TLS 1.2</span>
-  Old TLS often used RSA key <em>transport</em>: the client encrypted a secret
-  with the server's public key and shipped it. Steal that key later and all past
-  traffic unlocks. TLS 1.3 removed this entirely — every handshake is ephemeral
-  Diffie-Hellman.<sup class="ref"><a href="#s-blog">3</a></sup>
-</div>
-
-<h2>Idea 2 — what proves identity</h2>
-
-<p>
-  A shared key alone gives confidentiality and integrity, but not
-  <em>authentication</em> — you'd have a private channel to <em>someone</em>. Two
-  parts of the server's reply close that gap:
-</p>
-
-<ul>
-  <li>The <strong>Certificate</strong> — the key-bound-to-hostname object from
-    Lesson 1. The client checks it (the subject of
-    <a href="0003-trust-and-failure.html">Lesson 3</a>).</li>
-  <li>The <strong>Finished</strong> message — computed over the whole transcript
-    using the derived key. It proves the server actually holds the private key
-    matching its certificate, and that nobody tampered with the messages so
-    far.<sup class="ref"><a href="#s-rfc">2</a></sup></li>
-</ul>
-
-<p>
-  When the client sends its own Finished, both sides have confirmed they
-  derived the same key over an untampered transcript. The channel is now private,
-  intact, <em>and</em> authenticated — all three guarantees, in one round trip.
-</p>
-
-<!-- ===== sequence recall feedback loop ===== -->
-<div class="seq" data-win="One round trip: hello with key shares, the server's reply with its certificate, then both Finished — and traffic flows.">
-  <div class="seq-head">
-    <span class="kicker">Sequence the handshake</span>
-  </div>
-  <p class="seq-instruction">
-    Click the messages <strong>in the order they happen</strong>. Click a placed
-    card to send it back. The flow checks itself once all five are down.
-  </p>
-
-  <!-- pool order is intentionally NOT the answer order -->
-  <div class="seq-pool">
-    <button class="seq-card" data-order="3">Server: Certificate (key + hostname)</button>
-    <button class="seq-card" data-order="1">Client → ClientHello + key share</button>
-    <button class="seq-card" data-order="5">🔒 Encrypted application data</button>
-    <button class="seq-card" data-order="2">Server → ServerHello + key share</button>
-    <button class="seq-card" data-order="4">Client → Finished</button>
-  </div>
-
-  <div class="seq-answer" aria-live="polite"></div>
-  <div class="seq-controls"><button class="seq-reset" type="button">Reset</button></div>
-  <div class="seq-feedback" aria-live="polite"></div>
-</div>
-
-<div class="aside">
-  <span class="label">Name what each carries</span>
-  Test yourself harder: for each card above, say aloud the <em>one thing</em> it
-  contributes — offered params, the two key shares, identity proof, key
-  confirmation. If any card is just a name with no payload in your head, reread
-  its row in the flow diagram.
-</div>
-
-<!-- ===== primary source ===== -->
-<div class="primary">
-  <div class="label">Primary source · see every byte</div>
-  <a href="https://tls13.xargs.org/">The Illustrated TLS 1.3 Connection — xargs.org</a>
-  <p style="margin:.4rem 0 0; font-size:.88rem;">
-    A real handshake with every byte annotated and color-coded. Watch the
-    ClientHello and ServerHello carry their key shares, and the key get derived.
-    For the authoritative wording, the message flow is
-    <a href="https://datatracker.ietf.org/doc/html/rfc8446#section-2">RFC 8446 §2</a>.
-  </p>
-</div>
-
-<!-- ===== teacher reminder ===== -->
-<div class="teacher">
-  <strong>Stuck on the key share?</strong> "Both sides compute the same number
-  from public values" is the one idea worth slowing down on — ask me to walk it
-  through with tiny numbers, or to contrast it with the old RSA approach. That's
-  what I'm here for.
-</div>
-
-<!-- ===== sources ===== -->
-<div class="sources">
-  <strong>Sources</strong>
-  <ol>
-    <li id="s-cf2"><a href="https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/">Cloudflare Learning Center — What happens in a TLS handshake?</a> The 1-RTT message flow.</li>
-    <li id="s-rfc"><a href="https://datatracker.ietf.org/doc/html/rfc8446#section-2">RFC 8446 §2 — Protocol Overview</a>. Authoritative message sequence and the role of Finished.</li>
-    <li id="s-blog"><a href="https://blog.cloudflare.com/rfc-8446-aka-tls-1-3/">Cloudflare — A Detailed Look at RFC 8446 (TLS 1.3)</a>. Ephemeral DH, forward secrecy, the 1.2 contrast.</li>
-  </ol>
-  <p class="cite">Terms in the course <a href="../reference/tls-glossary.html">glossary</a>; full list in <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
-</div>
-
-<nav class="lesson-nav">
-  <a href="0001-what-tls-protects.html">← Lesson 1: What TLS protects</a>
-  <span class="spacer"></span>
-  <a href="0003-trust-and-failure.html">Next → Lesson 3: Trust and failure</a>
+<nav class="crumbs">
+  <a href="../MISSION.md">Mission</a> ·
+  <a href="0001-what-tls-protects-and-who-is-involved.html">‹ Lesson 1</a> ›
+  <strong>Lesson 2</strong> ·
+  <a href="0003-trust-and-failure.html">Lesson 3 ›</a> ·
+  <a href="../reference/glossary.html">Glossary</a>
 </nav>
 
+<p class="eyebrow">TLS 1.3 · Lesson 2 of 3</p>
+<h1>The handshake, step by step</h1>
+<p class="lead">One round trip. A handful of messages. By the end you can draw
+the TLS 1.3 handshake from memory and explain the magic trick at its centre:
+both sides compute the same secret key without ever sending it.</p>
+
+<p>In <a href="0001-what-tls-protects-and-who-is-involved.html">Lesson&nbsp;1</a>
+we said authentication is the hard part and the server's private key never goes
+on the wire. This lesson shows the choreography that delivers both. We target
+<strong>TLS 1.3</strong>, which trimmed the older 1.2 handshake from two round
+trips to one.<sup class="cite-ref"><a href="#c-cf13">1</a></sup></p>
+
+<h2>The puzzle: a shared key over an open wire</h2>
+<p>The client and server have never met and share no secret. An eavesdropper
+sees every byte. Yet they must end up holding the <em>same</em> symmetric key to
+encrypt the session. How?</p>
+
+<div class="key">
+  <span class="label">Ephemeral Diffie–Hellman, as a black box</span>
+  Each side invents a fresh, throwaway keypair and sends only its
+  <strong>public</strong> share. There's a mixing function with one magic
+  property: <em>your private value mixed with their public value</em> gives the
+  exact same result as <em>their private value mixed with your public value</em>.
+  Both sides compute it; the eavesdropper, holding only the two public shares,
+  cannot.<sup class="cite-ref"><a href="#c-rfc">2</a></sup>
+</div>
+
+<p>The secret is never transmitted — it's <em>independently derived</em> on both
+ends from public shares. "Ephemeral" means the keypairs are discarded after the
+handshake, so even if the server's long-term key later leaks, today's recorded
+traffic stays unreadable. You don't need the math; you need that shape. (One key
+share goes in each <code>key_share</code> extension.)</p>
+
+<h2>The message flow</h2>
+<p>Read top to bottom. <span class="actor-client">Client</span> on the left,
+<span class="actor-server">server</span> on the right.<sup class="cite-ref"><a href="#c-rfc">2</a></sup></p>
+
+<div class="flow">
+  <div class="lane-head"><span class="c">Client</span><span class="s">Server</span></div>
+
+  <div class="msg l2r">
+    <div class="label"><span class="name">ClientHello</span>
+      <span class="carry">offered TLS versions · cipher list · a random nonce ·
+      <strong>client key_share</strong> (its DH public)</span></div>
+    <div class="arrow">────▶</div><div></div>
+  </div>
+
+  <div class="msg r2l">
+    <div></div><div class="arrow">◀────</div>
+    <div class="label"><span class="name">ServerHello</span>
+      <span class="carry">chosen version &amp; cipher · a random nonce ·
+      <strong>server key_share</strong> (its DH public)</span></div>
+  </div>
+
+  <div class="callout" style="margin:0.5rem 0">
+    <p style="margin:0;font-size:0.92rem">↑ After these two messages <em>both
+    sides can derive the shared key.</em> Everything below this line is already
+    <strong>encrypted</strong>.</p>
+  </div>
+
+  <div class="msg r2l">
+    <div></div><div class="arrow">◀····</div>
+    <div class="label"><span class="name">Certificate</span>
+      <span class="carry">the server's cert: public key + hostname + CA
+      signature</span></div>
+  </div>
+
+  <div class="msg r2l">
+    <div></div><div class="arrow">◀····</div>
+    <div class="label"><span class="name">CertificateVerify</span>
+      <span class="carry">a signature over the handshake, made with the cert's
+      <strong>private key</strong> — proves the server holds it</span></div>
+  </div>
+
+  <div class="msg r2l">
+    <div></div><div class="arrow">◀····</div>
+    <div class="label"><span class="name">Finished</span> (server)
+      <span class="carry">a MAC over everything so far — "nothing was tampered
+      with"</span></div>
+  </div>
+
+  <div class="msg l2r">
+    <div class="label"><span class="name">Finished</span> (client)
+      <span class="carry">client's matching MAC — both sides confirm the same
+      transcript</span></div>
+    <div class="arrow">····▶</div><div></div>
+  </div>
+
+  <div class="msg l2r">
+    <div class="label"><span class="name">Application data</span>
+      <span class="carry">your actual HTTP request, encrypted</span></div>
+    <div class="arrow">════▶</div><div></div>
+  </div>
+</div>
+
+<p class="note">Solid arrows = plaintext (there's no key yet). Dotted arrows =
+already encrypted under the freshly derived handshake key. That the
+<em>certificate itself</em> is sent encrypted is a 1.3 improvement over 1.2.</p>
+
+<h2>Why each message earns its place</h2>
+<dl class="defs">
+  <dt><span class="actor-client">ClientHello</span></dt>
+  <dd>"Here's what I support, and here's my half of the key." Offers versions and
+  ciphers <em>and</em> already throws in a key share, so no extra round trip is
+  needed to start key agreement.</dd>
+  <dt><span class="actor-server">ServerHello</span></dt>
+  <dd>"I choose these, and here's my half." With both halves on the table, each
+  side runs the DH mixing function and gets the shared secret. Keys exist now.</dd>
+  <dt><span class="actor-server">Certificate + CertificateVerify</span></dt>
+  <dd>The split that matters: the <strong>Certificate</strong> <em>claims</em> an
+  identity (Lesson&nbsp;1's bound public key); <strong>CertificateVerify</strong>
+  <em>proves</em> it, by signing the live handshake with the matching private
+  key. A replayed certificate is useless without the private key to sign with.</dd>
+  <dt>Finished (both)</dt>
+  <dd>Each side hashes the entire conversation and MACs it. If a byte was altered
+  in flight — or the two sides disagree on what was said — the MACs don't match
+  and the connection aborts. This is <em>integrity</em>, made concrete.</dd>
+</dl>
+
+<div class="callout">
+  <p><strong>Map it back to the three promises</strong>
+  (<a href="0001-what-tls-protects-and-who-is-involved.html">Lesson&nbsp;1</a>):
+  the <em>key shares</em> buy confidentiality, <em>CertificateVerify</em> buys
+  authentication, and <em>Finished</em> buys integrity. The whole handshake is
+  just those three promises being delivered, in order.</p>
+</div>
+
+<!-- ===================== RECALL / PRACTICE LOOP ===================== -->
+<h2>Practice — order the handshake</h2>
+<p>This is the core skill of the lesson. Put the messages in the order they
+travel, then check. Items in red are out of place — use the hint and retry until
+it's green. Do it twice from a fresh shuffle and it'll stick.</p>
+
+<div class="quiz">
+  <p class="stem">Sequence — drag-free; use ▲ ▼</p>
+  <div data-order>
+    <ol class="order-list">
+      <li data-pos="3">Certificate — server sends its bound public key</li>
+      <li data-pos="1">ClientHello — versions, ciphers, client key_share</li>
+      <li data-pos="5">Finished (server) — MAC over the transcript</li>
+      <li data-pos="2">ServerHello — chosen params, server key_share</li>
+      <li data-pos="6">Finished (client) — matching MAC, then app data</li>
+      <li data-pos="4">CertificateVerify — sign the handshake with the private key</li>
+    </ol>
+    <button class="order-check">Check order</button>
+    <p class="order-result" hidden></p>
+  </div>
+  <p class="note"><strong>Hint:</strong> both <em>Hellos</em> first (you can't
+  encrypt without keys), then the server <em>claims then proves</em> identity,
+  then both sides <em>Finish</em>. Claim before proof; server finishes before
+  client.</p>
+</div>
+
+<span data-score></span>
+
+<div class="quiz">
+  <p class="stem">Question — the key idea</p>
+  <div data-quiz>
+    <p class="q">An attacker records the entire handshake in plaintext. Why can
+    they still not derive the session key?</p>
+    <button>They lack the server's published hostname value here</button>
+    <button data-correct>They hold both public shares but neither private one</button>
+    <button>They lack the chosen cipher suite the server named</button>
+    <div class="why" hidden><strong>Right.</strong> The shared secret needs one
+    side's <em>private</em> value mixed with the other's public share. The wire
+    carries only the two public shares, so a recorder is stuck. Ephemeral keys
+    mean even a future server-key leak won't help them.</div>
+  </div>
+</div>
+
+<div class="quiz">
+  <p class="stem">Question — claim vs proof</p>
+  <div data-quiz>
+    <p class="q">A server presents a <em>real, valid</em> certificate for
+    <code>bank.com</code> that it copied from the genuine site. Which message
+    exposes the fraud?</p>
+    <button>ServerHello, by selecting a weaker cipher suite</button>
+    <button>Certificate, because the copied bytes are altered</button>
+    <button data-correct>CertificateVerify, which it can't sign without the key</button>
+    <div class="why" hidden><strong>CertificateVerify.</strong> Anyone can copy a
+    public certificate. Proving identity requires <em>signing the live
+    handshake</em> with the matching private key — which the impostor doesn't
+    have. Claim is cheap; proof is not.</div>
+  </div>
+</div>
+
+<div class="callout" data-flip>
+  <div class="flip-front">Free recall: in one sentence, how do two strangers end
+  up with the same key without sending it?</div>
+  <div class="flip-back" hidden>Each sends a <em>public</em> key share; each
+  mixes its own <em>private</em> value with the other's public share; the mixing
+  function returns the same secret on both sides, and the wire never carried it.</div>
+</div>
+
+<!-- ===================== PRIMARY SOURCE ===================== -->
+<div class="primary-source">
+  <span class="label">See it for real — primary source</span>
+  <p style="margin:0"><a href="https://tls13.xargs.org/">The Illustrated TLS 1.3
+  Connection — Every Byte Explained</a> (Michael Driscoll). The exact messages
+  above, as real bytes from a real session: watch <code>ClientHello</code>,
+  <code>ServerHello</code>, the key shares, <code>Certificate</code>,
+  <code>CertificateVerify</code> and <code>Finished</code> go by. The single best
+  way to make this flow concrete.</p>
+</div>
+
+<!-- ===================== FOLLOWUP REMINDER ===================== -->
+<div class="followup">
+  <strong>Stuck on a step? Ask me.</strong> If "how the same secret pops out on
+  both sides" still feels like a rabbit from a hat, ask and I'll walk it with
+  tiny numbers — no real crypto required. I'm your teacher; use me.
+</div>
+
+<!-- ===================== CITATIONS ===================== -->
+<hr>
+<h3>Citations</h3>
+<ol class="cite">
+  <li id="c-cf13">Cloudflare, <a href="https://blog.cloudflare.com/introducing-tls-1-3/">Introducing
+  TLS 1.3</a> — the handshake cut to a single round trip.</li>
+  <li id="c-rfc">IETF, <a href="https://www.rfc-editor.org/rfc/rfc8446#section-2">RFC 8446
+  §2 (Protocol Overview)</a> — message order, the <code>key_share</code>
+  extension, and (EC)DHE key establishment; <a href="https://www.rfc-editor.org/rfc/rfc8446#section-4.4">§4.4</a>
+  for CertificateVerify and Finished.</li>
+</ol>
+
+<nav class="lesson-nav">
+  <a href="0001-what-tls-protects-and-who-is-involved.html">‹ Lesson 1</a>
+  <span class="spacer"></span>
+  <a href="0003-trust-and-failure.html">Lesson 3 — Trust and failure ›</a>
+</nav>
+
+<script src="../assets/quiz.js"></script>
 </body>
 </html>

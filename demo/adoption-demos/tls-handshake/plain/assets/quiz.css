@@ -1,128 +1,138 @@
 /* ============================================================================
-   Styling for the shared interactive components (quiz.js).
-   Linked alongside styles.css by any lesson that uses .quiz or .seq.
-   ============================================================================ */
+   quiz.css — styling for the interactive widgets in quiz.js.
+   Kept separate from course.css so the feedback-loop components are reusable
+   without dragging in (or being overridden by) page typography.
+   ========================================================================== */
 
-/* ---- shared verdict chip ------------------------------------------------- */
-.verdict {
-  display: inline-block;
-  font-family: "SF Mono", Menlo, monospace;
-  font-size: .68rem;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  padding: .1rem .45rem;
-  border-radius: 3px;
-  margin-right: .4rem;
-  vertical-align: .08em;
-}
-.verdict.ok { background: var(--good-bg); color: var(--good); }
-.verdict.no { background: var(--bad-bg);  color: var(--bad); }
-
-/* ---- multiple-choice quiz ------------------------------------------------ */
 .quiz {
   border: 1px solid var(--rule);
   border-radius: 8px;
-  padding: 1.2rem 1.3rem;
+  padding: 1.1rem 1.2rem 1.2rem;
   margin: 1.8rem 0;
   background: #fff;
 }
-.quiz-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .4rem; }
-.quiz-head .kicker {
-  font-family: "SF Mono", Menlo, monospace;
-  font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+.quiz .stem {
+  font-variant: small-caps;
+  letter-spacing: 0.07em;
+  font-size: 0.78rem;
   color: var(--accent);
+  margin: 0 0 0.5rem;
 }
-.quiz-score { font-size: .8rem; color: var(--ink-soft); font-family: "SF Mono", Menlo, monospace; }
+.quiz .q { font-weight: 600; margin: 0 0 0.8rem; }
 
-.question { margin: 1.2rem 0; }
-.question:first-of-type { margin-top: .4rem; }
-.question .prompt { font-weight: 600; color: var(--ink); margin: 0 0 .6rem; }
-
-.choice {
+/* ---- Multiple choice ----------------------------------------------------- */
+[data-quiz] { margin: 1rem 0; }
+.quiz-opt {
   display: block;
   width: 100%;
   text-align: left;
   font: inherit;
-  font-size: .92rem;
-  color: var(--ink-soft);
-  background: var(--paper);
+  font-size: 0.98rem;
+  background: var(--shade);
   border: 1px solid var(--rule);
-  border-radius: 6px;
-  padding: .55rem .8rem;
-  margin: .4rem 0;
+  border-radius: 5px;
+  padding: 0.55rem 0.8rem;
+  margin: 0.4rem 0;
   cursor: pointer;
-  transition: border-color .12s, background .12s;
+  transition: background 0.12s, border-color 0.12s;
 }
-.choice:hover:not(:disabled) { border-color: var(--accent-2); background: #fff; }
-.choice:disabled { cursor: default; }
-.choice.is-correct { border-color: var(--good); background: var(--good-bg); color: var(--good); font-weight: 600; }
-.choice.is-wrong   { border-color: var(--bad);  background: var(--bad-bg);  color: var(--bad); }
+.quiz-opt:hover:not(:disabled) { background: #ece8dc; border-color: #c3bca8; }
+.quiz-opt:disabled { cursor: default; }
+.quiz-opt.opt-correct {
+  background: rgba(31,107,58,0.12);
+  border-color: var(--good);
+  color: var(--good);
+  font-weight: 600;
+}
+.quiz-opt.opt-wrong {
+  background: rgba(154,43,43,0.10);
+  border-color: var(--bad);
+  color: var(--bad);
+  text-decoration: line-through;
+}
+.why {
+  margin-top: 0.7rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.92rem;
+  background: var(--shade);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0;
+}
 
-.feedback {
-  display: none;
-  font-size: .88rem;
+/* ---- Sequence ordering --------------------------------------------------- */
+.order-list { list-style: none; padding: 0; margin: 0.6rem 0; counter-reset: ord; }
+.order-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--shade);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  padding: 0.5rem 0.7rem;
+  margin: 0.4rem 0;
+  font-size: 0.96rem;
+}
+.order-list li::before {
+  counter-increment: ord;
+  content: counter(ord);
+  font-family: monospace;
+  font-weight: 700;
   color: var(--ink-soft);
-  margin-top: .5rem;
-  padding-left: .2rem;
+  min-width: 1.2em;
+  text-align: right;
 }
-.feedback.shown { display: block; }
+.order-ctrl { display: inline-flex; flex-direction: column; gap: 1px; }
+.order-ctrl button {
+  font: inherit; font-size: 0.6rem; line-height: 1;
+  border: 1px solid var(--rule); background: #fff;
+  cursor: pointer; padding: 1px 4px; border-radius: 3px;
+}
+.order-ctrl button:hover { background: var(--shade); }
+.order-list li.pos-ok { border-color: var(--good); background: rgba(31,107,58,0.08); }
+.order-list li.pos-no { border-color: var(--bad);  background: rgba(154,43,43,0.07); }
+.order-check {
+  font: inherit; font-size: 0.92rem;
+  background: var(--accent); color: #fff; border: 0;
+  padding: 0.45rem 1rem; border-radius: 5px; cursor: pointer; margin-top: 0.4rem;
+}
+.order-check:hover { background: #5e1818; }
+.order-result { margin-top: 0.7rem; font-weight: 600; font-size: 0.95rem; }
+.order-result.is-ok { color: var(--good); }
+.order-result.is-no { color: var(--bad); }
 
-/* ---- sequence builder ---------------------------------------------------- */
-.seq {
+/* ---- Flashcard ----------------------------------------------------------- */
+[data-flip] {
   border: 1px solid var(--rule);
   border-radius: 8px;
-  padding: 1.2rem 1.3rem;
-  margin: 1.8rem 0;
+  padding: 1rem 1.2rem;
+  margin: 1rem 0;
   background: #fff;
-}
-.seq-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .3rem; }
-.seq-head .kicker {
-  font-family: "SF Mono", Menlo, monospace;
-  font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
-}
-.seq-instruction { font-size: .85rem; color: var(--ink-soft); margin: .2rem 0 1rem; }
-
-.seq-pool { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
-.seq-card {
-  font: inherit;
-  font-family: "SF Mono", Menlo, monospace;
-  font-size: .8rem;
-  background: var(--code-bg);
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  padding: .5rem .7rem;
-  cursor: pointer;
-  transition: border-color .12s, background .12s;
-}
-.seq-card:hover { border-color: var(--accent-2); background: #fff; }
-
-.seq-answer { display: flex; flex-direction: column; gap: .35rem; min-height: 1rem; margin-bottom: .6rem; }
-.seq-answer:empty::before {
-  content: "Click the messages above, in order, to build the flow.";
-  color: #aaa39180; font-size: .82rem; font-style: italic;
-}
-.seq-slot {
-  display: flex; align-items: center; gap: .7rem;
-  border: 1px solid var(--rule);
-  border-left: 3px solid var(--accent-2);
-  border-radius: 6px;
-  padding: .45rem .7rem;
-  background: var(--paper);
   cursor: pointer;
 }
-.seq-slot:hover { background: var(--bad-bg); border-left-color: var(--bad); }
-.seq-num {
-  font-family: "SF Mono", Menlo, monospace; font-size: .75rem; font-weight: 700;
-  color: #fff; background: var(--accent-2);
-  width: 1.3rem; height: 1.3rem; line-height: 1.3rem; text-align: center;
-  border-radius: 50%; flex: 0 0 auto;
+[data-flip]:hover { border-color: #c3bca8; }
+.flip-hint { font-size: 0.76rem; color: var(--ink-soft); font-variant: small-caps; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+.flip-front { font-weight: 600; }
+.flip-back {
+  margin-top: 0.7rem; padding-top: 0.7rem;
+  border-top: 1px solid var(--rule); color: var(--ink-soft);
 }
-.seq-label { font-family: "SF Mono", Menlo, monospace; font-size: .8rem; color: var(--ink); }
 
-.seq-controls { display: flex; justify-content: flex-end; }
-.seq-reset {
-  font: inherit; font-size: .8rem; color: var(--accent-2);
-  background: none; border: none; cursor: pointer; text-decoration: underline;
+/* ---- Score readout ------------------------------------------------------- */
+[data-score] {
+  display: inline-block;
+  font-variant: small-caps;
+  letter-spacing: 0.05em;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  background: var(--shade);
+  border: 1px solid var(--rule);
+  border-radius: 20px;
+  padding: 0.25rem 0.9rem;
+  margin: 0.6rem 0;
 }
-.seq-feedback { display: none; font-size: .88rem; color: var(--ink-soft); margin-top: .6rem; }
-.seq-feedback.shown { display: block; }
+
+@media print {
+  .quiz-opt, .order-check, .order-ctrl { display: none !important; }
+  .why, .flip-back, .order-result { display: block !important; }
+  .flip-back[hidden] { display: block !important; }
+}

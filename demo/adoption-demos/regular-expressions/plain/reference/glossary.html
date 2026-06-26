@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Regex Glossary — canonical terms</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">Reference · canonical language</p>
+  <h1>Regex Glossary</h1>
+  <p class="subtitle">The words this course uses, defined once. Lessons stick to these terms.</p>
+</header>
+
+<div class="wrap">
+  <p>Regular expressions are a small language for describing text patterns. This
+  glossary fixes the vocabulary so every lesson means the same thing by the same
+  word. Pair it with the <a href="regex-cheatsheet.html">cheat sheet</a>.</p>
+
+  <h2>Core ideas</h2>
+
+  <p><b>Regex (regular expression)</b><br>
+  A pattern that describes a set of strings. An <b>engine</b> tries to match it
+  against subject text.<br><span class="cite"><i>Avoid</i>: regexp, expression, "the search thing"</span></p>
+
+  <p><b>Engine</b><br>
+  The code that runs a regex against text. It <b>scans</b> left to right, trying
+  to match the pattern starting at each position.<br><span class="cite"><i>Avoid</i>: parser, matcher</span></p>
+
+  <p><b>Match</b><br>
+  A specific run of characters in the subject text that the pattern describes.
+  One pattern can produce many matches in one string.<br><span class="cite"><i>Avoid</i>: hit, result</span></p>
+
+  <p><b>Subject / sample</b><br>
+  The text the engine searches. In these lessons it is the concrete sample
+  string shown beside the pattern.<br><span class="cite"><i>Avoid</i>: input, the string</span></p>
+
+  <p><b>Literal</b><br>
+  A character that matches itself, with no special meaning — <code>c</code>,
+  <code>7</code>, a space.<br><span class="cite"><i>Avoid</i>: plain character</span></p>
+
+  <p><b>Metacharacter</b><br>
+  A character with special meaning in a pattern — <code>. * + ? ( ) [ ] { } ^ $ | \</code>.
+  Escape it with a backslash to match it literally.<br><span class="cite"><i>Avoid</i>: special char, symbol</span></p>
+
+  <h2>Matching one character</h2>
+
+  <p><b>Character class</b><br>
+  A <code>[...]</code> set that matches <b>one</b> character from the listed
+  options. <code>[^...]</code> is a <b>negated class</b> — one character not in
+  the set.<br><span class="cite"><i>Avoid</i>: bracket group, set</span></p>
+
+  <p><b>Shorthand class</b><br>
+  A backslash abbreviation for a common class: <span class="re">\d</span> digit,
+  <span class="re">\w</span> word character, <span class="re">\s</span>
+  whitespace. The capital form is its negation.<br><span class="cite"><i>Avoid</i>: escape code</span></p>
+
+  <h2>Repetition</h2>
+
+  <p><b>Quantifier</b><br>
+  A token that says how many times the thing before it repeats: <span class="re">*</span>
+  <span class="re">+</span> <span class="re">?</span> <span class="re">{n,m}</span>.<br><span class="cite"><i>Avoid</i>: repeater, multiplier</span></p>
+
+  <p><b>Greedy</b><br>
+  The default behaviour of a quantifier: match as much as possible, then give
+  characters back only if the rest of the pattern needs them.<br><span class="cite"><i>Avoid</i>: maximal, hungry</span></p>
+
+  <p><b>Lazy</b><br>
+  A quantifier made minimal by a trailing <span class="re">?</span> (e.g.
+  <span class="re">.*?</span>): match as little as possible.<br><span class="cite"><i>Avoid</i>: non-greedy, reluctant</span></p>
+
+  <p><b>Backtrack</b><br>
+  What the engine does when a greedy match went too far: it gives back
+  characters and retries, hunting for a way to satisfy the whole pattern.<br><span class="cite"><i>Avoid</i>: rewind, retry</span></p>
+
+  <h2>Positions and structure</h2>
+
+  <p><b>Anchor</b><br>
+  A token that matches a <b>position</b>, not a character: <span class="re">^</span>
+  start, <span class="re">$</span> end, <span class="re">\b</span> word boundary.
+  Anchors consume no text.<br><span class="cite"><i>Avoid</i>: marker, boundary (except \b specifically)</span></p>
+
+  <p><b>Group</b><br>
+  Parentheses <code>(...)</code> that bundle part of a pattern so a quantifier or
+  alternation applies to the whole bundle.<br><span class="cite"><i>Avoid</i>: bracket, parens-block</span></p>
+
+  <p><b>Capture / capturing group</b><br>
+  A group <code>(...)</code> that also <b>remembers</b> the text it matched, so
+  you can extract it afterward. Numbered left to right by opening paren.<br><span class="cite"><i>Avoid</i>: saved group</span></p>
+
+  <p><b>Non-capturing group</b><br>
+  <code>(?:...)</code> — groups without remembering. Use when you need the
+  parentheses for structure but don't want to extract.<br><span class="cite"><i>Avoid</i>: silent group</span></p>
+
+  <p><b>Alternation</b><br>
+  The <span class="re">|</span> operator: match the pattern on its left
+  <em>or</em> its right. The loosest-binding operator; fence it with a group to
+  limit its reach.<br><span class="cite"><i>Avoid</i>: or, pipe, choice</span></p>
+
+  <footer class="tiny">Regex course · glossary · verified terms 2026-06-26</footer>
+</div>
+</body>
+</html>

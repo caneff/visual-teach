@@ -1,0 +1,239 @@
+/* flex-playground — a live, interactive flexbox container.
+   The learner sets real flex properties from segmented controls and watches
+   actual boxes rearrange; a live CSS readout mirrors the rule they are building.
+   Optional challenge mode checks the current layout against a target.
+
+   Built on the diagram component's flex vocabulary (vt-flex-item look), but this
+   is a behaviour component: it produces/manipulates a layout, it does not just
+   display one. Pair it with diagram.css's static vt-flex for before/after stills. */
+
+.vt-flexlab {
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  margin: 1.6rem 0;
+  overflow: hidden;
+  background: var(--vt-paper);
+}
+
+/* ---- challenge banner (only in target mode) ---- */
+.vt-flexlab-goal {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.8rem 1.1rem;
+  background: var(--vt-accent-soft);
+  border-bottom: 1px solid var(--vt-rule);
+  color: var(--vt-ink);
+}
+.vt-flexlab-goal strong {
+  color: var(--vt-accent-dk);
+}
+
+/* ---- controls ---- */
+.vt-flexlab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.4rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid var(--vt-rule);
+  background: var(--vt-soft);
+}
+.vt-flexlab-control {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.vt-flexlab-control .lbl {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  color: var(--vt-muted);
+}
+.vt-flexlab-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+.vt-flexlab-seg button {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.78rem;
+  padding: 0.32rem 0.6rem;
+  border: 1px solid var(--vt-rule);
+  border-radius: 7px;
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+.vt-flexlab-seg button:hover {
+  border-color: var(--vt-accent);
+}
+.vt-flexlab-seg button[aria-pressed="true"] {
+  background: var(--vt-accent);
+  border-color: var(--vt-accent);
+  color: var(--vt-accent-fg);
+  font-weight: 600;
+}
+.vt-flexlab-seg button:focus-visible {
+  outline: 3px solid var(--vt-accent);
+  outline-offset: 2px;
+}
+
+/* ---- preview stage ---- */
+.vt-flexlab-stagewrap {
+  padding: 1.1rem;
+}
+.vt-flexlab-axis {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.72rem;
+  color: var(--vt-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.vt-flexlab-axis b {
+  color: var(--vt-accent-dk);
+  font-weight: 700;
+}
+
+/* the actual flex container the learner is driving. inline styles set by JS. */
+.vt-flexlab-stage {
+  display: flex; /* JS overrides the individual flex props inline */
+  min-height: 200px;
+  padding: 0.7rem;
+  border: 1px dashed var(--vt-rule);
+  border-radius: 8px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--vt-soft),
+    var(--vt-soft) 10px,
+    var(--vt-paper) 10px,
+    var(--vt-paper) 20px
+  );
+}
+
+.vt-flexlab-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0.6rem;
+  min-width: 3.4rem;
+  border-radius: 7px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: var(--vt-accent-soft);
+  border: 1.5px solid var(--vt-accent);
+  color: var(--vt-accent-dk);
+  text-align: center;
+  line-height: 1.2;
+}
+/* staggered heights make cross-axis alignment visible at a glance */
+.vt-flexlab-box.tall {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+.vt-flexlab-box.mid {
+  padding-top: 0.95rem;
+  padding-bottom: 0.95rem;
+}
+
+/* clickable items (item-flex mode) */
+.vt-flexlab[data-item-flex] .vt-flexlab-box {
+  cursor: pointer;
+  position: relative;
+}
+.vt-flexlab[data-item-flex] .vt-flexlab-box:hover {
+  border-color: var(--vt-accent-dk);
+}
+.vt-flexlab-grow {
+  display: block;
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.66rem;
+  font-weight: 400;
+  color: var(--vt-muted);
+  margin-top: 0.15rem;
+}
+
+/* ---- CSS readout + feedback ---- */
+.vt-flexlab-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  align-items: stretch;
+  padding: 0 1.1rem 1.1rem;
+}
+.vt-flexlab-css {
+  flex: 1 1 16rem;
+  margin: 0;
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  white-space: pre;
+  overflow-x: auto;
+  background: var(--vt-neutral-soft);
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  color: var(--vt-ink);
+}
+.vt-flexlab-css .prop {
+  color: var(--vt-accent-dk);
+}
+
+.vt-flexlab-verdict {
+  flex: 1 1 12rem;
+  display: flex;
+  align-items: center;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-soft);
+  color: var(--vt-muted);
+}
+.vt-flexlab-verdict.good {
+  background: var(--vt-good-soft);
+  border-color: var(--vt-good);
+  color: var(--vt-ink);
+  font-weight: 600;
+}
+.vt-flexlab-verdict.good::before {
+  content: "✓";
+  color: var(--vt-good);
+  font-weight: 700;
+  margin-right: 0.45rem;
+  font-size: 1.1rem;
+}
+.vt-flexlab-verdict.close::before {
+  content: "…";
+  margin-right: 0.45rem;
+}
+
+.vt-flexlab-reset {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.78rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--vt-rule);
+  border-radius: 7px;
+  background: var(--vt-paper);
+  color: var(--vt-muted);
+  cursor: pointer;
+  align-self: center;
+}
+.vt-flexlab-reset:hover {
+  border-color: var(--vt-accent);
+  color: var(--vt-accent);
+}
+
+@media print {
+  .vt-flexlab {
+    break-inside: avoid;
+  }
+  .vt-flexlab-controls,
+  .vt-flexlab-reset {
+    /* controls are inert on paper, but keep them visible so the printed
+       playground still documents which knobs exist */
+  }
+}

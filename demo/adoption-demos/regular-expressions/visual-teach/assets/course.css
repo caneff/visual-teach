@@ -1,0 +1,73 @@
+/* course.css — the shared spine for the Regular Expressions course.
+   Linked by every lesson alongside base.css so the set reads as one product.
+   The base palette is kept as-is (see visual-teach theming note); this file
+   adds only course-wide vocabulary the lessons reuse. */
+
+/* Inline regex token shown in prose: a small monospace chip so a pattern
+   reads as a pattern, not as body text. Use <code class="rx">\d+</code>. */
+code.rx {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+  background: var(--vt-accent-soft);
+  color: var(--vt-accent-dk);
+  border: 1px solid color-mix(in oklch, var(--vt-accent) 22%, var(--vt-paper));
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+  white-space: nowrap;
+}
+
+/* A literal sample string referenced in prose. */
+code.str {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.9em;
+  background: var(--vt-neutral-soft);
+  border-radius: 5px;
+  padding: 0.05em 0.4em;
+}
+
+/* "Reads-as" two-column gloss: pattern piece -> plain-English meaning.
+   Used in every lesson to drill left-to-right reading of a pattern. */
+.rx-gloss {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.35rem 1.1rem;
+  align-items: baseline;
+  margin: 1.3rem 0;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid var(--vt-rule);
+  border-left: 4px solid var(--vt-accent);
+  border-radius: 8px;
+  background: var(--vt-soft);
+}
+.rx-gloss dt {
+  font-family: "Courier New", Courier, monospace;
+  font-weight: 700;
+  color: var(--vt-accent-dk);
+  white-space: nowrap;
+}
+.rx-gloss dd {
+  margin: 0;
+  font-size: 0.97rem;
+}
+
+/* A small "engine cursor" frame used to narrate scanning left-to-right. */
+.rx-scan {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.05rem;
+  letter-spacing: 0.04em;
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: 0.7rem 0.9rem;
+  margin: 1.1rem 0;
+  line-height: 2.1;
+}
+.rx-scan .cur {
+  background: var(--vt-warn-soft);
+  box-shadow: inset 0 -2px 0 0 var(--vt-warn);
+  border-radius: 3px;
+  padding: 0.05em 0.05em;
+}
+.rx-scan .done {
+  color: var(--vt-good);
+}

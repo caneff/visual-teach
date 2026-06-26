@@ -1,0 +1,213 @@
+/* regex-lab — bespoke live regex tester + write-a-pattern challenge.
+   Not part of the vt-* floor: this is the lesson's real "produce a regex"
+   exercise. Highlights every match in a sample string, colours capture
+   groups, marks zero-width matches (anchors), and — in challenge mode —
+   checks the learner's pattern against a target. */
+
+.rx-lab {
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem 1.2rem;
+  margin: 1.6rem 0;
+  background: var(--vt-soft);
+}
+
+.rx-lab .rx-title {
+  font-family: Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0 0 0.7rem;
+  color: var(--vt-ink);
+}
+
+/* pattern field, rendered as /…/flags like a real regex literal */
+.rx-inputline {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  font-family: "Courier New", Courier, monospace;
+  margin-bottom: 0.7rem;
+}
+.rx-delim {
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--vt-muted);
+  background: var(--vt-neutral-soft);
+  border: 1px solid var(--vt-rule);
+}
+.rx-delim.left {
+  border-radius: 8px 0 0 8px;
+  border-right: 0;
+}
+.rx-delim.right {
+  border-radius: 0 8px 8px 0;
+  border-left: 0;
+  white-space: nowrap;
+}
+.rx-pattern {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 1rem;
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  border: 1px solid var(--vt-rule);
+  padding: 0.55rem 0.7rem;
+}
+.rx-pattern:focus {
+  outline: 3px solid var(--vt-accent);
+  outline-offset: 1px;
+  border-color: var(--vt-accent);
+  position: relative;
+  z-index: 1;
+}
+
+/* samples: monospace, wrapping, whitespace preserved */
+.rx-samples {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.7rem 0;
+}
+.rx-sample {
+  margin: 0;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.95rem;
+  line-height: 1.9;
+  background: var(--vt-paper);
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* a full match */
+.rx-hit {
+  background: var(--vt-accent-soft);
+  box-shadow: inset 0 -2px 0 0 var(--vt-accent);
+  border-radius: 3px;
+  padding: 0.05em 0.02em;
+}
+
+/* capture groups, painted inside a match — up to 5 distinct hues */
+.rx-cap {
+  border-radius: 3px;
+  padding: 0.05em 0.1em;
+  font-weight: 700;
+}
+.rx-cap-1 {
+  background: light-dark(#cdeccd, #1f3d2a);
+  box-shadow: inset 0 -2px 0 0 light-dark(#2e8b57, #4cc38a);
+}
+.rx-cap-2 {
+  background: light-dark(#d6e4ff, #1d2b47);
+  box-shadow: inset 0 -2px 0 0 light-dark(#3b6fd4, #6c9cf0);
+}
+.rx-cap-3 {
+  background: light-dark(#f3ddf0, #3a2540);
+  box-shadow: inset 0 -2px 0 0 light-dark(#a14ba1, #cf7fd0);
+}
+.rx-cap-4 {
+  background: light-dark(#fce4c8, #43331c);
+  box-shadow: inset 0 -2px 0 0 light-dark(#c87f1e, #e0a24a);
+}
+.rx-cap-5 {
+  background: light-dark(#d4ecec, #143a3a);
+  box-shadow: inset 0 -2px 0 0 light-dark(#2c9c9c, #54c5c5);
+}
+
+/* zero-width match marker (anchors, empty matches) */
+.rx-caret {
+  display: inline-block;
+  width: 0;
+  border-left: 2px solid var(--vt-bad);
+  margin: 0 1px;
+  height: 1.1em;
+  vertical-align: text-bottom;
+  position: relative;
+}
+
+/* info / error / verdict lines */
+.rx-info {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.86rem;
+  color: var(--vt-muted);
+  margin-top: 0.5rem;
+  min-height: 1.2em;
+}
+.rx-error {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.86rem;
+  color: var(--vt-bad);
+  margin-top: 0.4rem;
+  min-height: 0;
+}
+.rx-error:empty {
+  display: none;
+}
+
+/* capture legend in info panel */
+.rx-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.9rem;
+  margin-top: 0.5rem;
+  font-family: Georgia, serif;
+  font-size: 0.85rem;
+}
+.rx-legend .swatch {
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  border-radius: 3px;
+  margin-right: 0.3em;
+  vertical-align: middle;
+}
+.rx-legend .swatch.g1 { background: light-dark(#2e8b57, #4cc38a); }
+.rx-legend .swatch.g2 { background: light-dark(#3b6fd4, #6c9cf0); }
+.rx-legend .swatch.g3 { background: light-dark(#a14ba1, #cf7fd0); }
+.rx-legend .swatch.g4 { background: light-dark(#c87f1e, #e0a24a); }
+.rx-legend .swatch.g5 { background: light-dark(#2c9c9c, #54c5c5); }
+
+/* challenge verdict banner */
+.rx-verdict {
+  margin-top: 0.7rem;
+  padding: 0.55rem 0.8rem;
+  border-radius: 8px;
+  font-family: Georgia, serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  border: 1px solid var(--vt-rule);
+}
+.rx-verdict[data-state="solved"] {
+  background: var(--vt-good-soft);
+  border-color: var(--vt-good);
+  color: var(--vt-ink);
+}
+.rx-verdict[data-state="working"] {
+  background: var(--vt-warn-soft);
+  border-color: var(--vt-warn);
+  color: var(--vt-ink);
+}
+.rx-verdict[data-state="idle"] {
+  background: var(--vt-neutral-soft);
+  color: var(--vt-muted);
+  font-weight: 400;
+}
+.rx-verdict .detail {
+  display: block;
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+  color: var(--vt-muted);
+}
+
+@media print {
+  .rx-lab { break-inside: avoid; }
+  .rx-pattern { border: 1px solid ButtonText; }
+}

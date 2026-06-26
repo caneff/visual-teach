@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Glossary — Bayes' theorem</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/math/math.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/math/math.js"></script>
+    <style>
+      /* Print-friendly: this is a reference meant to live on paper too. */
+      @media print {
+        .vt-theme-toggle { display: none !important; }
+        a { color: inherit; text-decoration: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Bayes' theorem · Reference</p>
+      <h1>Glossary</h1>
+      <p class="vt-lede">
+        The canonical language for this course. Every lesson uses these terms in
+        exactly this sense — when in doubt, this page wins.
+      </p>
+
+      <h2><span class="vt-num">1</span>The conditional</h2>
+
+      <dl class="vt-defs">
+        <div>
+          <dt>Conditional probability</dt>
+          <dd>The probability of one event computed <em>within</em> the cases where another holds. Written <span>\(P(A \mid B)\)</span>: restrict to all the <span>\(B\)</span> cases, then ask how often <span>\(A\)</span> also holds. <em>Avoid:</em> "the odds of A and B."</dd>
+        </div>
+        <div>
+          <dt><span>\(P(A \mid B)\)</span></dt>
+          <dd>Read "the probability of A given B." The thing before the bar is what you measure; the thing after the bar is the group you've zoomed into (the denominator).</dd>
+        </div>
+        <div>
+          <dt>Asymmetry</dt>
+          <dd>The fact that <span>\(P(A \mid B) \neq P(B \mid A)\)</span> in general — they have different denominators, so they answer different questions. The single most important fact in this course.</dd>
+        </div>
+      </dl>
+
+      <h2><span class="vt-num">2</span>The four parts of the theorem</h2>
+
+      <div class="vt-math vt-eq">P(H \mid E) \;=\; \frac{P(E \mid H)\,\cdot\,P(H)}{P(E)}</div>
+
+      <dl class="vt-defs">
+        <div>
+          <dt>Prior</dt>
+          <dd><span>\(P(H)\)</span> — your belief in the hypothesis <em>before</em> the evidence. In screening, the base rate. <em>Avoid:</em> "the starting guess."</dd>
+        </div>
+        <div>
+          <dt>Likelihood</dt>
+          <dd><span>\(P(E \mid H)\)</span> — how well the hypothesis predicts the evidence. For a test, its sensitivity. <em>Avoid:</em> using "likelihood" to mean "probability of the hypothesis."</dd>
+        </div>
+        <div>
+          <dt>Evidence</dt>
+          <dd><span>\(P(E)\)</span> — how often the evidence occurs overall, across every hypothesis. The denominator; equals true positives + false positives. <em>Avoid:</em> "marginal" (correct but jargon).</dd>
+        </div>
+        <div>
+          <dt>Posterior</dt>
+          <dd><span>\(P(H \mid E)\)</span> — your updated belief <em>after</em> the evidence. The number you actually wanted. <em>Avoid:</em> "the final answer" — there's always a next update.</dd>
+        </div>
+      </dl>
+
+      <h2><span class="vt-num">3</span>Screening vocabulary</h2>
+
+      <dl class="vt-defs">
+        <div>
+          <dt>Base rate</dt>
+          <dd>How common the condition is in the population, before any test — the prior for a screening problem. <em>Avoid:</em> "prevalence" loosely; here base rate <em>is</em> the prior.</dd>
+        </div>
+        <div>
+          <dt>Sensitivity</dt>
+          <dd><span>\(P(\text{positive} \mid \text{has it})\)</span> — the share of true cases the test catches. The likelihood. <em>Avoid:</em> "accuracy" (which blurs two different rates).</dd>
+        </div>
+        <div>
+          <dt>Specificity</dt>
+          <dd><span>\(P(\text{negative} \mid \text{healthy})\)</span> — the share of healthy people the test correctly clears.</dd>
+        </div>
+        <div>
+          <dt>False-positive rate</dt>
+          <dd><span>\(1 - \text{specificity}\)</span> — the share of healthy people the test wrongly flags. Against a rare condition, this is what sinks the posterior.</dd>
+        </div>
+        <div>
+          <dt>True / false positive</dt>
+          <dd>A <strong>true positive</strong> is a flagged person who has it; a <strong>false positive</strong> is a flagged person who doesn't. Among all positives, their ratio is the posterior.</dd>
+        </div>
+      </dl>
+
+      <h2><span class="vt-num">4</span>The named mistake &amp; its fix</h2>
+
+      <dl class="vt-defs">
+        <div>
+          <dt>Base-rate fallacy</dt>
+          <dd>Judging <span>\(P(H \mid E)\)</span> from the likelihood alone while ignoring the prior — e.g. reading "99% accurate" as "99% likely sick." <em>Avoid:</em> "base-rate neglect" is a synonym; we use base-rate fallacy.</dd>
+        </div>
+        <div>
+          <dt>Natural frequencies</dt>
+          <dd>Stating chances as counts out of a concrete population ("10 of 10,000") instead of percentages. Demonstrably makes Bayesian reasoning easier for laypeople and experts alike.<sup>†</sup></dd>
+        </div>
+        <div>
+          <dt>Posterior odds</dt>
+          <dd>The odds form of the theorem: posterior odds = prior odds × likelihood ratio. The shortcut behind "each positive test multiplies your odds."</dd>
+        </div>
+      </dl>
+
+      <p class="vt-gloss">
+        † Gigerenzer &amp; Hoffrage's natural-frequency result; see
+        <a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.01473/full">McDowell &amp; Jacobs (2015)</a>.
+      </p>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://plato.stanford.edu/entries/bayes-theorem/">Bayes' Theorem — Stanford Encyclopedia of Philosophy</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">Base rate fallacy — Wikipedia</a>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>See also:
+          <a href="cheatsheet.html">Cheat sheet</a> ·
+          <a href="../lessons/0001-conditional-probability-and-the-trap.html">Lesson 1</a> ·
+          <a href="../lessons/0002-bayes-theorem.html">Lesson 2</a> ·
+          <a href="../lessons/0003-the-base-rate-fallacy-applied.html">Lesson 3</a>
+        </div>
+        <div class="meta">Reference · Bayes' theorem · verified 2026-06-26</div>
+      </footer>
+    </main>
+  </body>
+</html>

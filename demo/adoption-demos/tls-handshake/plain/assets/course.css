@@ -1,0 +1,208 @@
+/* ============================================================================
+   TLS Handshake course — shared stylesheet
+   Tufte-inspired: generous margins, readable measure, restrained palette.
+   Linked by every lesson and reference doc so the course reads as one piece.
+   ========================================================================== */
+
+:root {
+  --ink:        #1a1a1a;
+  --ink-soft:   #45413c;
+  --paper:      #fdfcf9;
+  --rule:       #d9d4c8;
+  --accent:     #7a1f1f;   /* deep red — links, emphasis */
+  --accent-2:   #1f4e5f;   /* teal — the server side */
+  --accent-3:   #6b4a1f;   /* ochre — the CA / trust */
+  --good:       #1f6b3a;
+  --bad:        #9a2b2b;
+  --code-bg:    #f3f0e7;
+  --shade:      #f6f3ea;
+  --max:        42rem;
+}
+
+*  { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem 6rem;
+  max-width: var(--max);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: et-book, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: 1.18rem;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Course chrome ------------------------------------------------------- */
+
+.eyebrow {
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-variant: small-caps;
+  letter-spacing: 0.12em;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.4rem;
+}
+
+h1, h2, h3 { line-height: 1.2; font-weight: 600; }
+h1 { font-size: 2.1rem; margin: 0.2rem 0 1.2rem; letter-spacing: -0.01em; }
+h2 { font-size: 1.5rem; margin: 2.6rem 0 0.6rem; }
+h3 { font-size: 1.18rem; margin: 1.8rem 0 0.4rem; color: var(--ink-soft); }
+
+p { margin: 0.9rem 0; }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(122,31,31,0.3); }
+a:hover { border-bottom-color: var(--accent); }
+
+strong { font-weight: 600; }
+em { font-style: italic; }
+
+hr { border: 0; border-top: 1px solid var(--rule); margin: 2.4rem 0; }
+
+code, kbd, samp {
+  font-family: "SF Mono", "JetBrains Mono", "Fira Mono", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+  background: var(--code-bg);
+  padding: 0.08em 0.35em;
+  border-radius: 3px;
+}
+
+pre {
+  background: var(--code-bg);
+  border-left: 3px solid var(--rule);
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  border-radius: 0 4px 4px 0;
+}
+pre code { background: none; padding: 0; font-size: 1em; }
+
+/* ---- Layout helpers ------------------------------------------------------ */
+
+.lead { font-size: 1.28rem; color: var(--ink-soft); margin: 0 0 1.6rem; }
+
+.callout {
+  background: var(--shade);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.6rem 0;
+}
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child  { margin-bottom: 0; }
+
+.key {
+  border-left: 4px solid var(--accent);
+  background: linear-gradient(90deg, rgba(122,31,31,0.05), transparent 60%);
+  padding: 0.8rem 1.1rem;
+  margin: 1.6rem 0;
+}
+.key .label {
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-size: 0.8rem;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+
+/* Sidenote — small marginal aside, collapses inline on narrow screens */
+.note {
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+  border-top: 1px solid var(--rule);
+  padding-top: 0.5rem;
+  margin: 0.6rem 0 1.4rem;
+}
+
+/* Definition pairs */
+dl.defs { margin: 1.2rem 0; }
+dl.defs dt { font-weight: 600; margin-top: 0.9rem; }
+dl.defs dd { margin: 0.1rem 0 0 0; color: var(--ink-soft); }
+
+/* ---- Actor color coding (used across lessons) ---------------------------- */
+.actor-client { color: var(--accent);   font-weight: 600; }
+.actor-server { color: var(--accent-2); font-weight: 600; }
+.actor-ca     { color: var(--accent-3); font-weight: 600; }
+
+/* ---- Tables -------------------------------------------------------------- */
+table { border-collapse: collapse; width: 100%; margin: 1.4rem 0; font-size: 0.96rem; }
+th, td { text-align: left; padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-variant: small-caps; letter-spacing: 0.04em; color: var(--ink-soft); border-bottom: 2px solid var(--rule); }
+tbody tr:hover { background: var(--shade); }
+
+/* ---- Message-flow diagram (lesson 2) ------------------------------------- */
+.flow { margin: 1.8rem 0; }
+.flow .lane-head { display: flex; justify-content: space-between; font-weight: 600; margin-bottom: 0.4rem; }
+.flow .lane-head .c { color: var(--accent); }
+.flow .lane-head .s { color: var(--accent-2); }
+.msg {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0.45rem 0;
+}
+.msg .arrow { font-family: monospace; color: var(--ink-soft); white-space: nowrap; }
+.msg .name  { font-weight: 600; }
+.msg.l2r .label { text-align: right; }
+.msg.r2l .label { grid-column: 3; text-align: left; }
+.msg .carry { display: block; font-size: 0.82rem; color: var(--ink-soft); font-weight: 400; }
+
+/* ---- Navigation between lessons ------------------------------------------ */
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.95rem;
+}
+.lesson-nav a { display: inline-block; }
+.lesson-nav .spacer { flex: 1; }
+
+.crumbs { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: 1.4rem; }
+.crumbs a { color: var(--ink-soft); }
+
+/* ---- Footer / reminders -------------------------------------------------- */
+.followup {
+  margin-top: 2.4rem;
+  border: 1px dashed var(--accent);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  background: rgba(122,31,31,0.03);
+  font-size: 0.98rem;
+}
+.followup strong { color: var(--accent); }
+
+.primary-source {
+  margin: 1.8rem 0;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--accent-2);
+  border-radius: 6px;
+  background: rgba(31,78,95,0.04);
+}
+.primary-source .label {
+  font-variant: small-caps; letter-spacing: 0.08em; font-size: 0.8rem;
+  color: var(--accent-2); display: block; margin-bottom: 0.3rem;
+}
+
+.cite { font-size: 0.85rem; color: var(--ink-soft); }
+sup.cite-ref a { border: 0; color: var(--accent); font-size: 0.78em; }
+
+/* ---- Print --------------------------------------------------------------- */
+@media print {
+  body { font-size: 11pt; padding: 0; max-width: none; color: #000; background: #fff; }
+  a { color: #000; border: 0; }
+  .quiz, .lesson-nav, .followup { break-inside: avoid; }
+  .primary-source, .key, .callout { break-inside: avoid; }
+}
+
+@media (max-width: 30rem) {
+  body { font-size: 1.06rem; padding: 2rem 1.1rem 4rem; }
+  h1 { font-size: 1.7rem; }
+}

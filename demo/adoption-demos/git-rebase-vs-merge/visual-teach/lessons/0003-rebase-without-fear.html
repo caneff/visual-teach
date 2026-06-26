@@ -1,40 +1,30 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Rebase without fear — recovery, conflicts, the golden rule</title>
-
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/course.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/code.css" />
-    <link rel="stylesheet" href="../assets/checklist.css" />
-    <link rel="stylesheet" href="../assets/chip.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-
-    <script src="../assets/prism/prism-core.min.js"></script>
-    <script src="../assets/prism/prism-clike.min.js"></script>
-    <script src="../assets/prism/prism-bash.min.js"></script>
-    <script src="../assets/base.js"></script>
-    <script src="../assets/code.js"></script>
-    <script src="../assets/checklist.js"></script>
-    <script src="../assets/quiz.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rebase without fear — Git merge vs. rebase · Lesson 3</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/checklist/checklist.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/chip/chip.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Merge vs Rebase · Lesson 3 of 3</p>
+      <p class="vt-kicker">Git merge vs. rebase · Lesson 3</p>
       <h1>Rebase without fear</h1>
       <p class="vt-lede">
-        The shape and the decision are yours. The last thing between you and a
-        confident rebase is knowing the one rule that keeps it safe — and that
-        nothing you do is unrecoverable.
+        The mechanics that turn rebase from scary to routine: one rule that keeps
+        you safe, how to walk through a mid-rebase conflict, and the undo button
+        that means you can never truly lose work.
       </p>
 
       <div class="vt-metabar">
         <span class="item">⏱ <strong>~15 min</strong></span>
-        <span class="item">Needs: <strong><a href="0001-two-shapes-of-history.html">L1</a> + <a href="0002-choosing-between-them.html">L2</a></strong></span>
+        <span class="item">Needs: <strong><a href="0001-the-two-shapes-of-history.html">L1</a> + <a href="0002-choosing-between-them.html">L2</a></strong></span>
         <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
         <span class="item">Lesson <strong>3</strong> of 3</span>
       </div>
@@ -42,355 +32,321 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>State the golden rule and know exactly why it exists.</li>
-          <li>Undo any rebase with <code>git reflog</code> — your work is never gone.</li>
-          <li>Resolve a mid-rebase conflict, or bail out cleanly with <code>--abort</code>.</li>
-          <li>Run a private-branch rebase end to end from a checklist.</li>
+          <li>State and apply the golden rule that keeps a rebase safe</li>
+          <li>Resolve a conflict mid-rebase with <code>--continue</code> / <code>--abort</code></li>
+          <li>Recover a "lost" commit with <code>git reflog</code> — your safety net</li>
+          <li>Run a clean rebase end-to-end from a checklist</li>
         </ul>
       </div>
 
       <div class="vt-mission">
         <strong>Why this matters for your goal:</strong> this is the lesson that
-        retires the fear for good. "I'll lose my work" stops being true the moment
-        you've used the reflog once; "I'll clobber a teammate" stops being a risk
-        the moment the golden rule is a reflex.
+        retires the fear. Once you know the one rule and the undo button, rebase
+        becomes a tool you reach for on purpose — not a trap you avoid.
       </div>
 
-      <h2><span class="vt-num">1</span>The golden rule</h2>
+      <h2><span class="vt-num">1</span>The golden rule (the only one you must keep)</h2>
       <p>
-        There is exactly one rule that separates a safe rebase from a harmful one.
-        It's worth memorizing word for word, straight from the Pro Git book:
+        From <a href="0002-choosing-between-them.html">Lesson 2</a>, distilled to a
+        sentence you should be able to recite:
       </p>
-
       <div class="vt-callout risk">
-        <strong>The golden rule of rebasing</strong><br />
-        <em>"Do not rebase commits that exist outside your repository and that
-        people may have based work on."</em>
-        <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing" style="color: inherit">— Pro Git, §3.6</a>
+        <strong>Never rebase commits that have been pushed and shared.</strong>
+        Rebase builds <em>new</em> commits (Lesson 1) and abandons the old ones.
+        If someone else holds the old ones, your history and theirs split apart —
+        and merging the mess back together is exactly the pain you were trying to
+        avoid.
       </div>
-
       <p>
-        Rebasing makes <strong>new commits with new hashes</strong> (Lesson&nbsp;1)
-        and abandons the originals. If you're the only one who had those originals,
-        no harm done. But if a teammate already pulled them, their history still
-        points at the <em>old</em> hashes — and your rewritten branch no longer
-        contains them. Their next pull turns into a tangle of duplicated commits
-        and conflicts. That's the entire danger, and the
-        <a href="0002-choosing-between-them.html">one question from Lesson&nbsp;2</a>
-        ("has anyone else got these commits?") is how you stay on the right side of
-        it.
+        Keep the rule and the worst case for a private branch is a few minutes of
+        conflict resolution — fully reversible. Break it and you've handed your
+        team a puzzle. Everything below assumes you've already confirmed the
+        branch is yours to rewrite.
       </p>
 
-      <div class="vt-callout info">
-        <strong>Private rebase, public update.</strong> When you <em>do</em> rebase
-        a branch you'd pushed (but nobody depends on), the remote still holds the
-        old commits — so an ordinary push is rejected. Update it with the
-        lease-guarded force, which refuses to run if someone else pushed in the
-        meantime:
-        <div class="vt-code" style="margin-top: 0.7rem">
-          <div class="vt-code-head">
-            <span>safe remote update after a private rebase</span>
-            <button class="vt-code-copy" type="button"></button>
-          </div>
-          <pre><code class="language-bash">git push --force-with-lease</code></pre>
-        </div>
-      </div>
-
-      <h2><span class="vt-num">2</span>Your safety net: <code>git reflog</code></h2>
+      <h2><span class="vt-num">2</span>When a rebase stops on a conflict</h2>
       <p>
-        Here's the fact that makes "I'll lose my work" simply false. Every time
-        <code>HEAD</code> moves — every commit, checkout, merge, <em>and rebase</em>
-        — git writes a line to the <strong>reflog</strong>. Your pre-rebase commits
-        aren't deleted; they're just no longer pointed at by a branch. The reflog
-        still remembers exactly where they were, for weeks.
-        <a href="https://git-scm.com/docs/git-reflog">[git-reflog]</a>
+        Replaying a commit can hit a line that also changed on the new base. Git
+        pauses the rebase and hands the wheel to you. This is normal — not a
+        failure. You have three moves:
       </p>
 
-      <div class="vt-io">
-        <div class="vt-io-input">
-          <div class="vt-io-head">
-            <span>undo a rebase you regret</span>
-            <button class="vt-code-copy" type="button"></button>
-          </div>
-          <pre><code class="language-bash">git reflog                       # find where you were before the rebase
-git reset --hard HEAD@{4}        # move the branch back to that exact commit</code></pre>
-        </div>
-        <div class="vt-io-output">
-          <div class="vt-io-head"><span>git reflog</span></div>
-          <pre><code>7b1e44a HEAD@{0}: rebase (finish): returning to feature/login
-d4a90c2 HEAD@{1}: rebase: Add login form
-e5f8a90 HEAD@{2}: rebase (start): checkout main
-3ab77d1 HEAD@{4}: commit: Add remember-me box   &lt;- pre-rebase tip
-9f0c4e2 HEAD@{5}: commit: Add login form</code></pre>
-        </div>
-      </div>
-
-      <div class="vt-callout success">
-        <strong>Read that line <code>HEAD@{4}</code>.</strong> It's your branch
-        exactly as it stood <em>before</em> the rebase — old hashes and all.
-        <code>git reset --hard 3ab77d1</code> (or <code>HEAD@{4}</code>) puts you
-        back as if the rebase never happened. There is no rebase you can't walk
-        back this way.
-      </div>
-
-      <h2><span class="vt-num">3</span>When a rebase hits a conflict</h2>
-      <p>
-        Rebase replays your commits one at a time. If a commit doesn't apply
-        cleanly onto the new base, git <strong>pauses</strong> mid-rebase and hands
-        you the conflict — it does not lose anything and it doesn't finish behind
-        your back. You have three moves:
+      <p style="margin-bottom:.4rem">
+        <span class="vt-pill">git add → --continue</span>
+        <span class="vt-pill">--abort</span>
+        <span class="vt-pill">--skip</span>
       </p>
 
-      <div class="vt-io">
-        <div class="vt-io-input">
-          <div class="vt-io-head">
-            <span>resolve and carry on</span>
-            <button class="vt-code-copy" type="button"></button>
-          </div>
-          <pre><code class="language-bash"># 1. git paused: CONFLICT in src/login.js
-#    open the file, fix the &lt;&lt;&lt;&lt; ==== &gt;&gt;&gt;&gt; markers, save
-git add src/login.js
-git rebase --continue            # replay the next commit</code></pre>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>the mid-rebase loop</span>
+          <button class="vt-code-copy" type="button"></button>
         </div>
-        <div class="vt-io-output">
-          <div class="vt-io-head"><span>the other two exits</span></div>
-          <pre><code class="language-bash">git rebase --abort
-# undo the whole rebase, return to the
-# exact pre-rebase state. Always safe.
+        <pre><code class="language-bash"># git stops and tells you which file conflicts:
+git status                 # see what's unmerged
 
-git rebase --skip
-# drop the commit being replayed and
-# move on. Use rarely, and on purpose.</code></pre>
-        </div>
+# open each file, find the conflict markers, and edit to the final result:
+#   <<<<<<< HEAD            (what's on the new base)
+#   =======
+#   >>>>>>> your commit     (what your commit changed)
+
+git add path/to/resolved-file   # mark this file settled
+git rebase --continue           # replay the next commit
+
+# went sideways? this returns you to EXACTLY where you started:
+git rebase --abort
+
+# this particular commit is now redundant? drop just it:
+git rebase --skip</code></pre>
+      </div>
+
+      <div class="vt-callout insight">
+        The rhythm is a loop: <strong>fix → <code>git add</code> →
+        <code>git rebase --continue</code></strong>, once per conflicting commit,
+        until git says the rebase is done. You're resolving one replayed commit at
+        a time, not the whole branch at once — which is why each step is small.
       </div>
 
       <div class="vt-callout warn">
-        <strong>Lost mid-rebase? <code>--abort</code> is the panic button.</strong>
-        It returns your branch to exactly where it was before
-        <code>git rebase</code> — no reflog needed. Reach for it any time a rebase
-        gets confusing; you lose nothing but the in-progress attempt.
+        <strong>Escape hatch you can always trust:</strong>
+        <code>git rebase --abort</code>. At any point mid-rebase — confused,
+        conflicts piling up, lost your nerve — this puts the branch back exactly
+        as it was before you started. Nothing is committed to the new shape until
+        the rebase finishes, so there's always a clean way out.
       </div>
 
-      <h2><span class="vt-num">4</span>The whole thing, as a checklist</h2>
+      <h2 id="recover"><span class="vt-num">3</span>Your safety net: <code>git reflog</code></h2>
       <p>
-        This interleaves everything: the <a href="0002-choosing-between-them.html">one
-        question</a> from Lesson&nbsp;2, the <a href="0001-two-shapes-of-history.html">straight-line
-        shape</a> from Lesson&nbsp;1, and the safety net above. Tick it off the
-        next time you rebase a private branch — your progress is saved in this
-        browser.
+        Here's the fact that should end the fear of "losing work": git almost
+        never deletes a commit immediately. Even after a rebase abandons the old
+        commits, or a bad <code>reset</code>, they sit on disk for weeks. The
+        <strong>reflog</strong> is git's private log of everywhere
+        <code>HEAD</code> has been — every commit, rebase, reset, checkout — and
+        it can take you back.
       </p>
 
-      <ul class="vt-checklist" data-key="grm-safe-rebase">
+      <div class="vt-io">
+        <div class="vt-io-input">
+          <div class="vt-io-head">
+            <span>Find where you were</span>
+            <button class="vt-code-copy" type="button"></button>
+          </div>
+          <pre><code>git reflog</code></pre>
+        </div>
+        <div class="vt-io-output">
+          <div class="vt-io-head"><span>What it shows</span></div>
+          <pre><code>f6a1b2c HEAD@{0}: rebase finished
+9d4e5f6 HEAD@{1}: rebase: checkout main
+a1b2c3d HEAD@{2}: commit: add validation
+7c8d9e0 HEAD@{3}: commit: add form
+...</code></pre>
+        </div>
+      </div>
+
+      <p>
+        See the commit you thought was gone (say <code>a1b2c3d</code>)? Bring it
+        back. To move your current branch onto it:
+      </p>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>recover a lost commit</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash"># inspect it first without committing to anything:
+git checkout a1b2c3d
+
+# or hard-reset your branch back to that exact state:
+git reset --hard a1b2c3d
+
+# safest: park it on a new branch so nothing else moves:
+git branch rescue a1b2c3d</code></pre>
+      </div>
+
+      <div class="vt-callout success">
+        <strong>The takeaway:</strong> a rebase you regret is not a loss — it's a
+        <code>git reflog</code> away from undone. This is the safety net that lets
+        you rebase boldly on your private branches.
+      </div>
+
+      <h2><span class="vt-num">4</span>If you already pushed your (private) branch</h2>
+      <p>
+        Rebasing a branch you'd pushed means your local history no longer matches
+        the remote, so a normal <code>push</code> is rejected. Update it with
+        <code>--force-with-lease</code> — never a bare <code>--force</code>:
+      </p>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>push a rebased private branch</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git push --force-with-lease</code></pre>
+      </div>
+      <div class="vt-callout warn">
+        <code>--force-with-lease</code> refuses the push if the remote has commits
+        you haven't seen — i.e. if someone else pushed in the meantime. That check
+        is your last guard on the golden rule: if it <em>blocks</em> you, the
+        branch wasn't as private as you thought. Stop and reassess.
+      </div>
+
+      <h2><span class="vt-num">5</span>The safe-rebase checklist</h2>
+      <p>
+        Put it all together. This is the workflow to follow every time — your
+        progress is saved, so you can use it live on a real branch right now.
+      </p>
+
+      <ul class="vt-checklist" data-key="git-safe-rebase">
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Ask the one question</span>
-            <span class="vt-step-body"
-              >Is this branch <strong>private</strong> — does anyone else have these
-              commits? If yes, stop and <code>merge</code> instead. If no, rebase
-              away.</span
-            >
+            <span class="vt-step-title">Ask the golden-rule question</span>
+            <span class="vt-step-body">Are these commits pushed and shared with anyone? If <strong>yes</strong>, stop — <a href="0002-choosing-between-them.html"><code>merge</code></a> instead. Only continue for private work.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Get the latest base</span>
-            <span class="vt-step-body"
-              >Run <code>git fetch origin</code> so you rebase onto the real,
-              current <code>main</code>.</span
-            >
+            <span class="vt-step-title">Start from a clean tree</span>
+            <span class="vt-step-body">Run <code>git status</code>. Commit or <code>git stash</code> any loose changes so the rebase starts from a known state.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Rebase</span>
-            <span class="vt-step-body"
-              >On your branch, run <code>git rebase origin/main</code>. Your commits
-              replay on top.</span
-            >
+            <span class="vt-step-title">Get the latest base and rebase</span>
+            <span class="vt-step-body">Fetch, then from your branch run <code>git rebase main</code> (or <code>git fetch &amp;&amp; git rebase origin/main</code>).</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Handle any conflict</span>
-            <span class="vt-step-body"
-              >Fix the markers, <code>git add</code> the file,
-              <code>git rebase --continue</code>. Confused? <code>git rebase --abort</code>
-              and you're exactly back where you started.</span
-            >
+            <span class="vt-step-title">Resolve any conflict, one commit at a time</span>
+            <span class="vt-step-body">Edit the conflicted files, then <code>git add</code> them and <code>git rebase --continue</code>. Repeat until git reports the rebase is finished.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Verify the shape</span>
-            <span class="vt-step-body"
-              >Run <code>git log --graph --oneline</code>. You should see one
-              straight line — your commits sitting on top of <code>main</code>, no
-              merge commit (Lesson&nbsp;1).</span
-            >
+            <span class="vt-step-title">Lost or confused? Abort</span>
+            <span class="vt-step-body">At any point, <code>git rebase --abort</code> returns the branch to exactly where it began. No harm done.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Update the remote safely</span>
-            <span class="vt-step-body"
-              >Only because it's private:
-              <code>git push --force-with-lease</code>. Never plain
-              <code>--force</code>.</span
-            >
+            <span class="vt-step-title">Verify the new shape</span>
+            <span class="vt-step-body">Run <code>git log --oneline --graph</code> (from <a href="0001-the-two-shapes-of-history.html">Lesson 1</a>) and confirm you see one clean line.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Know your undo</span>
-            <span class="vt-step-body"
-              >If anything looks wrong later: <code>git reflog</code>, find the
-              pre-rebase line, <code>git reset --hard HEAD@{n}</code>. Nothing was
-              ever lost.</span
-            >
+            <span class="vt-step-title">Update the remote safely (only if pushed)</span>
+            <span class="vt-step-body">If this private branch was already pushed, <code>git push --force-with-lease</code> — never a bare <code>--force</code>.</span>
           </div>
         </li>
       </ul>
 
-      <h2><span class="vt-num">5</span>Recall — interleaved</h2>
-      <p>These mix all three lessons. Answer from memory.</p>
-
-      <div aria-live="polite" class="vt-quiz-live"></div>
-
-      <div class="vt-quiz" data-answer="1">
-        <p class="q">
-          You're mid-rebase, a conflict appears, and you decide you don't want to
-          rebase right now after all. Which command puts the branch back exactly as
-          it was before you started?
-        </p>
-        <button class="opt"><code>git rebase --continue</code></button>
-        <button class="opt"><code>git rebase --abort</code></button>
-        <button class="opt"><code>git rebase --skip</code></button>
-        <button class="opt"><code>git merge --abort</code></button>
-
-        <template class="why-good">
-          <code>--abort</code> unwinds the entire in-progress rebase and returns
-          you to the pre-rebase state — no reflog needed. It's the panic button.
-        </template>
-        <template class="why-bad">Not that one — picture what each exit does to the in-progress rebase. Try again.</template>
-        <template data-opt="0">
-          <code>--continue</code> moves <em>forward</em> after you've resolved the
-          conflict — the opposite of bailing out.
-        </template>
-        <template data-opt="2">
-          <code>--skip</code> drops the conflicting commit and keeps rebasing — it
-          doesn't return you to the start, and it can lose a commit.
-        </template>
-        <template data-opt="3">
-          You're in a rebase, not a merge, so <code>git merge --abort</code> won't
-          apply here.
-        </template>
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <div class="vt-quiz" data-answer="0">
-        <p class="q">
-          You rebased a private branch and force-pushed with lease. A day later you
-          want an original pre-rebase commit back. Where is it?
-        </p>
-        <button class="opt">In the reflog — reset --hard brings it back</button>
-        <button class="opt">Gone for good — rebase deleted it permanently</button>
-        <button class="opt">Folded into the new merge commit's parents</button>
-        <button class="opt">Pushed onto origin/main by the rebase</button>
-
-        <template class="why-good">
-          Rebase abandoned the original but didn't delete it — the reflog still
-          points at it for weeks. <code>git reset --hard &lt;hash&gt;</code> restores it.
-        </template>
-        <template class="why-bad">Recall §2 — where do abandoned commits actually wait? Try again.</template>
-        <template data-opt="1">
-          Rebase never hard-deletes — abandoned commits live in the reflog until
-          they're eventually garbage-collected, long after you'd need them.
-        </template>
-        <template data-opt="2">
-          There is no merge commit — a rebase produces a straight line (Lesson&nbsp;1).
-          The original is in the reflog, not inside a merge.
-        </template>
-        <template data-opt="3">
-          A rebase rewrites <em>your</em> branch; it never pushes anything to
-          <code>main</code>. The original commit is local, in your reflog.
-        </template>
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
+      <h2><span class="vt-num">6</span>Interleaved recall — the whole course at once</h2>
+      <p class="vt-reveal-hint">
+        These deliberately mix all three lessons. Mixing is harder than reviewing
+        one topic — and that difficulty is exactly what builds durable memory.
+        Answer before revealing.
+      </p>
+      <details class="vt-reveal">
+        <summary>(L1) After a rebase, why can't a teammate's old copy of your branch fast-forward to your new one?</summary>
+        <div class="answer">
+          Your replayed commits have <strong>new hashes</strong> — they're
+          different commits from the ones your teammate holds. The two histories
+          no longer share a tip to fast-forward to; they've diverged.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>(L2) Your branch is pushed but only you have ever touched it. Merge or rebase to get the latest <code>main</code>?</summary>
+        <div class="answer">
+          <strong>Rebase.</strong> "Shared" means others have based work on it —
+          a branch only you touch is still private, so rebasing is safe and keeps
+          history linear.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>(L3) You're three conflicts into a rebase and thoroughly lost. What's the single safest command?</summary>
+        <div class="answer">
+          <code>git rebase --abort</code> — it restores the branch to exactly its
+          pre-rebase state. If you'd already finished and then regretted it,
+          <code>git reflog</code> gets you back instead.
+        </div>
+      </details>
 
       <div class="vt-recap">
-        <p class="h">✦ What you earned — and the course</p>
-        You can state the golden rule, undo any rebase with the reflog, resolve or
-        abort a conflict, and run the whole workflow from a checklist. Across three
-        lessons you went from coin-flip dread to: <strong>see the shape</strong> →
-        <strong>ask the one question</strong> → <strong>rebase a private branch
-        without fear.</strong> That's the mission.
+        <p class="h">✦ What you earned — and the mission, met</p>
+        You can choose <code>merge</code> or <code>rebase</code> with a reason
+        (L2), see exactly what each does to history (L1), and now rebase a private
+        branch start-to-finish — conflicts and all — knowing
+        <code>git rebase --abort</code> and <code>git reflog</code> mean you can
+        always get back. That's the whole goal: the right tool for the situation,
+        without anxiety.
       </div>
 
       <div class="vt-teacher">
         <div>
-          <p class="h">I'm your teacher — let's do a real one</p>
+          <p class="h">I'm your teacher — let's do it for real</p>
           <p>
-            The surest way to retire the fear is to rebase a real branch with me
-            watching. Spin up a throwaway repo, or point me at a private branch,
-            and we'll walk the checklist together — including deliberately causing a
-            conflict so you've resolved one before it matters.
+            The surest way to retire the fear is to rebase a throwaway branch
+            while I'm here to catch anything. Spin one up and walk the checklist
+            with me — or paste a conflict you're staring at and we'll resolve it
+            together.
           </p>
           <div class="vt-asks">
-            <span class="vt-ask">Walk me through a rebase on a throwaway repo.</span>
-            <span class="vt-ask">Help me read this conflict I'm stuck on.</span>
-            <span class="vt-ask">What should I learn next — interactive rebase?</span>
+            <span class="vt-ask">Walk me through rebasing a practice branch step by step.</span>
+            <span class="vt-ask">Here's my conflict output — what do I edit?</span>
+            <span class="vt-ask">I think I lost a commit — help me read my reflog.</span>
           </div>
         </div>
       </div>
 
-      <p class="vt-upnext">
-        <em>Where next:</em> when you want rebase as an <em>editing</em> tool —
-        squashing, rewording, reordering commits — that's interactive rebase
-        (<code>git rebase -i</code>), the natural sequel. Ask your teacher to start
-        that thread. Keep the
-        <a href="../reference/git-merge-vs-rebase-cheatsheet.html">cheat sheet</a>
-        within reach.
-      </p>
+      <div class="vt-callout info">
+        <strong>Where to go next:</strong> you've met the mission. To go deeper,
+        practice on real branches and bring questions to
+        <a href="https://stackoverflow.com/questions/tagged/git-rebase">Stack Overflow's <code>git-rebase</code> tag</a>
+        or <a href="https://www.reddit.com/r/git/">r/git</a>. The natural next
+        topic is <em>interactive</em> rebase (<code>git rebase -i</code>) for
+        squashing and reordering — ask me when you're ready and we'll add a lesson.
+      </div>
 
       <footer class="vt-sources">
         <span class="lbl">Sources</span>
         <ul class="vt-reflist">
           <li>
-            <span class="vt-src-ic" data-type="book"></span>
-            <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git 3.6 — Rebasing</a>
-            <span class="note">— the golden rule, verbatim.</span>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git — ch. 3.6 "Rebasing"</a>
+            <span class="note">— the golden rule and "The Perils of Rebasing." Read this first.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="spec"></span>
-            <a href="https://git-scm.com/docs/git-reflog">git-reflog — reference</a>
-            <span class="note">— the recovery net.</span>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-rebase">git-rebase — reference manual</a>
+            <span class="note">— <code>--continue</code> / <code>--abort</code> / <code>--skip</code> and recovery.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="spec"></span>
-            <a href="https://git-scm.com/docs/git-rebase">git-rebase — reference</a>
-            <span class="note">— <code>--continue</code> / <code>--abort</code> / <code>--skip</code>.</span>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-reflog">git-reflog — reference manual</a>
+            <span class="note">— the undo button; how long entries are kept.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="forum"></span>
-            <a href="https://stackoverflow.com/questions/tagged/git">Stack Overflow — git tag</a>
-            <span class="note">— for the specific error in front of you.</span>
+            <span class="vt-src-ic" data-type="forum"></span
+            ><a href="https://stackoverflow.com/questions/tagged/git-rebase">Stack Overflow — <code>git-rebase</code> tag</a>
+            <span class="note">— real mid-rebase situations, answered.</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
-          <a href="../reference/git-merge-vs-rebase-cheatsheet.html">Merge vs Rebase cheat sheet &amp; glossary</a>
+          <a href="../reference/decision-cheatsheet.html">Decision &amp; recovery cheat sheet</a>
         </div>
-        <div class="meta">Lesson 0003 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0003 · verified 2026-06-26</div>
       </footer>
     </main>
+
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
   </body>
 </html>

@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Git history glossary — merge vs. rebase</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <style>
+      /* glossary-specific: definition list styling, tuned for quick scan + print */
+      .gloss dt {
+        font-weight: 700;
+        color: var(--vt-ink);
+        margin-top: 1.1rem;
+        font-family: ui-monospace, "SF Mono", monospace;
+        font-size: 1rem;
+      }
+      .gloss dt code { font-size: inherit; }
+      .gloss dd {
+        margin: 0.25rem 0 0;
+        color: var(--vt-ink);
+      }
+      .gloss dd .avoid {
+        display: block;
+        margin-top: 0.2rem;
+        font-size: 0.85rem;
+        color: var(--vt-muted);
+        font-style: italic;
+      }
+      .gloss-group {
+        margin-top: 1.8rem;
+        padding-top: 0.4rem;
+        border-top: 2px solid var(--vt-rule);
+      }
+      .gloss-group > h2 { border: none; }
+      @media print {
+        .vt-theme-toggle { display: none !important; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Git merge vs. rebase · Reference</p>
+      <h1>Git history glossary</h1>
+      <p class="vt-lede">
+        The canonical vocabulary for this course. Every lesson uses these terms in
+        exactly this sense. Print it; keep it by the keyboard.
+      </p>
+
+      <div class="vt-callout insight">
+        Read the first group once and the rest will click — almost every term here
+        is just a consequence of one fact: <strong>a commit's identity includes
+        its parent.</strong>
+      </div>
+
+      <section class="gloss-group">
+        <h2>Core graph</h2>
+        <dl class="gloss">
+          <dt>Commit</dt>
+          <dd>
+            A snapshot of the whole project plus a pointer to its parent and a
+            hash that identifies it. The atomic unit of history.
+          </dd>
+
+          <dt>Parent</dt>
+          <dd>
+            The commit that came immediately before a given commit. Following
+            parents backward walks the entire history.
+            <span class="avoid">Avoid: "previous version"</span>
+          </dd>
+
+          <dt>Hash</dt>
+          <dd>
+            A commit's identifier (e.g. <code>a1b2c3d</code>), computed from its
+            contents <em>and its parent</em>. Change either and the hash changes —
+            it's a different commit.
+            <span class="avoid">Avoid: "commit number", "id"</span>
+          </dd>
+
+          <dt>Branch</dt>
+          <dd>
+            A movable name pointing at the latest commit on a line of work (e.g.
+            <code>main</code>, <code>feature</code>). Committing slides the name
+            forward.
+            <span class="avoid">Avoid: "copy of the code"</span>
+          </dd>
+
+          <dt><code>HEAD</code></dt>
+          <dd>
+            A pointer to the commit (usually via a branch) you currently have
+            checked out — "where you are now."
+          </dd>
+
+          <dt>Diverged</dt>
+          <dd>
+            The state where two branches have each gained commits since their
+            shared ancestor, so neither is simply ahead of the other.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="gloss-group">
+        <h2>Merge</h2>
+        <dl class="gloss">
+          <dt><code>git merge</code></dt>
+          <dd>
+            Combines two branches by creating one new <strong>merge commit</strong>
+            that joins them. Existing commits are never changed; the branching
+            shape is preserved.
+          </dd>
+
+          <dt>Merge commit</dt>
+          <dd>
+            A commit with <strong>two parents</strong> — the tip of each branch
+            being merged. Its second parent is what records the fork in the graph.
+          </dd>
+
+          <dt>Fast-forward</dt>
+          <dd>
+            When the target branch hasn't diverged, merging just slides its name
+            forward to the other tip — no merge commit is created.
+            <span class="avoid">Avoid: "auto-merge"</span>
+          </dd>
+
+          <dt>Three-way merge</dt>
+          <dd>
+            The merge git performs when branches <em>have</em> diverged: it
+            compares both tips against their shared ancestor to build the result.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="gloss-group">
+        <h2>Rebase</h2>
+        <dl class="gloss">
+          <dt><code>git rebase</code></dt>
+          <dd>
+            Moves a line of commits to a new base by <strong>replaying</strong>
+            them on top of it, producing a linear history.
+          </dd>
+
+          <dt>Replay</dt>
+          <dd>
+            Re-applying each commit's changes onto a new parent, one at a time.
+            Because the parent changes, each replayed commit gets a
+            <strong>new hash</strong> — same changes, new identity.
+            <span class="avoid">Avoid: "moving commits", "re-running"</span>
+          </dd>
+
+          <dt>Rewriting history</dt>
+          <dd>
+            What rebase does: it doesn't edit old commits, it builds new ones and
+            points the branch at them, abandoning the originals.
+            <span class="avoid">Avoid: "destroying history", "deleting commits"</span>
+          </dd>
+
+          <dt>Linear history</dt>
+          <dd>
+            A history with no merge commits — one straight line of commits. The
+            upside rebase optimises for.
+          </dd>
+
+          <dt>The Golden Rule of Rebasing</dt>
+          <dd>
+            Never rebase commits that have been pushed and shared. Rewriting
+            shared commits splits your history from everyone else's.
+          </dd>
+
+          <dt>Shared</dt>
+          <dd>
+            A commit is "shared" once someone else may have based work on it — not
+            merely once it's pushed. A branch only you have ever touched is still
+            private. <em>This distinction decides merge vs. rebase.</em>
+          </dd>
+        </dl>
+      </section>
+
+      <section class="gloss-group">
+        <h2>Conflicts &amp; recovery</h2>
+        <dl class="gloss">
+          <dt>Conflict</dt>
+          <dd>
+            When a replayed (or merged) change touches a line that also changed on
+            the base, git pauses and asks you to choose the final result.
+          </dd>
+
+          <dt><code>--continue</code> / <code>--abort</code> / <code>--skip</code></dt>
+          <dd>
+            Mid-rebase controls: resume after resolving (<code>--continue</code>),
+            cancel and restore the pre-rebase state (<code>--abort</code>), or drop
+            the current commit (<code>--skip</code>).
+          </dd>
+
+          <dt><code>git reflog</code></dt>
+          <dd>
+            Git's private log of every position <code>HEAD</code> has held. Lets
+            you find and recover a commit after a rebase, reset, or bad checkout —
+            the safety net.
+            <span class="avoid">Avoid: "git history", "the log"</span>
+          </dd>
+
+          <dt><code>--force-with-lease</code></dt>
+          <dd>
+            A safe force-push: it updates a rebased branch on the remote but
+            refuses if someone else has pushed in the meantime. Always prefer it
+            over a bare <code>--force</code>.
+          </dd>
+        </dl>
+      </section>
+
+      <div class="vt-callout info">
+        Back to the lessons:
+        <a href="../lessons/0001-the-two-shapes-of-history.html">1 · The two shapes</a> ·
+        <a href="../lessons/0002-choosing-between-them.html">2 · Choosing</a> ·
+        <a href="../lessons/0003-rebase-without-fear.html">3 · Without fear</a> ·
+        <a href="decision-cheatsheet.html">Decision &amp; recovery cheat sheet</a>
+      </div>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git — ch. 3.6 "Rebasing"</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-merge">git-merge manual</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-reflog">git-reflog manual</a>
+          </li>
+        </ul>
+        <div class="meta">Reference · verified 2026-06-26</div>
+      </footer>
+    </main>
+    <script src="../assets/base/base.js"></script>
+  </body>
+</html>

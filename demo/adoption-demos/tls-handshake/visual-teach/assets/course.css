@@ -1,10 +1,21 @@
 /* course.css — linked by every lesson alongside base.css.
-   The one sanctioned per-course override: TLS/HTTPS has a strong conventional
-   "secure padlock" green. Set ONCE here so the whole course stays consistent;
-   never give individual lessons their own accent. Each base color token is a
-   light-dark() pair, so the override must be too — a flat hex would replace both
-   sides and render unreadable on the dark paper. */
+   One place, one accent, so the whole TLS course reads as a single product.
+
+   Override rationale (per visual-teach theming guidance): a security/TLS course
+   has a strong conventional color. We set it ONCE here as a light-dark() PAIR so
+   it stays legible in both themes — never per-lesson, never a flat hex. */
 :root {
-  --vt-accent: light-dark(#047857, #34d399); /* emerald 700 / 400 */
+  --vt-accent: light-dark(#047857, #34d399); /* emerald 700 / emerald 400 */
   --vt-accent-fg: light-dark(#ffffff, #04231a); /* text on the accent fill */
+}
+
+/* Inline "where this claim comes from" line — a citation tucked under a section,
+   smaller and muted so it reads as provenance, not body copy. */
+.vt-src-line {
+  font-size: 0.84rem;
+  color: var(--vt-muted);
+  margin-top: -0.3rem;
+}
+.vt-src-line a {
+  font-weight: 500;
 }

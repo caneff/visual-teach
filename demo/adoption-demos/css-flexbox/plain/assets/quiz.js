@@ -1,54 +1,62 @@
-/* ============================================================
-   quiz.js — reusable retrieval-practice widget
-   A tight feedback loop: the learner recalls an answer, clicks,
-   and gets immediate automatic feedback. Shared by every lesson.
+/* ============================================================================
+   quiz.js — reusable retrieval-practice widget with immediate feedback.
 
    Markup contract:
-   <div class="quiz" data-answer="2">
-     <div class="q-num">Recall</div>
-     <p class="q-stem">Question text…</p>
-     <ul class="options">
-       <li><button class="opt">First answer</button></li>
-       <li><button class="opt">Second answer</button></li>
-       …
-     </ul>
-     <div class="feedback"
-          data-right="Shown when correct."
-          data-wrong="Shown when wrong.">
-     </div>
-   </div>
 
-   data-answer is the zero-based index of the correct option.
-   ============================================================ */
+     <div class="quiz" data-quiz>
+       <p class="quiz-kicker">Recall</p>
+       <div class="quiz-q">…question (may contain a <pre>)…</div>
+       <div class="quiz-options">
+         <button class="quiz-opt" data-correct>right answer</button>
+         <button class="quiz-opt">distractor</button>
+         …
+       </div>
+       <div class="quiz-feedback"
+            data-ok="Shown on a correct pick."
+            data-no="Shown on a wrong pick (the teaching moment)."></div>
+     </div>
+
+   On click: locks the buttons, marks the picked option correct/wrong, always
+   reveals which option was right, and shows feedback. Retrieval first, then
+   the explanation — that is what builds storage strength, not recognition.
+   ========================================================================== */
+
 (function () {
   function wire(quiz) {
-    var answer = parseInt(quiz.getAttribute('data-answer'), 10);
-    var opts = Array.prototype.slice.call(quiz.querySelectorAll('button.opt'));
-    var fb = quiz.querySelector('.feedback');
-    var done = false;
+    var opts = Array.prototype.slice.call(quiz.querySelectorAll(".quiz-opt"));
+    var feedback = quiz.querySelector(".quiz-feedback");
+    var answered = false;
 
-    opts.forEach(function (btn, i) {
-      btn.addEventListener('click', function () {
-        if (done) return;
-        done = true;
-        var correct = i === answer;
+    opts.forEach(function (opt) {
+      opt.addEventListener("click", function () {
+        if (answered) return;
+        answered = true;
+        var right = opt.hasAttribute("data-correct");
 
-        opts.forEach(function (b, j) {
-          b.disabled = true;
-          if (j === answer) b.classList.add('correct');
+        opts.forEach(function (o) {
+          o.disabled = true;
+          if (o.hasAttribute("data-correct")) o.classList.add("correct");
         });
-        if (!correct) btn.classList.add('wrong');
+        if (!right) opt.classList.add("wrong");
 
-        if (fb) {
-          fb.classList.add('show', correct ? 'right' : 'nope');
-          var msg = correct ? fb.getAttribute('data-right') : fb.getAttribute('data-wrong');
-          fb.textContent = (correct ? '✓  ' : '✗  ') + (msg || '');
+        if (feedback) {
+          feedback.classList.add("show", right ? "ok" : "no");
+          var msg = right
+            ? (feedback.getAttribute("data-ok") || "Correct.")
+            : (feedback.getAttribute("data-no") || "Not quite.");
+          feedback.innerHTML = (right ? "✓ " : "✗ ") + msg;
         }
       });
     });
   }
 
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.quiz[data-answer]').forEach(wire);
-  });
+  function init() {
+    document.querySelectorAll("[data-quiz]").forEach(wire);
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", init);
+  } else {
+    init();
+  }
 })();

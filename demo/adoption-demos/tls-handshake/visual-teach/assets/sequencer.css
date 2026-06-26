@@ -1,0 +1,146 @@
+/* sequencer — course-specific interactive (not part of the vt library).
+   A click-to-order recall exercise: the learner reproduces a message sequence
+   from memory and gets immediate, automatic feedback on every pick.
+   Styled with base tokens so it sits in the same visual family as vt-* blocks. */
+
+.vt-seq {
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  background: var(--vt-soft);
+  padding: 1.1rem 1.2rem 1.3rem;
+  margin: 1.6rem 0;
+}
+
+.vt-seq .vt-seq-prompt {
+  font-weight: 600;
+  margin: 0 0 0.2rem;
+}
+.vt-seq .vt-seq-sub {
+  color: var(--vt-muted);
+  font-size: 0.9rem;
+  margin: 0 0 0.9rem;
+}
+
+.vt-seq-track {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-height: 2.6rem;
+  padding: 0.5rem;
+  border: 1px dashed var(--vt-rule);
+  border-radius: 9px;
+  background: var(--vt-paper);
+  margin-bottom: 0.9rem;
+}
+.vt-seq-track:empty::before {
+  content: "Click the messages below in the order they're sent →";
+  color: var(--vt-muted);
+  font-size: 0.88rem;
+  font-style: italic;
+}
+
+.vt-seq-bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.vt-seq-card {
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  padding: 0.5rem 0.8rem;
+  transition:
+    transform 0.08s ease,
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+.vt-seq-card:hover {
+  border-color: var(--vt-accent);
+}
+.vt-seq-card .who {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vt-muted);
+}
+.vt-seq-card .msg {
+  font-weight: 600;
+}
+
+/* a card that has been correctly placed into the track */
+.vt-seq-card.placed {
+  cursor: default;
+  border-color: var(--vt-good);
+  background: var(--vt-good-soft);
+}
+.vt-seq-card.placed .seq-n {
+  display: inline-block;
+  min-width: 1.4em;
+  margin-right: 0.5rem;
+  text-align: center;
+  font-weight: 700;
+  color: var(--vt-good);
+}
+.vt-seq-card.placed .carries {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.84rem;
+  font-weight: 400;
+  color: var(--vt-muted);
+}
+
+/* a wrong pick flashes red */
+.vt-seq-card.wrong {
+  border-color: var(--vt-bad);
+  background: var(--vt-bad-soft);
+  animation: vt-seq-shake 0.3s ease;
+}
+@keyframes vt-seq-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.vt-seq-feedback {
+  min-height: 1.4em;
+  font-size: 0.92rem;
+  margin-top: 0.4rem;
+}
+.vt-seq-feedback.ok { color: var(--vt-good); }
+.vt-seq-feedback.no { color: var(--vt-bad); }
+
+.vt-seq-done {
+  display: none;
+  margin-top: 0.9rem;
+  padding: 0.8rem 1rem;
+  border-left: 4px solid var(--vt-good);
+  background: var(--vt-good-soft);
+  border-radius: 0 8px 8px 0;
+}
+.vt-seq.complete .vt-seq-done { display: block; }
+
+.vt-seq-reset {
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+  background: none;
+  border: 1px solid var(--vt-rule);
+  border-radius: 7px;
+  color: var(--vt-muted);
+  padding: 0.3rem 0.7rem;
+  margin-top: 0.8rem;
+}
+.vt-seq-reset:hover {
+  border-color: var(--vt-accent);
+  color: var(--vt-ink);
+}
+
+@media print {
+  .vt-seq-card.wrong { animation: none; }
+}

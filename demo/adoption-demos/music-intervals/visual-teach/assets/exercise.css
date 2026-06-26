@@ -1,0 +1,155 @@
+/* exercise — shared chrome for the bespoke keyboard interactives in this course
+   (octave counter, interval trainer, scale builder). Kept here, not inlined per
+   lesson, so the controls look identical everywhere and never get hand-copied.
+   Built only on base.css tokens, so it themes with everything else. */
+
+.vt-ex {
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  background: var(--vt-soft);
+  padding: 1rem 1.1rem 1.2rem;
+  margin: 1.4rem 0;
+}
+
+.vt-ex-prompt {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 1rem;
+  margin: 0 0 0.2rem;
+}
+.vt-ex-prompt strong {
+  color: var(--vt-accent-dk);
+}
+
+.vt-ex-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.7rem 0 0.2rem;
+}
+
+.vt-ex-btn {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
+}
+.vt-ex-btn:hover {
+  border-color: var(--vt-accent);
+}
+.vt-ex-btn:focus-visible {
+  outline: 3px solid var(--vt-accent);
+  outline-offset: 1px;
+}
+.vt-ex-btn.primary {
+  background: var(--vt-accent);
+  color: var(--vt-accent-fg);
+  border-color: var(--vt-accent);
+}
+
+/* a row of single-choice answer buttons (e.g. interval names) */
+.vt-ex-choice {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  cursor: pointer;
+}
+.vt-ex-choice[aria-pressed="true"] {
+  background: var(--vt-accent-soft);
+  border-color: var(--vt-accent);
+  color: var(--vt-accent-dk);
+  font-weight: 600;
+}
+
+/* a small numeric stepper for "how many semitones?" */
+.vt-ex-num {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.vt-ex-num input {
+  width: 3.4rem;
+  font: inherit;
+  font-size: 1rem;
+  text-align: center;
+  padding: 0.3rem 0.4rem;
+  border-radius: 8px;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+}
+
+.vt-ex-verdict {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.95rem;
+  min-height: 1.5em;
+  margin-top: 0.7rem;
+  font-weight: 600;
+}
+.vt-ex-verdict.good {
+  color: var(--vt-good);
+}
+.vt-ex-verdict.bad {
+  color: var(--vt-bad);
+}
+.vt-ex-verdict .why {
+  display: block;
+  font-weight: 400;
+  color: var(--vt-muted);
+  margin-top: 0.15rem;
+}
+
+.vt-ex-stat {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+  margin-top: 0.6rem;
+}
+.vt-ex-stat strong {
+  color: var(--vt-ink);
+}
+
+/* a compact pattern ribbon (W W H W W W H) used by the scale builder */
+.vt-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.8rem 0;
+}
+.vt-steps .stp {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-muted);
+}
+.vt-steps .stp.whole {
+  color: var(--vt-accent-dk);
+}
+.vt-steps .stp.half {
+  color: var(--vt-warn-dk);
+}
+.vt-steps .stp.active {
+  background: var(--vt-accent);
+  border-color: var(--vt-accent);
+  color: var(--vt-accent-fg);
+}
+.vt-steps .stp.done {
+  background: var(--vt-good-soft);
+  border-color: var(--vt-good);
+  color: var(--vt-good);
+}

@@ -4,280 +4,226 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Lesson 2 · Bayes' theorem</title>
-<link rel="stylesheet" href="../assets/styles.css">
+<link rel="stylesheet" href="../assets/course.css">
 </head>
 <body>
+<main>
 
-<div class="coursebar">
-  <span class="course-name">Bayes' theorem</span>
-  <span><a href="0001-conditional-probability-and-the-trap.html">1 · Conditioning</a> ·
-        <a href="0002-bayes-theorem.html">2 · Bayes</a> ·
-        <a href="0003-base-rate-fallacy-applied.html">3 · Base rates</a></span>
-</div>
+  <p class="eyebrow">Bayes' theorem · Lesson 2 of 3</p>
+  <h1>Bayes' theorem</h1>
+  <p class="subtitle">The one formula that turns the reverse question into the right number — and where it comes from.</p>
 
-<div class="wrap">
-
-  <p class="eyebrow">Lesson 2 of 3</p>
-  <h1>Bayes’ theorem</h1>
-  <p class="subtitle">The machine that flips <code>P(E | H)</code> into <code>P(H | E)</code> — and it’s not magic.</p>
-
-  <p>In <a href="0001-conditional-probability-and-the-trap.html">Lesson 1</a> you
-  saw the trap: the world hands you <code>P(evidence | hypothesis)</code>, but you
-  need <code>P(hypothesis | evidence)</code>. Bayes’ theorem is the exact
-  exchange rate between those two. This lesson gives you the formula, names its
-  four parts, derives it in a single honest step, and then has you run it on a
-  worded scenario yourself.</p>
+  <div class="mission-ribbon">
+    <strong>Why this matters for you:</strong> Lesson 1 let you <em>spot</em> the
+    flip. This lesson lets you <em>compute</em> the number you actually want —
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>H</mtext><mo>&#x2223;</mo><mtext>E</mtext><mo>)</mo></math>,
+    the chance your belief is true given the evidence. See the
+    <a href="../MISSION.md">mission</a>.
+  </div>
 
   <h2>The formula</h2>
 
   <div class="formula">
     <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
       <mrow>
-        <mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2223;</mo><mi>E</mi><mo>)</mo>
+        <mi mathcolor="#1f6b3a">P</mi><mo mathcolor="#1f6b3a">(</mo><mi mathcolor="#1f6b3a">H</mi><mo mathcolor="#1f6b3a">&#x2223;</mo><mi mathcolor="#1f6b3a">E</mi><mo mathcolor="#1f6b3a">)</mo>
         <mo>=</mo>
         <mfrac>
           <mrow>
-            <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo>
+            <mi mathcolor="#1f4e7a">P</mi><mo mathcolor="#1f4e7a">(</mo><mi mathcolor="#1f4e7a">E</mi><mo mathcolor="#1f4e7a">&#x2223;</mo><mi mathcolor="#1f4e7a">H</mi><mo mathcolor="#1f4e7a">)</mo>
             <mo>&#x22C5;</mo>
-            <mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo>
+            <mi mathcolor="#7a1f1f">P</mi><mo mathcolor="#7a1f1f">(</mo><mi mathcolor="#7a1f1f">H</mi><mo mathcolor="#7a1f1f">)</mo>
           </mrow>
           <mrow>
-            <mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo>
+            <mi mathcolor="#8a6d1f">P</mi><mo mathcolor="#8a6d1f">(</mo><mi mathcolor="#8a6d1f">E</mi><mo mathcolor="#8a6d1f">)</mo>
           </mrow>
         </mfrac>
       </mrow>
     </math>
   </div>
 
-  <p>Read it aloud as a sentence: <em>“My updated belief in the hypothesis,
-  after seeing the evidence, equals how well the hypothesis predicted that
-  evidence, times how much I believed it beforehand, scaled down by how
-  expected the evidence was overall.”</em><span class="cite"><a href="#ref1">1</a></span>
-  Four named parts:</p>
+  <p>Four named parts. Learn the names — they are how every scenario gets decoded:</p>
 
-  <table class="freq">
-    <thead><tr><th>Symbol</th><th>Name</th><th>Plain meaning</th></tr></thead>
+  <table>
+    <thead><tr><th>Symbol</th><th>Name</th><th>In words</th></tr></thead>
     <tbody>
-      <tr><td class="row-h"><span class="term-prior">P(H)</span></td><td><span class="term-prior">prior</span></td><td>What you believed before the evidence — often the <em>base rate</em>.</td></tr>
-      <tr><td class="row-h"><span class="term-likelihood">P(E&nbsp;|&nbsp;H)</span></td><td><span class="term-likelihood">likelihood</span></td><td>If the hypothesis were true, how likely is this evidence? (This is the “test accuracy” number.)</td></tr>
-      <tr><td class="row-h"><span class="term-evidence">P(E)</span></td><td><span class="term-evidence">evidence</span></td><td>How likely the evidence was at all, across <em>every</em> way it could occur. The normaliser.</td></tr>
-      <tr><td class="row-h"><span class="term-posterior">P(H&nbsp;|&nbsp;E)</span></td><td><span class="term-posterior">posterior</span></td><td>Your revised belief, <em>after</em> folding the evidence in. The answer you wanted.</td></tr>
+      <tr><td><span class="t-prior term">P(H)</span></td><td class="t-prior">prior</td><td>how much you believed the hypothesis <em>before</em> the evidence — the base rate.</td></tr>
+      <tr><td><span class="t-likelihood term">P(E&#8201;|&#8201;H)</span></td><td class="t-likelihood">likelihood</td><td>if the hypothesis were true, how often you'd see <em>this</em> evidence.</td></tr>
+      <tr><td><span class="t-evidence term">P(E)</span></td><td class="t-evidence">evidence</td><td>how often the evidence shows up <em>at all</em>, true hypothesis or not.</td></tr>
+      <tr><td><span class="t-posterior term">P(H&#8201;|&#8201;E)</span></td><td class="t-posterior">posterior</td><td>your updated belief <em>after</em> seeing the evidence. The goal.</td></tr>
     </tbody>
   </table>
 
-  <div class="key">
-    <span class="label">One sentence to keep</span>
-    <span class="term-posterior">posterior</span> &nbsp;=&nbsp;
-    <span class="term-likelihood">likelihood</span> &nbsp;&times;&nbsp;
-    <span class="term-prior">prior</span> &nbsp;&divide;&nbsp;
-    <span class="term-evidence">evidence</span>. &nbsp;Belief in, belief out;
-    the evidence does the updating.
-  </div>
+  <p>
+    Read it as a sentence: <em>your updated belief</em> is <em>your old belief</em>,
+    re-weighted by how much <em>this evidence</em> points at it, divided by how
+    common the evidence is overall. Rare evidence that the hypothesis predicts
+    well moves you a lot; common evidence moves you little.
+  </p>
 
-  <h2>Where it comes from — one step, no magic</h2>
+  <h2>It isn't magic — derive it in one step</h2>
 
-  <p>You already own everything needed to derive this. From Lesson 1, a
-  conditional probability is a joint probability divided by what you conditioned
-  on. Written two ways for the <em>same</em> overlap of H and E:</p>
+  <p>
+    Bayes' theorem is not a new law of nature. It falls straight out of the
+    Lesson&nbsp;1 definition of a conditional probability. Start with the
+    definition, written two ways for the <em>same</em> overlap
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2227;</mo><mi>E</mi><mo>)</mo></math><sup><a href="#s1">1</a></sup>:
+  </p>
 
   <div class="formula">
     <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
       <mrow>
         <mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2223;</mo><mi>E</mi><mo>)</mo>
         <mo>=</mo>
-        <mfrac><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2229;</mo><mi>E</mi><mo>)</mo></mrow><mrow><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></mrow></mfrac>
-        <mspace width="2em"/>
-        <mtext>and</mtext>
-        <mspace width="2em"/>
+        <mfrac><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2227;</mo><mi>E</mi><mo>)</mo></mrow><mrow><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></mrow></mfrac>
+        <mspace width="2em"/><mtext>and</mtext><mspace width="2em"/>
         <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo>
         <mo>=</mo>
-        <mfrac><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2229;</mo><mi>E</mi><mo>)</mo></mrow><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo></mrow></mfrac>
+        <mfrac><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2227;</mo><mi>E</mi><mo>)</mo></mrow><mrow><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo></mrow></mfrac>
       </mrow>
     </math>
   </div>
 
-  <p>Both have the <em>same</em> numerator, <code>P(H&nbsp;∩&nbsp;E)</code> — the
-  fraction of the world where H and E both hold (the “10 people with a dog
-  <em>and</em> a leash” from Lesson 1). Solve the right-hand equation for that
-  shared piece:</p>
-
-  <div class="formula">
-    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
-      <mrow>
-        <mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2229;</mo><mi>E</mi><mo>)</mo>
-        <mo>=</mo>
-        <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo>
-        <mo>&#x22C5;</mo>
-        <mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo>
-      </mrow>
-    </math>
-  </div>
-
-  <p>Drop that into the left-hand equation, and Bayes’ theorem falls out — it is
-  nothing more than the definition of conditioning, read in both directions and
-  glued together.<span class="cite"><a href="#ref1">1</a></span> Not an
-  incantation: a re-arrangement.</p>
+  <p>
+    The second equation rearranges to
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2227;</mo><mi>E</mi><mo>)</mo><mo>=</mo><mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo><mo>&#x22C5;</mo><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo></math>.
+    Drop that into the top of the first equation and you have Bayes' theorem.
+    The overlap is the bridge: both conditionals are built from the same
+    intersection, so each is reachable from the other.<sup><a href="#s2">2</a></sup>
+  </p>
 
   <div class="callout">
-    <span class="label">What is P(E), really?</span>
-    The denominator <span class="term-evidence">P(E)</span> is the evidence
-    happening <em>any</em> way at all — when H is true <em>and</em> when it isn’t:
-    <code>P(E) = P(E|H)·P(H) + P(E|not&nbsp;H)·P(not&nbsp;H)</code>. That second
-    term — false alarms from the healthy majority — is the whole reason a rare
-    disease stays unlikely after a positive test. Hold that thought for
-    <a href="0003-base-rate-fallacy-applied.html">Lesson 3</a>.
-  </div>
-
-  <h2 id="practice">Practice — name the parts, then turn the crank</h2>
-
-  <p>Here is a worded scenario. Your job is the skill the mission asks for:
-  read prose, pull out the prior and the likelihood, then compute the posterior.</p>
-
-  <div class="callout" style="background:#eef2f6;border-color:#c8d6e3">
-    <span class="label" style="color:var(--accent-2)">Scenario · the spam filter</span>
-    Across all your mail, <strong>20%</strong> is spam. The word
-    <em>“congratulations”</em> appears in <strong>60%</strong> of spam, but also
-    in <strong>5%</strong> of real mail. A new email contains
-    <em>“congratulations.”</em> What’s the chance it’s spam?
-  </div>
-
-  <p>Set <code>H = “the email is spam”</code> and <code>E = “it contains the
-  word.”</code> First, identify the pieces.</p>
-
-  <!-- Q1: identify the prior -->
-  <div class="quiz" data-quiz>
-    <span class="qnum">Check 1 · find the prior</span>
-    <p class="qstem">Which number is the <span class="term-prior">prior</span>,
-    <code>P(H)</code>?</p>
-    <ul class="opts">
-      <li><button class="opt" data-correct>20% — the overall share of mail that is spam</button></li>
-      <li><button class="opt" data-explain="60% is P(word | spam) — the <em>likelihood</em>. It is conditioned on the email already being spam, so it describes the evidence, not your starting belief.">60% — spam containing the word</button></li>
-      <li><button class="opt" data-explain="5% is P(word | real mail), the false-alarm rate. It feeds the denominator, but it is not your prior belief that a random email is spam.">5% — real mail containing the word</button></li>
-    </ul>
-    <div class="feedback right" data-fb-right><strong>Yes.</strong> Before reading
-    a single word, any email has a 20% chance of being spam. That’s the base rate
-    — the prior.</div>
-    <div class="feedback nope" data-fb-nope></div>
-  </div>
-
-  <!-- Q2: identify the likelihood -->
-  <div class="quiz" data-quiz>
-    <span class="qnum">Check 2 · find the likelihood</span>
-    <p class="qstem">Which number is the <span class="term-likelihood">likelihood</span>,
-    <code>P(E | H)</code> — the word given spam?</p>
-    <ul class="opts">
-      <li><button class="opt" data-correct>60%</button></li>
-      <li><button class="opt" data-explain="20% is the prior P(H), your belief before seeing the word — not how often spam contains the word.">20%</button></li>
-      <li><button class="opt" data-explain="5% is P(E | not H) — the word given <em>real</em> mail. It's the likelihood under the rival hypothesis, needed for the denominator, but it is not P(E | H).">5%</button></li>
-    </ul>
-    <div class="feedback right" data-fb-right><strong>Right.</strong> Given the
-    email is spam, 60% of the time it carries the word. That’s
-    <code>P(E | H)</code>.</div>
-    <div class="feedback nope" data-fb-nope></div>
-  </div>
-
-  <!-- Q3: compute the posterior -->
-  <div class="quiz">
-    <span class="qnum">Check 3 · compute the posterior</span>
-    <p class="qstem">Now turn the crank. Out of 100 emails: 20 are spam, and 60%
-    of them — that’s 12 — carry the word. 80 are real, and 5% of them — that’s 4 —
-    carry the word too. Of the emails with the word, what fraction are spam?
-    Give a percentage.</p>
-    <div class="checkbox-row" data-numeric data-answer="75" data-tol="1">
-      <input type="text" inputmode="decimal" placeholder="%" aria-label="posterior in percent">
-      <button>Check</button>
+    <span class="label">Where the denominator comes from</span>
+    <p>
+      In practice you rarely get
+      <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></math>
+      handed to you. You build it by adding up every way the evidence can occur —
+      when H is true and when it isn't:
+    </p>
+    <div class="formula" style="box-shadow:none;border:none;background:transparent;padding:.4rem 0;">
+      <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+        <mi mathcolor="#8a6d1f">P</mi><mo mathcolor="#8a6d1f">(</mo><mi mathcolor="#8a6d1f">E</mi><mo mathcolor="#8a6d1f">)</mo>
+        <mo>=</mo>
+        <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo><mo>&#x22C5;</mo><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo>
+        <mo>+</mo>
+        <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mrow><mo>&#xAC;</mo><mi>H</mi></mrow><mo>)</mo><mo>&#x22C5;</mo><mi>P</mi><mo>(</mo><mrow><mo>&#xAC;</mo><mi>H</mi></mrow><mo>)</mo>
+      </math>
     </div>
-    <div class="feedback right" data-numeric-fb-right><strong>Nailed it — 75%.</strong>
-    12 true hits out of (12 + 4) = 16 emails with the word. The posterior jumped
-    from a 20% prior to 75% because the word is strong evidence. Notice you found
-    it by <em>counting</em>, exactly as the formula prescribes.</div>
-    <div class="feedback nope" data-numeric-fb-nope>Close reading needed. The word
-    appears on 12 spam + 4 real = <strong>16</strong> emails. Of those, 12 are
-    spam. 12 ÷ 16 = 75%. (If you got 60%, you reported the likelihood, not the
-    posterior — the classic Lesson&nbsp;1 swap.)</div>
-    <button class="reveal-btn" data-reveal="#work2" data-show="Show the formula version" data-hide="Hide the formula version" style="margin-top:0.8rem">Show the formula version</button>
-    <div class="workings" id="work2">
-      <p>The same numbers, through the theorem — confirming the count, not
-      replacing it:</p>
-      <ol>
-        <li><span class="term-prior">P(H)</span> = 0.20,
-            <span class="term-likelihood">P(E|H)</span> = 0.60,
-            P(E|not&nbsp;H) = 0.05, P(not&nbsp;H) = 0.80.</li>
-        <li><span class="term-evidence">P(E)</span> = 0.60·0.20 + 0.05·0.80
-            = 0.12 + 0.04 = <strong>0.16</strong>.</li>
-        <li><span class="term-posterior">P(H|E)</span> = (0.60 · 0.20) ÷ 0.16
-            = 0.12 ÷ 0.16 = <strong>0.75</strong>. ✓ Same 75%.</li>
-      </ol>
+    <p style="margin-bottom:0">
+      (<math xmlns="http://www.w3.org/1998/Math/MathML"><mo>&#xAC;</mo><mi>H</mi></math>
+      means "H is false.") This is the line that the base-rate fallacy forgets —
+      hold onto it for Lesson&nbsp;3.
+    </p>
+  </div>
+
+  <h2>Worked example — a spam filter</h2>
+
+  <p>An email just arrived containing the word <strong>"free."</strong> Is it spam? Here's what we know:</p>
+
+  <ul>
+    <li><span class="t-prior term">Prior</span> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>spam</mtext><mo>)</mo><mo>=</mo><mn>0.20</mn></math>. One in five emails is spam.</li>
+    <li><span class="t-likelihood term">Likelihood</span> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>"free"</mtext><mo>&#x2223;</mo><mtext>spam</mtext><mo>)</mo><mo>=</mo><mn>0.90</mn></math>. Most spam shouts "free."</li>
+    <li>And <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>"free"</mtext><mo>&#x2223;</mo><mtext>not spam</mtext><mo>)</mo><mo>=</mo><mn>0.10</mn></math>. Real mail says "free" sometimes too.</li>
+  </ul>
+
+  <p>
+    <strong>First, identify the parts yourself</strong> — this is the skill that
+    survives when the numbers change:
+  </p>
+
+  <div class="quiz" data-answer="b">
+    <p class="q">Which quantity is the <em>likelihood</em> in this scenario?</p>
+    <div class="options">
+      <button class="opt" data-key="a">P(spam) = 0.20 — one in five emails is spam</button>
+      <button class="opt" data-key="b">P("free"&#8201;|&#8201;spam) = 0.90 — spam tends to say "free"</button>
+      <button class="opt" data-key="c">P(spam&#8201;|&#8201;"free") — the answer we want at the end</button>
+    </div>
+    <div class="feedback" data-for="a">That's the <em>prior</em> — your belief before reading the email. The likelihood points the other way: evidence given hypothesis.</div>
+    <div class="feedback" data-for="b"><strong>Correct.</strong> Likelihood = P(evidence&#8201;|&#8201;hypothesis) = P("free"&#8201;|&#8201;spam). It asks: <em>if</em> this were spam, how often would I see "free"?</div>
+    <div class="feedback" data-for="c">That's the <em>posterior</em> — the goal, not an input. We compute it from the prior and likelihood.</div>
+  </div>
+
+  <p>Now work the posterior. Try it on paper before you reveal — build the evidence first, then divide:</p>
+
+  <div class="reveal">
+    <button>Show the worked answer</button>
+    <div class="answer">
+      <p><strong>Step 1 — the evidence, P("free").</strong> Add the two ways "free" can appear:</p>
+      <div class="formula" style="box-shadow:none;border:none;background:transparent;">
+        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+          <mi>P</mi><mo>(</mo><mtext>"free"</mtext><mo>)</mo><mo>=</mo>
+          <mo>(</mo><mn>0.90</mn><mo>&#x22C5;</mo><mn>0.20</mn><mo>)</mo>
+          <mo>+</mo>
+          <mo>(</mo><mn>0.10</mn><mo>&#x22C5;</mo><mn>0.80</mn><mo>)</mo>
+          <mo>=</mo><mn>0.18</mn><mo>+</mo><mn>0.08</mn><mo>=</mo><mn>0.26</mn>
+        </math>
+      </div>
+      <p><strong>Step 2 — Bayes' theorem.</strong></p>
+      <div class="formula" style="box-shadow:none;border:none;background:transparent;">
+        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+          <mi mathcolor="#1f6b3a">P</mi><mo mathcolor="#1f6b3a">(</mo><mtext mathcolor="#1f6b3a">spam</mtext><mo mathcolor="#1f6b3a">&#x2223;</mo><mtext mathcolor="#1f6b3a">"free"</mtext><mo mathcolor="#1f6b3a">)</mo>
+          <mo>=</mo>
+          <mfrac>
+            <mrow><mn mathcolor="#1f4e7a">0.90</mn><mo>&#x22C5;</mo><mn mathcolor="#7a1f1f">0.20</mn></mrow>
+            <mrow><mn mathcolor="#8a6d1f">0.26</mn></mrow>
+          </mfrac>
+          <mo>=</mo>
+          <mfrac><mn>0.18</mn><mn>0.26</mn></mfrac>
+          <mo>&#x2248;</mo><mn>0.69</mn>
+        </math>
+      </div>
+      <p style="margin-bottom:0">
+        The prior was <span class="t-prior">20%</span>; the evidence pushed it to a
+        <span class="t-posterior">≈ 69%</span> posterior. The word "free" is
+        strong evidence — but notice it's still <em>not</em> the 90% from the
+        likelihood. You updated; you didn't just copy the test's accuracy across.
+        That gap is the entire point.
+      </p>
     </div>
   </div>
 
-  <div class="recall">
-    <h3>Recall — from memory</h3>
-    <details>
-      <summary>State Bayes’ theorem and name all four parts.</summary>
-      <p><code>P(H|E) = P(E|H)·P(H) / P(E)</code>.
-      <span class="term-posterior">posterior</span> =
-      <span class="term-likelihood">likelihood</span> ×
-      <span class="term-prior">prior</span> ÷
-      <span class="term-evidence">evidence</span>.</p>
-    </details>
-    <details>
-      <summary>In one step, why is it true?</summary>
-      <p>Both <code>P(H|E)</code> and <code>P(E|H)</code> are built from the same
-      shared overlap <code>P(H∩E)</code>. Write that overlap as
-      <code>P(E|H)·P(H)</code> and substitute. It’s the definition of
-      conditioning read both ways.</p>
-    </details>
-    <details>
-      <summary>From Lesson 1: why isn’t the posterior just the likelihood?</summary>
-      <p>Because <code>P(H|E) ≠ P(E|H)</code>. The likelihood ignores the prior
-      and the false alarms in the denominator. Skipping them is the trap.</p>
-    </details>
+  <div class="callout win">
+    <span class="label">Your win this lesson</span>
+    <p>
+      You can state Bayes' theorem, name all four parts, derive it from the
+      definition of conditional probability, and run a full update: identify the
+      prior and likelihood from a worded scenario, build the evidence, divide.
+      In Lesson 3 the same machine produces a famously <em>shocking</em> answer.
+    </p>
   </div>
 
-  <div class="lesson-foot">
+  <h2>Go deeper</h2>
+  <p>
+    <strong>Primary source:</strong> the
+    <a href="https://plato.stanford.edu/entries/bayes-theorem/">Stanford Encyclopedia of Philosophy — "Bayes' Theorem"</a>
+    gives the precise statement and the prior / likelihood / posterior naming. For
+    the visual derivation, finish the
+    <a href="https://www.3blue1brown.com/lessons/bayes-theorem/">3Blue1Brown lesson</a>.
+    All sources: <a href="../RESOURCES.md">RESOURCES.md</a>.
+  </p>
 
-    <div class="primary-source">
-      <span class="label">Primary source</span>
-      <a href="https://plato.stanford.edu/entries/bayes-theorem/">“Bayes’
-      Theorem” — James Joyce, Stanford Encyclopedia of Philosophy</a>. The
-      authoritative statement of the theorem and the precise meaning of prior,
-      likelihood, and posterior. Read §1–2. For the same idea drawn, revisit
-      <a href="https://www.youtube.com/watch?v=HZGCoVF3YvM">3Blue1Brown’s
-      video</a> from Lesson 1.
-    </div>
+  <p class="ask">
+    <strong>I'm your teacher — ask me anything.</strong> Want the derivation
+    re-explained as areas in a square instead of algebra? Want a fresh scenario to
+    practice identifying prior vs. likelihood? Ask and I'll generate one.
+  </p>
 
-    <div class="ask-teacher">
-      <strong>I’m your teacher — ask me anything.</strong> Useful right now:
-      “re-derive it but for me out loud,” “give me another worded scenario to
-      decompose,” or “what changes if the likelihood and false-alarm rate are
-      equal?”
-    </div>
+  <nav class="lesson-nav">
+    <a href="0001-conditional-probability-and-the-trap.html">← Lesson 1 — Conditional probability</a>
+    <span class="spacer"></span>
+    <a href="0003-the-base-rate-fallacy-applied.html">Lesson 3 — The base-rate fallacy →</a>
+  </nav>
 
-    <p class="followup">Carry this forward: the spam filter felt obvious because
-    20% spam isn’t rare. <strong>Lesson 3 cranks the prior down to 1-in-1000</strong>
-    and the answer stops feeling obvious — that’s the base-rate fallacy, and it’s
-    the heart of your mission. Come back when the four parts feel automatic.</p>
+  <footer class="course-footer">
+    <p class="eyebrow">Sources</p>
+    <ol class="sources">
+      <li id="s1">Definition of conditional probability — built in <a href="0001-conditional-probability-and-the-trap.html">Lesson 1</a>.</li>
+      <li id="s2">"Bayes' Theorem," <em>Stanford Encyclopedia of Philosophy</em>. <a href="https://plato.stanford.edu/entries/bayes-theorem/">plato.stanford.edu/entries/bayes-theorem</a>.</li>
+    </ol>
+    <p><small>Bayes' theorem course · Lesson 2 · see also the <a href="../reference/glossary.html">glossary</a> and <a href="../reference/bayes-cheatsheet.html">cheat sheet</a>.</small></p>
+  </footer>
 
-    <nav class="lesson-nav">
-      <a href="0001-conditional-probability-and-the-trap.html">← Lesson 1 · Conditioning</a>
-      <a class="next" href="0003-base-rate-fallacy-applied.html">Lesson 3 · The base-rate fallacy →</a>
-    </nav>
-
-    <div class="refs">
-      <h3>References</h3>
-      <ol>
-        <li id="ref1">James Joyce, “Bayes’ Theorem,” <em>Stanford Encyclopedia of
-          Philosophy</em>. <a href="https://plato.stanford.edu/entries/bayes-theorem/">plato.stanford.edu/entries/bayes-theorem</a>
-          — statement, derivation, and the named parts.</li>
-      </ol>
-      <p>Keep the <a href="../reference/bayes-cheatsheet.html">cheat sheet &amp;
-      glossary</a> open while you practise.</p>
-    </div>
-
-  </div>
-</div>
-
+</main>
 <script src="../assets/quiz.js"></script>
 </body>
 </html>
