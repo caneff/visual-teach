@@ -3,14 +3,11 @@
 This document records how we run controlled A/B tests of the `visual-teach`
 skill, so experiments can be repeated and the results are traceable.
 
-## Harness design — two comparison modes
+## Harness design — control vs treatment
 
-Depending on the question being answered, choose the appropriate control arm:
-
-### Mode A — reproducible / historical (frozen control)
-
-Use when you need a stable baseline that can be re-run months later and
-compared apples-to-apples against prior results.
+The control arm is the frozen `teach-base` pedagogy with **zero** visual-teach;
+the treatment arm adds visual-teach. A stable baseline that can be re-run months
+later and compared apples-to-apples against prior results.
 
 | Arm           | Skill / setup                      | What it knows                                                                                                                                                                  |
 | ------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -18,41 +15,8 @@ compared apples-to-apples against prior results.
 | **Treatment** | upstream `/teach` + `visual-teach` | Full pedagogy **+** visual-teach seeded assets (all `vt-*` components available). Invocable as a subagent; visual-teach is invoked first to seed the workspace assets.         |
 
 `teach-base` is the frozen snapshot used here; it intentionally does not drift.
-
-### Mode B — ecological / live (live control)
-
-Use when the question is: "does `visual-teach` help on the real, _current_
-`/teach`, as it exists in the wild today?" The control is not frozen — it is
-re-snapshotted each campaign from the user's installed upstream skill.
-
-Run `scripts/ab-harness.sh` (optionally with `--out <dir>`) to generate two
-ephemeral skill directories:
-
-```sh
-./scripts/ab-harness.sh [--out /tmp/my-campaign]
-```
-
-This produces:
-
-| Directory  | Contents                                                 |
-| ---------- | -------------------------------------------------------- |
-| `control/` | upstream `/teach`, unmodified                            |
-| `patched/` | upstream `/teach` + `upstream-patch/teach-pointer.patch` |
-
-The script reads the upstream skill from `~/.agents/skills/teach` (or
-`~/.claude/skills/teach`). Override with `TEACH_SKILL_PATH=<path>`.
-
-Because the control drifts with upstream, results from different campaigns in
-Mode B are **not** directly comparable over time. Prefer Mode A when
-longitudinal comparison matters.
-
-### Choosing between modes
-
-| Goal                             | Mode             |
-| -------------------------------- | ---------------- |
-| Compare against a fixed baseline | A (teach-base)   |
-| Test against today's upstream    | B (live harness) |
-| Reproduce a prior result exactly | A (teach-base)   |
+The runnable harness is `scripts/adoption-harness.sh` (control vs treatment,
+`$HOME`-isolated) — see `docs/adoption-floor.md`.
 
 ---
 
