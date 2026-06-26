@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference · Bayes' theorem cheat sheet &amp; glossary</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<style>
+  /* Reference-only tweaks: denser, print-first. */
+  .card { border:1px solid var(--rule); border-radius:8px; padding:1rem 1.2rem; margin:1.2rem 0; background:#fff; }
+  .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+  @media (max-width:640px){ .two-col{ grid-template-columns:1fr; } }
+  dl.glossary dt { font-family:var(--sans); font-weight:650; margin-top:0.9rem; }
+  dl.glossary dd { margin:0.2rem 0 0; }
+  .recipe { counter-reset:step; list-style:none; padding-left:0; }
+  .recipe li { font-family:var(--sans); font-size:0.92rem; margin:0.5rem 0; padding-left:2.2rem; position:relative; }
+  .recipe li::before { counter-increment:step; content:counter(step);
+    position:absolute; left:0; top:-0.1rem; width:1.5rem; height:1.5rem; border-radius:50%;
+    background:var(--accent-2); color:#fff; font-weight:700; font-size:0.8rem;
+    display:flex; align-items:center; justify-content:center; }
+</style>
+</head>
+<body>
+
+<div class="coursebar">
+  <span class="course-name">Bayes' theorem — reference</span>
+  <span><a href="../lessons/0001-conditional-probability-and-the-trap.html">1</a> ·
+        <a href="../lessons/0002-bayes-theorem.html">2</a> ·
+        <a href="../lessons/0003-base-rate-fallacy-applied.html">3</a></span>
+</div>
+
+<div class="wrap">
+
+  <p class="eyebrow">Reference · keep this one</p>
+  <h1>Bayes’ theorem — cheat sheet &amp; glossary</h1>
+  <p class="subtitle">The compressed essence of the three lessons. Built to print on one page.</p>
+
+  <div class="card">
+    <h2 style="margin-top:0">The formula</h2>
+    <div class="formula">
+      <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+        <mrow>
+          <munder><mi>P</mi><mtext>posterior</mtext></munder>
+          <mo>(</mo><mi>H</mi><mo>&#x2223;</mo><mi>E</mi><mo>)</mo>
+          <mo>=</mo>
+          <mfrac>
+            <mrow>
+              <mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo>
+              <mo>&#x22C5;</mo>
+              <mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo>
+            </mrow>
+            <mrow><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></mrow>
+          </mfrac>
+        </mrow>
+      </math>
+    </div>
+    <p style="text-align:center;font-family:var(--sans);font-size:0.95rem">
+      <span class="term-posterior">posterior</span> =
+      <span class="term-likelihood">likelihood</span> ×
+      <span class="term-prior">prior</span> ÷
+      <span class="term-evidence">evidence</span></p>
+    <p style="text-align:center;font-family:var(--mono);font-size:0.82rem;color:var(--muted)">
+      with &nbsp; P(E) = P(E|H)·P(H) + P(E|¬H)·P(¬H)</p>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <h3 style="margin-top:0">The trap (Lesson 1)</h3>
+      <p style="font-size:0.95rem"><code>P(A | B) ≠ P(B | A)</code>. The quoted
+      “accuracy” of a test is <code>P(positive | sick)</code>. What you want is
+      <code>P(sick | positive)</code>. Same overlap, different denominator.
+      Conditioning = <em>zoom into the sub-group</em>, then ask your question.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">The fix (Lesson 3)</h3>
+      <p style="font-size:0.95rem">Count <strong>natural frequencies</strong> out
+      of 10,000 people. Rarity of the condition (the base rate) usually means
+      false positives swamp true positives, so a single positive on an accurate
+      test is often weak news.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">The natural-frequency recipe</h2>
+    <p style="font-family:var(--sans);font-size:0.9rem;color:var(--muted);margin-top:0">For any “positive test, should I worry?” problem:</p>
+    <ol class="recipe">
+      <li>Start with <strong>10,000</strong> people.</li>
+      <li>Split by the <span class="term-prior">base rate</span>: sick vs. healthy.</li>
+      <li>Apply the <span class="term-likelihood">hit rate</span> to the sick → <em>true positives</em>.</li>
+      <li>Apply the <strong>false-positive rate</strong> to the healthy → <em>false positives</em>.</li>
+      <li><span class="term-posterior">Posterior</span> = true positives ÷ (true + false positives).</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Worked anchor — keep these numbers in your pocket</h2>
+    <table class="freq">
+      <thead><tr><th></th><th>Positive</th><th>Negative</th><th class="tot">Total</th></tr></thead>
+      <tbody>
+        <tr><td class="row-h">Sick (1%)</td><td><strong>90</strong></td><td>10</td><td class="tot">100</td></tr>
+        <tr><td class="row-h">Healthy (99%)</td><td style="color:var(--accent-2)"><strong>891</strong></td><td>9,009</td><td class="tot">9,900</td></tr>
+        <tr><td class="row-h tot">Total</td><td class="tot">981</td><td class="tot">9,019</td><td class="tot">10,000</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.95rem">Disease 1%, hit rate 90%, false-positive 9% →
+      positive predictive value = 90 / 981 ≈ <strong>9%</strong>. A positive
+      raised your risk from 1% to ~9% — still probably fine.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="margin-top:0">Glossary</h2>
+    <p style="font-family:var(--sans);font-size:0.85rem;color:var(--muted);margin-top:0">
+      The course adheres to these terms. When in doubt, this is the source of truth.</p>
+    <dl class="glossary">
+      <dt>Conditional probability — <code>P(A | B)</code></dt>
+      <dd>The probability of A restricted to the cases where B holds. Read “A given
+        B.” The bar resets the denominator to “only the B cases.”</dd>
+
+      <dt><span class="term-prior">Prior</span> — <code>P(H)</code></dt>
+      <dd>Your belief in the hypothesis <em>before</em> the evidence. In screening,
+        the <strong>base rate</strong> — how common the condition is.</dd>
+
+      <dt><span class="term-likelihood">Likelihood</span> — <code>P(E | H)</code></dt>
+      <dd>If the hypothesis were true, how probable is this evidence? The test’s
+        <strong>sensitivity</strong> / hit rate. <em>Not</em> your answer.</dd>
+
+      <dt><span class="term-evidence">Evidence (marginal)</span> — <code>P(E)</code></dt>
+      <dd>How probable the evidence is across <em>all</em> hypotheses. The
+        normaliser. Equals true positives + false positives, as a fraction.</dd>
+
+      <dt><span class="term-posterior">Posterior</span> — <code>P(H | E)</code></dt>
+      <dd>Your revised belief <em>after</em> folding in the evidence. In screening,
+        the <strong>positive predictive value</strong>. The thing you actually
+        wanted.</dd>
+
+      <dt>Base rate</dt>
+      <dd>The unconditioned frequency of the condition in the population. Synonym
+        for the prior in screening contexts.</dd>
+
+      <dt>Base-rate fallacy</dt>
+      <dd>Judging <code>P(H | E)</code> while ignoring the base rate <code>P(H)</code>
+        — typically by mistaking it for the likelihood. Produces wild
+        over-estimates for rare conditions.</dd>
+
+      <dt>False-positive rate</dt>
+      <dd><code>P(positive | healthy)</code>. Applied to the (large) healthy group,
+        this is what generates the flood of false alarms.</dd>
+
+      <dt>Sensitivity / hit rate</dt>
+      <dd><code>P(positive | sick)</code>. The fraction of true cases the test
+        catches. Equals the likelihood in a screening problem.</dd>
+
+      <dt>Confusion of the inverse</dt>
+      <dd>Treating <code>P(A | B)</code> and <code>P(B | A)</code> as equal. The
+        Lesson 1 trap; the prosecutor’s fallacy is the courtroom version.</dd>
+    </dl>
+  </div>
+
+  <div class="card refs" style="font-family:var(--sans)">
+    <h3 style="margin-top:0">Sources</h3>
+    <ol>
+      <li>Joyce, “Bayes’ Theorem,” <em>Stanford Encyclopedia of Philosophy</em> —
+        <a href="https://plato.stanford.edu/entries/bayes-theorem/">plato.stanford.edu/entries/bayes-theorem</a></li>
+      <li>Gigerenzer et al., “Helping Doctors and Patients Make Sense of Health
+        Statistics” (2007) —
+        <a href="https://www.stat.berkeley.edu/~aldous/157/Papers/health_stats.pdf">stat.berkeley.edu PDF</a></li>
+      <li>“Base rate fallacy,” <em>Wikipedia</em> —
+        <a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">en.wikipedia.org/wiki/Base_rate_fallacy</a></li>
+      <li>3Blue1Brown, Bayes videos —
+        <a href="https://www.youtube.com/watch?v=HZGCoVF3YvM">geometry of belief</a> ·
+        <a href="https://www.youtube.com/watch?v=lG4VkPoG3ko">the medical test paradox</a></li>
+    </ol>
+    <p>Back to the lessons:
+      <a href="../lessons/0001-conditional-probability-and-the-trap.html">1 · Conditioning</a> ·
+      <a href="../lessons/0002-bayes-theorem.html">2 · Bayes</a> ·
+      <a href="../lessons/0003-base-rate-fallacy-applied.html">3 · Base rates</a></p>
+  </div>
+
+</div>
+</body>
+</html>

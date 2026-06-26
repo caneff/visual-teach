@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · Conditional probability and the trap</title>
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+
+<div class="coursebar">
+  <span class="course-name">Bayes' theorem</span>
+  <span><a href="0001-conditional-probability-and-the-trap.html">1 · Conditioning</a> ·
+        <a href="0002-bayes-theorem.html">2 · Bayes</a> ·
+        <a href="0003-base-rate-fallacy-applied.html">3 · Base rates</a></span>
+</div>
+
+<div class="wrap">
+
+  <p class="eyebrow">Lesson 1 of 3</p>
+  <h1>Conditional probability and the trap</h1>
+  <p class="subtitle">The smallest true mental model — and the confusion it kills.</p>
+
+  <p>Here is the mistake at the centre of this whole course, in one line. A
+  doctor says a screening test is <em>“95% accurate.”</em> You test positive.
+  You conclude you almost certainly have the condition. That conclusion can be
+  badly, life-alteringly wrong — and the reason is a single quiet swap of two
+  things that <em>look</em> the same but are not.</p>
+
+  <p>This lesson builds the one idea you need to see the swap coming. No formula
+  yet, no theorem — just counting people. By the end you will be able to say
+  exactly why <em>“the test is right 95% of the time”</em> and <em>“a positive
+  result means you’re sick 95% of the time”</em> are different claims.</p>
+
+  <h2>Conditioning is just zooming in</h2>
+
+  <p>A <strong>conditional probability</strong>, written
+  <code>P(A | B)</code> and read <em>“the probability of A given B,”</em> asks a
+  restricted question: <em>among only the cases where B is true, in what fraction
+  is A also true?</em><span class="cite"><a href="#ref1">1</a></span> The vertical
+  bar means <em>“given”</em> — it tells you to throw away every case where B is
+  false and look only at what remains.</p>
+
+  <div class="key">
+    <span class="label">The core move</span>
+    Conditioning on B = <strong>zoom into the sub-group where B holds</strong>,
+    then ask your question inside that smaller world. The bar resets the
+    denominator.
+  </div>
+
+  <p>Concrete. Imagine a town of 100 people. We will not use a formula; we will
+  point at dots. Each square is one person.</p>
+
+  <div class="pop-grid" aria-hidden="true">
+    <!-- 100 dots; 10 own a dog (sick class reused as "dog owner" here) -->
+    <span class="dot sick"></span><span class="dot sick"></span><span class="dot sick"></span><span class="dot sick"></span><span class="dot sick"></span>
+    <span class="dot sick"></span><span class="dot sick"></span><span class="dot sick"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot sick"></span><span class="dot sick"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+    <span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
+  </div>
+  <div class="legend">
+    <span><i style="background:var(--accent)"></i> red = the 12 people who own a dog</span>
+    <span><i style="background:#e4e4d8"></i> grey = the other 88</span>
+  </div>
+
+  <p>Suppose, in this town:</p>
+  <ul>
+    <li><strong>12</strong> people own a dog.</li>
+    <li><strong>10</strong> of those dog owners also own a leash. (The other 2 are… optimistic.)</li>
+    <li><strong>20</strong> people own a leash in total — some leash owners have no dog.</li>
+  </ul>
+
+  <p><code>P(leash | dog)</code> — among the <strong>12 dog owners</strong>, how many
+  have a leash? That’s 10 of 12 ≈ <strong>83%</strong>. Zoom into the dog-owner
+  group; ask about leashes.</p>
+
+  <p><code>P(dog | leash)</code> — among the <strong>20 leash owners</strong>, how
+  many have a dog? That’s 10 of 20 = <strong>50%</strong>. Different zoom,
+  different denominator, different answer.</p>
+
+  <div class="callout">
+    <span class="label">Same 10 people, two different fractions</span>
+    The <em>numerator</em> is identical — the 10 folks with both a dog and a leash.
+    What changed is the <em>group you divided by</em>: 12 dog owners versus 20
+    leash owners. <code>P(A | B)</code> and <code>P(B | A)</code> share a top and
+    swap a bottom. That is the entire trick.
+  </div>
+
+  <h2>Why the two are <em>not</em> the same</h2>
+
+  <p>In general, <code>P(A | B) ≠ P(B | A)</code>.<span class="cite"><a href="#ref1">1</a></span>
+  They’re equal only by coincidence (when the two groups happen to be the same
+  size). Treating them as interchangeable has a name — it’s sometimes called
+  <strong>confusion of the inverse</strong>, or the <em>prosecutor’s fallacy</em>
+  when it shows up in a courtroom.<span class="cite"><a href="#ref2">2</a></span></p>
+
+  <p>Now put the disease back in. The test’s advertised accuracy is a statement
+  of the form:</p>
+
+  <p style="text-align:center"><code>P(test positive | you are sick)</code> — “given a sick person, the test usually fires.”</p>
+
+  <p>But the thing you actually want to know when your own result comes back is
+  the <em>reverse</em>:</p>
+
+  <p style="text-align:center"><code>P(you are sick | test positive)</code> — “given that the test fired, am I usually sick?”</p>
+
+  <div class="trap">
+    <span class="label">The trap, named</span>
+    The test sheet quotes <code>P(positive | sick)</code>. Your fear lives in
+    <code>P(sick | positive)</code>. They are <code>P(A | B)</code> and
+    <code>P(B | A)</code> — the dog and the leash. When the disease is rare,
+    these two numbers can be <em>wildly</em> far apart, and the second is the one
+    that matters for you. Lessons <a href="0002-bayes-theorem.html">2</a> and
+    <a href="0003-base-rate-fallacy-applied.html">3</a> are about flipping
+    correctly from the first to the second.
+  </div>
+
+  <h2 id="practice">Practice — flip the conditional</h2>
+
+  <p>Don’t just nod along; the swap only becomes visible once you’ve caught it
+  yourself. Answer before revealing.</p>
+
+  <!-- Q1 multiple choice -->
+  <div class="quiz" data-quiz>
+    <span class="qnum">Check 1 · read the sentence</span>
+    <p class="qstem">“Most people who are fluent in Welsh live in Wales.” As a
+    conditional probability, this sentence is closest to —</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct>P( lives in Wales | fluent in Welsh ) is high</button></li>
+      <li><button class="opt" data-explain="That's the <em>reverse</em> claim — P(fluent | lives in Wales). Most people in Wales are <strong>not</strong> fluent Welsh speakers, so this version is false. The sentence conditions on being a Welsh speaker, then asks where they live.">P( fluent in Welsh | lives in Wales ) is high</button></li>
+      <li><button class="opt" data-explain="Independence would mean speaking Welsh tells you nothing about living in Wales — but it clearly does. The sentence is a conditional claim, not a statement that the two are unrelated.">The two facts are independent</button></li>
+    </ul>
+    <div class="feedback right" data-fb-right><strong>Yes.</strong> Condition on
+    the speakers (the smaller group), then ask where they live: that group is
+    mostly in Wales. The reverse — pick a random Welsh resident, are they a fluent
+    speaker? — is mostly “no.” Same words, opposite truth.</div>
+    <div class="feedback nope" data-fb-nope></div>
+  </div>
+
+  <!-- Q2 multiple choice on the medical framing -->
+  <div class="quiz" data-quiz>
+    <span class="qnum">Check 2 · the test sheet</span>
+    <p class="qstem">A test’s leaflet says: “In 99% of people who have the
+    disease, this test returns positive.” Which quantity is that?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct>P( positive | has disease )</button></li>
+      <li><button class="opt" data-explain="That's what <em>you</em> want after testing positive — but it is not what the leaflet stated. The leaflet conditioned on <strong>having the disease</strong> first, then reported the test's behaviour. Re-read: 'in people who have the disease…'.">P( has disease | positive )</button></li>
+      <li><button class="opt" data-explain="The leaflet is a conditional statement ('in people who have the disease…'), not a base rate. The fraction of all people who are positive is a different, unconditioned number.">P( positive ) overall</button></li>
+    </ul>
+    <div class="feedback right" data-fb-right><strong>Right.</strong> The leaflet
+    conditions on <em>having the disease</em>, then describes the test. To learn
+    your own risk you must flip it to <code>P(disease | positive)</code> — and
+    that flip needs one more ingredient, how rare the disease is. That’s
+    Lesson&nbsp;2.</div>
+    <div class="feedback nope" data-fb-nope></div>
+  </div>
+
+  <!-- Q3 numeric: count in a sub-group -->
+  <div class="quiz">
+    <span class="qnum">Check 3 · count the sub-group</span>
+    <p class="qstem">In a club of 50 people, 30 play chess and 20 of those chess
+    players also play go. What is <code>P( plays go | plays chess )</code>, as a
+    percentage?</p>
+    <div class="checkbox-row" data-numeric data-answer="67" data-tol="2">
+      <input type="text" inputmode="decimal" placeholder="%" aria-label="your answer in percent">
+      <button>Check</button>
+      <span style="color:var(--muted)">(zoom into the 30 chess players)</span>
+    </div>
+    <div class="feedback right" data-numeric-fb-right><strong>Exactly.</strong>
+    20 of 30 ≈ 67%. You restricted to the chess players and counted go within
+    them. Note you were <em>not</em> given enough to find <code>P(chess | go)</code>
+    — that would need the total number of go players. Different question,
+    different denominator.</div>
+    <div class="feedback nope" data-numeric-fb-nope>Not yet. Conditioning on
+    “plays chess” means the denominator is the <strong>30</strong> chess players,
+    not 50. Of those 30, the 20 who also play go give 20 ÷ 30 ≈ 67%.</div>
+  </div>
+
+  <div class="recall">
+    <h3>Recall — say it without looking</h3>
+    <p>Cover the screen and answer aloud. Retrieval is what makes this stick.</p>
+    <details>
+      <summary>What does the bar in <code>P(A | B)</code> tell you to do?</summary>
+      <p>Throw away every case where B is false; look only at the sub-group where
+      B holds, and ask about A inside it. The bar resets the denominator.</p>
+    </details>
+    <details>
+      <summary>Why is a test’s “accuracy” not the same as your risk after a positive?</summary>
+      <p>Accuracy is <code>P(positive | sick)</code> — conditioned on being sick.
+      Your risk is <code>P(sick | positive)</code> — conditioned on the positive
+      result. Those are <code>P(A|B)</code> and <code>P(B|A)</code>; they differ,
+      often hugely, when the disease is rare.</p>
+    </details>
+  </div>
+
+  <!-- Footer -->
+  <div class="lesson-foot">
+
+    <div class="primary-source">
+      <span class="label">Primary source — watch this next</span>
+      <a href="https://www.youtube.com/watch?v=HZGCoVF3YvM">“Bayes theorem, the
+      geometry of changing beliefs” — 3Blue1Brown</a>. Twelve minutes that turn
+      “conditioning = zoom into a sub-region” into a picture you won’t forget. The
+      first half is exactly this lesson, drawn.
+    </div>
+
+    <div class="ask-teacher">
+      <strong>Stuck or curious?</strong> I’m your teacher for this course — ask me
+      anything. Good questions right now: “give me three more sentences to classify
+      as P(A|B) or P(B|A),” or “show me a case where the two <em>are</em> equal.”
+    </div>
+
+    <p class="followup">Before Lesson 2, try this in the wild: catch one
+    statistic this week — a headline, an ad, a doctor — and ask <em>“which
+    direction is this conditional, and which direction do I actually care
+    about?”</em> Bring me one you’re unsure of.</p>
+
+    <nav class="lesson-nav">
+      <span class="spacer">You’re at the start ·</span>
+      <a class="next" href="0002-bayes-theorem.html">Lesson 2 · Bayes’ theorem →</a>
+    </nav>
+
+    <div class="refs">
+      <h3>References</h3>
+      <ol>
+        <li id="ref1">James Joyce, “Bayes’ Theorem,” <em>Stanford Encyclopedia of
+          Philosophy</em>. <a href="https://plato.stanford.edu/entries/bayes-theorem/">plato.stanford.edu/entries/bayes-theorem</a>
+          — definition of conditional probability and its asymmetry.</li>
+        <li id="ref2">“Base rate fallacy,” <em>Wikipedia</em>.
+          <a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">en.wikipedia.org/wiki/Base_rate_fallacy</a>
+          — confusion of the inverse / prosecutor’s fallacy.</li>
+      </ol>
+      <p>See also the course <a href="../reference/bayes-cheatsheet.html">cheat
+      sheet &amp; glossary</a>.</p>
+    </div>
+
+  </div>
+</div>
+
+<script src="../assets/quiz.js"></script>
+</body>
+</html>
