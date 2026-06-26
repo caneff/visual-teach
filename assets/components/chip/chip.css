@@ -76,34 +76,6 @@
   margin-right: 0.3em;
 }
 
-/* difficulty / level pills */
-.vt-level {
-  display: inline-block;
-  padding: 0.07rem 0.6rem;
-  border-radius: 999px;
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-size: 0.75rem;
-  font-weight: 600;
-  vertical-align: middle;
-}
-.vt-level::before {
-  content: "●";
-  margin-right: 0.4em;
-  font-size: 0.85em;
-}
-.vt-level.beginner {
-  background: var(--vt-good-soft);
-  color: var(--vt-good);
-}
-.vt-level.intermediate {
-  background: var(--vt-warn-soft);
-  color: var(--vt-warn-dk);
-}
-.vt-level.advanced {
-  background: var(--vt-bad-soft);
-  color: var(--vt-bad);
-}
-
 /* count / step badge */
 .vt-badge {
   display: inline-flex;
@@ -148,14 +120,5 @@
   }
   .vt-pill.warn::before {
     content: "! ";
-  }
-  .vt-level.beginner::before {
-    content: "○";
-  }
-  .vt-level.intermediate::before {
-    content: "◑";
-  }
-  .vt-level.advanced::before {
-    content: "●";
   }
 }

@@ -11,14 +11,15 @@
       <p class="vt-kicker">Docker basics · Lesson 3</p>
       <h1>Build and run your first container</h1>
       <p class="vt-lede">
-        The base layer: page shell, prose, dark-mode theming, the primary-source
-        card, and the sources footer — everything a lesson links before any
-        component.
+        The base layer: page shell, prose, dark-mode theming, and the sources
+        footer — everything a lesson links before any component.
       </p>
 
       <div class="vt-metabar">
         <span class="item">⏱ <strong>~15 min</strong></span>
-        <span class="item">Needs: <strong>Docker installed from Lesson 1</strong></span>
+        <span class="item"
+          >Needs: <strong>Docker installed from Lesson 1</strong></span
+        >
         <span class="item">Lesson <strong>3</strong> of 9</span>
       </div>
 
@@ -32,52 +33,76 @@
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> shipping your web app to
-        a server means handing over a reproducible image, not a folder of files —
-        you'll build that image here.
+        <strong>Why this matters for your goal:</strong> shipping your web app
+        to a server means handing over a reproducible image, not a folder of
+        files — you'll build that image here.
       </div>
 
-      <h2><span class="vt-num">1</span>The idea<a class="vt-anchor" href="#idea" aria-label="anchor">#</a></h2>
+      <h2>
+        <span class="vt-num">1</span>The idea<a
+          class="vt-anchor"
+          href="#idea"
+          aria-label="anchor"
+          >#</a
+        >
+      </h2>
       <p>
-        An image is a frozen snapshot of your app and everything it needs to run.
-        A container is a running instance of that image. You write a
+        An image is a frozen snapshot of your app and everything it needs to
+        run. A container is a running instance of that image. You write a
         <code>Dockerfile</code>, then run <code>docker build -t app .</code> to
         bake it into an image.
       </p>
 
-      <div class="vt-source">
-        <div>
-          <span class="h">Primary source</span>
-          <a href="#">Dockerfile reference — official docs</a> — every instruction
-          and how the build cache works, straight from the docs.
-        </div>
-      </div>
-
-      <h2><span class="vt-num">2</span>Theming<a class="vt-anchor" href="#theming" aria-label="anchor">#</a></h2>
+      <h2>
+        <span class="vt-num">2</span>Theming<a
+          class="vt-anchor"
+          href="#theming"
+          aria-label="anchor"
+          >#</a
+        >
+      </h2>
       <p>
         Use the ◐ toggle (top-right, injected by <code>base.js</code>) to switch
-        light/dark. Dark tokens live under <code>:root[data-theme="dark"]</code>.
-        An author's flat <code>:root { --vt-accent }</code> override is specificity
-        (0,1,0); the dark block is (0,2,0), so vt's dark-safe accent correctly wins
-        over a light-mode accent on a dark background.
+        light/dark. Dark tokens live under
+        <code>:root[data-theme="dark"]</code>. An author's flat
+        <code>:root { --vt-accent }</code> override is specificity (0,1,0); the
+        dark block is (0,2,0), so vt's dark-safe accent correctly wins over a
+        light-mode accent on a dark background.
       </p>
 
       <div class="vt-recap">
         <p class="h">✦ What you earned</p>
-        You can now turn a project into a portable image and run it anywhere Docker
-        is installed, with the port wired up to your machine.
+        You can now turn a project into a portable image and run it anywhere
+        Docker is installed, with the port wired up to your machine.
       </div>
       <p class="vt-upnext"><em>Up next:</em> volumes &amp; persistent data.</p>
 
       <footer class="vt-sources">
         <span class="lbl">Sources</span>
         <ul class="vt-reflist">
-          <li><span class="vt-src-ic" data-type="spec"></span><a href="#">Dockerfile reference</a> <span class="note">— every instruction, canonical.</span></li>
-          <li><span class="vt-src-ic" data-type="doc"></span><a href="#">Build cache concepts</a> <span class="note">— layers and invalidation.</span></li>
-          <li><span class="vt-src-ic" data-type="video"></span><a href="#">Quick-start (video)</a></li>
-          <li><span class="vt-src-ic" data-type="forum"></span><a href="#">Docker community forum</a></li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span
+            ><a href="#">Dockerfile reference</a>
+            <span class="note">— every instruction, canonical.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="#">Build cache concepts</a>
+            <span class="note">— layers and invalidation.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="video"></span
+            ><a href="#">Quick-start (video)</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="forum"></span
+            ><a href="#">Docker community forum</a>
+          </li>
         </ul>
-        <div class="vt-companion"><span class="vt-src-ic" data-type="book"></span>Companion reference: <a href="#">Docker CLI cheatsheet</a></div>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="#">Docker CLI cheatsheet</a>
+        </div>
         <div class="meta">Lesson 0003 · verified against docs 2026-06-11</div>
       </footer>
     </main>

@@ -71,14 +71,6 @@ frame only — not a complete lesson with fixed slots to fill.
   <h2><span class="vt-num">1</span>Section heading</h2>
   …prose: plain p / ul / code / a, auto-themed…
 
-  <!-- Primary-source card -->
-  <div class="vt-source">
-    <div>
-      <span class="h">Primary source</span> <a href="…">Source title</a> — one
-      sentence.
-    </div>
-  </div>
-
   <!-- Recap + up-next teaser -->
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
@@ -95,6 +87,7 @@ frame only — not a complete lesson with fixed slots to fill.
     </div>
   </div>
 
+  <!-- Optional forward teaser. Omit on the final lesson — nothing comes next. -->
   <p class="vt-upnext"><em>Up next:</em> next topic.</p>
 </main>
 ```
@@ -103,19 +96,19 @@ frame only — not a complete lesson with fixed slots to fill.
 
 Open only the component demos this lesson needs — loading all of them at once
 produces stamped, same-chrome-every-lesson output. Most lessons use 2–4
-components, not all nine.
+components, not all of them.
 
-| Component   | Reach for when…                                                                                        | Demo                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| callout     | you need a tip, warning, insight, success, or risk box                                                 | [components/callout/demo.html](components/callout/demo.html)         |
-| code        | showing code snippets, shell output, or input→output pairs                                             | [components/code/demo.html](components/code/demo.html)               |
-| table       | comparing options, listing key-value pairs, or status grids                                            | [components/table/demo.html](components/table/demo.html)             |
-| chip        | labeling status, difficulty, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd / .vt-level) | [components/chip/demo.html](components/chip/demo.html)               |
-| quiz        | a knowledge check (single or multi-select, retry-until-correct)                                        | [components/quiz/demo.html](components/quiz/demo.html)               |
-| checklist   | a step-by-step procedure with persisted progress                                                       | [components/checklist/demo.html](components/checklist/demo.html)     |
-| diagram     | visualizing structure, flow, comparisons, or abstract concepts                                         | [components/diagram/demo.html](components/diagram/demo.html)         |
-| math        | equations, formulas, or symbolic notation (KaTeX)                                                      | [components/math/demo.html](components/math/demo.html)               |
-| teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                  | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
+| Component   | Reach for when…                                                                                                                    | Demo                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| callout     | you need a tip, warning, insight, success, or risk box                                                                             | [components/callout/demo.html](components/callout/demo.html)         |
+| code        | showing code snippets, shell output, or input→output pairs                                                                         | [components/code/demo.html](components/code/demo.html)               |
+| table       | comparing options, listing key-value pairs, or status grids                                                                        | [components/table/demo.html](components/table/demo.html)             |
+| chip        | labeling status, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd) — difficulty `.vt-level` is shell, always available | [components/chip/demo.html](components/chip/demo.html)               |
+| quiz        | a knowledge check (single or multi-select, retry-until-correct)                                                                    | [components/quiz/demo.html](components/quiz/demo.html)               |
+| checklist   | a step-by-step procedure with persisted progress                                                                                   | [components/checklist/demo.html](components/checklist/demo.html)     |
+| diagram     | visualizing structure, flow, comparisons, or abstract concepts                                                                     | [components/diagram/demo.html](components/diagram/demo.html)         |
+| math        | equations, formulas, or symbolic notation (KaTeX)                                                                                  | [components/math/demo.html](components/math/demo.html)               |
+| teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                                              | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
 
 ## Automatic breakout — wide tables, code, and diagrams
 
@@ -143,6 +136,10 @@ options stay scannable. Don't spell out punctuation: write `git merge` not
 ## Footer / sources
 
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
+
+List the lesson's **primary source first** — the one high-trust resource you'd
+have the learner read or watch. The footer carries this; there is no separate
+primary-source card.
 
 ```html
 <footer class="vt-sources">

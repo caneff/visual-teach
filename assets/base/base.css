@@ -1,4 +1,4 @@
-/* base — the always-linked stylesheet spine (tokens, page shell, recap, source card, metabar, objectives, mission, sources, print).
+/* base — the always-linked stylesheet spine (tokens, page shell, recap, metabar, difficulty level, objectives, mission, sources, print).
    Component CSS (callout, table, chip/pill/badge/level/kbd, checklist, quiz,
    code block, Prism tokens, diagram, math, teacher-box) lives in its own file —
    every Component is self-contained so it can be copied on its own. */
@@ -193,36 +193,6 @@ a code {
   color: var(--vt-ink);
 }
 
-/* primary-source card — masked SVG book icon (follows --vt-accent; swapped from emoji for OS-independence) */
-.vt-source {
-  display: flex;
-  gap: 0.65rem;
-  align-items: flex-start;
-  border-left: 3px solid var(--vt-accent);
-  border-radius: 0 8px 8px 0;
-  background: var(--vt-accent-soft);
-  padding: 0.7rem 0.9rem;
-  margin: 1.2rem 0;
-  font-size: 0.95rem;
-  --src-book: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJyBzdHJva2UtbGluZWNhcD0ncm91bmQnIHN0cm9rZS1saW5lam9pbj0ncm91bmQnPjxwYXRoIGQ9J00zIDZhOSA5IDAgMCAxIDkgMGE5IDkgMCAwIDEgOSAwdjEzYTkgOSAwIDAgMCAtOSAwYTkgOSAwIDAgMCAtOSAweicvPjxwYXRoIGQ9J00xMiA2djEzJy8+PC9zdmc+");
-}
-.vt-source::before {
-  content: "";
-  flex: 0 0 auto;
-  width: 1.15rem;
-  height: 1.15rem;
-  margin-top: 0.18rem;
-  background-color: var(--vt-accent);
-  -webkit-mask: var(--src-book) no-repeat center / contain;
-  mask: var(--src-book) no-repeat center / contain;
-}
-.vt-source .h {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.2rem;
-}
-
 /* shell — meta bar: time / prereqs / difficulty / lesson position */
 .vt-metabar {
   display: flex;
@@ -246,6 +216,46 @@ a code {
 .vt-metabar strong {
   color: var(--vt-ink);
   font-weight: 600;
+}
+
+/* difficulty / level pill — lives in the shell (fixed metabar slot), not the
+   optional chip component, so every lesson styles it without loading chip.css */
+.vt-level {
+  display: inline-block;
+  padding: 0.07rem 0.6rem;
+  border-radius: 999px;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  vertical-align: middle;
+}
+.vt-level::before {
+  content: "●";
+  margin-right: 0.4em;
+  font-size: 0.85em;
+}
+.vt-level.beginner {
+  background: var(--vt-good-soft);
+  color: var(--vt-good);
+}
+.vt-level.intermediate {
+  background: var(--vt-warn-soft);
+  color: var(--vt-warn-dk);
+}
+.vt-level.advanced {
+  background: var(--vt-bad-soft);
+  color: var(--vt-bad);
+}
+@media (forced-colors: active) {
+  .vt-level.beginner::before {
+    content: "○";
+  }
+  .vt-level.intermediate::before {
+    content: "◑";
+  }
+  .vt-level.advanced::before {
+    content: "●";
+  }
 }
 
 /* shell — objectives card */
