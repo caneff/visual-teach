@@ -1,17 +1,8 @@
 ---
 name: teach-base
-description: Pristine A/B control baseline — the upstream /teach pedagogy with zero visual-teach awareness. Pure plain-HTML lesson authoring. Do not edit; touching this skill invalidates every A/B comparison that uses it as the control arm.
+description: Teach the user a new skill or concept, within this workspace.
 argument-hint: "What would you like to learn about?"
 ---
-
-<!--
-  MAINTAINERS: do not edit this skill. It is the frozen A/B control baseline —
-  upstream /teach (mattpocock/skills, skills/productivity/teach) fetched verbatim,
-  with only two changes: disable-model-invocation removed so it is invocable as a
-  subagent, and name/description set to teach-base. Zero visual-teach / vt-*
-  awareness. Any change silently invalidates every comparison using it as the
-  control arm. See docs/ab-comparison-methodology.md.
--->
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.
 
