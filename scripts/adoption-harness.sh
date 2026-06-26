@@ -30,6 +30,9 @@
 #   SIGNAL_TIMEOUT           hard timeout for run-until-signal, seconds (default: 600)
 #   SIGNAL_POLL              poll interval for run-until-signal, seconds (default: 5)
 #   SIGNAL_LESSON_MIN_BYTES  size threshold for "substantial" first lesson (default: 4096)
+#   CANDIDATE                A/B the treatment's SKILL.md description: when set, the
+#                            treatment arm reads scripts/adoption-candidates/$CANDIDATE.md
+#                            instead of the live repo SKILL.md. Empty = live repo (default).
 set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -56,10 +59,17 @@ build_homes() {
   # (avoids creds-in-a-symlink smell). Control home omits this link; isolation preserved.
   local vt="$TREATMENT_HOME/.claude/skills/visual-teach"
   mkdir -p "$vt"
-  ln -s "$REPO/SKILL.md" "$vt/SKILL.md"
+  # CANDIDATE swaps the description blob for the A/B (#211); empty = live repo SKILL.md.
+  # ponytail: candidates are full-copy SKILL.md files (body duplicated). Fine while the
+  # body is frozen during a run; splice candidate frontmatter onto the repo body if the
+  # body starts changing mid-experiment.
+  local skill_src="${CANDIDATE:+$REPO/scripts/adoption-candidates/$CANDIDATE.md}"
+  skill_src="${skill_src:-$REPO/SKILL.md}"
+  [[ -f "$skill_src" ]] || { echo "error: candidate not found: $skill_src" >&2; return 1; }
+  ln -s "$skill_src" "$vt/SKILL.md"
   ln -s "$REPO/assets"   "$vt/assets"
   echo "built: $CONTROL_HOME (teach-base only)"
-  echo "built: $TREATMENT_HOME (teach-base + visual-teach)"
+  echo "built: $TREATMENT_HOME (teach-base + visual-teach, SKILL.md=${CANDIDATE:-live-repo})"
 }
 
 # The shared, visual-teach-agnostic authoring prompt. Identical for both arms.
@@ -121,11 +131,17 @@ _kill_tree() {
   kill "$pid" 2>/dev/null || true
 }
 
+# Adoption signal: a vt-* reference in LESSON markup, not the seeded ./assets/.
+# Firing the skill seeds vt-* into ./assets/ immediately, so a whole-workspace
+# grep false-positives on the seed alone (#211). Scope to lessons/ so the signal
+# means "used a vt-* block in a lesson", matching the adoption definition.
+_vt_in_lessons() { grep -rIl 'vt-' "$1/lessons" 2>/dev/null || true; }
+
 # Cheap fire/no-fire probe: launch an arm and stop it the moment adoption is
-# decided — at roughly 1/3 the cost of a full `run`. Exits 0 on ADOPTED or
-# NOT-ADOPTED; exits 1 on TIMEOUT.
+# decided — cheaper than a full `run`. Exits 0 on ADOPTED or NOT-ADOPTED;
+# exits 1 on TIMEOUT.
 #
-# ADOPTED when:    any vt-* class reference appears anywhere in the workspace.
+# ADOPTED when:    a vt-* class reference appears in lessons/*.html.
 # NOT-ADOPTED when: lessons/0001*.html exists, is substantial (> SIGNAL_LESSON_MIN_BYTES),
 #                   and still no vt-* signal — arm has committed to bespoke.
 run_until_signal() {
@@ -147,8 +163,8 @@ run_until_signal() {
     sleep "$SIGNAL_POLL"
     elapsed=$((elapsed + SIGNAL_POLL))
 
-    # ADOPTED: any vt-* class reference written to the workspace.
-    vt_hits="$(grep -ril 'vt-' "$ws" 2>/dev/null || true)"
+    # ADOPTED: a vt-* class reference written to a lesson.
+    vt_hits="$(_vt_in_lessons "$ws")"
     if [[ -n "$vt_hits" ]]; then
       verdict="ADOPTED"; break
     fi
@@ -165,7 +181,7 @@ run_until_signal() {
 
   # Final probe if arm finished naturally before a signal was polled.
   if [[ -z "$verdict" ]] && ! kill -0 "$claude_pid" 2>/dev/null; then
-    vt_hits="$(grep -ril 'vt-' "$ws" 2>/dev/null || true)"
+    vt_hits="$(_vt_in_lessons "$ws")"
     if [[ -n "$vt_hits" ]]; then verdict="ADOPTED"; else verdict="NOT-ADOPTED"; fi
   fi
 
@@ -183,7 +199,7 @@ run_until_signal() {
   case "$verdict" in
     ADOPTED)
       echo "ADOPTED"
-      grep -ril 'vt-' "$ws" 2>/dev/null | sed 's|^|  |' || true
+      _vt_in_lessons "$ws" | sed 's|^|  |' || true
       ;;
     NOT-ADOPTED)
       echo "NOT-ADOPTED — first lesson substantial, no vt-* signal"
@@ -193,11 +209,11 @@ run_until_signal() {
 
 probe() {
   local ws="$1"
-  local hits; hits="$(grep -ril 'vt-' "$ws" 2>/dev/null || true)"
+  local hits; hits="$(_vt_in_lessons "$ws")"
   if [[ -n "$hits" ]]; then
-    echo "ADOPTED — vt-* found in:"; echo "$hits"
+    echo "ADOPTED — vt-* found in lessons:"; echo "$hits"
   else
-    echo "NOT-ADOPTED — no vt-* anywhere in $ws"
+    echo "NOT-ADOPTED — no vt-* in $ws/lessons"
   fi
 }
 

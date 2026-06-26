@@ -68,6 +68,23 @@ workspace's `./assets/`. (Term inherited from `/teach`.)
 visual-teach components when it wants a block's look and behavior; nothing requires
 it to.
 
+**adoption** — The treatment author firing visual-teach on its own and using **at
+least one `vt-*` block in the lesson markup** (not merely seeding assets into
+`./assets/`). Adoption is **orthogonal** to whether the lesson also builds a
+**bespoke** exercise for its produce-win: visual-teach is a _floor_ (commodity
+look and behavior), and bespoke interaction stacks on top, never instead. Target
+is **100%** on every subject. Going fully bespoke without using a `vt-*` block is
+**non-adoption — a defect**, not a "correct" abstention; the floor was thrown away
+and styling reinvented. Measured by a `vt-*` class in `lessons/*.html`, not by
+`vt-` anywhere in the workspace.
+
+**candidate** (or **arm**) — One `description` wording under test in the auto-fire
+bake-off. Candidates are **peers**: there is no privileged "control," and the
+currently-shipped wording is just one more candidate. Each lives as a full
+`SKILL.md` under `scripts/adoption-candidates/` and is swapped into the treatment
+arm by the harness `CANDIDATE` env var. The winning candidate is applied to the
+repo `SKILL.md`.
+
 **Convention** (not "contract") — A documented class + attribute shape for a
 component. Followed for the styling/behavior payoff, not enforced. Deliberately
 not called a "contract" or "schema": visual-teach validates nothing.
