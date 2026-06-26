@@ -15,18 +15,15 @@ function wireThemeBridge(win) {
   });
 }
 
-/* Standalone theme toggle: inject a fixed dark/light switch for a learner
-   opening a lesson on its own. Skipped when (a) the page already has a
-   .vt-theme-toggle (hand-built demos) or (b) the page is iframed — there the
-   embedding parent owns the theme via postMessage (wireThemeBridge). */
+/* Standalone theme toggle: inject a fixed dark/light switch. Rendered whether
+   the lesson is opened directly or embedded in an iframe (e.g. a before/after
+   compare page), so the reader gets the same native control either way. Skipped
+   only when the page already ships its own .vt-theme-toggle. The postMessage
+   bridge (wireThemeBridge) stays available for a parent that prefers to drive
+   the theme programmatically instead. */
 function wireThemeToggle(win) {
   var doc = win.document;
   if (doc.querySelector(".vt-theme-toggle")) return;
-  try {
-    if (win.self !== win.top) return;
-  } catch (e) {
-    return;
-  } // iframed → parent owns theme
   var stored = null;
   try {
     stored = win.localStorage.getItem("vtTheme");

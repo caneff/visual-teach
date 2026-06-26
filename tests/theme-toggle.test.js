@@ -39,9 +39,9 @@ describe("wireThemeToggle", () => {
     expect(document.querySelectorAll(".vt-theme-toggle")).toHaveLength(1);
   });
 
-  it("skips when iframed (parent owns the theme)", () => {
+  it("still injects the toggle when iframed (reader gets the native control)", () => {
     wireThemeToggle(fakeWin({ iframed: true }));
-    expect(document.querySelector(".vt-theme-toggle")).toBeNull();
+    expect(document.querySelectorAll(".vt-theme-toggle")).toHaveLength(1);
   });
 
   it("applies a stored preference on load", () => {

@@ -77,17 +77,6 @@
         border: 1px solid var(--rule);
         border-radius: 6px;
       }
-      .verdict {
-        margin-left: auto;
-        font-size: 0.8rem;
-        font-weight: 600;
-      }
-      .verdict.ok {
-        color: var(--ok);
-      }
-      .verdict.no {
-        color: var(--no);
-      }
       main {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -103,11 +92,16 @@
       }
       .pane h2 {
         margin: 0;
-        padding: 0.5rem 0.9rem;
+        padding: 0.4rem 0.9rem;
         font-size: 0.82rem;
         font-weight: 600;
         border-bottom: 1px solid var(--rule);
         color: var(--muted);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        min-height: 2rem;
       }
       .pane h2 .tag {
         font-weight: 700;
@@ -153,7 +147,6 @@
           >Lesson
           <select id="lesson"></select>
         </label>
-        <span class="verdict" id="verdict"></span>
       </div>
     </header>
     <main>
@@ -162,10 +155,7 @@
         <iframe id="left" title="plain lesson"></iframe>
       </div>
       <div class="pane after">
-        <h2>
-          <span class="tag">+ visual-teach</span> — available, auto-fired
-          (treatment)
-        </h2>
+        <h2><span class="tag">+ visual-teach</span> (treatment)</h2>
         <iframe id="right" title="visual-teach lesson"></iframe>
       </div>
     </main>
@@ -189,7 +179,7 @@
             {
               label: "2 · Choosing between them",
               plain: "0002-choosing-between-them.html",
-              visual: "0002-choosing-merge-or-rebase.html",
+              visual: "0002-choosing-between-them.html",
             },
             {
               label: "3 · Rebase without fear",
@@ -212,11 +202,6 @@
         const s = SUBJECTS[subjectSel.value];
         lessonSel.innerHTML = "";
         s.lessons.forEach((l, i) => lessonSel.add(new Option(l.label, i)));
-        const v = $("verdict");
-        v.textContent = s.adopted
-          ? `auto-fired ✓ (${s.model})`
-          : `not adopted ✗ (${s.model})`;
-        v.className = "verdict " + (s.adopted ? "ok" : "no");
         render();
       }
 
@@ -226,6 +211,10 @@
         $("left").src = `${s.id}/plain/lessons/${l.plain}`;
         $("right").src = `${s.id}/visual-teach/lessons/${l.visual}`;
       }
+
+      // The visual-teach pane shows base.js's own native theme toggle (it
+      // renders inside the iframe), so the index needs no theme control of its
+      // own — it looks and behaves exactly like opening the lesson directly.
 
       subjectSel.addEventListener("change", fillLessons);
       lessonSel.addEventListener("change", render);

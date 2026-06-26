@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Merge vs Rebase — cheat sheet &amp; glossary</title>
+
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <link rel="stylesheet" href="../assets/callout.css" />
+    <link rel="stylesheet" href="../assets/code.css" />
+    <link rel="stylesheet" href="../assets/chip.css" />
+
+    <script src="../assets/prism/prism-core.min.js"></script>
+    <script src="../assets/prism/prism-clike.min.js"></script>
+    <script src="../assets/prism/prism-bash.min.js"></script>
+    <script src="../assets/base.js"></script>
+    <script src="../assets/code.js"></script>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Reference · Merge vs Rebase</p>
+      <h1>Merge vs Rebase — cheat sheet &amp; glossary</h1>
+      <p class="vt-lede">
+        The compressed essence of the course on one page. Built to be printed and
+        pinned. Lessons:
+        <a href="../lessons/0001-two-shapes-of-history.html">1</a> ·
+        <a href="../lessons/0002-choosing-between-them.html">2</a> ·
+        <a href="../lessons/0003-rebase-without-fear.html">3</a>.
+      </p>
+
+      <h2>The decision, in one question</h2>
+      <div class="vt-callout insight">
+        <strong>Has anyone else got these commits?</strong><br />
+        <strong>No</strong> → private branch → <code>git rebase</code> (tidy line,
+        safe to rewrite).<br />
+        <strong>Yes</strong> → shared branch → <code>git merge</code> (never rewrite
+        shared history).<br />
+        Note: <em>pushed&nbsp;≠&nbsp;shared</em>. A solo PR branch nobody builds on
+        is still private — rebase it, then <code>push --force-with-lease</code>.
+      </div>
+
+      <h2>The two shapes</h2>
+      <table class="vt-kv">
+        <tbody>
+          <tr>
+            <th scope="row"><code>merge</code></th>
+            <td>
+              Keeps the fork; adds a <strong>merge commit</strong> with two parents.
+              Originals untouched (same hashes). History shows the branches met.
+            </td>
+          </tr>
+          <tr>
+            <th scope="row"><code>rebase</code></th>
+            <td>
+              Replays your commits onto a new base → one <strong>straight line</strong>.
+              New commits, <strong>new hashes</strong>; originals abandoned (kept in
+              the reflog). Looks like it was always linear.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>Command quick reference</h2>
+
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>merge — integrate, preserve the fork</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git checkout main
+git merge feature/login          # create a merge commit on main
+git merge --no-ff feature/login  # force a merge commit even if fast-forward
+git merge --abort                # cancel a merge that hit conflicts</code></pre>
+      </div>
+
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>rebase — replay onto a new base, straighten history</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git fetch origin
+git checkout feature/login
+git rebase origin/main           # replay your commits on top of latest main
+git pull --rebase                # fetch + rebase in one step
+git push --force-with-lease      # update a PRIVATE pushed branch after rebase</code></pre>
+      </div>
+
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>mid-rebase — three exits</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash"># conflict? fix the file, then:
+git add &lt;file&gt;
+git rebase --continue            # replay the next commit
+git rebase --abort               # undo everything, back to pre-rebase state
+git rebase --skip                # drop the current commit (rare, deliberate)</code></pre>
+      </div>
+
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>recovery — nothing is ever lost</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git reflog                       # list every place HEAD has been
+git reset --hard HEAD@{4}        # move branch back to a pre-rebase point
+git reset --hard 3ab77d1         # ...or to a specific old commit hash</code></pre>
+      </div>
+
+      <h2>The golden rule</h2>
+      <div class="vt-callout risk">
+        <strong>Do not rebase commits that exist outside your repository and that
+        people may have based work on.</strong>
+        <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing" style="color: inherit">— Pro Git §3.6</a>
+        &nbsp;Break it and teammates inherit duplicated commits and conflicts on
+        their next pull.
+      </div>
+
+      <h2>Glossary</h2>
+      <table class="vt-kv">
+        <tbody>
+          <tr>
+            <th scope="row">merge commit</th>
+            <td>A commit with <strong>two</strong> parents, created by <code>git merge</code> to tie two branches together. The visible record that they met.</td>
+          </tr>
+          <tr>
+            <th scope="row">fast-forward</th>
+            <td>When the target branch hasn't diverged, merge just slides the branch pointer forward — no merge commit. <code>--no-ff</code> forces one anyway.</td>
+          </tr>
+          <tr>
+            <th scope="row">three-way merge</th>
+            <td>The merge git performs when branches <em>have</em> diverged, using both tips plus their common ancestor. Produces a merge commit.</td>
+          </tr>
+          <tr>
+            <th scope="row">rebase</th>
+            <td>Re-create your commits on top of a different base commit. "Re-base" = give them a new base.</td>
+          </tr>
+          <tr>
+            <th scope="row">replay</th>
+            <td>How rebase works: it applies each of your commits, one at a time, onto the new base — making a new commit (new hash) each time.</td>
+          </tr>
+          <tr>
+            <th scope="row">base / upstream</th>
+            <td>The commit your branch is built on top of. <code>git rebase main</code> changes the base to the tip of <code>main</code>.</td>
+          </tr>
+          <tr>
+            <th scope="row">diverged</th>
+            <td>Two branches that each have commits the other lacks — they share an ancestor but have forked since. This is when the merge-vs-rebase choice appears.</td>
+          </tr>
+          <tr>
+            <th scope="row">commit hash</th>
+            <td>The SHA-1 id of a commit. Rebase produces <strong>new</strong> hashes because each replayed commit is a new object.</td>
+          </tr>
+          <tr>
+            <th scope="row">HEAD</th>
+            <td>A pointer to where you are right now (usually the tip of the current branch). <code>HEAD@{n}</code> in the reflog means "where HEAD was n moves ago".</td>
+          </tr>
+          <tr>
+            <th scope="row">reflog</th>
+            <td>A local log of every position <code>HEAD</code> has held. Your undo history and safety net — abandoned commits live here for weeks.</td>
+          </tr>
+          <tr>
+            <th scope="row">golden rule</th>
+            <td>Never rebase commits others may have based work on. The single rule that keeps rebase safe.</td>
+          </tr>
+          <tr>
+            <th scope="row"><code>--force-with-lease</code></th>
+            <td>A force-push that first checks nobody else pushed since you last fetched. Use it (never plain <code>--force</code>) to update a private branch after rebasing.</td>
+          </tr>
+          <tr>
+            <th scope="row">private vs shared</th>
+            <td>Private = only you have these commits. Shared = others have pulled them or build on them. The distinction the golden rule turns on — <em>not</em> whether you pushed.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span>
+            <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — Merging vs. Rebasing</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="book"></span>
+            <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git 3.6 — Rebasing</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span>
+            <a href="https://git-scm.com/docs/git-rebase">git-rebase</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span>
+            <a href="https://git-scm.com/docs/git-reflog">git-reflog</a>
+          </li>
+        </ul>
+        <div class="meta">Reference · verified 2026-06-25</div>
+      </footer>
+    </main>
+  </body>
+</html>
