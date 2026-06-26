@@ -266,6 +266,14 @@ git pull --rebase</code></pre>
         </div>
       </div>
 
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        One question now decides it: <strong>has anyone else got these commits?</strong>
+        No → rebase (private cleanup, a tidy line). Yes → merge (never rewrite
+        shared history). And you learned the edge case — "pushed" ≠ "shared", so a
+        solo PR branch can still be rebased, with <code>--force-with-lease</code>.
+      </div>
+
       <div class="vt-teacher">
         <div>
           <p class="h">I'm your teacher — bring me your real branches</p>
@@ -280,14 +288,6 @@ git pull --rebase</code></pre>
             <span class="vt-ask">My team squash-merges PRs — does that change my answer?</span>
           </div>
         </div>
-      </div>
-
-      <div class="vt-recap">
-        <p class="h">✦ What you earned</p>
-        One question now decides it: <strong>has anyone else got these commits?</strong>
-        No → rebase (private cleanup, a tidy line). Yes → merge (never rewrite
-        shared history). And you learned the edge case — "pushed" ≠ "shared", so a
-        solo PR branch can still be rebased, with <code>--force-with-lease</code>.
       </div>
 
       <p class="vt-upnext">

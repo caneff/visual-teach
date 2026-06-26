@@ -84,6 +84,17 @@ frame only — not a complete lesson with fixed slots to fill.
     <p class="h">✦ What you earned</p>
     One-sentence summary.
   </div>
+
+  <!-- Optional teacher-box: invite questions AFTER the recap, just before the
+       up-next teaser. Closing order is recap → teacher → up-next: earn it,
+       offer help on it, then point forward. -->
+  <div class="vt-teacher">
+    <div>
+      <p class="h">I'm your teacher — ask me anything</p>
+      <p>Write this fresh each lesson; never reuse the template wording.</p>
+    </div>
+  </div>
+
   <p class="vt-upnext"><em>Up next:</em> next topic.</p>
 </main>
 ```
