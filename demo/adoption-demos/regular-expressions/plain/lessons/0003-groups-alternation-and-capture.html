@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 — Groups, Alternation &amp; Capture</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<nav class="crumbs">
+  regex course / <a href="../MISSION.md">mission</a> /
+  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> /
+  <a href="0001-literals-and-character-classes.html">lesson 01</a> /
+  <a href="0002-quantifiers-and-anchors.html">lesson 02</a> / lesson 03
+</nav>
+
+<p class="eyebrow">Lesson 3 · Applied — the whole skill on one real task</p>
+<h1>Groups, alternation &amp; capture</h1>
+<p class="subtitle">Three small additions turn “match characters” into “extract
+the fields I want.” Then we pull a log line apart, start to finish.</p>
+
+<h2>1 · <code>(...)</code> — group, so a quantifier applies to many characters</h2>
+
+<p>Parentheses bundle a sub-pattern into one unit. Now a quantifier acts on the
+<em>whole group</em>, not just the last character.<sup><a href="#c1">1</a></sup>
+Compare:</p>
+
+<div class="strip"><span class="miss">ha</span><span class="hit">haha</span><span class="miss"> vs </span><span class="hit">ha</span></div>
+<p class="caption"><span class="pat">(ha)+</span> repeats the pair — matching <code>haha</code>. Without the group, <span class="pat">ha+</span> would mean an <code>h</code> followed by one-or-more <code>a</code>'s (<code>haaaa</code>). Grouping changes the unit of repetition.</p>
+
+<p>This is how you match a dotted structure. An IPv4-ish address is four
+numbers joined by dots — “a number, then (dot + number) three times”:
+<span class="pat">\d{1,3}(\.\d{1,3}){3}</span>.</p>
+
+<h2>2 · <code>|</code> — alternation, “this OR that”</h2>
+
+<p>The pipe matches the pattern on its left <em>or</em> its right. It's greedy
+about scope: <span class="pat">cat|dog</span> means <code>cat</code> or
+<code>dog</code>, not <code>ca(t|d)og</code>. Use a group to bound it:
+<span class="pat">gr(a|e)y</span> is the same as the class
+<span class="pat">gr[ae]y</span>, but <code>|</code> shines when the
+alternatives are whole words.<sup><a href="#c1">1</a></sup></p>
+
+<div class="strip"><span class="hit">GET</span><span class="miss"> /a &nbsp; </span><span class="hit">POST</span><span class="miss"> /b</span></div>
+<p class="caption"><span class="pat">GET|POST|PUT|DELETE</span> matches whichever HTTP method appears. For a fixed set of words, alternation is clearer than a character class.</p>
+
+<h2>3 · Capturing vs. non-capturing groups</h2>
+
+<p>A plain <span class="pat">(...)</span> does two jobs at once: it groups
+<em>and</em> it <strong>captures</strong> — the engine remembers what that group
+matched and hands it back as a numbered piece (group 1, group 2, …) so your code
+can pull it out.<sup><a href="#c2">2</a></sup> Captures are read left-to-right by
+the position of each opening parenthesis.</p>
+
+<div class="strip"><span class="hit"><span class="cap">2024</span>-<span class="cap">10</span>-<span class="cap">10</span></span></div>
+<p class="caption"><span class="pat">(\d{4})-(\d{2})-(\d{2})</span> on <code>2024-10-10</code>. The whole match is the date; <span class="cap">group 1</span>=<code>2024</code>, <span class="cap">group 2</span>=<code>10</code>, <span class="cap">group 3</span>=<code>10</code>. The underlined parts are what you'd read out of the result.</p>
+
+<p>Sometimes you need the grouping (for a quantifier or alternation) but you
+<em>don't</em> want to capture it — it's just noise in your results. Make it
+<strong>non-capturing</strong> with <span class="pat">(?:...)</span>. Same
+grouping behaviour, no captured slot.<sup><a href="#c2">2</a></sup></p>
+
+<div class="note">
+  <span class="callout-label">Note · keep your capture slots meaningful</span>
+  In <span class="pat">(\d{1,3})(?:\.\d{1,3}){3}</span> the first group captures
+  the leading octet; the repeated <code>(?:…)</code> does the joining work
+  without cluttering your results with a throwaway group. Capture what you want
+  to <em>read</em>; use <code>(?:…)</code> for everything else.
+</div>
+
+<h2>Putting it together — read the fields out of a log line</h2>
+
+<p>This is the mission in one task. Here is a common access-log line:</p>
+
+<pre><code>192.168.1.5 - - [10/Oct/2024:13:55:36] "GET /index.html" 200</code></pre>
+
+<p>We want three fields: the client IP, the HTTP method, and the status code.
+Build the pattern field by field — exactly the interleaving of Lessons 1–3:</p>
+
+<table>
+  <thead><tr><th>Field</th><th>Sub-pattern</th><th>Lesson</th></tr></thead>
+  <tbody>
+    <tr><td>client IP</td><td><span class="pat">(\d{1,3}(?:\.\d{1,3}){3})</span></td><td>classes + groups</td></tr>
+    <tr><td>HTTP method</td><td><span class="pat">(GET|POST|PUT|DELETE)</span></td><td>alternation</td></tr>
+    <tr><td>status code</td><td><span class="pat">(\d{3})</span></td><td>quantifier <code>{3}</code></td></tr>
+  </tbody>
+</table>
+
+<p>Stitched together with the literal punctuation of the line between them:</p>
+
+<pre><code>^(\d{1,3}(?:\.\d{1,3}){3}).*"(GET|POST|PUT|DELETE) .*" (\d{3})$</code></pre>
+
+<div class="strip"><span class="hit"><span class="cap">192.168.1.5</span> - - [10/Oct/2024:13:55:36] "<span class="cap">GET</span> /index.html" <span class="cap">200</span></span></div>
+<p class="caption">The whole line matches; the three underlined captures are <span class="cap">IP</span>, <span class="cap">method</span>, <span class="cap">status</span> — groups 1, 2, 3. Note the lazy-vs-greedy care: the <code>.*</code> bridges are fine here because the <code>"</code> and trailing <code>$\,(\d{3})</code> pin the ends.</p>
+
+<h2>Your turn — the applied feedback loop</h2>
+
+<p>Type each pattern; it runs live against the sample strings. The highlight is
+your match. Build from the front, one field at a time.</p>
+
+<div class="task"
+     data-flags=""
+     data-cases='[{"text":"192.168.1.5","expect":"192.168.1.5"},{"text":"10.0.0.255","expect":"10.0.0.255"},{"text":"v1.2","expect":""}]'>
+  <label>1 · Match a dotted IPv4-style address: a 1–3 digit number, then a dot-and-number three more times.</label>
+  <input type="text" placeholder="group the (dot + number) and repeat it…" autocomplete="off" spellcheck="false">
+  <button class="check">Run it</button>
+  <div class="result"></div>
+  <p class="hintline">Shape: <code>\d{1,3}</code> then <code>(?:\.\d{1,3}){3}</code>. Anchor with <code>^…$</code> to reject <code>v1.2</code>.</p>
+</div>
+
+<div class="task"
+     data-flags=""
+     data-cases='[{"text":"GET /x","expect":"GET"},{"text":"POST /y","expect":"POST"},{"text":"DELETE /z","expect":"DELETE"},{"text":"PATCH /q","expect":""}]'>
+  <label>2 · Match exactly one of these HTTP methods at the start: GET, POST, PUT, or DELETE.</label>
+  <input type="text" placeholder="alternation, anchored to the start…" autocomplete="off" spellcheck="false">
+  <button class="check">Run it</button>
+  <div class="result"></div>
+  <p class="hintline">Use <code>|</code> between the words and <code>^</code> so <code>PATCH</code> is rejected. Group the alternatives if you anchor.</p>
+</div>
+
+<div class="task"
+     data-flags=""
+     data-cases='[{"text":"192.168.1.5 - - [10/Oct/2024:13:55:36] \"GET /index.html\" 200","expect":"192.168.1.5 - - [10/Oct/2024:13:55:36] \"GET /index.html\" 200"},{"text":"10.0.0.7 - - [x] \"POST /login\" 403","expect":"10.0.0.7 - - [x] \"POST /login\" 403"}]'>
+  <label>3 · The whole task: match a full log line that has an IP at the start, a known method in quotes, and a 3-digit status at the end. (Capturing those three fields is the goal — here we confirm the line matches end to end.)</label>
+  <input type="text" placeholder="combine fields 1 &amp; 2 with literal text and a (\d{3}) at the end…" autocomplete="off" spellcheck="false">
+  <button class="check">Run it</button>
+  <div class="result"></div>
+  <p class="hintline">Try: <code>^(\d{1,3}(?:\.\d{1,3}){3}).*"(GET|POST|PUT|DELETE) .*" (\d{3})$</code> — then tweak until both lines pass. In real code you'd read groups 1–3 out of the result.</p>
+</div>
+
+<h2>Recall check</h2>
+
+<div class="quiz" data-correct="2">
+  <p class="quiz-q">You group a repeated separator but don't want it in your results. Which group type?</p>
+  <ul class="choices">
+    <li><button>a capturing group written as ( ... )</button></li>
+    <li><button>a character class written as [ ... ]</button></li>
+    <li><button>a non-capturing group, that is (?: ... )</button></li>
+    <li><button>an anchored group written as ^ ... $</button></li>
+  </ul>
+  <p class="verdict"
+     data-ok="(?:…) groups without claiming a numbered capture slot — grouping without the result clutter."
+     data-no="That's the non-capturing group (?:…): it groups for quantifiers/alternation but leaves no captured slot in the results."></p>
+</div>
+
+<div class="quiz" data-correct="1">
+  <p class="quiz-q">In <span class="mono">(\d{4})-(\d{2})-(\d{2})</span> matched on <span class="mono">2024-10-10</span>, what is captured by group 2?</p>
+  <ul class="choices">
+    <li><button>the full matched text string 2024-10-10</button></li>
+    <li><button>the two-digit month, which here is 10</button></li>
+    <li><button>the literal hyphen separator between fields</button></li>
+    <li><button>nothing at all is captured by group two</button></li>
+  </ul>
+  <p class="verdict"
+     data-ok="Groups are numbered by opening-paren order; group 2 is the second (\d{2}) — the month, 10."
+     data-no="Capture groups number left-to-right by opening paren. Group 2 is the second (\d{2}), which matched the month: 10."></p>
+</div>
+
+<div class="win">
+  <span class="callout-label">Your tangible win</span>
+  You just took an unfamiliar log line and wrote a pattern that pulls structured
+  fields out of it — no copy-paste, no blind tweaking. That's the mission:
+  <a href="../MISSION.md">read a moderate pattern, write one for a real task</a>.
+  Everything here was Lessons 1–3 stacked together.
+</div>
+
+<div class="primary-source">
+  <span class="callout-label">▶ Primary source — read this next</span>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences">MDN
+  — Groups and backreferences</a> for capturing / non-capturing groups, and the
+  <a href="https://www.regular-expressions.info/tutorial.html">regular-expressions.info
+  tutorial</a> for alternation depth. Then decode a real pattern in
+  <a href="https://regex101.com/">regex101.com</a> — its sidebar names every
+  group it finds.
+</div>
+
+<div class="followup">
+  <span class="callout-label">Stuck, or ready for more?</span>
+  I'm your teacher — ask me to invent a fresh extraction drill (email, ISO
+  timestamp, CSV field), to review a pattern you found at work, or to point you
+  to the next topic beyond this course (lookahead, backreferences). And to make
+  it <em>stick</em>: come back in a day or two and rewrite Task 3 from memory —
+  spaced, effortful recall is what converts this into a durable skill. Test it
+  for real and bring questions to the
+  <a href="https://stackoverflow.com/questions/tagged/regex">Stack Overflow regex
+  tag</a> or <a href="https://www.reddit.com/r/regex/">r/regex</a>.
+</div>
+
+<nav class="lesson-nav">
+  <a href="0002-quantifiers-and-anchors.html">← Lesson 2 — Quantifiers &amp; anchors</a>
+  <span class="spacer"></span>
+  <span>Course complete · <a href="../reference/regex-cheatsheet.html">keep the cheat sheet →</a></span>
+</nav>
+
+<h2 id="cites" style="font-size:1rem">Citations</h2>
+<ol style="font-size:0.85rem;color:var(--ink-soft)">
+  <li id="c1"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences">MDN — Groups and backreferences</a> (grouping, alternation scope).</li>
+  <li id="c2"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences#types">MDN — capturing vs. non-capturing <code>(?:…)</code> groups and numbering</a>.</li>
+</ol>
+
+<footer>
+  Regex course · Lesson 3 of 3 · built on the
+  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> &amp;
+  <a href="../RESOURCES.md">resources</a>.
+</footer>
+
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

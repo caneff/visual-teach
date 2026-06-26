@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · The container and its axis — CSS Flexbox</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+<script src="../assets/lesson.js" defer></script>
+</head>
+<body>
+<main class="wrap">
+
+  <p class="eyebrow">CSS Flexbox · Lesson 1 of 3</p>
+  <h1>The container and its axis</h1>
+  <p class="dek">The smallest true mental model: one container, one main axis, and
+  items that flow along it.</p>
+
+  <div class="progress" aria-label="Course progress">
+    <span class="dot on"></span><span class="dot"></span><span class="dot"></span>
+    <span>Step 1 — the model</span>
+  </div>
+
+  <p>You can already build a page. What you don't yet have is a reliable way to
+  put things <em>next to each other</em> on purpose. Floats, <code>position</code>,
+  and margin hacks each solve one case and break the next. Flexbox replaces all of
+  them with a single idea, and this lesson is just that idea — no spacing or sizing
+  decisions yet. By the end you'll be able to look at any flex container and say,
+  before you reload, <strong>which way its children will flow</strong>.</p>
+
+  <h2>One declaration changes everything</h2>
+
+  <p>Add <code>display: flex</code> to an element and two things become true at
+  once: that element becomes a <strong>flex container</strong>, and its
+  <em>direct children</em> become <strong>flex items</strong> that lay themselves
+  out together. You don't touch the children — turning on the parent is what moves
+  them.</p>
+
+  <pre><code><span class="s">/* before: two divs stack vertically, like every block element */</span>
+<span class="k">.toolbar</span> {
+  <span class="s">/* nothing — children are block boxes, one per line */</span>
+}
+
+<span class="s">/* after: one line does it */</span>
+<span class="k">.toolbar</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;   <span class="s">/* now .toolbar is a flex container */</span>
+}</code></pre>
+
+  <div class="demo">
+    <div class="demo-stage">
+      <div class="fc">
+        <div class="item">A</div>
+        <div class="item">B</div>
+        <div class="item">C</div>
+      </div>
+    </div>
+    <div class="demo-cap">The dashed box is the <b>container</b> (<code>display: flex</code>).
+    A, B, C are its <b>items</b>. With no other properties, they sit in a row from
+    the start.</div>
+  </div>
+
+  <div class="callout key">
+    <span class="label">The rule that matters</span>
+    <p>Only <em>direct children</em> become flex items. A grandchild (an element
+    nested inside an item) is laid out by its own parent's rules, not the
+    container's. Flexbox is strictly a <strong>parent → direct-children</strong>
+    relationship.</p>
+  </div>
+
+  <h2>The main axis: the direction items flow</h2>
+
+  <p>Every flex container has a <strong>main axis</strong> — the line its items are
+  placed along, one after another. By default that axis runs left-to-right, which
+  is why A, B, C landed in a row. You choose the axis with one property,
+  <code>flex-direction</code>:</p>
+
+  <div class="axis-row">
+    <span class="axis-chip"><b>row</b> → items flow horizontally (default)</span>
+    <span class="axis-chip"><b>column</b> → items flow vertically</span>
+  </div>
+
+  <pre><code><span class="k">.stack</span> {
+  <span class="k">display</span>: <span class="v">flex</span>;
+  <span class="k">flex-direction</span>: <span class="v">column</span>;   <span class="s">/* main axis now runs top → bottom */</span>
+}</code></pre>
+
+  <div class="demo">
+    <div class="demo-stage">
+      <div class="fc" style="flex-direction: column; align-items: flex-start;">
+        <div class="item">A</div>
+        <div class="item">B</div>
+        <div class="item">C</div>
+      </div>
+    </div>
+    <div class="demo-cap">Same three items, same container — only
+    <code>flex-direction: column</code> added. The <b>main axis</b> now runs
+    vertically, so the items flow downward.</div>
+  </div>
+
+  <p>Nothing about the items changed. You rotated the <em>axis</em>, and the items
+  followed. That is the whole reframe: in flexbox you don't position each child —
+  you set up an axis and let the children flow along it.</p>
+
+  <h2>The cross axis: always perpendicular</h2>
+
+  <p>The second axis comes free. The <strong>cross axis</strong> is simply the one
+  at a right angle to the main axis — you never set it directly, it's defined by
+  whatever the main axis is.</p>
+
+  <ul>
+    <li>Main axis is <strong>row</strong> (horizontal) → cross axis is
+    <strong>vertical</strong>.</li>
+    <li>Main axis is <strong>column</strong> (vertical) → cross axis is
+    <strong>horizontal</strong>.</li>
+  </ul>
+
+  <p>You don't need to <em>do</em> anything with the cross axis yet. You just need
+  to hold both lines in your head, because in Lesson 2 each axis gets its own
+  control: one property to position items <em>along</em> the main axis, another to
+  position them <em>across</em> the cross axis. Knowing which axis is which is what
+  makes those two properties obvious instead of a coin toss.</p>
+
+  <div class="callout watch">
+    <span class="label">The classic trap</span>
+    <p>"Horizontal" and "vertical" are <em>not</em> fixed labels in flexbox. The
+    moment you switch to <code>flex-direction: column</code>, the main axis becomes
+    vertical and the cross axis becomes horizontal. Always think
+    <strong>main vs. cross</strong>, not left-right vs. up-down — otherwise every
+    alignment property will feel like it's behaving backwards.</p>
+  </div>
+
+  <h2>Check yourself</h2>
+  <p>Retrieval — not recognition — is what makes this stick. Answer before you
+  re-read; a wrong guess here is cheaper than one in real code.</p>
+
+  <div class="quiz" data-answer="1">
+    <p class="q-kicker">Recall · 1 of 2</p>
+    <p class="q-stem">You write <code>display: flex</code> on a <code>&lt;nav&gt;</code>.
+    Which elements become flex items?</p>
+    <ul class="opts">
+      <li><button class="opt">Every element nested anywhere inside the nav</button></li>
+      <li><button class="opt">Only the nav's direct children, nothing deeper</button></li>
+      <li><button class="opt">The nav element itself and its parent</button></li>
+      <li><button class="opt">Only children you also mark as display flex</button></li>
+    </ul>
+    <div class="feedback"
+      data-right="Flexbox is a parent → direct-children relationship. Grandchildren are laid out by their own parent."
+      data-wrong="It's only the direct children. A grandchild is laid out by its own parent's rules, not the container's — flexbox is strictly parent → direct-children."></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <p class="q-kicker">Recall · 2 of 2</p>
+    <p class="q-stem">A container is set to <code>flex-direction: column</code>.
+    Which way does its <strong>cross axis</strong> run?</p>
+    <ul class="opts">
+      <li><button class="opt">Vertically, the same as the main axis</button></li>
+      <li><button class="opt">It depends on the number of items</button></li>
+      <li><button class="opt">Horizontally, perpendicular to main</button></li>
+      <li><button class="opt">There is no cross axis in column mode</button></li>
+    </ul>
+    <div class="feedback"
+      data-right="The cross axis is always perpendicular to the main axis. Column main → horizontal cross."
+      data-wrong="The cross axis is always perpendicular to the main axis. With a vertical (column) main axis, the cross axis runs horizontally."></div>
+  </div>
+
+  <div class="recall">
+    <span class="label">Free recall — close your eyes first</span>
+    <p>In one sentence each, from memory: (1) what does <code>display: flex</code>
+    turn an element and its children into? (2) what chooses the main axis? (3) how
+    is the cross axis defined?</p>
+    <details>
+      <summary>Reveal the three answers</summary>
+      <p>(1) The element becomes a <strong>flex container</strong> and its direct
+      children become <strong>flex items</strong>. (2) <code>flex-direction</code>
+      (<code>row</code> = horizontal, <code>column</code> = vertical). (3) The
+      cross axis is whatever runs <strong>perpendicular</strong> to the main axis —
+      you never set it directly.</p>
+    </details>
+  </div>
+
+  <h2>Your tangible win</h2>
+  <p>You can now turn any element into a flex container, flip its main axis between
+  row and column, and name the cross axis without guessing. That's the foundation
+  everything else hangs on. <strong>Next</strong> you'll use the two axes to finally
+  center a box and space a row of buttons evenly — on purpose.</p>
+
+  <div class="source-box">
+    <span class="label">Primary source — read this next</span>
+    <p><a href="https://www.joshwcomeau.com/css/interactive-guide-to-flexbox/">Josh
+    W. Comeau — <em>An Interactive Guide to Flexbox</em></a>. Play with the live
+    <code>flex-direction</code> demo near the top; watching the items follow the
+    axis cements today's model far better than reading does. The full source list
+    lives in <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+  </div>
+
+  <div class="ask">
+    <b>Stuck or curious?</b> I'm your teacher — ask me anything. Good follow-ups:
+    "show me <code>row-reverse</code>," "when would I ever pick column?," or "how
+    does this differ from float layouts I already know?"
+  </div>
+
+  <nav class="lesson-nav">
+    <span></span>
+    <span class="spacer"></span>
+    <a href="0002-distributing-and-aligning.html">Lesson 2 · Distributing &amp; aligning →</a>
+  </nav>
+
+  <p style="font-family:var(--sans);font-size:0.84rem;margin-top:1.4rem;">
+    See also: <a href="../reference/flexbox-cheatsheet.html">Flexbox cheat sheet</a>
+    · <a href="../MISSION.md">course mission</a>
+  </p>
+
+  <footer class="course">CSS Flexbox · a 3-lesson course · Lesson 1 of 3</footer>
+</main>
+</body>
+</html>

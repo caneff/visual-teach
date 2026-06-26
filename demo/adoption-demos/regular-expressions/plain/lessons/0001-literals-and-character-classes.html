@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — Literals &amp; Character Classes</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+
+<nav class="crumbs">
+  regex course / <a href="../MISSION.md">mission</a> /
+  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> / lesson 01
+</nav>
+
+<p class="eyebrow">Lesson 1 · The smallest true mental model</p>
+<h1>Literals &amp; character classes</h1>
+<p class="subtitle">A regex is a pattern an engine drags across your text, one
+position at a time, asking “does this match starting here?”</p>
+
+<h2>The one idea everything is built on</h2>
+
+<p>Forget syntax for a second. A regular expression is a tiny <em>matching
+machine</em>. You hand it a pattern and a string. It plants a cursor at the
+start of the string and asks a single question:</p>
+
+<p style="text-align:center;font-style:italic;color:var(--ink-soft)">
+“Does my pattern match the text starting <strong>right here</strong>?”</p>
+
+<p>If yes, it reports the match. If no, it shifts the cursor one character to the
+right and asks again. It keeps sliding rightward until it finds a match or runs
+off the end. That left-to-right scan is the <em>whole engine</em> at this stage
+— everything you'll learn is just a richer way to answer that one question.<sup><a href="#c1">1</a></sup></p>
+
+<h3>Literal characters match themselves</h3>
+
+<p>The simplest pattern is just text. The pattern <span class="pat">cat</span>
+means: a <code>c</code>, then an <code>a</code>, then a <code>t</code>, adjacent,
+in that order. The engine slides along until three characters in a row spell
+<code>cat</code>.</p>
+
+<div class="strip"><span class="miss">the </span><span class="hit">cat</span><span class="miss">egory of scattered things</span></div>
+<p class="caption"><span class="pat">cat</span> finds the first <code>cat</code> — inside “<strong>cat</strong>egory”. The engine doesn't care about word meaning; it matches characters.</p>
+
+<h3><code>.</code> — the wildcard for one character</h3>
+
+<p>A dot matches <em>any single character</em> (except a newline, by default).
+It still consumes exactly one position.<sup><a href="#c2">2</a></sup></p>
+
+<div class="strip"><span class="hit">cat</span><span class="miss"> </span><span class="hit">cot</span><span class="miss"> </span><span class="hit">c8t</span><span class="miss"> co_t</span></div>
+<p class="caption"><span class="pat">c.t</span> matches <code>cat</code>, <code>cot</code>, <code>c8t</code> — any one character between <code>c</code> and <code>t</code>. It does <em>not</em> match <code>co_t</code> (two characters in the gap).</p>
+
+<h3><code>[...]</code> — a character class: one from a set</h3>
+
+<p>Square brackets define a set; the pattern matches <strong>one</strong>
+character that is in that set. <span class="pat">[aeiou]</span> matches a single
+vowel. A range like <span class="pat">[a-z]</span> means any one lowercase
+letter; <span class="pat">[0-9]</span> any one digit.<sup><a href="#c1">1</a></sup></p>
+
+<div class="strip"><span class="miss">gr</span><span class="hit">a</span><span class="miss">y / gr</span><span class="hit">e</span><span class="miss">y</span></div>
+<p class="caption"><span class="pat">gr[ae]y</span> matches both <code>gray</code> and <code>grey</code> — the class allows an <code>a</code> <em>or</em> an <code>e</code> in that one spot.</p>
+
+<div class="note">
+  <span class="callout-label">Note · brackets are their own little world</span>
+  Inside <code>[...]</code> most special characters lose their powers. A dot
+  inside a class, <span class="pat">[.]</span>, just means a literal period. So
+  <span class="pat">[.?]</span> matches a literal dot or a literal question mark.
+</div>
+
+<h3><code>[^...]</code> — negate the set</h3>
+
+<p>A caret <em>just after the opening bracket</em> flips the class: match one
+character that is <strong>not</strong> in the set. <span class="pat">[^0-9]</span>
+matches any single non-digit.</p>
+
+<div class="strip"><span class="hit">a</span><span class="hit">b</span><span class="miss">12</span><span class="hit">!</span></div>
+<p class="caption"><span class="pat">[^0-9]</span> matches each non-digit (<code>a</code>, <code>b</code>, <code>!</code>) but skips the digits.</p>
+
+<h3>The shorthands: <code>\d \w \s</code></h3>
+
+<p>These three come up constantly, so they get one-letter names. Their uppercase
+versions are the negations.<sup><a href="#c1">1</a></sup></p>
+
+<table>
+  <thead><tr><th>Shorthand</th><th>Matches one…</th><th>Same as</th></tr></thead>
+  <tbody>
+    <tr><td><span class="pat">\d</span></td><td>digit</td><td><code>[0-9]</code></td></tr>
+    <tr><td><span class="pat">\w</span></td><td>“word” char: letter, digit, or <code>_</code></td><td><code>[A-Za-z0-9_]</code></td></tr>
+    <tr><td><span class="pat">\s</span></td><td>whitespace (space, tab, newline)</td><td>—</td></tr>
+    <tr><td><span class="pat">\D</span></td><td><em>non</em>-digit</td><td><code>[^0-9]</code></td></tr>
+    <tr><td><span class="pat">\W</span></td><td><em>non</em>-word char</td><td><code>[^A-Za-z0-9_]</code></td></tr>
+    <tr><td><span class="pat">\S</span></td><td><em>non</em>-whitespace</td><td>—</td></tr>
+  </tbody>
+</table>
+
+<div class="pitfall">
+  <span class="callout-label">Pitfall · one box, one character</span>
+  Every tool on this page matches <strong>exactly one position</strong>.
+  <span class="pat">\d</span> matches a single digit, not a whole number;
+  <span class="pat">.</span> is one character, not “the rest of the line.”
+  Matching <em>more than one</em> is the job of quantifiers — that's
+  <a href="0002-quantifiers-and-anchors.html">Lesson&nbsp;2</a>.
+</div>
+
+<h2>Recall first — then check</h2>
+
+<p>Don't peek at the table. Answer from memory; the friction is the point — it's
+what turns “I saw it” into “I know it.”<sup><a href="#c3">3</a></sup></p>
+
+<div class="quiz" data-correct="2">
+  <p class="quiz-q">Which pattern matches a single character that is <em>not</em> a digit?</p>
+  <ul class="choices">
+    <li><button><span class="mono">\d</span></button></li>
+    <li><button><span class="mono">[0-9]</span></button></li>
+    <li><button><span class="mono">\D</span></button></li>
+    <li><button><span class="mono">.</span></button></li>
+  </ul>
+  <p class="verdict"
+     data-ok="Uppercase negates the shorthand: \D is one non-digit. (And . would match digits too.)"
+     data-no="Uppercase negates: \D is the non-digit shorthand. The lowercase \d and [0-9] both mean a digit."></p>
+</div>
+
+<div class="quiz" data-correct="1">
+  <p class="quiz-q">What does <span class="mono">gr[ae]y</span> match?</p>
+  <ul class="choices">
+    <li><button>the literal five characters g-r-a-e-y</button></li>
+    <li><button>either the word gray or the word grey</button></li>
+    <li><button>any word that starts with the letters gr</button></li>
+    <li><button>gray, grey, graey, and graey only</button></li>
+  </ul>
+  <p class="verdict"
+     data-ok="The class fills exactly one position with an a OR an e — so gray or grey."
+     data-no="The class [ae] is one position holding either a or e. So it matches gray or grey — not both letters at once."></p>
+</div>
+
+<h2>Now <em>read</em> a pattern in the wild</h2>
+
+<p>You'll see this shape constantly. Decode it before reading on:
+<span class="pat">[A-Za-z0-9_.]</span>. In words: one character that is a letter,
+a digit, an underscore, or a dot. (Note the dot is literal — it's inside a
+class.) That's a single “safe” character of a username or filename. Stack one of
+these per position and you can describe a whole field — once you can say “how
+many,” which is next.</p>
+
+<div class="primary-source">
+  <span class="callout-label">▶ Primary source — read this next</span>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes">MDN
+  — Character classes</a>. The canonical reference for everything on this page,
+  with runnable examples. Skim it; you'll recognise all of it now.
+</div>
+
+<div class="followup">
+  <span class="callout-label">Stuck on something?</span>
+  I'm your teacher — ask me a follow-up. Good ones right now: “Why does
+  <code>.</code> not match newlines?”, “When would I use <code>[^...]</code> over
+  <code>\D</code>?”, or “Show me a real pattern and let's read it together.”
+</div>
+
+<nav class="lesson-nav">
+  <span>You are here · <strong>Lesson 1</strong></span>
+  <span class="spacer"></span>
+  <a href="0002-quantifiers-and-anchors.html">Lesson 2 — Quantifiers &amp; anchors →</a>
+</nav>
+
+<h2 id="cites" style="font-size:1rem">Citations</h2>
+<ol style="font-size:0.85rem;color:var(--ink-soft)">
+  <li id="c1"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes">MDN — Character classes</a> (literals, ranges, negation, <code>\d \w \s</code>).</li>
+  <li id="c2"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Character_classes#types">MDN — the wildcard <code>.</code> matches any character except line terminators.</a></li>
+  <li id="c3"><a href="https://www.regular-expressions.info/tutorial.html">regular-expressions.info — tutorial</a> (engine scans left-to-right, position by position). Retrieval-practice rationale is standard cognitive-science pedagogy.</li>
+</ol>
+
+<footer>
+  Regex course · Lesson 1 of 3 · built on the
+  <a href="../reference/regex-cheatsheet.html">cheat sheet</a> &amp;
+  <a href="../RESOURCES.md">resources</a>. Best viewed in any browser; prints cleanly.
+</footer>
+
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

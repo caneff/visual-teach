@@ -6,8 +6,13 @@ both the usage doc and the rendering proof. See `demo/showcase.html` for all
 components on one page.
 
 **These blocks are a floor, not a ceiling.** `vt-*` covers the commodity parts.
-When a topic needs an interaction the catalog can't express, build a bespoke
-component in `./assets/` and place it alongside the `vt-*` blocks.
+Before reaching for the nearest block, ask what interaction actually practices
+this lesson's tangible win — _then_ map it to a component. If the win is to
+**produce or manipulate** something (write a regex, write a flex rule, trace a
+binary search), a pick-an-option `vt-quiz` only tests recognition, not the skill.
+Build the bespoke live exercise (a free-input box, a draggable, a stepper) in
+`./assets/` alongside the `vt-*` blocks — that the catalog _could_ show a quiz is
+not a reason to settle for one.
 
 ## Linking — base + pick your components
 
@@ -181,25 +186,33 @@ course picks its own accent, the set stops looking like one product. Vary lesson
 by the **components** they use (see the catalog), never by recoloring.
 
 Override only with a genuine reason — e.g. the course has an established brand
-color, or its subject has a strong conventional color (a "TLS green" deploy
+color, or its subject has a strong conventional color (a "TLS green" security
 course). When you do, set it **once** in the shared course stylesheet every
 lesson links, so the whole course stays consistent and you never hand-copy a
-color — never give each lesson its own accent:
+color — never give each lesson its own accent.
+
+The base color tokens are each defined with `light-dark(light, dark)`, so the
+palette is dark-mode-correct out of the box. **A flat hex override replaces both
+sides of `light-dark()` at once** — the same dark green that's legible in light
+mode renders unreadable on the near-black dark paper. So override with a
+`light-dark()` pair, picking the dark value to stay legible on the dark
+background exactly as the base palette does:
 
 ```css
 /* course.css — linked by every lesson, alongside base.css. Only if needed. */
 :root {
-  --vt-accent: #4338ca;
-  --vt-accent-fg: #fff;
+  /* light value / dark value — verify contrast in BOTH themes */
+  --vt-accent: light-dark(#047857, #34d399); /* emerald 700 / 400 */
+  --vt-accent-fg: light-dark(#fff, #04231a); /* text on the accent fill */
 }
 ```
 
-A flat `:root` override is safe for **all 9 tokens** in both light and dark mode.
-vt's forced-dark rule uses `:root[data-theme="dark"]` (specificity 0,2,0), which
-beats a flat `:root` (0,1,0) — so vt's dark accent wins automatically and
-dark-mode contrast stays correct without any per-theme blocks in your stylesheet.
+A flat (non-`light-dark`) override is only safe for a color that genuinely reads
+well on both light and dark backgrounds — rare. When in doubt, supply the pair.
 
-Theme-varying tokens (vt re-sets these in dark mode): `--vt-ink --vt-muted --vt-accent --vt-accent-fg --vt-rule --vt-paper --vt-good --vt-bad --vt-warn`.
+Color tokens you may override (each is `light-dark()` in the base): `--vt-ink
+--vt-muted --vt-accent --vt-accent-fg --vt-rule --vt-paper --vt-good --vt-bad
+--vt-warn`.
 
 Derived tokens (`--vt-soft --vt-stripe --vt-neutral-soft --vt-accent-dk
 --vt-accent-soft`) update automatically from the base tokens and need not be

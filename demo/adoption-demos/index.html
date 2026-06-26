@@ -105,12 +105,18 @@
       }
       .pane h2 .tag {
         font-weight: 700;
+        color: var(--fg);
       }
-      .pane.before h2 .tag {
-        color: var(--no);
+      /* adoption note in the treatment pane — set by render() per subject */
+      #vt-note {
+        font-weight: 600;
+        font-size: 0.78rem;
       }
-      .pane.after h2 .tag {
+      #vt-note.yes {
         color: var(--ok);
+      }
+      #vt-note.no {
+        color: var(--no);
       }
       iframe {
         flex: 1;
@@ -151,19 +157,20 @@
     </header>
     <main>
       <div class="pane before">
-        <h2><span class="tag">plain</span> — teach-base only (control)</h2>
-        <iframe id="left" title="plain lesson"></iframe>
+        <h2><span class="tag">control</span></h2>
+        <iframe id="left" title="control lesson"></iframe>
       </div>
       <div class="pane after">
-        <h2><span class="tag">+ visual-teach</span> (treatment)</h2>
-        <iframe id="right" title="visual-teach lesson"></iframe>
+        <h2><span class="tag">treatment</span><span id="vt-note"></span></h2>
+        <iframe id="right" title="treatment lesson"></iframe>
       </div>
     </main>
 
     <script>
       // Add a subject by appending here. `plain`/`visual` are lesson filenames
       // under <id>/plain/lessons and <id>/visual-teach/lessons (they may differ
-      // per arm). `adopted` drives the verdict badge.
+      // per arm). `adopted` = did the treatment arm reach for visual-teach on
+      // its own; drives the per-pane note in render().
       const SUBJECTS = [
         {
           id: "git-rebase-vs-merge",
@@ -185,6 +192,75 @@
               label: "3 · Rebase without fear",
               plain: "0003-rebase-without-fear.html",
               visual: "0003-rebase-without-fear.html",
+            },
+          ],
+        },
+        {
+          id: "css-flexbox",
+          label: "CSS flexbox",
+          adopted: false,
+          model: "opus",
+          lessons: [
+            {
+              label: "1 · The container and its axis",
+              plain: "0001-the-container-and-its-axis.html",
+              visual: "0001-the-container-and-its-axis.html",
+            },
+            {
+              label: "2 · Distributing and aligning",
+              plain: "0002-distributing-and-aligning.html",
+              visual: "0002-distributing-and-aligning.html",
+            },
+            {
+              label: "3 · Flexible sizing",
+              plain: "0003-flexible-sizing.html",
+              visual: "0003-flexible-sizing.html",
+            },
+          ],
+        },
+        {
+          id: "tls-handshake",
+          label: "the TLS handshake",
+          adopted: true,
+          model: "opus",
+          lessons: [
+            {
+              label: "1 · What TLS protects",
+              plain: "0001-what-tls-protects.html",
+              visual: "0001-what-tls-protects.html",
+            },
+            {
+              label: "2 · The handshake, step by step",
+              plain: "0002-the-handshake-step-by-step.html",
+              visual: "0002-the-handshake-step-by-step.html",
+            },
+            {
+              label: "3 · Trust and failure",
+              plain: "0003-trust-and-failure.html",
+              visual: "0003-trust-and-failure.html",
+            },
+          ],
+        },
+        {
+          id: "regular-expressions",
+          label: "regular expressions",
+          adopted: true,
+          model: "opus",
+          lessons: [
+            {
+              label: "1 · Literals and character classes",
+              plain: "0001-literals-and-character-classes.html",
+              visual: "0001-literals-and-character-classes.html",
+            },
+            {
+              label: "2 · Quantifiers and anchors",
+              plain: "0002-quantifiers-and-anchors.html",
+              visual: "0002-quantifiers-and-anchors.html",
+            },
+            {
+              label: "3 · Groups, alternation, and capture",
+              plain: "0003-groups-alternation-and-capture.html",
+              visual: "0003-groups-alternation-and-capture.html",
             },
           ],
         },
@@ -210,6 +286,11 @@
         const l = s.lessons[lessonSel.value];
         $("left").src = `${s.id}/plain/lessons/${l.plain}`;
         $("right").src = `${s.id}/visual-teach/lessons/${l.visual}`;
+        const note = $("vt-note");
+        note.textContent = s.adopted
+          ? "✓ reached for visual-teach on its own"
+          : "✗ did not reach for visual-teach — bespoke output";
+        note.className = s.adopted ? "yes" : "no";
       }
 
       // The visual-teach pane shows base.js's own native theme toggle (it

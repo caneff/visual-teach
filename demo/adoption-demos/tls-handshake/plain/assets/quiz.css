@@ -1,0 +1,128 @@
+/* ============================================================================
+   Styling for the shared interactive components (quiz.js).
+   Linked alongside styles.css by any lesson that uses .quiz or .seq.
+   ============================================================================ */
+
+/* ---- shared verdict chip ------------------------------------------------- */
+.verdict {
+  display: inline-block;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: .1rem .45rem;
+  border-radius: 3px;
+  margin-right: .4rem;
+  vertical-align: .08em;
+}
+.verdict.ok { background: var(--good-bg); color: var(--good); }
+.verdict.no { background: var(--bad-bg);  color: var(--bad); }
+
+/* ---- multiple-choice quiz ------------------------------------------------ */
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  margin: 1.8rem 0;
+  background: #fff;
+}
+.quiz-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .4rem; }
+.quiz-head .kicker {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: .68rem; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--accent);
+}
+.quiz-score { font-size: .8rem; color: var(--ink-soft); font-family: "SF Mono", Menlo, monospace; }
+
+.question { margin: 1.2rem 0; }
+.question:first-of-type { margin-top: .4rem; }
+.question .prompt { font-weight: 600; color: var(--ink); margin: 0 0 .6rem; }
+
+.choice {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: .92rem;
+  color: var(--ink-soft);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: .55rem .8rem;
+  margin: .4rem 0;
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.choice:hover:not(:disabled) { border-color: var(--accent-2); background: #fff; }
+.choice:disabled { cursor: default; }
+.choice.is-correct { border-color: var(--good); background: var(--good-bg); color: var(--good); font-weight: 600; }
+.choice.is-wrong   { border-color: var(--bad);  background: var(--bad-bg);  color: var(--bad); }
+
+.feedback {
+  display: none;
+  font-size: .88rem;
+  color: var(--ink-soft);
+  margin-top: .5rem;
+  padding-left: .2rem;
+}
+.feedback.shown { display: block; }
+
+/* ---- sequence builder ---------------------------------------------------- */
+.seq {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  margin: 1.8rem 0;
+  background: #fff;
+}
+.seq-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: .3rem; }
+.seq-head .kicker {
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; color: var(--accent);
+}
+.seq-instruction { font-size: .85rem; color: var(--ink-soft); margin: .2rem 0 1rem; }
+
+.seq-pool { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1rem; }
+.seq-card {
+  font: inherit;
+  font-family: "SF Mono", Menlo, monospace;
+  font-size: .8rem;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: .5rem .7rem;
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.seq-card:hover { border-color: var(--accent-2); background: #fff; }
+
+.seq-answer { display: flex; flex-direction: column; gap: .35rem; min-height: 1rem; margin-bottom: .6rem; }
+.seq-answer:empty::before {
+  content: "Click the messages above, in order, to build the flow.";
+  color: #aaa39180; font-size: .82rem; font-style: italic;
+}
+.seq-slot {
+  display: flex; align-items: center; gap: .7rem;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 6px;
+  padding: .45rem .7rem;
+  background: var(--paper);
+  cursor: pointer;
+}
+.seq-slot:hover { background: var(--bad-bg); border-left-color: var(--bad); }
+.seq-num {
+  font-family: "SF Mono", Menlo, monospace; font-size: .75rem; font-weight: 700;
+  color: #fff; background: var(--accent-2);
+  width: 1.3rem; height: 1.3rem; line-height: 1.3rem; text-align: center;
+  border-radius: 50%; flex: 0 0 auto;
+}
+.seq-label { font-family: "SF Mono", Menlo, monospace; font-size: .8rem; color: var(--ink); }
+
+.seq-controls { display: flex; justify-content: flex-end; }
+.seq-reset {
+  font: inherit; font-size: .8rem; color: var(--accent-2);
+  background: none; border: none; cursor: pointer; text-decoration: underline;
+}
+.seq-feedback { display: none; font-size: .88rem; color: var(--ink-soft); margin-top: .6rem; }
+.seq-feedback.shown { display: block; }

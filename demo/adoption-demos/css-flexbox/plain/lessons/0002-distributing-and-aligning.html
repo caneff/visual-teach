@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 2 · Distributing and aligning</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+<script src="../assets/playground.js" defer></script>
+</head>
+<body>
+<main class="page">
+
+  <p class="kicker">Flexbox · Lesson 2 of 3</p>
+  <nav class="crumbs">
+    <a href="../MISSION.md">Mission</a> ·
+    <a href="0001-the-container-and-its-axis.html">1 · The container and its axis</a> ·
+    <strong>2 · Distributing &amp; aligning</strong> ·
+    <a href="0003-flexible-sizing.html">3 · Flexible sizing</a> ·
+    <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a>
+  </nav>
+  <div class="progress" aria-label="Course progress">
+    <span class="dot on"></span><span class="dot here"></span><span class="dot"></span>
+    <span>Step 2 — the workhorse skill</span>
+  </div>
+
+  <h1>Distributing and aligning</h1>
+  <p class="subtitle">The two properties you'll use every single day — one per axis.</p>
+
+  <p class="lead">Lesson 1 gave you a container and two axes. Now you put items
+  exactly where you want them. There are really only two controls to learn, and
+  they map cleanly onto the two axes you already know. Master them and the margin
+  hacks retire for good.</p>
+
+  <div class="note">
+    <span class="label">Recall first</span>
+    Before reading on: a flex container's items lay out along the
+    <span class="main-axis">main axis</span>, and the
+    <span class="cross-axis">cross axis</span> is perpendicular. If that feels
+    shaky, take two minutes back in
+    <a href="0001-the-container-and-its-axis.html">Lesson 1</a> — everything here
+    is built on it.
+  </div>
+
+  <h2>The two controls, one per axis</h2>
+
+  <table style="width:100%; border-collapse:collapse; font-size:.95rem; margin:1.2rem 0;">
+    <thead>
+      <tr style="border-bottom:2px solid var(--rule); text-align:left;">
+        <th style="padding:.5rem .4rem;">Property</th>
+        <th style="padding:.5rem .4rem;">Axis it controls</th>
+        <th style="padding:.5rem .4rem;">In plain words</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr style="border-bottom:1px solid var(--rule);">
+        <td style="padding:.5rem .4rem;"><code>justify-content</code></td>
+        <td style="padding:.5rem .4rem;"><span class="main-axis">main axis</span></td>
+        <td style="padding:.5rem .4rem;">Where items sit <em>along</em> the line, and how leftover space is shared.</td>
+      </tr>
+      <tr style="border-bottom:1px solid var(--rule);">
+        <td style="padding:.5rem .4rem;"><code>align-items</code></td>
+        <td style="padding:.5rem .4rem;"><span class="cross-axis">cross axis</span></td>
+        <td style="padding:.5rem .4rem;">Where items sit <em>across</em> the line (e.g. vertically centered in a row).</td>
+      </tr>
+      <tr>
+        <td style="padding:.5rem .4rem;"><code>gap</code></td>
+        <td style="padding:.5rem .4rem;">between items</td>
+        <td style="padding:.5rem .4rem;">Fixed space between items — no margins, no last-child exceptions.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p><code>justify-content</code> takes six values worth knowing.<sup class="ref"><a href="#s1">1</a></sup>
+  The first three pile items together; the last three spread them out:</p>
+
+  <ul>
+    <li><code>flex-start</code> / <code>flex-end</code> / <code>center</code> — pack items at the start, end, or middle of the main axis.</li>
+    <li><code>space-between</code> — first and last item hug the edges; equal gaps fill the middle.</li>
+    <li><code>space-around</code> — equal space <em>around</em> each item (edges get a half-gap).</li>
+    <li><code>space-evenly</code> — every gap, including the two edges, is identical.</li>
+  </ul>
+
+  <p><code>align-items</code> takes the cross-axis values: <code>stretch</code>
+  (the default — items fill the cross axis), <code>flex-start</code>,
+  <code>flex-end</code>, <code>center</code>, and <code>baseline</code>.<sup class="ref"><a href="#s1">1</a></sup></p>
+
+  <div class="win">
+    <span class="label">The move you came for</span>
+    <strong>Perfect centering, finally.</strong> To center a box both ways, set
+    its container to flex and center on <em>both</em> axes:
+    <pre style="margin:.7rem 0 0;"><code><span class="sel">.hero</span> {
+  <span class="p">display</span>: <span class="v">flex</span>;
+  <span class="p">justify-content</span>: <span class="v">center</span>;  <span class="c">/* main axis  → horizontal */</span>
+  <span class="p">align-items</span>: <span class="v">center</span>;      <span class="c">/* cross axis → vertical   */</span>
+}</code></pre>
+    No <code>margin: auto</code> guessing, no <code>position: absolute</code> with
+    transforms. Two lines.
+  </div>
+
+  <h2>Play with both axes at once</h2>
+
+  <p>Box <strong>2</strong> is taller so you can see the cross axis move. Change
+  both menus and watch how <code>justify-content</code> slides items along the
+  row while <code>align-items</code> lifts them up and down. Add a <code>gap</code> too.</p>
+
+  <div class="pg" data-controls="justify-content,align-items,gap" data-boxes="3" data-tall="true"></div>
+
+  <p class="cite">Every value here, with live examples for each, lives in MDN's
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container">Aligning items in a flex container</a>.<sup class="ref"><a href="#s1">1</a></sup></p>
+
+  <h2>Decision loop: pick the properties</h2>
+
+  <p>This is the skill that matters — not reciting values, but going from a
+  <em>target layout</em> to the <em>CSS that makes it</em>. Read each goal, decide
+  in your head, then click your answer for instant feedback.</p>
+
+  <div class="quiz" data-answer="2">
+    <div class="q-num">Decision · 1 of 3</div>
+    <p class="q-stem">A row of buttons should sit hard against the
+       <strong>right</strong> edge of its container. Which declaration?</p>
+    <ul class="options">
+      <li><button class="opt"><code>align-items: flex-end</code></button></li>
+      <li><button class="opt"><code>align-items: flex-start</code></button></li>
+      <li><button class="opt"><code>justify-content: flex-end</code></button></li>
+      <li><button class="opt"><code>justify-content: flex-start</code></button></li>
+    </ul>
+    <div class="feedback"
+         data-right="Right/left in a row is the main axis, so it's justify-content — and flex-end pushes items to the end (the right)."
+         data-wrong="Left↔right in a row is the main axis, so it's justify-content, not align-items. flex-end pushes to the right edge."></div>
+  </div>
+
+  <div class="quiz" data-answer="0">
+    <div class="q-num">Decision · 2 of 3</div>
+    <p class="q-stem">A single logo box must sit dead-center of a tall header,
+       both horizontally and vertically. Which pair?</p>
+    <ul class="options">
+      <li><button class="opt"><code>justify-content: center</code> + <code>align-items: center</code></button></li>
+      <li><button class="opt"><code>justify-content: center</code> + <code>align-items: stretch</code></button></li>
+      <li><button class="opt"><code>justify-content: space-around</code> + <code>align-items: center</code></button></li>
+      <li><button class="opt"><code>justify-content: flex-start</code> + <code>align-items: center</code></button></li>
+    </ul>
+    <div class="feedback"
+         data-right="Centering on both axes is justify-content: center (main) plus align-items: center (cross). That's the whole trick."
+         data-wrong="To center on BOTH axes you need center on both: justify-content: center for horizontal and align-items: center for vertical."></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q-num">Decision · 3 of 3</div>
+    <p class="q-stem">A nav has a logo on the far left and links on the far right,
+       with empty space stretched between them. Which value of
+       <code>justify-content</code>?</p>
+    <ul class="options">
+      <li><button class="opt"><code>center</code></button></li>
+      <li><button class="opt"><code>space-evenly</code></button></li>
+      <li><button class="opt"><code>flex-start</code></button></li>
+      <li><button class="opt"><code>space-between</code></button></li>
+    </ul>
+    <div class="feedback"
+         data-right="space-between pins the first and last items to the edges and puts all the leftover space between them — the classic logo-left, links-right nav."
+         data-wrong="space-between is the one that pins first and last items to the edges with the gap in the middle — exactly the logo-left, links-right nav."></div>
+  </div>
+
+  <div class="ask">
+    <strong>Got a layout that won't behave?</strong> Describe it to me — “three
+    cards, I want equal space around them but the last one's glued to the edge” —
+    and I'll tell you which property is fighting you and why. That's what I'm here for.
+  </div>
+
+  <div class="win">
+    <span class="label">Interleaved practice — before Lesson 3</span>
+    Mix old and new: take the row you built in
+    <a href="0001-the-container-and-its-axis.html">Lesson 1</a> and, without
+    looking, (a) center it on both axes, then (b) switch to
+    <code>space-between</code> and add <code>gap: 16px</code>. Then play
+    <a href="https://flexboxfroggy.com/">Flexbox Froggy</a> levels 4–12 to drill
+    <code>justify-content</code> and <code>align-items</code> together.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0001-the-container-and-its-axis.html">
+      <span class="label">Previous</span>← 1 · The container and its axis
+    </a>
+    <span class="spacer"></span>
+    <a class="next" href="0003-flexible-sizing.html">
+      <span class="label">Next</span>3 · Flexible sizing →
+    </a>
+  </nav>
+
+  <section class="sources">
+    <strong>Sources</strong>
+    <ol>
+      <li id="s1"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container">MDN — Aligning items in a flex container</a>. <code>justify-content</code>, <code>align-items</code>, <code>gap</code>, and every value with live examples.</li>
+    </ol>
+    <p>Full reading list: <a href="../RESOURCES.md">RESOURCES.md</a> · Quick syntax: <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a> · Terms: <a href="../reference/glossary.html">Glossary</a></p>
+  </section>
+
+</main>
+</body>
+</html>

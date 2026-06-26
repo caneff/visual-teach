@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The handshake, step by step — TLS 1.3 · Lesson 2</title>
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/callout.css" />
+    <link rel="stylesheet" href="../assets/diagram.css" />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <link rel="stylesheet" href="../assets/chip.css" />
+    <link rel="stylesheet" href="../assets/quiz.css" />
+    <link rel="stylesheet" href="../assets/reveal.css" />
+    <link rel="stylesheet" href="../assets/teacher-box.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">TLS 1.3 · Lesson 2 of 3</p>
+      <h1>The handshake, step by step</h1>
+      <p class="vt-lede">
+        Four messages, one round trip, and one beautiful trick: both sides end up
+        with the same secret key while only public values ever cross the wire.
+      </p>
+
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~15 min</strong></span>
+        <span class="item">Needs: <strong>Lesson 1 complete</strong></span>
+        <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
+        <span class="item">Lesson <strong>2</strong> of 3</span>
+      </div>
+
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Put the TLS 1.3 handshake messages in order, from memory.</li>
+          <li>Say what each message carries and what it proves.</li>
+          <li>Explain how both sides derive one key without sending it.</li>
+        </ul>
+      </div>
+
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> Most TLS errors fire
+        <em>during</em> the handshake. Knowing the message order tells you exactly
+        how far a failed connection got before it broke — the first diagnostic
+        question you'll ask in Lesson 3.
+      </div>
+
+      <h2><span class="vt-num">1</span>The whole flow, once</h2>
+      <p>
+        Here is the full TLS 1.3 handshake. Read it top to bottom — it's a single
+        round trip: the client speaks, the server answers, and application data
+        starts flowing. (TLS 1.2 needed two round trips here; 1.3 folds the key
+        exchange into the first messages.)
+      </p>
+
+      <div class="vt-diagram">
+        <div class="vt-flow">
+          <div class="vt-node em">ClientHello</div>
+          <div class="vt-node em">ServerHello</div>
+          <div class="vt-node">Certificate</div>
+          <div class="vt-node">CertificateVerify</div>
+          <div class="vt-node">Finished ×2</div>
+        </div>
+        <p class="vt-diagram-caption">
+          Client → ; ← Server (Hello through Finished) ; Client → Finished. From
+          ServerHello onward, everything is already encrypted.
+        </p>
+      </div>
+
+      <h2><span class="vt-num">2</span>What each message carries</h2>
+      <p>
+        Two messages set up the keys (the Hellos); two prove identity and
+        integrity (Certificate/Verify and Finished).
+      </p>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Message</th>
+              <th>From</th>
+              <th>Carries</th>
+              <th>Proves / does</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><strong>ClientHello</strong></td>
+              <td>Client</td>
+              <td>Versions, ciphers, random, SNI, <em>key share</em></td>
+              <td>Opens the talk; offers the client's half of the key exchange</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><strong>ServerHello</strong></td>
+              <td>Server</td>
+              <td>Chosen version &amp; cipher, random, <em>key share</em></td>
+              <td>Fixes parameters; supplies the server's half — keys now derivable</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><strong>Certificate</strong></td>
+              <td>Server</td>
+              <td>The server's cert chain</td>
+              <td>Lets the client check identity (Lesson 3)</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td><strong>CertificateVerify</strong></td>
+              <td>Server</td>
+              <td>A signature over the transcript so far</td>
+              <td>Proves the server holds the cert's private key — not just a copy of the cert</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td><strong>Finished</strong></td>
+              <td>Both</td>
+              <td>A MAC over the entire transcript</td>
+              <td>Proves nothing was tampered with and both derived the same keys</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-callout info">
+        <strong>Why CertificateVerify exists.</strong> Anyone can copy a public
+        certificate — it's public. Holding the matching <em>private</em> key is the
+        real proof. CertificateVerify is the server signing the live conversation
+        with that private key, so a copied cert alone gets an attacker nowhere.
+      </div>
+
+      <h2><span class="vt-num">3</span>The trick: a shared key nobody sent</h2>
+      <p>
+        Look again at messages 1 and 2: each side sends a <strong>key share</strong>
+        — a <em>public</em> value. Neither ever transmits a secret. Yet right after
+        ServerHello, both can compute the <em>same</em> session key. That's an
+        <a href="../reference/tls-reference.html#glossary">ephemeral Diffie–Hellman</a>
+        exchange.
+      </p>
+
+      <p>Keep the keys a black box. All you need is this one property:</p>
+
+      <div class="vt-diagram">
+        <div class="vt-row">
+          <div class="vt-col">
+            <div class="vt-col-label">Client computes</div>
+            <div class="vt-node">my private</div>
+            <div class="vt-node">+ your public</div>
+            <div class="vt-node em">= shared secret</div>
+          </div>
+          <div class="vt-col">
+            <div class="vt-col-label">Server computes</div>
+            <div class="vt-node">my private</div>
+            <div class="vt-node">+ your public</div>
+            <div class="vt-node em">= shared secret</div>
+          </div>
+          <div class="vt-col">
+            <div class="vt-col-label">Eavesdropper has</div>
+            <div class="vt-node muted">both publics</div>
+            <div class="vt-node muted">neither private</div>
+            <div class="vt-node">= nothing usable</div>
+          </div>
+        </div>
+        <p class="vt-diagram-caption">
+          Mix <em>your own private</em> with <em>the other's public</em> and both
+          arrive at the identical secret. A watcher sees only the two public
+          shares and can't reproduce it.
+        </p>
+      </div>
+
+      <div class="vt-callout insight">
+        <strong>The one idea of the whole course.</strong> The session key is never
+        sent — it's <em>derived</em> independently on each side from one private and
+        one public value. And because the private values are <em>ephemeral</em>
+        (thrown away after the connection), stealing the server's long-term key
+        later still can't decrypt today's traffic. That property is called
+        <strong>forward secrecy</strong>.
+      </div>
+
+      <h2><span class="vt-num">4</span>Sequence drill — order the messages</h2>
+      <p>
+        This is the core skill of the lesson. Work the quizzes until each turns
+        green; together they rebuild the whole flow from memory. The live region
+        below announces results for screen readers.
+      </p>
+
+      <div aria-live="polite" class="vt-quiz-live"></div>
+
+      <div class="vt-quiz" data-answer="1">
+        <p class="q">Which message opens every TLS 1.3 handshake?</p>
+        <button class="opt">ServerHello</button>
+        <button class="opt">ClientHello</button>
+        <button class="opt">Certificate</button>
+        <button class="opt">Finished</button>
+
+        <template class="why-good">
+          <strong>ClientHello</strong> always goes first — the client offers
+          versions, ciphers, and its key share before the server says anything.
+        </template>
+        <template class="why-bad">Not quite — who speaks first in any request/response?</template>
+        <template data-opt="0">
+          <strong>ServerHello</strong> is the reply; it can't come before the
+          client has offered anything.
+        </template>
+        <template data-opt="2">
+          <strong>Certificate</strong> comes from the server, after its Hello.
+        </template>
+        <template data-opt="3">
+          <strong>Finished</strong> is the <em>last</em> message each side sends,
+          not the first.
+        </template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <div class="vt-quiz" data-answer="2">
+        <p class="q">
+          Immediately after ServerHello, which two messages does the server send
+          next, in order?
+        </p>
+        <button class="opt">Finished, then Certificate</button>
+        <button class="opt">ClientHello, then Finished</button>
+        <button class="opt">Certificate, then CertificateVerify</button>
+        <button class="opt">CertificateVerify, then ServerHello</button>
+
+        <template class="why-good">
+          <strong>Certificate, then CertificateVerify.</strong> The server presents
+          its chain, then signs the transcript to prove it owns the matching
+          private key — identity before the integrity check.
+        </template>
+        <template class="why-bad">Not quite — the server proves identity before anyone says Finished.</template>
+        <template data-opt="0">
+          Finished is the server's <em>last</em> message, sent after it proves
+          identity — not before the Certificate.
+        </template>
+        <template data-opt="1">
+          ClientHello already happened first; the server never sends it.
+        </template>
+        <template data-opt="3">
+          ServerHello already happened; a message can't come after itself.
+        </template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">What does each side's <em>key share</em> contain?</p>
+        <button class="opt">A public value only</button>
+        <button class="opt">The full session key</button>
+        <button class="opt">A private value only</button>
+        <button class="opt">The server's password</button>
+
+        <template class="why-good">
+          <strong>A public value only.</strong> Each side keeps its private value
+          and sends only the public share; the shared secret is computed, never
+          transmitted.
+        </template>
+        <template class="why-bad">Not quite — recall what actually crosses the wire.</template>
+        <template data-opt="1">
+          The session key is never sent — that's the whole point. It's derived on
+          each side.
+        </template>
+        <template data-opt="2">
+          The private value never leaves its owner; sending it would destroy the
+          secret.
+        </template>
+        <template data-opt="3">
+          No password is involved in the key exchange at all.
+        </template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <h2><span class="vt-num">5</span>Recall from memory</h2>
+      <p class="vt-reveal-hint">
+        Say it before you open it — this is the retrieval that builds lasting
+        memory.
+      </p>
+
+      <details class="vt-reveal">
+        <summary>List the handshake messages in order, with who sends each.</summary>
+        <div class="answer">
+          <strong>1. ClientHello</strong> (client) → <strong>2. ServerHello</strong>
+          (server) → <strong>3. Certificate</strong> (server) →
+          <strong>4. CertificateVerify</strong> (server) →
+          <strong>5. Finished</strong> (server, then client).
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>How do both sides get the same key without sending it?</summary>
+        <div class="answer">
+          Each sends a public key share. Each combines <em>its own private</em>
+          value with <em>the other's public</em> share and arrives at the identical
+          shared secret. A watcher has both publics but neither private, so it
+          can't reproduce the secret.
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>Why isn't presenting the certificate enough on its own?</summary>
+        <div class="answer">
+          Certificates are public and copyable. CertificateVerify makes the server
+          <em>sign</em> the live transcript with the certificate's private key,
+          proving it actually owns the key — not just a copy of the cert.
+        </div>
+      </details>
+
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        The TLS 1.3 handshake is ClientHello → ServerHello → Certificate →
+        CertificateVerify → Finished, in one round trip. The Hellos carry public
+        key shares that let both sides derive the same session key without ever
+        sending it; Certificate/Verify and Finished prove identity and integrity.
+      </div>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — ask me anything</p>
+          <p>
+            The handshake rewards poking at. Bring me the parts that still feel
+            like magic:
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">What's in the "random" each side sends, and why?</span>
+            <span class="vt-ask">How does 1.3 cut a round trip versus 1.2?</span>
+            <span class="vt-ask">What changes if the very first ClientHello fails?</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="vt-upnext">
+        <em>Up next:</em>
+        <a href="0003-trust-and-failure.html">Lesson 3 — trust and failure</a>:
+        what the client checks in that Certificate message, and how to read the
+        error when a check fails.
+      </p>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://tls13.xargs.org/"
+              >The Illustrated TLS 1.3 Connection — Michael Driscoll</a
+            >
+            <span class="note">— primary source: the real handshake, every byte annotated in order.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span
+            ><a href="https://www.rfc-editor.org/rfc/rfc8446.html#section-2"
+              >RFC 8446 §2 — Protocol Overview</a
+            >
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://blog.cloudflare.com/rfc-8446-aka-tls-1-3/"
+              >A Detailed Look at RFC 8446 (TLS 1.3) — Cloudflare</a
+            >
+            <span class="note">— what 1.3 changed and why (round trips, forward secrecy).</span>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/tls-reference.html#handshake">Handshake cheat-sheet</a>
+        </div>
+        <div class="meta">Lesson 0002 · verified 2026-06-25</div>
+      </footer>
+    </main>
+    <script src="../assets/base.js"></script>
+    <script src="../assets/diagram.js"></script>
+    <script src="../assets/quiz.js"></script>
+  </body>
+</html>

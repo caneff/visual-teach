@@ -1,0 +1,298 @@
+/* ============================================================
+   Regex course — shared stylesheet
+   Linked by every lesson and reference doc so the whole course
+   reads as one consistent, Tufte-inspired document.
+   ============================================================ */
+
+:root {
+  --ink:       #1a1a1a;
+  --ink-soft:  #44464a;
+  --paper:     #fdfcf9;
+  --rule:      #d9d4c7;
+  --accent:    #8a3324;   /* oxblood — for emphasis & links */
+  --accent-2:  #1f5673;   /* slate blue — for the engine cursor */
+  --match-bg:  #fde9a8;   /* highlighted match */
+  --match-ink: #5a4500;
+  --good:      #2f6b34;
+  --bad:       #9e2a2b;
+  --code-bg:   #f3f0e7;
+  --maxw:      40rem;
+}
+
+html { font-size: 18px; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0 auto;
+  max-width: var(--maxw);
+  padding: 3rem 1.5rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+               Georgia, serif;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Masthead -------------------------------------------------- */
+.eyebrow {
+  font-family: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.6rem;
+}
+h1 {
+  font-size: 2.05rem;
+  line-height: 1.15;
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.01em;
+}
+.subtitle {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+  font-size: 1.08rem;
+}
+
+h2 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin: 2.6rem 0 0.8rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--rule);
+}
+h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 1.8rem 0 0.5rem;
+}
+
+p { margin: 0 0 1rem; }
+strong { font-weight: 600; }
+
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--ink); }
+
+/* ---- Code ------------------------------------------------------ */
+code, kbd, .mono, .pat, .str {
+  font-family: "SF Mono", ui-monospace, "Cascadia Code", Menlo, Consolas, monospace;
+  font-size: 0.86em;
+}
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  line-height: 1.5;
+  margin: 0 0 1.2rem;
+}
+pre code { background: none; padding: 0; }
+
+/* A regex pattern shown inline, set off from prose */
+.pat {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-bottom: 2px solid var(--accent);
+  padding: 0.12em 0.4em;
+  border-radius: 3px;
+  color: var(--accent);
+  white-space: nowrap;
+}
+
+/* ---- The "match strip": text with a regex match highlighted ---- */
+.strip {
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.9rem 1rem;
+  margin: 0 0 0.4rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 2;
+}
+.hit {
+  background: var(--match-bg);
+  color: var(--match-ink);
+  padding: 0.12em 0.05em;
+  border-radius: 2px;
+  box-shadow: 0 1px 0 #e3c969;
+}
+.miss { color: var(--ink-soft); }
+.cap {            /* a captured group within a match */
+  border-bottom: 2px solid var(--accent-2);
+  padding-bottom: 1px;
+}
+.caption {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0 0 1.4rem;
+}
+.caption .pat { font-style: normal; }
+
+/* ---- Callouts -------------------------------------------------- */
+.note, .pitfall, .win {
+  border-left: 3px solid var(--rule);
+  padding: 0.7rem 1rem;
+  margin: 1.3rem 0;
+  background: #fff;
+  border-radius: 0 6px 6px 0;
+  font-size: 0.96rem;
+}
+.pitfall { border-left-color: var(--bad); }
+.win     { border-left-color: var(--good); background: #f4f8f2; }
+.note    { border-left-color: var(--accent-2); }
+.callout-label {
+  display: block;
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.pitfall .callout-label { color: var(--bad); }
+.win     .callout-label { color: var(--good); }
+.note    .callout-label { color: var(--accent-2); }
+
+/* ---- Reference tables ------------------------------------------ */
+table { border-collapse: collapse; width: 100%; margin: 0 0 1.4rem; font-size: 0.92rem; }
+th, td { text-align: left; padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); }
+td .pat, td code { white-space: nowrap; }
+
+/* ---- Quiz widget (see quiz.js) --------------------------------- */
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  margin: 1.6rem 0;
+  background: #fff;
+}
+.quiz-q { font-weight: 600; margin: 0 0 0.9rem; }
+.quiz-q .small { font-weight: 400; font-style: italic; color: var(--ink-soft); font-size: 0.9rem; }
+.choices { list-style: none; margin: 0; padding: 0; }
+.choices li { margin: 0 0 0.55rem; }
+.choices button {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.95rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.choices button:hover { border-color: var(--accent-2); }
+.choices button:disabled { cursor: default; opacity: 1; }
+.choices button.correct { background: #e7f3e8; border-color: var(--good); }
+.choices button.wrong   { background: #fbe9e9; border-color: var(--bad); }
+.choices button .mono { font-size: 0.9em; }
+.verdict {
+  margin: 0.8rem 0 0;
+  font-size: 0.92rem;
+  min-height: 1.2rem;
+}
+.verdict.ok  { color: var(--good); }
+.verdict.no  { color: var(--bad); }
+
+/* Free-typed answer (write-the-pattern) */
+.task {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.2rem 1.3rem;
+  margin: 1.6rem 0;
+  background: #fff;
+}
+.task label { font-weight: 600; display: block; margin: 0 0 0.7rem; }
+.task input[type="text"] {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.95rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--paper);
+}
+.task input[type="text"]:focus { outline: 2px solid var(--accent-2); outline-offset: 0; }
+.task button.check {
+  font: inherit;
+  margin-top: 0.7rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.45rem 1.1rem;
+  cursor: pointer;
+}
+.task button.check:hover { background: #6f2a1d; }
+.task .hintline { font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.6rem; }
+.task .sample { font-size: 0.9rem; margin-top: 0.9rem; }
+
+/* ---- Navigation between lessons -------------------------------- */
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 3.5rem 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.9rem;
+}
+.lesson-nav a { display: inline-block; }
+.lesson-nav .spacer { flex: 1; }
+
+.followup {
+  margin: 2.5rem 0 0;
+  padding: 1rem 1.2rem;
+  background: var(--code-bg);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.followup .callout-label { color: var(--accent); }
+
+.primary-source {
+  margin: 2rem 0 0;
+  padding: 1rem 1.2rem;
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+.primary-source .callout-label { color: var(--accent); }
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.crumbs {
+  font-family: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+}
+.crumbs a { color: var(--ink-soft); }
+
+/* ---- Print ----------------------------------------------------- */
+@media print {
+  body { max-width: none; padding: 0; background: #fff; }
+  .quiz, .task, .lesson-nav, .followup { break-inside: avoid; }
+  a { color: var(--ink); text-decoration: none; }
+  .hit { box-shadow: none; }
+}

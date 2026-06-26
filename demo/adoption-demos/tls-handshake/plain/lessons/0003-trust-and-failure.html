@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Trust and failure</title>
+<link rel="stylesheet" href="../assets/styles.css">
+<link rel="stylesheet" href="../assets/quiz.css">
+<script src="../assets/quiz.js" defer></script>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">The TLS Handshake · Lesson 3 of 3</p>
+  <h1>Trust and failure</h1>
+  <p class="subtitle">How a certificate is checked — and what each error really means.</p>
+</header>
+
+<div class="win">
+  <strong>Your win for this lesson:</strong> when a browser or <code>curl</code>
+  throws a TLS error, name the likely cause and check it deliberately, using a
+  four-point checklist instead of guessing.
+</div>
+
+<p>
+  <a href="0002-the-handshake-step-by-step.html">Lesson 2</a> left one promise
+  unkept: the client "checks the certificate." This lesson is that check — and
+  every common TLS error is just one of these checks failing. This is where the
+  whole course pays off.
+</p>
+
+<h2>The chain of trust</h2>
+
+<p>
+  Your machine doesn't trust <code>bank.com</code>'s certificate directly. It
+  trusts a small set of <strong>root</strong> CAs, shipped with your OS and
+  browser. Real sites aren't signed by roots directly; they're signed by an
+  <strong>intermediate</strong>, which the root signed. The client follows the
+  links upward — <em>leaf → intermediate → root</em> — until it reaches a root it
+  already trusts.<sup class="ref"><a href="#s-hpbn">1</a></sup>
+</p>
+
+<div class="chain" role="img" aria-label="Certificate chain from leaf up to trusted root">
+  <div class="link"><span class="tier">Leaf · the server's cert</span><br>bank.com — public key + hostname</div>
+  <div class="arrow" aria-hidden="true">▲ signed by</div>
+  <div class="link"><span class="tier">Intermediate CA</span><br>e.g. "Example CA R3"</div>
+  <div class="arrow" aria-hidden="true">▲ signed by</div>
+  <div class="link" style="border-color:var(--accent); border-width:1.5px;"><span class="tier">Root CA · pre-trusted on your device</span><br>in the OS / browser trust store</div>
+</div>
+
+<p>
+  "Alice trusts Bob, Bob trusts Charlie, so Alice trusts Charlie."<sup class="ref"><a href="#s-hpbn">1</a></sup>
+  The root never goes on the wire — it's already on your machine. The server
+  sends the leaf and intermediate; the client walks up to a root it holds.
+</p>
+
+<h2>What the client checks</h2>
+
+<p>
+  For the connection to be authenticated, <strong>all four</strong> must hold.
+  Any one failing aborts the handshake:
+</p>
+
+<table>
+  <thead><tr><th>Check</th><th>The question it answers</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1. Signature chains to a trusted root</strong></td><td>Does each signature validate, up to a root in my trust store?</td></tr>
+    <tr><td><strong>2. Hostname matches</strong></td><td>Does the cert's name cover the host I typed in the URL?</td></tr>
+    <tr><td><strong>3. Not expired</strong></td><td>Is "now" within the cert's validity window?</td></tr>
+    <tr><td><strong>4. Not revoked</strong></td><td>Has the CA since declared this cert dead (CRL / OCSP)?<sup class="ref"><a href="#s-le3">2</a></sup></td></tr>
+  </tbody>
+</table>
+
+<h2>The common failures — each is one check failing</h2>
+
+<table>
+  <thead><tr><th>Error you see</th><th>Which check failed</th><th>What it means</th></tr></thead>
+  <tbody>
+    <tr><td>Certificate expired</td><td>#3 validity</td><td>Valid once; the clock passed its "not after" date. Often a renewal that didn't run.</td></tr>
+    <tr><td>Self-signed certificate</td><td>#1 chain</td><td>Signed by itself, chains to no trusted root. Common on internal/dev servers.</td></tr>
+    <tr><td>Hostname / name mismatch</td><td>#2 hostname</td><td>Real, trusted cert — for a <em>different</em> name than you requested.</td></tr>
+    <tr><td>Unknown / untrusted issuer</td><td>#1 chain</td><td>Signed by a CA not in your trust store (or a missing intermediate breaks the chain).</td></tr>
+    <tr><td>Certificate revoked</td><td>#4 revocation</td><td>The CA pulled it — key compromise or mis-issuance. Treat as hostile.</td></tr>
+  </tbody>
+</table>
+
+<div class="aside">
+  <span class="label">Why a self-signed cert <em>warns</em></span>
+  It's the question from Lesson 1, now answerable: a self-signed cert encrypts
+  fine, but <strong>no CA vouched for it</strong>, so it fails check #1. You get
+  confidentiality without authentication — a private line to an
+  <em>unverified</em> party. That's exactly the gap the warning exists to flag.
+</div>
+
+<h2>Applied: the four-point diagnostic</h2>
+
+<p>
+  Put it together. When a TLS connection fails, don't guess — walk the
+  checklist. Reach for the <a href="../reference/tls-debugging-checklist.html">TLS
+  debugging checklist</a> (a printable reference) and inspect with the tools you
+  already know:
+</p>
+
+<pre><code># See the handshake, the cert chain, and the exact verify error:
+openssl s_client -connect example.com:443 -servername example.com
+
+# Or, more familiar — curl prints the reason and the cert it got:
+curl -v https://example.com</code></pre>
+
+<ol>
+  <li><strong>Read the verify error first.</strong> Both tools name the failing
+    check ("certificate has expired", "self-signed certificate", "Hostname …
+    doesn't match"). That word maps straight to the table above.</li>
+  <li><strong>Check expiry</strong> — the <code>notBefore</code>/<code>notAfter</code>
+    dates, against the real clock (a wrong <em>local</em> clock fakes an
+    expiry error).</li>
+  <li><strong>Check the name</strong> — does the cert's subject / SAN list cover
+    the exact host you requested?</li>
+  <li><strong>Check the chain</strong> — does it reach a trusted root, with the
+    intermediate present? A missing intermediate looks like "untrusted issuer."</li>
+</ol>
+
+<div class="aside contrast">
+  <span class="label">Practice on purpose</span>
+  <a href="https://badssl.com/">badssl.com</a> hosts each failure live. Open
+  <code>expired.badssl.com</code>, <code>self-signed.badssl.com</code>,
+  <code>wrong.host.badssl.com</code>, and <code>untrusted-root.badssl.com</code>,
+  and — before reading the warning — predict which check it breaks. Then confirm
+  with <code>curl -v</code>. That prediction-then-check is the whole skill.
+</div>
+
+<!-- ===== interleaved recall feedback loop (L1 + L2 + L3) ===== -->
+<div class="quiz" aria-label="Interleaved retrieval practice">
+  <div class="quiz-head">
+    <span class="kicker">Diagnose · mixes all three lessons</span>
+    <span class="quiz-score">0 / 4 recalled</span>
+  </div>
+
+  <div class="question">
+    <p class="prompt"><code>curl</code> reports the cert is valid and trusted, but "doesn't match" the host. Which check failed?</p>
+    <button class="choice" data-correct="false" data-why="Expiry is check #3; curl would say the certificate has expired, not that it doesn't match.">The validity-window check</button>
+    <button class="choice" data-correct="true"  data-why="Right. A real, trusted cert issued for a different name fails the hostname check (#2).">The hostname-match check</button>
+    <button class="choice" data-correct="false" data-why="The chain check is #1; here curl already confirmed the cert is trusted, so the chain was fine.">The chain-to-root check</button>
+  </div>
+
+  <div class="question">
+    <p class="prompt">A dev server's self-signed cert warns. Which guarantee is actually missing?</p>
+    <button class="choice" data-correct="false" data-why="The traffic is still encrypted; a self-signed cert provides confidentiality fine.">Confidentiality is missing</button>
+    <button class="choice" data-correct="false" data-why="Integrity rides on the same encrypted channel and is intact here too.">Integrity is missing</button>
+    <button class="choice" data-correct="true"  data-why="Exactly. No CA vouched for it (fails check #1), so identity is unproven — authentication is the gap.">Authentication is missing</button>
+  </div>
+
+  <div class="question">
+    <p class="prompt">An attacker records the whole TLS 1.3 handshake. Why can't they derive the session key?</p>
+    <button class="choice" data-correct="true"  data-why="Right. Only public key shares cross the wire; the key is derived from a private value each side never sends.">Only public key shares were sent</button>
+    <button class="choice" data-correct="false" data-why="The session key is never transmitted at all — encrypted or otherwise — so there's nothing to capture.">The key was sent encrypted</button>
+    <button class="choice" data-correct="false" data-why="The certificate proves identity; it isn't what protects the key from an eavesdropper.">The certificate hid the key</button>
+  </div>
+
+  <div class="question">
+    <p class="prompt">A browser says "issuer unknown," yet the site works on a colleague's machine. Most likely?</p>
+    <button class="choice" data-correct="false" data-why="An expired cert would fail for everyone the same way; it wouldn't depend on whose machine it is.">The cert is expired</button>
+    <button class="choice" data-correct="true"  data-why="Right. A missing intermediate (or a root your machine lacks) breaks chaining for you but not for them — a check #1 failure.">A broken / missing chain locally</button>
+    <button class="choice" data-correct="false" data-why="A hostname mismatch is about the cert's name and would fail identically on both machines.">The hostname mismatches</button>
+  </div>
+</div>
+
+<!-- ===== primary source ===== -->
+<div class="primary">
+  <div class="label">Primary source · the chain of trust</div>
+  <a href="https://hpbn.co/transport-layer-security-tls/">High Performance Browser Networking, Ch. 4 — Ilya Grigorik (free online)</a>
+  <p style="margin:.4rem 0 0; font-size:.88rem;">
+    The "Chain of Trust and Certificate Authorities" section is the clearest
+    free treatment of leaf → intermediate → root and how browsers verify it.
+    Read that section and "Certificate Revocation."
+  </p>
+</div>
+
+<!-- ===== teacher reminder ===== -->
+<div class="teacher">
+  <strong>Bring me a real error.</strong> Paste the <code>curl -v</code> or
+  <code>openssl</code> output from a site that's failing for you and we'll walk
+  the four checks together until you can name the cause unaided. Testing this on
+  real connections is how the skill becomes wisdom.
+</div>
+
+<!-- ===== sources ===== -->
+<div class="sources">
+  <strong>Sources</strong>
+  <ol>
+    <li id="s-hpbn"><a href="https://hpbn.co/transport-layer-security-tls/">High Performance Browser Networking, Ch. 4 (Grigorik)</a>. Chain of trust; CA model.</li>
+    <li id="s-le3"><a href="https://letsencrypt.org/how-it-works/">Let's Encrypt — How It Works</a>. Revocation via CRL / CT logs.</li>
+    <li id="s-badssl"><a href="https://badssl.com/">badssl.com</a>. Live endpoints for each failure mode.</li>
+  </ol>
+  <p class="cite">Companion reference: <a href="../reference/tls-debugging-checklist.html">TLS debugging checklist</a> · <a href="../reference/tls-glossary.html">glossary</a> · <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+</div>
+
+<nav class="lesson-nav">
+  <a href="0002-the-handshake-step-by-step.html">← Lesson 2: The handshake, step by step</a>
+  <span class="spacer"></span>
+  <span>Course complete · 3 of 3 🔒</span>
+</nav>
+
+</body>
+</html>

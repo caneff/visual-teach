@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · Flexible sizing</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+<script src="../assets/playground.js" defer></script>
+</head>
+<body>
+<main class="page">
+
+  <p class="kicker">Flexbox · Lesson 3 of 3</p>
+  <nav class="crumbs">
+    <a href="../MISSION.md">Mission</a> ·
+    <a href="0001-the-container-and-its-axis.html">1 · The container and its axis</a> ·
+    <a href="0002-distributing-and-aligning.html">2 · Distributing &amp; aligning</a> ·
+    <strong>3 · Flexible sizing</strong> ·
+    <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a>
+  </nav>
+  <div class="progress" aria-label="Course progress">
+    <span class="dot on"></span><span class="dot on"></span><span class="dot here"></span>
+    <span>Step 3 — the responsive row</span>
+  </div>
+
+  <h1>Flexible sizing</h1>
+  <p class="subtitle">Why it's called <em>flex</em>box — items that share space and reflow.</p>
+
+  <p class="lead">So far your items have kept their natural size. The last piece is
+  the one the system is named for: items can <strong>flex</strong> — growing to
+  fill leftover space, shrinking to avoid overflow, and wrapping onto new lines
+  when the row runs out of room. This is what turns a static row into a
+  <em>responsive</em> one, and it's the win the whole mission was after.</p>
+
+  <div class="win">
+    <span class="label">Today's win</span>
+    Build one real responsive row — a nav bar — that distributes space on purpose
+    and reflows gracefully when the screen narrows. No luck involved.
+  </div>
+
+  <h2>How items share leftover space</h2>
+
+  <p>Set the container to flex and lay out three items in a row. There's usually
+  empty space left over on the main axis. The <code>flex</code> properties decide
+  what each item does with it. They live on the <em>items</em>, not the container.<sup class="ref"><a href="#s1">1</a></sup></p>
+
+  <ul>
+    <li><code>flex-grow</code> — how greedily an item <strong>grows</strong> into
+        leftover space. <code>0</code> = don't grow (default). A unitless ratio:
+        an item with <code>2</code> takes twice the share of one with <code>1</code>.</li>
+    <li><code>flex-shrink</code> — how readily an item <strong>shrinks</strong>
+        when there isn't enough room. <code>1</code> = may shrink (default);
+        <code>0</code> = never shrink.</li>
+    <li><code>flex-basis</code> — the item's <strong>starting size</strong> along
+        the main axis before grow/shrink kicks in (e.g. <code>200px</code> or <code>auto</code>).</li>
+  </ul>
+
+  <p>You almost never write the three separately. Use the <code>flex</code>
+  shorthand — <code>flex: grow shrink basis</code> — and memorize a few presets:<sup class="ref"><a href="#s1">1</a></sup></p>
+
+  <pre><code><span class="sel">.item</span> { <span class="p">flex</span>: <span class="v">1</span>; }          <span class="c">/* grow to share space equally (= 1 1 0) */</span>
+<span class="sel">.sidebar</span> { <span class="p">flex</span>: <span class="v">0 0 200px</span>; } <span class="c">/* fixed 200px, never grow or shrink */</span>
+<span class="sel">.logo</span> { <span class="p">flex</span>: <span class="v">0 0 auto</span>; }    <span class="c">/* stay natural size (the default) */</span></code></pre>
+
+  <div class="note">
+    <span class="label">Mental shortcut</span>
+    <code>flex: 1</code> on several siblings = “divide the row equally between us.”
+    That one declaration replaces a whole pile of width percentages and float clearfixes.
+  </div>
+
+  <h2>When the row runs out of room: <code>flex-wrap</code></h2>
+
+  <p>By default a flex container forces everything onto <strong>one line</strong>,
+  shrinking items to make them fit (<code>flex-wrap: nowrap</code>). Set
+  <code>flex-wrap: wrap</code> and items that no longer fit drop onto a new line
+  instead — the basis of a row of cards that reflows on a phone.<sup class="ref"><a href="#s2">2</a></sup></p>
+
+  <p>Drag your browser narrower while watching this playground, and toggle
+  <code>flex-wrap</code> between <code>nowrap</code> and <code>wrap</code> to feel
+  the difference:</p>
+
+  <div class="pg" data-controls="flex-wrap,justify-content,gap" data-boxes="5"></div>
+
+  <h2>Put it together: build a nav bar</h2>
+
+  <p>This is the payoff — and it deliberately <strong>interleaves all three
+  lessons</strong>. Follow the checklist; each step names the property and the
+  lesson it came from.</p>
+
+  <ol>
+    <li><strong>Make the container</strong> — <code>display: flex</code> on the
+        <code>&lt;nav&gt;</code>. The links become items in a row.
+        <span class="cite">(Lesson 1)</span></li>
+    <li><strong>Center vertically</strong> — <code>align-items: center</code> so
+        the logo and links share a baseline on the
+        <span class="cross-axis">cross axis</span>. <span class="cite">(Lesson 2)</span></li>
+    <li><strong>Push links to the right</strong> — <code>justify-content: space-between</code>
+        pins the logo left and the links right on the
+        <span class="main-axis">main axis</span>. <span class="cite">(Lesson 2)</span></li>
+    <li><strong>Space the links</strong> — <code>gap: 1.5rem</code> between them.
+        <span class="cite">(Lesson 2)</span></li>
+    <li><strong>Let it reflow</strong> — <code>flex-wrap: wrap</code> so links drop
+        to a second line on narrow screens instead of overflowing.
+        <span class="cite">(Lesson 3)</span></li>
+  </ol>
+
+  <pre><code><span class="sel">.navbar</span> {
+  <span class="p">display</span>: <span class="v">flex</span>;              <span class="c">/* 1 — container          */</span>
+  <span class="p">align-items</span>: <span class="v">center</span>;        <span class="c">/* 2 — cross-axis center  */</span>
+  <span class="p">justify-content</span>: <span class="v">space-between</span>; <span class="c">/* 3 — logo left, links right */</span>
+  <span class="p">gap</span>: <span class="v">1.5rem</span>;               <span class="c">/* 4 — space the items    */</span>
+  <span class="p">flex-wrap</span>: <span class="v">wrap</span>;             <span class="c">/* 5 — reflow when narrow */</span>
+}</code></pre>
+
+  <figure>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;
+                background:#2b2825; border-radius:8px; padding:.9rem 1.2rem; color:#f0ead9; font-family:var(--sans);">
+      <strong style="font-size:1.05rem;">◆ Flexbox</strong>
+      <span style="display:flex; gap:1.5rem; font-size:.9rem;">
+        <span>Docs</span><span>Guide</span><span>Reference</span><span>Community</span>
+      </span>
+    </div>
+    <figcaption>Five declarations, every one from this course. Narrow the window — it wraps.</figcaption>
+  </figure>
+
+  <p class="cite">The authoritative deep-dives: MDN on
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Controlling_ratios_of_flex_items_along_the_main_axis">controlling ratios</a><sup class="ref"><a href="#s1">1</a></sup>
+  and on <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Mastering_wrapping_of_flex_items">mastering wrapping</a>.<sup class="ref"><a href="#s2">2</a></sup></p>
+
+  <h2>Check yourself</h2>
+
+  <div class="quiz" data-answer="1">
+    <div class="q-num">Recall · 1 of 2</div>
+    <p class="q-stem">Three sibling items each have <code>flex: 1</code>. The row
+       has spare space. What happens?</p>
+    <ul class="options">
+      <li><button class="opt">They keep their content widths</button></li>
+      <li><button class="opt">They split the row equally</button></li>
+      <li><button class="opt">Only the first one grows</button></li>
+      <li><button class="opt">They drop onto new lines</button></li>
+    </ul>
+    <div class="feedback"
+         data-right="Equal flex-grow ratios mean equal shares of the leftover space, so the three items end up the same width — the row divided in thirds."
+         data-wrong="flex: 1 sets an equal flex-grow ratio on each, so they take equal shares of leftover space and end up equal width — the row split in thirds."></div>
+  </div>
+
+  <div class="quiz" data-answer="3">
+    <div class="q-num">Decision · 2 of 2</div>
+    <p class="q-stem">A row of six cards overflows its container on a phone. You
+       want extras to drop to the next line. Which declaration?</p>
+    <ul class="options">
+      <li><button class="opt"><code>justify-content: space-between</code></button></li>
+      <li><button class="opt"><code>align-items: stretch</code></button></li>
+      <li><button class="opt"><code>flex-shrink: 0</code></button></li>
+      <li><button class="opt"><code>flex-wrap: wrap</code></button></li>
+    </ul>
+    <div class="feedback"
+         data-right="flex-wrap: wrap lets items that no longer fit move onto a new line instead of being squeezed or overflowing — exactly the reflow you want."
+         data-wrong="Reflowing onto new lines is flex-wrap: wrap. The others distribute, align, or freeze size — none of them move items to a second line."></div>
+  </div>
+
+  <div class="win">
+    <span class="label">Mission accomplished — now make it yours</span>
+    Rebuild the nav bar above from the five-step checklist <em>without copying the
+    code</em>. Then change the brief: make the links share equal space with
+    <code>flex: 1</code> instead of hugging the right. Finish
+    <a href="https://flexboxfroggy.com/">Flexbox Froggy</a> (levels 13–24) to lock
+    in <code>flex-wrap</code> and ordering.
+  </div>
+
+  <div class="ask">
+    <strong>This is where wisdom begins.</strong> Take a real layout you've been
+    fighting and rebuild it with flex. When something surprises you — and it will —
+    ask me, or post it to <a href="https://www.reddit.com/r/css/">r/css</a> or the
+    <a href="https://stackoverflow.com/questions/tagged/flexbox">flexbox tag on
+    Stack Overflow</a>. Testing the model on messy real problems is what turns
+    skill into instinct.
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0002-distributing-and-aligning.html">
+      <span class="label">Previous</span>← 2 · Distributing &amp; aligning
+    </a>
+    <span class="spacer"></span>
+    <a class="next" href="../reference/flexbox-cheatsheet.html">
+      <span class="label">Keep handy</span>The one-page cheatsheet →
+    </a>
+  </nav>
+
+  <section class="sources">
+    <strong>Sources</strong>
+    <ol>
+      <li id="s1"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Controlling_ratios_of_flex_items_along_the_main_axis">MDN — Controlling ratios of flex items along the main axis</a>. <code>flex-grow</code>, <code>flex-shrink</code>, <code>flex-basis</code>, and the <code>flex</code> shorthand.</li>
+      <li id="s2"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Mastering_wrapping_of_flex_items">MDN — Mastering wrapping of flex items</a>. <code>flex-wrap</code> and multi-line containers.</li>
+    </ol>
+    <p>Full reading list: <a href="../RESOURCES.md">RESOURCES.md</a> · Quick syntax: <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a> · Terms: <a href="../reference/glossary.html">Glossary</a></p>
+  </section>
+
+</main>
+</body>
+</html>

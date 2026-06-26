@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Regex cheat sheet &amp; glossary — quick reference</title>
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <link rel="stylesheet" href="../assets/chip.css" />
+    <link rel="stylesheet" href="../assets/callout.css" />
+    <link rel="stylesheet" href="../assets/regex-match.css" />
+    <style>
+      /* Reference-only: tighten for at-a-glance scanning and clean printing. */
+      .ref-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.2rem;
+        margin: 1.4rem 0;
+      }
+      .ref-grid .vt-table-wrap {
+        margin: 0;
+      }
+      .ref-section-h {
+        margin-top: 2rem;
+      }
+      dl.gloss {
+        margin: 1rem 0;
+      }
+      dl.gloss dt {
+        font-weight: 600;
+        color: var(--vt-accent-dk);
+        margin-top: 0.9rem;
+      }
+      dl.gloss dd {
+        margin: 0.2rem 0 0;
+        color: var(--vt-ink);
+      }
+      @media print {
+        :root {
+          --vt-paper: #fff;
+          --vt-ink: #111;
+        }
+        .vt-noprint,
+        .vt-themetoggle {
+          display: none !important;
+        }
+        a {
+          color: #111;
+          text-decoration: none;
+        }
+        .vt-table th,
+        .vt-table td {
+          border-color: #ccc !important;
+        }
+        main {
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Regular expressions · Reference</p>
+      <h1>Regex cheat sheet &amp; glossary</h1>
+      <p class="vt-lede">
+        The compressed essence of the course — every core token on one page,
+        plus a glossary. Portable PCRE / JavaScript flavor. Built to print.
+      </p>
+
+      <div class="vt-callout info vt-noprint">
+        <strong>How to read this:</strong> a pattern is matched left to right,
+        one position at a time. Each token below describes what fits at a single
+        spot. Lessons:
+        <a href="../lessons/0001-literals-and-character-classes.html">1 · Literals &amp; classes</a> ·
+        <a href="../lessons/0002-quantifiers-and-anchors.html">2 · Quantifiers &amp; anchors</a> ·
+        <a href="../lessons/0003-groups-alternation-and-capture.html">3 · Groups &amp; capture</a>.
+      </div>
+
+      <h2 class="ref-section-h">Single-character tokens</h2>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Token</th><th>Matches one…</th><th>Note</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>a</code>, <code>7</code>, <code>%</code></td><td>literal character</td><td>matches itself</td></tr>
+            <tr><td><code>.</code></td><td>any character</td><td>except newline (by default)</td></tr>
+            <tr><td><code>[abc]</code></td><td>a, b, or c</td><td>character class / set</td></tr>
+            <tr><td><code>[^abc]</code></td><td>anything except a, b, c</td><td>leading <code>^</code> negates</td></tr>
+            <tr><td><code>[a-z]</code></td><td>character in a range</td><td><code>-</code> makes a range</td></tr>
+            <tr><td><code>\d</code> / <code>\D</code></td><td>digit / non-digit</td><td><code>[0-9]</code> / <code>[^0-9]</code></td></tr>
+            <tr><td><code>\w</code> / <code>\W</code></td><td>word char / non-word</td><td><code>[A-Za-z0-9_]</code></td></tr>
+            <tr><td><code>\s</code> / <code>\S</code></td><td>whitespace / non-whitespace</td><td>space, tab, newline…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="ref-section-h">Quantifiers — how many times</h2>
+      <p>Each attaches to the <em>immediately preceding</em> token or group. Greedy by default; add <code>?</code> to make lazy.</p>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Token</th><th>Repeats the previous piece…</th><th>Lazy form</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>*</code></td><td>zero or more</td><td><code>*?</code></td></tr>
+            <tr><td><code>+</code></td><td>one or more</td><td><code>+?</code></td></tr>
+            <tr><td><code>?</code></td><td>zero or one (optional)</td><td><code>??</code></td></tr>
+            <tr><td><code>{n}</code></td><td>exactly n</td><td>—</td></tr>
+            <tr><td><code>{n,}</code></td><td>n or more</td><td><code>{n,}?</code></td></tr>
+            <tr><td><code>{n,m}</code></td><td>between n and m</td><td><code>{n,m}?</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-callout warn">
+        <strong>Greedy vs. lazy:</strong> <code>".*"</code> on
+        <code>"a" and "b"</code> grabs the whole <code>"a" and "b"</code>.
+        <code>".*?"</code> grabs just <code>"a"</code>. Or sidestep it with a
+        narrow class: <code>"[^"]*"</code>.
+      </div>
+
+      <h2 class="ref-section-h">Anchors &amp; boundaries — match a position</h2>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Token</th><th>Matches the position…</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>^</code></td><td>start of string / line</td></tr>
+            <tr><td><code>$</code></td><td>end of string / line</td></tr>
+            <tr><td><code>\b</code></td><td>word boundary (between <code>\w</code> and <code>\W</code>)</td></tr>
+            <tr><td><code>\B</code></td><td>not a word boundary</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Anchors consume no characters. Wrap a pattern in <code>^…$</code> to demand the <em>whole</em> string match — the heart of validation.</p>
+
+      <h2 class="ref-section-h">Groups &amp; alternation</h2>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Token</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>(…)</code></td><td>capturing group — bundles pieces <em>and</em> remembers the match (numbered left to right)</td></tr>
+            <tr><td><code>(?:…)</code></td><td>non-capturing group — bundles without producing a numbered capture</td></tr>
+            <tr><td><code>a|b</code></td><td>alternation — match a OR b (lowest precedence; scope it with a group)</td></tr>
+            <tr><td><code>\1</code>, <code>\2</code></td><td>backreference — the text captured by group 1, 2 (beyond core)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="ref-section-h">Escaping</h2>
+      <p>
+        These characters are special and must be escaped with <code>\</code> to
+        match them literally <em>outside</em> a class:
+        <code>. ^ $ * + ? ( ) [ ] { } | \ /</code>. Example: a literal dot is
+        <code>\.</code>, a literal opening paren is <code>\(</code>. Inside a
+        class <code>[...]</code>, most of these are already literal.
+      </p>
+
+      <h2 class="ref-section-h">Worked patterns to keep</h2>
+      <div class="vt-rx">
+        <div class="vt-rx-row">
+          <span class="lbl">whole-string</span>
+          <span class="pat">^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$</span>
+        </div>
+        <p class="vt-rx-note">A pragmatic email-shape check (not RFC-perfect). Anchored, so the entire input must fit.</p>
+      </div>
+      <div class="vt-rx">
+        <div class="vt-rx-row">
+          <span class="lbl">extract</span>
+          <span class="pat">^(\d{4}-\d{2}-\d{2})T(?:\d{2}:\d{2}:\d{2}) (INFO|WARN|ERROR) user=(\d+) (.+)$</span>
+        </div>
+        <p class="vt-rx-note">The Lesson 3 log-line parser. Group 1 = date, 2 = level, 3 = user id, 4 = message; the time is non-capturing.</p>
+      </div>
+      <div class="vt-rx">
+        <div class="vt-rx-row">
+          <span class="lbl">narrow</span>
+          <span class="pat">"[^"]*"</span>
+        </div>
+        <p class="vt-rx-note">A quoted string, done the robust way — the negated class can't cross a closing quote, so no greedy over-match.</p>
+      </div>
+
+      <h2 class="ref-section-h">Glossary</h2>
+      <dl class="gloss">
+        <dt>Literal</dt>
+        <dd>A character that matches itself, e.g. <code>a</code> matches "a".</dd>
+        <dt>Metacharacter</dt>
+        <dd>A character with special meaning: <code>. ^ $ * + ? ( ) [ ] { } | \</code>. Escape it to match it literally.</dd>
+        <dt>Character class (set)</dt>
+        <dd>A bracketed menu <code>[...]</code> matching one character from the set; <code>[^...]</code> matches one not in it.</dd>
+        <dt>Quantifier</dt>
+        <dd>A suffix (<code>* + ? {n,m}</code>) saying how many times the previous piece repeats.</dd>
+        <dt>Greedy / lazy</dt>
+        <dd>Greedy quantifiers match as much as possible; appending <code>?</code> makes them lazy — as little as possible.</dd>
+        <dt>Anchor</dt>
+        <dd>A zero-width token (<code>^ $ \b</code>) that matches a position between characters, consuming none.</dd>
+        <dt>Group</dt>
+        <dd>Parentheses bundling pieces into one unit. <em>Capturing</em> <code>(...)</code> remembers the match; <em>non-capturing</em> <code>(?:...)</code> does not.</dd>
+        <dt>Capture group number</dt>
+        <dd>Groups are numbered left to right by opening parenthesis. Group 0 is always the whole match.</dd>
+        <dt>Alternation</dt>
+        <dd>The <code>|</code> operator: match the left side or the right. Lowest precedence — scope it with a group.</dd>
+        <dt>Backtracking</dt>
+        <dd>When a greedy quantifier gives characters back so the rest of the pattern can match. The mechanism behind "matches too much, then backs up."</dd>
+        <dt>Word boundary</dt>
+        <dd>The position <code>\b</code> between a word character (<code>\w</code>) and a non-word character (or string edge).</dd>
+      </dl>
+
+      <div class="vt-callout info vt-noprint">
+        <strong>Verify everything live:</strong> paste any pattern here into
+        <a href="https://regex101.com/">regex101.com</a> for a token-by-token
+        explanation. Source of record:
+        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet">MDN regex cheat sheet</a>.
+      </div>
+
+      <div class="meta vt-noprint" style="color: var(--vt-muted); font-size: 0.85rem; margin-top: 2rem;">
+        Reference · verified 2026-06-25 · companion to the Regular expressions course
+      </div>
+    </main>
+    <script src="../assets/base.js"></script>
+  </body>
+</html>
