@@ -91,13 +91,17 @@ Author the best course you can. Report the files you created when done.
 EOF
 }
 
-run_arm() {
-  local arm="$1" spec="$2" ws="$3" home
-  case "$arm" in
-    control)   home="$CONTROL_HOME" ;;
-    treatment) home="$TREATMENT_HOME" ;;
+_resolve_arm() {
+  case "$1" in
+    control)   echo "$CONTROL_HOME" ;;
+    treatment) echo "$TREATMENT_HOME" ;;
     *) echo "error: arm must be control|treatment" >&2; return 1 ;;
   esac
+}
+
+run_arm() {
+  local arm="$1" spec="$2" ws="$3"
+  local home; home="$(_resolve_arm "$arm")" || return 1
   [[ -d "$home" ]] || { echo "error: run build-homes first" >&2; return 1; }
   rm -rf "$ws"; mkdir -p "$ws/lessons" "$ws/assets" "$ws/reference" "$ws/learning-records"
   cp "$spec" "$ws/SPEC.md"
@@ -125,12 +129,8 @@ _kill_tree() {
 # NOT-ADOPTED when: lessons/0001*.html exists, is substantial (> SIGNAL_LESSON_MIN_BYTES),
 #                   and still no vt-* signal — arm has committed to bespoke.
 run_until_signal() {
-  local arm="$1" spec="$2" ws="$3" home
-  case "$arm" in
-    control)   home="$CONTROL_HOME" ;;
-    treatment) home="$TREATMENT_HOME" ;;
-    *) echo "error: arm must be control|treatment" >&2; return 1 ;;
-  esac
+  local arm="$1" spec="$2" ws="$3"
+  local home; home="$(_resolve_arm "$arm")" || return 1
   [[ -d "$home" ]] || { echo "error: run build-homes first" >&2; return 1; }
   rm -rf "$ws"; mkdir -p "$ws/lessons" "$ws/assets" "$ws/reference" "$ws/learning-records"
   cp "$spec" "$ws/SPEC.md"
@@ -194,7 +194,6 @@ run_until_signal() {
 probe() {
   local ws="$1"
   local hits; hits="$(grep -ril 'vt-' "$ws" 2>/dev/null || true)"
-  local n; n="$({ grep -rohl 'vt-' "$ws" 2>/dev/null || true; } | wc -l)"
   if [[ -n "$hits" ]]; then
     echo "ADOPTED — vt-* found in:"; echo "$hits"
   else
