@@ -26,7 +26,8 @@
 #
 # Env:
 #   ADOPTION_ROOT            where arm HOMEs live (default: $REPO/.adoption-harness)
-#   MODEL                    model for both arms (default: sonnet); MUST match across arms
+#   MODEL                    model for both arms (default: opus, the floor model); MUST
+#                            match across arms. Set MODEL=sonnet for cheap probes.
 #   SIGNAL_TIMEOUT           hard timeout for run-until-signal, seconds (default: 600)
 #   SIGNAL_POLL              poll interval for run-until-signal, seconds (default: 5)
 #   SIGNAL_LESSON_MIN_BYTES  size threshold for "substantial" first lesson (default: 4096)
@@ -37,7 +38,7 @@ set -euo pipefail
 
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ROOT="${ADOPTION_ROOT:-$REPO/.adoption-harness}"
-MODEL="${MODEL:-sonnet}"
+MODEL="${MODEL:-opus}"
 CONTROL_HOME="$ROOT/home-control"
 TREATMENT_HOME="$ROOT/home-treatment"
 SIGNAL_TIMEOUT="${SIGNAL_TIMEOUT:-600}"
