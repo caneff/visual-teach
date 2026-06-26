@@ -110,6 +110,10 @@ const DEFINED = [
   "main>.vt-table-wrap.vt-wide",
   "main>.vt-code.vt-wide",
   "main>.vt-diagram.vt-wide",
+  // sandbox
+  ".vt-sandbox",
+  ".vt-sandbox-output",
+  ".vt-sandbox-error",
 ];
 
 test("every documented vt-* selector is defined in the CSS", () => {

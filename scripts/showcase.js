@@ -20,6 +20,7 @@ const REQUIRED = [
   "checklist",
   "diagram",
   "math",
+  "sandbox",
   "teacher-box",
 ];
 
@@ -72,7 +73,14 @@ const componentCssLinks = components
   .join("\n");
 
 // Interactive components that ship their own JS.
-const jsComponents = ["quiz", "checklist", "code", "diagram", "math"];
+const jsComponents = [
+  "quiz",
+  "checklist",
+  "code",
+  "diagram",
+  "math",
+  "sandbox",
+];
 const prismScripts = [
   "../assets/prism/prism-core.min.js",
   "../assets/prism/prism-markup.min.js",

@@ -114,6 +114,7 @@ components, not all of them.
 | checklist   | a step-by-step procedure with persisted progress                                                                                   | [components/checklist/demo.html](components/checklist/demo.html)     |
 | diagram     | visualizing structure, flow, comparisons, or abstract concepts                                                                     | [components/diagram/demo.html](components/diagram/demo.html)         |
 | math        | equations, formulas, or symbolic notation (KaTeX)                                                                                  | [components/math/demo.html](components/math/demo.html)               |
+| sandbox     | the win is to **produce or manipulate** something live — type a regex, enter a value, see an instant result (free-input tester)    | [components/sandbox/demo.html](components/sandbox/demo.html)         |
 | teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                                              | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
 
 ## Automatic breakout — wide tables, code, and diagrams
