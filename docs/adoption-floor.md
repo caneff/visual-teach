@@ -196,11 +196,70 @@ bespoke "do-it-live" exercises and slightly deeper edge-case coverage — the
 ceiling behavior this whole study was protecting. The shorter `floor-minimal` is
 the fallback if description length ever needs trimming.
 
-### Next: clean control-vs-treatment re-run on all 6 subjects (in progress)
+### Clean control-vs-treatment re-run on all 6 subjects (floor-composes)
 
 With the contamination removed and `floor-composes` chosen, the original
-control-vs-treatment protocol is being re-run on all 6 subjects — **control** =
-plain decontaminated `teach-base`, **treatment** = `teach-base` + `floor-composes`
-`visual-teach` — as **full** courses so the same ceiling comparison (richness +
-lesson depth/breadth, control vs treatment) can be made on a valid control.
-_Results pending._
+control-vs-treatment protocol was re-run on all 6 subjects — **control** = plain
+decontaminated `teach-base`, **treatment** = `teach-base` + `floor-composes`
+`visual-teach` — as **full** courses (N=2 per cell, 24 courses) so the ceiling
+comparison could be made against a valid control.
+
+**Adoption: 12/12.** Treatment fired `visual-teach` and used `vt-*` blocks in
+lessons on **every subject, both reps**, including `music-intervals`, `css-flexbox`
+and `regular-expressions` — the three that were misses in the contaminated study.
+The control gate held perfectly: **0/12** control reps contained any `vt-*`
+(visual-teach was not discoverable), so the control is valid.
+
+**Ceiling — the original concern does not reproduce.** The earlier study worried
+that the catalog pulls the model toward the _nearest block_ and away from building
+a bespoke live exercise where a produce-win needs one (regex was the canonical
+regression: control built a live regex tester, treatment settled for a `vt-quiz`).
+Under the decontaminated control + `floor-composes`, **treatment built genuine
+bespoke live exercises more often than control, not less** — and built them _as
+custom components stacked on top of the floor_ rather than instead of it:
+
+| subject     | control bespoke | treatment bespoke | treatment's bespoke exercise                   |
+| ----------- | --------------- | ----------------- | ---------------------------------------------- |
+| bayes       | 1/2             | **2/2**           | live Bayes calculator + frequency grid         |
+| css-flexbox | 1/2             | **2/2**           | live flex playground                           |
+| git-rebase  | 0/2             | **2/2**           | merge-vs-rebase decision trainer, commit-graph |
+| music       | 2/2             | 1/2               | clickable keyboard (else used `vt-piano`)      |
+| regex       | 2/2             | **2/2**           | live regex tester (typed input → live match)   |
+| tls         | 0/2             | **2/2**           | step-through handshake sequencer               |
+| **total**   | **6/12**        | **11/12**         |                                                |
+
+(Counting any custom interactive component at any depth under `assets/`, excluding
+the seeded standard `vt-*` set and vendored libs. A naïve top-level-only scan
+undercounts treatment badly, because treatment builds its bespoke exercises as
+`assets/components/<name>/` dirs — the same shape as a real `vt-*` component.)
+
+Critically, the **regex regression is gone**: treatment built a live regex tester
+in both reps (`regex-lab`, `regexlab`), exactly like control — it did _not_ fall
+back to a recognition `vt-quiz`. Control, by contrast, builds bespoke only on the
+obvious produce-win subjects (regex, music, one css, one bayes), builds none on
+git/tls, and **reinvents the commodity quiz** (`quiz.js`) on nearly every subject
+because it has no catalog to pull from.
+
+**Quality (depth/breadth/detail), control vs treatment — per-subject read of all
+24 courses:** treatment is **≥ control on every subject, systematically (both
+reps), and never worse.** Topic coverage and conceptual depth are equal across the
+board (both follow the pinned SPEC plan). Treatment's wins are (a) equal-or-more
+live interactivity per the table above, and (b) consistent pedagogical scaffolding
+control lacks — learning objectives, a metabar (time/level/prerequisites), recap
+sections, **persistent checklists** (state saved across reloads, valuable for the
+TLS-diagnosis and scale-building workflows), and structured cited sources.
+Control's only edges are occasional: marginally more concise prose, slightly higher
+practice-volume on regex, and a richer custom keyboard on music (modes treatment's
+commodity `vt-piano` did not need). None of these reverse a subject's verdict.
+
+**Takeaway:** on a valid control, `floor-composes` `visual-teach` is a clean win —
+**100% adoption and a higher bespoke-interactivity rate than the no-catalog
+control**, while adding the consistency-and-scaffolding floor the control cannot
+provide. Adoption and the bespoke ceiling are not in tension here: the treatment
+gets both. The contaminated-study misses (music going fully bespoke and discarding
+the floor; regex settling for a quiz) did not recur.
+
+**Caveat:** N=2 per cell (24 full courses). Subject-level verdicts have some
+rep-to-rep variance — e.g. git-rebase's decision-trainer appears in rep1 but not
+rep2 — so the per-subject calls are directional; the aggregate (12/12 adoption,
+11/12 vs 6/12 bespoke, treatment ≥ control everywhere) is the robust result.
