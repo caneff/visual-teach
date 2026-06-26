@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexbox cheat sheet &amp; glossary — CSS Flexbox</title>
+<link rel="stylesheet" href="../assets/lesson.css">
+<style>
+  /* Reference-only: denser tables, built for quick scanning and printing. */
+  .ref-table { width: 100%; border-collapse: collapse; font-family: var(--sans);
+    font-size: 0.86rem; margin: 0 0 1.8rem; }
+  .ref-table th, .ref-table td { text-align: left; vertical-align: top;
+    padding: 0.5rem 0.6rem; border-bottom: 1px solid var(--rule); }
+  .ref-table th { color: var(--accent); font-size: 0.7rem; letter-spacing: 0.08em;
+    text-transform: uppercase; }
+  .ref-table td code { font-size: 0.8rem; }
+  .ref-table tr:hover td { background: #fbfaf6; }
+  .who { display:flex; gap:0.5rem; flex-wrap:wrap; margin:0 0 1.6rem; }
+  .who > div { flex:1 1 14rem; border:1px solid var(--rule); border-radius:8px;
+    padding:0.8rem 1rem; background:#fff; font-family:var(--sans); font-size:0.86rem; }
+  .who h3 { margin:0 0 0.3rem; }
+  .who .on { color: var(--accent); }
+  dl.glossary { font-family: var(--sans); font-size: 0.9rem; }
+  dl.glossary dt { font-weight: 700; margin-top: 0.9rem; color: var(--ink); }
+  dl.glossary dd { margin: 0.2rem 0 0; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <p class="eyebrow">CSS Flexbox · Reference</p>
+  <h1>Flexbox cheat sheet &amp; glossary</h1>
+  <p class="dek">The compressed essence of all three lessons — built to scan and to
+  print. Bookmark this; revisit the lessons rarely, this often.</p>
+
+  <h2>The 10-second model</h2>
+  <blockquote>Make a <strong>container</strong> (<code>display: flex</code>). Its
+  direct children become <strong>items</strong> flowing along the
+  <strong>main axis</strong> (<code>flex-direction</code>). The
+  <strong>cross axis</strong> is perpendicular. Distribute along main with
+  <strong>justify-content</strong>, align across cross with
+  <strong>align-items</strong>, size items with <strong>flex</strong>, reflow with
+  <strong>flex-wrap</strong>.</blockquote>
+
+  <h2>Which property goes where</h2>
+  <div class="who">
+    <div>
+      <h3>On the <span class="on">container</span></h3>
+      <code>display</code>, <code>flex-direction</code>, <code>flex-wrap</code>,
+      <code>justify-content</code>, <code>align-items</code>, <code>gap</code>
+    </div>
+    <div>
+      <h3>On the <span class="on">items</span></h3>
+      <code>flex</code> (= <code>flex-grow</code> / <code>flex-shrink</code> /
+      <code>flex-basis</code>), <code>align-self</code>, <code>order</code>
+    </div>
+  </div>
+
+  <h2>Container properties</h2>
+  <table class="ref-table">
+    <thead><tr><th>Property</th><th>Values</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>display</code></td><td><code>flex</code></td>
+        <td>Turns the element into a flex container; direct children become items.</td></tr>
+      <tr><td><code>flex-direction</code></td>
+        <td><code>row</code> · <code>column</code> · <code>row-reverse</code> · <code>column-reverse</code></td>
+        <td>Sets the main axis. <code>row</code> = horizontal (default), <code>column</code> = vertical.</td></tr>
+      <tr><td><code>flex-wrap</code></td>
+        <td><code>nowrap</code> · <code>wrap</code> · <code>wrap-reverse</code></td>
+        <td><code>nowrap</code> (default) forces one line; <code>wrap</code> lets overflow drop to new lines.</td></tr>
+      <tr><td><code>justify-content</code></td>
+        <td><code>flex-start</code> · <code>flex-end</code> · <code>center</code> · <code>space-between</code> · <code>space-around</code> · <code>space-evenly</code></td>
+        <td>Positions / distributes items along the <strong>main</strong> axis.</td></tr>
+      <tr><td><code>align-items</code></td>
+        <td><code>stretch</code> · <code>flex-start</code> · <code>flex-end</code> · <code>center</code> · <code>baseline</code></td>
+        <td>Aligns items along the <strong>cross</strong> axis. <code>stretch</code> is the default.</td></tr>
+      <tr><td><code>gap</code></td>
+        <td><code>&lt;length&gt;</code> · <code>row-gap column-gap</code></td>
+        <td>Fixed space <em>between</em> items only — never at the outer edges.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Item properties</h2>
+  <table class="ref-table">
+    <thead><tr><th>Property</th><th>Values</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>flex</code></td><td><code>&lt;grow&gt; &lt;shrink&gt; &lt;basis&gt;</code></td>
+        <td>Shorthand for the three below. Memorise the three presets in the next table.</td></tr>
+      <tr><td><code>flex-grow</code></td><td><code>0</code> (default) · <code>&lt;number&gt;</code></td>
+        <td>Share of <em>leftover</em> space this item claims. Ratios, not pixels.</td></tr>
+      <tr><td><code>flex-shrink</code></td><td><code>1</code> (default) · <code>0</code> · <code>&lt;number&gt;</code></td>
+        <td>How readily it shrinks when space is tight. <code>0</code> = never below basis.</td></tr>
+      <tr><td><code>flex-basis</code></td><td><code>auto</code> (default) · <code>0</code> · <code>&lt;length&gt;</code></td>
+        <td>Starting main-axis size before grow/shrink applies.</td></tr>
+      <tr><td><code>align-self</code></td><td>same as <code>align-items</code></td>
+        <td>Overrides <code>align-items</code> for this one item on the cross axis.</td></tr>
+      <tr><td><code>order</code></td><td><code>0</code> (default) · <code>&lt;integer&gt;</code></td>
+        <td>Reorders visually without touching the HTML. Lower renders first.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The three <code>flex</code> presets to memorise</h2>
+  <table class="ref-table">
+    <thead><tr><th>Shorthand</th><th>Expands to</th><th>Use when</th></tr></thead>
+    <tbody>
+      <tr><td><code>flex: 1</code></td><td><code>1 1 0</code></td>
+        <td>You want equal-width columns that fill the row.</td></tr>
+      <tr><td><code>flex: auto</code></td><td><code>1 1 auto</code></td>
+        <td>Items should grow from their natural content size.</td></tr>
+      <tr><td><code>flex: none</code></td><td><code>0 0 auto</code></td>
+        <td>A fixed item (icon, button) that must never grow or shrink.</td></tr>
+      <tr><td><code>flex: 1 1 200px</code></td><td>(as written)</td>
+        <td>Responsive cards: aim ~200px each, grow/shrink/wrap to fit.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Recipes for the four mission tasks</h2>
+  <table class="ref-table">
+    <thead><tr><th>Goal</th><th>CSS on the container</th></tr></thead>
+    <tbody>
+      <tr><td>Center a box, both directions</td>
+        <td><code>display:flex; justify-content:center; align-items:center;</code></td></tr>
+      <tr><td>Nav bar: logo left, menu right</td>
+        <td><code>display:flex; justify-content:space-between; align-items:center;</code></td></tr>
+      <tr><td>Row of buttons, evenly spaced</td>
+        <td><code>display:flex; justify-content:space-evenly;</code></td></tr>
+      <tr><td>Responsive card row that wraps</td>
+        <td><code>display:flex; flex-wrap:wrap; gap:1rem;</code> + items <code>flex:1 1 200px;</code></td></tr>
+    </tbody>
+  </table>
+
+  <h2>Glossary</h2>
+  <p>The shared vocabulary for the whole course. Every lesson uses these terms
+  exactly as defined here.</p>
+  <dl class="glossary">
+    <dt>Flex container</dt>
+    <dd>An element with <code>display: flex</code>. It lays out its direct children
+    as flex items. <a href="../lessons/0001-the-container-and-its-axis.html">Lesson 1</a>.</dd>
+
+    <dt>Flex item</dt>
+    <dd>A <em>direct</em> child of a flex container. Grandchildren are not flex items —
+    they're laid out by their own parent.</dd>
+
+    <dt>Main axis</dt>
+    <dd>The line items flow along, chosen by <code>flex-direction</code>. Horizontal
+    for <code>row</code>, vertical for <code>column</code>.</dd>
+
+    <dt>Cross axis</dt>
+    <dd>The axis perpendicular to the main axis. Never set directly — it's defined by
+    whatever the main axis is.</dd>
+
+    <dt>justify-content</dt>
+    <dd>Container property that positions and distributes items along the
+    <strong>main</strong> axis. <a href="../lessons/0002-distributing-and-aligning.html">Lesson 2</a>.</dd>
+
+    <dt>align-items</dt>
+    <dd>Container property that aligns items along the <strong>cross</strong> axis.
+    Centering = both this and <code>justify-content</code> set to <code>center</code>.</dd>
+
+    <dt>gap</dt>
+    <dd>Fixed spacing between items, set on the container. Distinct from
+    <code>space-*</code>, which distributes <em>variable</em> leftover space.</dd>
+
+    <dt>flex-grow / flex-shrink / flex-basis</dt>
+    <dd>The three components of the <code>flex</code> shorthand on an item: how it
+    takes extra space, gives space back, and what size it starts from.
+    <a href="../lessons/0003-flexible-sizing.html">Lesson 3</a>.</dd>
+
+    <dt>flex-wrap</dt>
+    <dd>Container property deciding whether items stay on one line
+    (<code>nowrap</code>, default) or reflow onto multiple lines (<code>wrap</code>).</dd>
+  </dl>
+
+  <h2>Authoritative references</h2>
+  <ul style="font-family:var(--sans);font-size:0.9rem;">
+    <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox">MDN — Basic concepts of flexbox</a></li>
+    <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/">CSS-Tricks — A Complete Guide to Flexbox</a></li>
+    <li><a href="https://www.joshwcomeau.com/css/interactive-guide-to-flexbox/">Josh W. Comeau — An Interactive Guide to Flexbox</a></li>
+    <li><a href="https://www.w3.org/TR/css-flexbox-1/">W3C — CSS Flexible Box Layout Module Level 1 (spec)</a></li>
+  </ul>
+  <p style="font-family:var(--sans);font-size:0.84rem;">Full annotated list:
+  <a href="../RESOURCES.md">RESOURCES.md</a> · Back to
+  <a href="../lessons/0001-the-container-and-its-axis.html">Lesson 1</a>.</p>
+
+  <footer class="course">CSS Flexbox · Reference · cheat sheet &amp; glossary</footer>
+</main>
+</body>
+</html>

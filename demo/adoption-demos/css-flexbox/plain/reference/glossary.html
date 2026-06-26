@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexbox Glossary</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  dl.glossary { margin:1.5rem 0; }
+  dl.glossary dt { font-weight:600; font-size:1.05rem; margin-top:1.4rem; color:var(--ink); }
+  dl.glossary dd { margin:.3rem 0 0; color:var(--ink-soft); }
+  dl.glossary dd code { font-size:.85em; }
+</style>
+</head>
+<body>
+<main class="page">
+
+  <p class="kicker">Flexbox · Reference</p>
+  <nav class="crumbs">
+    <a href="../lessons/0001-the-container-and-its-axis.html">Lesson 1</a> ·
+    <a href="../lessons/0002-distributing-and-aligning.html">Lesson 2</a> ·
+    <a href="../lessons/0003-flexible-sizing.html">Lesson 3</a> ·
+    <a href="flexbox-cheatsheet.html">Cheatsheet</a> ·
+    <strong>Glossary</strong>
+  </nav>
+
+  <h1>Glossary</h1>
+  <p class="subtitle">The shared vocabulary of the course. Used the same way in every lesson.</p>
+
+  <dl class="glossary">
+
+    <dt>Flex container</dt>
+    <dd>An element with <code>display: flex</code>. It lays out its direct children
+        along an axis. The container owns <code>flex-direction</code>,
+        <code>justify-content</code>, <code>align-items</code>, <code>flex-wrap</code>, and <code>gap</code>.</dd>
+
+    <dt>Flex item</dt>
+    <dd>A <em>direct</em> child of a flex container. Only immediate children become
+        items; deeper descendants are laid out by their own parents. Items own
+        <code>flex-grow</code>, <code>flex-shrink</code>, <code>flex-basis</code>,
+        <code>align-self</code>, and <code>order</code>.</dd>
+
+    <dt class="main-axis">Main axis</dt>
+    <dd>The direction items flow, chosen by <code>flex-direction</code>. With
+        <code>row</code> it runs left→right; with <code>column</code> it runs
+        top→bottom. <strong>Not</strong> a synonym for “horizontal.”
+        <code>justify-content</code> works this axis.</dd>
+
+    <dt class="cross-axis">Cross axis</dt>
+    <dd>Always perpendicular to the main axis. With <code>row</code> it runs
+        top→bottom; with <code>column</code> it runs left→right.
+        <code>align-items</code> works this axis.</dd>
+
+    <dt><code>flex-direction</code></dt>
+    <dd>Container property choosing the main axis: <code>row</code> (default),
+        <code>row-reverse</code>, <code>column</code>, <code>column-reverse</code>.</dd>
+
+    <dt><code>justify-content</code></dt>
+    <dd>Distributes items along the <span class="main-axis">main axis</span> and
+        shares leftover space: <code>flex-start</code>, <code>flex-end</code>,
+        <code>center</code>, <code>space-between</code>, <code>space-around</code>,
+        <code>space-evenly</code>.</dd>
+
+    <dt><code>align-items</code></dt>
+    <dd>Positions items on the <span class="cross-axis">cross axis</span>:
+        <code>stretch</code> (default), <code>flex-start</code>,
+        <code>flex-end</code>, <code>center</code>, <code>baseline</code>.
+        <code>align-items: center</code> is how you finally center vertically.</dd>
+
+    <dt><code>gap</code></dt>
+    <dd>Fixed spacing between items, with no margins and no last-child exception.
+        Splits into <code>row-gap</code> and <code>column-gap</code>.</dd>
+
+    <dt><code>flex-grow</code></dt>
+    <dd>Item property: a unitless ratio for how much leftover main-axis space the
+        item claims. <code>0</code> = stay put (default).</dd>
+
+    <dt><code>flex-shrink</code></dt>
+    <dd>Item property: a unitless ratio for how readily the item shrinks when space
+        is tight. <code>1</code> = may shrink (default); <code>0</code> = never shrink.</dd>
+
+    <dt><code>flex-basis</code></dt>
+    <dd>Item property: the starting size on the main axis before growing or
+        shrinking. A length (<code>200px</code>) or <code>auto</code> (use content size).</dd>
+
+    <dt><code>flex</code> (shorthand)</dt>
+    <dd>Writes all three at once: <code>flex: grow shrink basis</code>. Common
+        presets: <code>flex: 1</code> (grow equally), <code>flex: 0 0 200px</code>
+        (rigid), <code>flex: 0 0 auto</code> (natural size).</dd>
+
+    <dt><code>flex-wrap</code></dt>
+    <dd>Container property: <code>nowrap</code> (default, one line) vs
+        <code>wrap</code> (items overflow onto new lines) — the basis of a
+        responsive row.</dd>
+
+  </dl>
+
+  <div class="note">
+    <span class="label">Convention</span>
+    Throughout this course, <span class="main-axis">main axis</span> is written in
+    blue and <span class="cross-axis">cross axis</span> in orange so the two never
+    blur together.
+  </div>
+
+  <section class="sources">
+    <strong>Definitions grounded in</strong>
+    <ol>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox">MDN — Basic concepts of flexbox</a></li>
+      <li><a href="https://www.w3.org/TR/css-flexbox-1/">W3C — CSS Flexible Box Layout Module Level 1</a></li>
+    </ol>
+  </section>
+
+</main>
+</body>
+</html>

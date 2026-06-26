@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flexbox Cheatsheet</title>
+<link rel="stylesheet" href="../assets/style.css">
+<style>
+  /* Reference-specific: dense two-column grid that prints cleanly */
+  .ref-grid { display:flex; flex-wrap:wrap; gap:1.2rem; }
+  .card {
+    flex: 1 1 18rem; border:1px solid var(--rule); border-radius:10px;
+    background:#fff; padding:1.1rem 1.3rem; break-inside:avoid;
+  }
+  .card h3 { margin-top:0; }
+  .card.container { border-top:4px solid var(--accent); }
+  .card.item      { border-top:4px solid var(--accent-2); }
+  table.props { width:100%; border-collapse:collapse; font-size:.84rem; }
+  table.props td { padding:.3rem .2rem; vertical-align:top; border-bottom:1px solid var(--paper-edge); }
+  table.props td:first-child { font-family:var(--mono); color:#4a3f30; white-space:nowrap; padding-right:.7rem; }
+  table.props tr:last-child td { border-bottom:none; }
+  .tag { font-family:var(--sans); font-size:.65rem; letter-spacing:.12em; text-transform:uppercase;
+         padding:.15rem .5rem; border-radius:99px; }
+  .tag.c { background:#e7f0f8; color:#2c5d8a; }
+  .tag.i { background:#f7ece0; color:#955218; }
+</style>
+</head>
+<body>
+<main class="wide">
+
+  <p class="kicker">Flexbox · Reference</p>
+  <nav class="crumbs">
+    <a href="../lessons/0001-the-container-and-its-axis.html">Lesson 1</a> ·
+    <a href="../lessons/0002-distributing-and-aligning.html">Lesson 2</a> ·
+    <a href="../lessons/0003-flexible-sizing.html">Lesson 3</a> ·
+    <a href="glossary.html">Glossary</a> ·
+    <strong>Cheatsheet</strong>
+  </nav>
+
+  <h1>Flexbox cheatsheet</h1>
+  <p class="subtitle">Every property from the course, on one page. Built to print.</p>
+
+  <p><span class="tag c">container</span> properties go on the parent
+  (<code>display: flex</code>). <span class="tag i">item</span> properties go on a
+  child. The two axes: <span class="main-axis">main</span> = the direction
+  <code>flex-direction</code> points; <span class="cross-axis">cross</span> = perpendicular.</p>
+
+  <div class="ref-grid">
+
+    <section class="card container">
+      <h3><span class="tag c">container</span> &nbsp;Set up the box</h3>
+      <table class="props">
+        <tr><td>display</td><td><code>flex</code> — make this a flex container; direct children become items.</td></tr>
+        <tr><td>flex-direction</td><td><code>row</code> (default) · <code>row-reverse</code> · <code>column</code> · <code>column-reverse</code>. Chooses the <span class="main-axis">main axis</span>.</td></tr>
+        <tr><td>flex-wrap</td><td><code>nowrap</code> (default) · <code>wrap</code> · <code>wrap-reverse</code>. Lets items spill onto new lines.</td></tr>
+        <tr><td>gap</td><td>Fixed space between items, e.g. <code>16px</code> or <code>1rem</code>. Also <code>row-gap</code> / <code>column-gap</code>.</td></tr>
+      </table>
+    </section>
+
+    <section class="card container">
+      <h3><span class="tag c">container</span> &nbsp;Distribute &amp; align</h3>
+      <table class="props">
+        <tr><td>justify-content</td><td><span class="main-axis">main axis</span>: <code>flex-start</code> · <code>flex-end</code> · <code>center</code> · <code>space-between</code> · <code>space-around</code> · <code>space-evenly</code>.</td></tr>
+        <tr><td>align-items</td><td><span class="cross-axis">cross axis</span>: <code>stretch</code> (default) · <code>flex-start</code> · <code>flex-end</code> · <code>center</code> · <code>baseline</code>.</td></tr>
+        <tr><td>align-content</td><td>Spaces <em>multiple lines</em> on the cross axis (only matters with <code>flex-wrap: wrap</code>).</td></tr>
+      </table>
+    </section>
+
+    <section class="card item">
+      <h3><span class="tag i">item</span> &nbsp;Flexible sizing</h3>
+      <table class="props">
+        <tr><td>flex-grow</td><td>Ratio for sharing leftover space. <code>0</code> = don't grow (default).</td></tr>
+        <tr><td>flex-shrink</td><td>Ratio for shrinking when cramped. <code>1</code> = may shrink (default); <code>0</code> = never.</td></tr>
+        <tr><td>flex-basis</td><td>Starting size on the main axis before grow/shrink, e.g. <code>200px</code> or <code>auto</code>.</td></tr>
+        <tr><td>flex</td><td>Shorthand <code>grow shrink basis</code>. Presets: <code>flex: 1</code> · <code>flex: 0 0 200px</code> · <code>flex: 0 0 auto</code>.</td></tr>
+        <tr><td>align-self</td><td>Override <code>align-items</code> for one item.</td></tr>
+        <tr><td>order</td><td>Reorder a single item visually; default <code>0</code>.</td></tr>
+      </table>
+    </section>
+
+    <section class="card">
+      <h3>★ &nbsp;Recipes you'll reuse</h3>
+      <table class="props">
+        <tr><td>Center anything</td><td><code>display:flex; justify-content:center; align-items:center;</code></td></tr>
+        <tr><td>Nav: logo ↔ links</td><td><code>display:flex; justify-content:space-between; align-items:center;</code></td></tr>
+        <tr><td>Equal columns</td><td>container <code>display:flex</code> + each child <code>flex:1</code></td></tr>
+        <tr><td>Responsive cards</td><td><code>display:flex; flex-wrap:wrap; gap:1rem;</code> + cards <code>flex:1 1 16rem</code></td></tr>
+        <tr><td>Vertical stack</td><td><code>display:flex; flex-direction:column; gap:.5rem;</code></td></tr>
+      </table>
+    </section>
+
+  </div>
+
+  <div class="note">
+    <span class="label">The one rule to remember</span>
+    Every flex decision is just: <em>which axis?</em> <code>justify-content</code>
+    and <code>flex-grow</code> work the <span class="main-axis">main axis</span>;
+    <code>align-items</code> works the <span class="cross-axis">cross axis</span>.
+    Get the axis right and the property follows.
+  </div>
+
+  <section class="sources">
+    <strong>Authoritative sources</strong>
+    <ol>
+      <li><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/">CSS-Tricks — A Complete Guide to Flexbox</a> (visual lookup for every property)</li>
+      <li><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout">MDN — CSS Flexible Box Layout</a> (full documentation set)</li>
+      <li><a href="https://www.w3.org/TR/css-flexbox-1/">W3C — CSS Flexible Box Layout Module Level 1</a> (the specification)</li>
+    </ol>
+    <p>See also the <a href="glossary.html">Glossary</a> and the full <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
+  </section>
+
+</main>
+</body>
+</html>

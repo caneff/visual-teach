@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 · The container and its axis</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/quiz.js" defer></script>
+<script src="../assets/playground.js" defer></script>
+</head>
+<body>
+<main class="page">
+
+  <p class="kicker">Flexbox · Lesson 1 of 3</p>
+  <nav class="crumbs">
+    <a href="../MISSION.md">Mission</a> ·
+    <strong>1 · The container and its axis</strong> ·
+    <a href="0002-distributing-and-aligning.html">2 · Distributing &amp; aligning</a> ·
+    <a href="0003-flexible-sizing.html">3 · Flexible sizing</a> ·
+    <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a>
+  </nav>
+  <div class="progress" aria-label="Course progress">
+    <span class="dot here"></span><span class="dot"></span><span class="dot"></span>
+    <span>Step 1 — the mental model</span>
+  </div>
+
+  <h1>The container and its axis</h1>
+  <p class="subtitle">Before you can position anything, you need to know what flexbox even is.</p>
+
+  <p class="lead">For layout you've been reaching for floats, <code>position: absolute</code>,
+  and margin nudges — tools that were never meant for arranging things in a line.
+  Flexbox is. The whole system starts with one move and two words. Learn them here
+  and the rest of the course is just choices made <em>inside</em> this model.</p>
+
+  <div class="win">
+    <span class="label">Today's win</span>
+    Turn a stack of boxes into a deliberate <strong>row</strong>, flip it to a
+    <strong>column</strong>, and say out loud which direction is the main axis — every time.
+  </div>
+
+  <h2>One move: <code>display: flex</code></h2>
+
+  <p>Pick any element and set <code>display: flex</code>. Two things happen at once:</p>
+
+  <ul>
+    <li>That element becomes a <strong>flex container</strong>.</li>
+    <li>Its <strong>direct children</strong> automatically become <strong>flex items</strong>,
+        and they line up along an axis instead of stacking.<sup class="ref"><a href="#s1">1</a></sup></li>
+  </ul>
+
+  <p>That's it. You don't touch the children — declaring the parent a flex
+  container is what lays the children out. Note the word <em>direct</em>: only
+  the immediate children become items. Grandchildren are laid out by <em>their</em>
+  own parent's rules.</p>
+
+  <pre><code><span class="sel">.toolbar</span> {
+  <span class="p">display</span>: <span class="v">flex</span>;   <span class="c">/* .toolbar is now a flex container */</span>
+}
+<span class="c">/* every direct child of .toolbar is now a flex item, in a row */</span></code></pre>
+
+  <figure>
+    <figure class="demo" style="display:block;">
+      <div style="margin-bottom:10px; color:#5a554e; font-family:var(--sans); font-size:.8rem;">Plain block children — they stack:</div>
+      <div style="display:block;">
+        <span class="box" style="display:block; margin-bottom:6px;">1</span>
+        <span class="box" style="display:block; margin-bottom:6px;">2</span>
+        <span class="box" style="display:block;">3</span>
+      </div>
+    </figure>
+    <figure class="demo" style="display:flex; gap:10px;">
+      <span class="box">1</span><span class="box">2</span><span class="box">3</span>
+    </figure>
+    <figcaption>Same three boxes. The only change between frames is <code>display: flex</code> on the parent.</figcaption>
+  </figure>
+
+  <h2>Two words: <span class="main-axis">main axis</span> and <span class="cross-axis">cross axis</span></h2>
+
+  <p>Items lay out along the <span class="main-axis">main axis</span>. The
+  <span class="cross-axis">cross axis</span> is <em>always</em> perpendicular to
+  it. Every flex decision you'll ever make is really the question: <em>“am I
+  working along the main axis or the cross axis?”</em></p>
+
+  <p>Which direction is the main axis? You choose, with <code>flex-direction</code>:</p>
+
+  <ul>
+    <li><code>flex-direction: row</code> — the default. Main axis runs
+        <span class="main-axis">left → right</span>; cross axis runs
+        <span class="cross-axis">top → bottom</span>.</li>
+    <li><code>flex-direction: column</code> — main axis runs
+        <span class="main-axis">top → bottom</span>; cross axis runs
+        <span class="cross-axis">left → right</span>.</li>
+  </ul>
+
+  <div class="note">
+    <span class="label">The trap to avoid</span>
+    “Main axis” does <strong>not</strong> mean horizontal. It means <em>whichever
+    way <code>flex-direction</code> points</em>. Switch to <code>column</code> and
+    the main axis becomes vertical. Tying the axes to <code>flex-direction</code>
+    instead of to the screen is the single insight this lesson exists to give you.<sup class="ref"><a href="#s1">1</a></sup>
+  </div>
+
+  <h2>See it move</h2>
+
+  <p>Change <code>flex-direction</code> below and watch the row become a column.
+  The boxes always follow the main axis — that's the whole point. Read the CSS
+  panel underneath so the property and the picture lock together.</p>
+
+  <div class="pg" data-controls="flex-direction,gap" data-boxes="4"></div>
+
+  <p class="cite">Want the canonical write-up of everything above, with diagrams
+  for every writing mode? Read MDN's
+  <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox">Basic concepts of flexbox</a>.<sup class="ref"><a href="#s1">1</a></sup></p>
+
+  <h2>Check yourself</h2>
+  <p>No peeking at the notes — pull the answer from memory. Retrieval is what makes it stick.</p>
+
+  <div class="quiz" data-answer="1">
+    <div class="q-num">Recall · 1 of 2</div>
+    <p class="q-stem">You write <code>display: flex</code> on a <code>&lt;nav&gt;</code>.
+       Which elements become flex items?</p>
+    <ul class="options">
+      <li><button class="opt">Every nested element inside</button></li>
+      <li><button class="opt">Only the direct children</button></li>
+      <li><button class="opt">Only the first child element</button></li>
+      <li><button class="opt">None until you add more</button></li>
+    </ul>
+    <div class="feedback"
+         data-right="Only the immediate children of a flex container become flex items. Deeper descendants are laid out by their own parents."
+         data-wrong="Only the immediate children of a flex container become flex items — not every descendant. Grandchildren follow their own parent's rules."></div>
+  </div>
+
+  <div class="quiz" data-answer="2">
+    <div class="q-num">Recall · 2 of 2</div>
+    <p class="q-stem">A container has <code>flex-direction: column</code>.
+       Which way does the <span class="main-axis">main axis</span> run?</p>
+    <ul class="options">
+      <li><button class="opt">Left to right always</button></li>
+      <li><button class="opt">Diagonally across corners</button></li>
+      <li><button class="opt">Top to bottom now</button></li>
+      <li><button class="opt">Both ways at once</button></li>
+    </ul>
+    <div class="feedback"
+         data-right="With column, flex-direction points downward, so the main axis runs top to bottom and the cross axis runs left to right."
+         data-wrong="The main axis follows flex-direction. With column it points downward — top to bottom — and the cross axis becomes left to right."></div>
+  </div>
+
+  <div class="ask">
+    <strong>Stuck or curious?</strong> I'm your teacher for this course — ask me
+    anything. “Why did my whole page collapse when I set <code>display: flex</code>?”
+    “What's the difference between a flex item and a regular block?” Just say the word.
+  </div>
+
+  <div class="win">
+    <span class="label">Spaced practice — do this before Lesson 2</span>
+    Open any page you've built. Add <code>display: flex</code> to one wrapper that
+    holds two or three boxes, then toggle <code>flex-direction</code> between
+    <code>row</code> and <code>column</code>. Out loud, name the main axis each time.
+    Then play <a href="https://flexboxfroggy.com/">Flexbox Froggy</a> levels 1–3 to
+    drill <code>flex-direction</code>.
+  </div>
+
+  <nav class="lesson-nav">
+    <span class="spacer"></span>
+    <a class="next" href="0002-distributing-and-aligning.html">
+      <span class="label">Next</span>2 · Distributing &amp; aligning →
+    </a>
+  </nav>
+
+  <section class="sources">
+    <strong>Sources</strong>
+    <ol>
+      <li id="s1"><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Basic_concepts_of_flexbox">MDN — Basic concepts of flexbox</a>. Flex container, flex items, main &amp; cross axes, <code>flex-direction</code>.</li>
+    </ol>
+    <p>Full reading list: <a href="../RESOURCES.md">RESOURCES.md</a> · Quick syntax: <a href="../reference/flexbox-cheatsheet.html">Cheatsheet</a> · Terms: <a href="../reference/glossary.html">Glossary</a></p>
+  </section>
+
+</main>
+</body>
+</html>
