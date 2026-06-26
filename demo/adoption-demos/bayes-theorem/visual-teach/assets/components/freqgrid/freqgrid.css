@@ -1,0 +1,74 @@
+/* ====== freqgrid ======
+   A natural-frequency icon array: a grid of N small cells, the first groups
+   colored to show a breakdown (e.g. true positives, false positives, everyone
+   else). Makes "10 needles and 100 false alarms in a haystack of 10,000"
+   visible at a glance. Pure CSS color via classes, so it themes automatically.
+   The grid is built by freqgrid.js from a data-groups JSON attribute. */
+
+.vt-freqgrid {
+  margin: 1.6rem 0;
+}
+
+.vt-freqgrid .fg-grid {
+  display: grid;
+  gap: 1px;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.vt-freqgrid .fg-cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 1px;
+  background: var(--vt-neutral-soft); /* default: "the rest" */
+}
+.vt-freqgrid .fg-cell.tp {
+  background: var(--vt-good);
+}
+.vt-freqgrid .fg-cell.fp {
+  background: var(--vt-warn);
+}
+.vt-freqgrid .fg-cell.sick {
+  background: var(--vt-bad);
+}
+
+.vt-freqgrid .fg-legend {
+  display: flex;
+  gap: 1.3rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.9rem;
+  font-size: 0.82rem;
+  color: var(--vt-muted);
+}
+.vt-freqgrid .fg-legend .key {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.vt-freqgrid .fg-legend .sw {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 2px;
+  display: inline-block;
+  border: 1px solid color-mix(in srgb, var(--vt-ink) 18%, transparent);
+}
+.vt-freqgrid .fg-legend .sw.tp {
+  background: var(--vt-good);
+}
+.vt-freqgrid .fg-legend .sw.fp {
+  background: var(--vt-warn);
+}
+.vt-freqgrid .fg-legend .sw.sick {
+  background: var(--vt-bad);
+}
+.vt-freqgrid .fg-legend .sw.rest {
+  background: var(--vt-neutral-soft);
+}
+
+.vt-freqgrid .fg-caption {
+  text-align: center;
+  color: var(--vt-muted);
+  font-size: 0.85rem;
+  margin-top: 0.6rem;
+}

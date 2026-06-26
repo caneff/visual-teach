@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Flex Playground — Component Demo</title>
+    <link rel="stylesheet" href="../../base/base.css" />
+    <link rel="stylesheet" href="flex-playground.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Flex Playground</h1>
+      <p class="vt-lede">
+        A live flex container the learner drives from controls — real boxes
+        rearrange and a CSS readout mirrors the rule being built. The
+        produce-it interactive for flexbox; a recognition quiz can't replace it.
+      </p>
+
+      <h2>Free play — direction + axis readout</h2>
+      <div
+        class="vt-flexlab"
+        data-controls="direction,gap"
+        data-items="3"
+        data-show-axis
+      ></div>
+
+      <h2>Free play — full container controls</h2>
+      <div
+        class="vt-flexlab"
+        data-controls="direction,justify,align,gap"
+        data-items="3"
+        data-labels="Logo,Links,Sign in"
+      ></div>
+
+      <h2>Challenge mode — hit the target</h2>
+      <div
+        class="vt-flexlab"
+        data-controls="justify,align"
+        data-items="3"
+        data-target="justify:center;align:center"
+      ></div>
+
+      <h2>Item flex — click boxes to cycle flex-grow</h2>
+      <div
+        class="vt-flexlab"
+        data-controls="wrap,gap"
+        data-items="4"
+        data-labels="Home,About,Docs,Sign in"
+        data-item-flex
+      ></div>
+    </main>
+    <script src="../../base/base.js"></script>
+    <script src="flex-playground.js"></script>
+  </body>
+</html>

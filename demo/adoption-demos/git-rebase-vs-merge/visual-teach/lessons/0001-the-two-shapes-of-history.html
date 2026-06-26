@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>The two shapes of history — Git merge vs. rebase · Lesson 1</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/commit-graph.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Git merge vs. rebase · Lesson 1</p>
+      <h1>The two shapes of history</h1>
+      <p class="vt-lede">
+        Before you can choose between <code>merge</code> and <code>rebase</code>,
+        you need to <em>see</em> what each one does to your commit history. By
+        the end of this page you'll be able to draw both shapes from memory.
+      </p>
+
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~10 min</strong></span>
+        <span class="item">Needs: <strong>basic <code>commit</code> / <code>merge</code></strong></span>
+        <span class="item"><span class="vt-level beginner">Beginner</span></span>
+        <span class="item">Lesson <strong>1</strong> of 3</span>
+      </div>
+
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Explain what a commit really is: a snapshot that points at its parent</li>
+          <li>Draw the <strong>branching</strong> graph that <code>merge</code> produces</li>
+          <li>Draw the <strong>linear</strong> graph that <code>rebase</code> produces — and say why the commit hashes change</li>
+        </ul>
+      </div>
+
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> the fear of rebase
+        ("it rewrites history, I'll lose work") dissolves once you can picture
+        exactly what it moves. This lesson builds that picture. No decisions
+        yet — just the mental model everything else rests on.
+      </div>
+
+      <h2><span class="vt-num">1</span>One idea: a commit points at its parent</h2>
+      <p>
+        A commit is a snapshot of your whole project plus a pointer to the commit
+        that came before it — its <em>parent</em>. Follow the parent pointers
+        backward and you've walked your entire history. So history isn't a list;
+        it's a <strong>graph</strong> of commits linked child-to-parent.
+      </p>
+      <p>
+        A <strong>branch</strong> (like <code>main</code> or <code>feature</code>)
+        is just a sticky note naming the latest commit on a line of work. When you
+        commit, the note slides forward to the new commit. Everything
+        <code>merge</code> and <code>rebase</code> do is rearrange this graph and
+        move those notes — nothing more mysterious than that.
+      </p>
+
+      <div class="vt-callout insight">
+        <strong>The key fact for later:</strong> a commit's identity — its hash,
+        like <code>a1b2c3d</code> — is computed from its contents
+        <em>and its parent</em>. Change the parent and you necessarily get a
+        different commit, with a different hash. Hold onto this; it's the whole
+        reason rebase "rewrites history."
+      </div>
+
+      <h2><span class="vt-num">2</span>The starting point: a branch that diverged</h2>
+      <p>
+        Here's the situation you hit every day. You branched <code>feature</code>
+        off <code>main</code>, did some work (<code>e5</code>, <code>f6</code>) —
+        and meanwhile a teammate moved <code>main</code> forward
+        (<code>c3</code>, <code>d4</code>). The two lines have
+        <strong>diverged</strong>:
+      </p>
+
+      <div class="vt-diagram">
+        <svg class="cg" viewBox="0 0 680 180" role="img"
+             aria-label="A commit graph: main has commits a1, b2, c3, d4 along the bottom; feature branches off b2 with commits e5 and f6 on a higher lane.">
+          <!-- edges -->
+          <path class="cg-edge main" d="M60,130 H560" />
+          <path class="cg-edge feature" d="M160,130 C 230,130 250,55 320,55 H440" />
+          <!-- main dots -->
+          <circle class="cg-dot main" cx="60" cy="130" r="9" />
+          <circle class="cg-dot main" cx="160" cy="130" r="9" />
+          <circle class="cg-dot main" cx="440" cy="130" r="9" />
+          <circle class="cg-dot main" cx="560" cy="130" r="9" />
+          <!-- feature dots -->
+          <circle class="cg-dot feature" cx="320" cy="55" r="9" />
+          <circle class="cg-dot feature" cx="440" cy="55" r="9" />
+          <!-- hashes -->
+          <text class="cg-hash" x="60" y="158" text-anchor="middle">a1</text>
+          <text class="cg-hash" x="160" y="158" text-anchor="middle">b2</text>
+          <text class="cg-hash" x="440" y="158" text-anchor="middle">c3</text>
+          <text class="cg-hash" x="560" y="158" text-anchor="middle">d4</text>
+          <text class="cg-hash" x="320" y="38" text-anchor="middle">e5</text>
+          <text class="cg-hash" x="440" y="38" text-anchor="middle">f6</text>
+          <!-- branch tags -->
+          <g>
+            <rect class="cg-tag-main" x="588" y="121" width="56" height="20" rx="5" />
+            <text class="cg-tag-text" x="616" y="135" text-anchor="middle">main</text>
+          </g>
+          <g>
+            <rect class="cg-tag" x="468" y="46" width="74" height="20" rx="5" />
+            <text class="cg-tag-text" x="505" y="60" text-anchor="middle">feature</text>
+          </g>
+        </svg>
+        <ul class="cg-legend">
+          <li><span class="sw main"></span> <code>main</code> commits</li>
+          <li><span class="sw feature"></span> <code>feature</code> commits</li>
+        </ul>
+        <p class="vt-diagram-caption">
+          The shared ancestor is <code>b2</code>. From here you must somehow
+          combine the two lines. <code>merge</code> and <code>rebase</code> are
+          the two ways to do it.
+        </p>
+      </div>
+
+      <h2><span class="vt-num">3</span>Merge: keep both lines, tie them together</h2>
+      <p>
+        <code>git merge feature</code> (run while on <code>main</code>) creates one
+        new <strong>merge commit</strong> that has <em>two</em> parents — the tip
+        of each line. Nothing already in history moves or changes. The real,
+        branching shape of what happened is preserved exactly:
+      </p>
+
+      <div class="vt-diagram">
+        <svg class="cg" viewBox="0 0 720 180" role="img"
+             aria-label="The same graph, now with a green merge commit m7 at the end of main. It connects back to both d4 on the main lane and f6 on the feature lane.">
+          <!-- edges -->
+          <path class="cg-edge main" d="M60,130 H560" />
+          <path class="cg-edge feature" d="M160,130 C 230,130 250,55 320,55 H440" />
+          <!-- merge edges into m7 -->
+          <path class="cg-edge main" d="M560,130 H660" />
+          <path class="cg-edge feature" d="M440,55 C 560,55 590,130 660,130" />
+          <!-- main dots -->
+          <circle class="cg-dot main" cx="60" cy="130" r="9" />
+          <circle class="cg-dot main" cx="160" cy="130" r="9" />
+          <circle class="cg-dot main" cx="440" cy="130" r="9" />
+          <circle class="cg-dot main" cx="560" cy="130" r="9" />
+          <!-- feature dots -->
+          <circle class="cg-dot feature" cx="320" cy="55" r="9" />
+          <circle class="cg-dot feature" cx="440" cy="55" r="9" />
+          <!-- merge dot -->
+          <circle class="cg-dot merge" cx="660" cy="130" r="10" />
+          <!-- hashes -->
+          <text class="cg-hash" x="60" y="158" text-anchor="middle">a1</text>
+          <text class="cg-hash" x="160" y="158" text-anchor="middle">b2</text>
+          <text class="cg-hash" x="440" y="158" text-anchor="middle">c3</text>
+          <text class="cg-hash" x="560" y="158" text-anchor="middle">d4</text>
+          <text class="cg-hash" x="320" y="38" text-anchor="middle">e5</text>
+          <text class="cg-hash" x="440" y="38" text-anchor="middle">f6</text>
+          <text class="cg-hash" x="668" y="158" text-anchor="middle">m7</text>
+          <!-- tags -->
+          <g>
+            <rect class="cg-tag-main" x="640" y="92" width="56" height="20" rx="5" />
+            <text class="cg-tag-text" x="668" y="106" text-anchor="middle">main</text>
+          </g>
+          <g>
+            <rect class="cg-tag" x="468" y="46" width="74" height="20" rx="5" />
+            <text class="cg-tag-text" x="505" y="60" text-anchor="middle">feature</text>
+          </g>
+        </svg>
+        <ul class="cg-legend">
+          <li><span class="sw main"></span> <code>main</code> commits</li>
+          <li><span class="sw feature"></span> <code>feature</code> commits</li>
+          <li><span class="sw merge"></span> the new merge commit (two parents)</li>
+        </ul>
+        <p class="vt-diagram-caption">
+          <code>m7</code> is brand-new; <code>a1…f6</code> are untouched. The
+          graph keeps its fork — you can always see that <code>feature</code> was
+          developed in parallel.
+        </p>
+      </div>
+
+      <div class="vt-callout info">
+        <strong>Fast-forward aside.</strong> If <code>main</code> had
+        <em>not</em> moved on (no <code>c3</code>, <code>d4</code>), merging would
+        just slide the <code>main</code> note forward onto <code>f6</code> — a
+        "fast-forward," no merge commit at all. A merge commit only appears when
+        the two lines genuinely diverged, as above.
+      </div>
+
+      <h2><span class="vt-num">4</span>Rebase: replay your work onto the new base</h2>
+      <p>
+        <code>git rebase main</code> (run while on <code>feature</code>) does
+        something different: it takes <em>your</em> commits (<code>e5</code>,
+        <code>f6</code>), sets them aside, fast-forwards your branch to the tip of
+        <code>main</code> (<code>d4</code>), and <strong>replays</strong> your
+        changes one by one on top. Because each replayed commit now has a new
+        parent, each gets a <strong>new hash</strong> — <code>e5</code> becomes
+        <code>e5′</code>, <code>f6</code> becomes <code>f6′</code>. The result is
+        one straight line:
+      </p>
+
+      <div class="vt-diagram">
+        <svg class="cg" viewBox="0 0 680 180" role="img"
+             aria-label="A linear commit graph: a1, b2, c3, d4, then the replayed feature commits e5-prime and f6-prime, all on one line. The original e5 and f6 are shown faded above as abandoned.">
+          <!-- ghost (original) commits, abandoned -->
+          <path class="cg-edge" style="stroke-dasharray:3 3" d="M160,130 C 200,130 210,55 250,55 H330" />
+          <circle class="cg-dot ghost" cx="250" cy="55" r="8" />
+          <circle class="cg-dot ghost" cx="330" cy="55" r="8" />
+          <text class="cg-hash ghost" x="250" y="38" text-anchor="middle">e5</text>
+          <text class="cg-hash ghost" x="330" y="38" text-anchor="middle">f6</text>
+          <text class="cg-msg ghost" x="290" y="20" text-anchor="middle" style="fill:var(--vt-bad)">originals — now unreferenced</text>
+          <!-- the new linear history -->
+          <path class="cg-edge main" d="M60,130 H360" />
+          <path class="cg-edge feature" d="M360,130 H560" />
+          <!-- main dots -->
+          <circle class="cg-dot main" cx="60" cy="130" r="9" />
+          <circle class="cg-dot main" cx="160" cy="130" r="9" />
+          <circle class="cg-dot main" cx="260" cy="130" r="9" />
+          <circle class="cg-dot main" cx="360" cy="130" r="9" />
+          <!-- replayed feature dots -->
+          <circle class="cg-dot feature" cx="460" cy="130" r="9" />
+          <circle class="cg-dot feature" cx="560" cy="130" r="9" />
+          <!-- hashes -->
+          <text class="cg-hash" x="60" y="158" text-anchor="middle">a1</text>
+          <text class="cg-hash" x="160" y="158" text-anchor="middle">b2</text>
+          <text class="cg-hash" x="260" y="158" text-anchor="middle">c3</text>
+          <text class="cg-hash" x="360" y="158" text-anchor="middle">d4</text>
+          <text class="cg-hash" x="460" y="158" text-anchor="middle">e5′</text>
+          <text class="cg-hash" x="560" y="158" text-anchor="middle">f6′</text>
+          <!-- tags -->
+          <g>
+            <rect class="cg-tag-main" x="332" y="92" width="56" height="20" rx="5" />
+            <text class="cg-tag-text" x="360" y="106" text-anchor="middle">main</text>
+          </g>
+          <g>
+            <rect class="cg-tag" x="588" y="121" width="74" height="20" rx="5" />
+            <text class="cg-tag-text" x="625" y="135" text-anchor="middle">feature</text>
+          </g>
+        </svg>
+        <ul class="cg-legend">
+          <li><span class="sw main"></span> <code>main</code> commits</li>
+          <li><span class="sw feature"></span> replayed <code>feature</code> commits (new hashes)</li>
+          <li><span class="sw ghost"></span> the originals, now abandoned</li>
+        </ul>
+        <p class="vt-diagram-caption">
+          The history reads as one clean line, as if you'd started your work from
+          <code>d4</code> all along. The fork is gone. <code>e5′</code> and
+          <code>f6′</code> contain the same changes as <code>e5</code> and
+          <code>f6</code> — but they are different commits.
+        </p>
+      </div>
+
+      <div class="vt-callout insight">
+        "Rewrites history" sounds scary, but now you can see exactly what it
+        means: rebase doesn't <em>edit</em> your old commits — it <strong>builds
+        new ones</strong> with the same changes and a new parent, then points your
+        branch at them. The faded <code>e5</code>/<code>f6</code> still exist on
+        disk for a while (you'll meet <code>git reflog</code>, your safety net, in
+        <a href="0003-rebase-without-fear.html#recover">Lesson 3</a>).
+      </div>
+
+      <h2><span class="vt-num">5</span>See it in your own terminal</h2>
+      <p>
+        One command shows you these shapes for any repository. Run it after a
+        merge and after a rebase and watch the graph change:
+      </p>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>the one command worth memorizing</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git log --oneline --graph --all</code></pre>
+      </div>
+      <div class="vt-io">
+        <div class="vt-io-input">
+          <div class="vt-io-head"><span>After a merge</span></div>
+          <pre><code>*   m7 Merge branch 'feature'
+|\
+| * f6 add validation
+| * e5 add form
+* | d4 fix header
+* | c3 tweak nav
+|/
+* b2 base
+* a1 init</code></pre>
+        </div>
+        <div class="vt-io-output">
+          <div class="vt-io-head"><span>After a rebase</span></div>
+          <pre><code>* f6′ add validation
+* e5′ add form
+* d4 fix header
+* c3 tweak nav
+* b2 base
+* a1 init</code></pre>
+        </div>
+      </div>
+      <p>
+        The merge graph forks and rejoins (<code>|\</code> … <code>|/</code>); the
+        rebase graph is one straight column. That shape <em>is</em> the
+        difference.
+      </p>
+
+      <h2><span class="vt-num">6</span>Recall — say it before you reveal it</h2>
+      <p class="vt-reveal-hint">
+        Don't peek. Produce each answer out loud or on paper first — the effort of
+        retrieval is what makes it stick.
+      </p>
+
+      <details class="vt-reveal">
+        <summary>What does a merge commit have that an ordinary commit doesn't?</summary>
+        <div class="answer">
+          <strong>Two parents</strong> — the tip of each branch being joined. That
+          second parent is what preserves the fork in the graph.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>Why do rebased commits get brand-new hashes?</summary>
+        <div class="answer">
+          A commit's hash is computed from its contents <strong>plus its
+          parent</strong>. Rebase replays each commit onto a new parent, so each
+          becomes a new commit with a new hash — same changes, new identity.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>In one word each: what shape does merge produce, and what shape does rebase produce?</summary>
+        <div class="answer">
+          Merge → <strong>branching</strong> (forks preserved). Rebase →
+          <strong>linear</strong> (one straight line).
+        </div>
+      </details>
+
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        You can now draw both shapes: <code>merge</code> adds a two-parent commit
+        and keeps the fork; <code>rebase</code> replays your commits onto a new
+        base, producing a straight line with new hashes. That's the entire
+        mechanical difference — and the foundation for choosing between them.
+      </div>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — ask me anything</p>
+          <p>
+            Graphs are easier to grasp by poking at them. If any node or arrow
+            above didn't click, ask me to redraw it for a case you actually hit
+            this week. A few openers:
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Can you redraw this for a branch with just one commit?</span>
+            <span class="vt-ask">What happens to the faded commits — are they really gone?</span>
+            <span class="vt-ask">Show me what <code>git log --graph</code> prints for my repo.</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="vt-upnext">
+        <em>Up next:</em>
+        <a href="0002-choosing-between-them.html">Lesson 2 — Choosing between them.</a>
+        Now that you can see both shapes, you'll learn to pick the right one for a
+        given situation and justify it in a sentence.
+      </p>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git — ch. 3.6 "Rebasing"</a>
+            <span class="note">— the canonical explanation of replay-onto-new-base. Read this first.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">Pro Git — ch. 3.2 "Basic Branching and Merging"</a>
+            <span class="note">— merge commits, fast-forward, three-way merge.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — "Merging vs. Rebasing"</a>
+            <span class="note">— the same two shapes, side by side.</span>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/glossary.html">Git history glossary</a>
+        </div>
+        <div class="meta">Lesson 0001 · verified 2026-06-26</div>
+      </footer>
+    </main>
+
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+    <script src="../assets/components/diagram/diagram.js"></script>
+  </body>
+</html>

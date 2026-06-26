@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TLS Debugging Cheat Sheet — Reference</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/chip/chip.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">TLS Handshake · Reference</p>
+      <h1>TLS Debugging Cheat Sheet</h1>
+      <p class="vt-lede">
+        The whole course compressed to one page you can keep open while debugging.
+        Handshake → checks → failures → commands.
+      </p>
+
+      <h2>The handshake (TLS 1.3 — one round trip)</h2>
+      <div class="vt-diagram">
+        <div class="vt-flow">
+          <div class="vt-node em">1 · ClientHello</div>
+          <div class="vt-node">2 · ServerHello</div>
+          <div class="vt-node">3 · Certificate</div>
+          <div class="vt-node">4 · CertVerify</div>
+          <div class="vt-node">5 · Finished (S)</div>
+          <div class="vt-node em">6 · Finished (C)</div>
+        </div>
+        <p class="vt-diagram-caption">
+          1–2 negotiate + swap key shares · 3–4 prove identity · 5–6 confirm
+          integrity. Messages 2–5 arrive in one server flight.
+        </p>
+      </div>
+      <table class="vt-kv">
+        <tbody>
+          <tr><th scope="row">1 ClientHello</th><td>offered versions/ciphers + client key share</td></tr>
+          <tr><th scope="row">2 ServerHello</th><td>chosen version/cipher + server key share</td></tr>
+          <tr><th scope="row">3 Certificate</th><td>server's certificate chain (encrypted)</td></tr>
+          <tr><th scope="row">4 CertificateVerify</th><td>signature proving the server holds the private key</td></tr>
+          <tr><th scope="row">5 Finished (server)</th><td>MAC over the handshake</td></tr>
+          <tr><th scope="row">6 Finished (client)</th><td>client MAC — channel open, app data flows</td></tr>
+        </tbody>
+      </table>
+      <p style="color: var(--vt-muted); font-size: 0.9rem">
+        Key idea: the <strong>session key is never sent</strong> — both sides
+        derive it from the two key shares (ephemeral Diffie–Hellman).
+      </p>
+
+      <h2>The four certificate checks</h2>
+      <div class="vt-diagram">
+        <div class="vt-flow">
+          <div class="vt-node">Chain → trusted root</div>
+          <div class="vt-node">Hostname matches</div>
+          <div class="vt-node">Not expired</div>
+          <div class="vt-node">Not revoked</div>
+        </div>
+      </div>
+
+      <h2>Failure → cause → fix</h2>
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr>
+              <th>curl says…</th>
+              <th>Cause</th>
+              <th>Fix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="vt-row-key">
+              <th scope="row">certificate has expired</th>
+              <td>Validity window passed (<code>not-after</code>).</td>
+              <td>Renew / reissue — check the auto-renewal job.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">self-signed certificate</th>
+              <td>Leaf signs itself; no CA above it.</td>
+              <td>Get a CA-issued cert (or trust it in dev only).</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">…subject name matches…</th>
+              <td>Hostname not in the cert's SAN list.</td>
+              <td>Reissue covering the name, or use a listed name.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">unable to get local issuer</th>
+              <td>Missing intermediate, or untrusted/internal root.</td>
+              <td>Server: send full chain. Client: add internal root.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="color: var(--vt-muted); font-size: 0.9rem">
+        Works in the browser but fails in <code>curl</code>? Almost always a
+        <strong>missing intermediate</strong> the browser cached and curl didn't.
+      </p>
+
+      <h2>Commands</h2>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>inspect a live connection</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code># Narrate the handshake, message by message
+curl -v https://example.com
+
+# Full cert chain + validity dates + names
+openssl s_client -connect example.com:443 -servername example.com
+
+# Just the validity window of the presented cert
+openssl s_client -connect example.com:443 -servername example.com \
+  &lt;/dev/null 2&gt;/dev/null | openssl x509 -noout -dates
+
+# Just the names the cert is valid for (SAN)
+openssl s_client -connect example.com:443 -servername example.com \
+  &lt;/dev/null 2&gt;/dev/null | openssl x509 -noout -ext subjectAltName</code></pre>
+      </div>
+
+      <h2>Practice targets — badssl.com</h2>
+      <table class="vt-kv">
+        <tbody>
+          <tr><th scope="row">expired.badssl.com</th><td>validity check fails</td></tr>
+          <tr><th scope="row">self-signed.badssl.com</th><td>chain check — no CA</td></tr>
+          <tr><th scope="row">wrong.host.badssl.com</th><td>hostname check fails</td></tr>
+          <tr><th scope="row">untrusted-root.badssl.com</th><td>chain check — unknown root</td></tr>
+          <tr><th scope="row">revoked.badssl.com</th><td>revocation check fails</td></tr>
+        </tbody>
+      </table>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li><span class="vt-src-ic" data-type="doc"></span><a href="https://badssl.com/">badssl.com</a></li>
+          <li><span class="vt-src-ic" data-type="doc"></span><a href="https://tls13.xargs.org/">The Illustrated TLS 1.3 Connection</a></li>
+          <li><span class="vt-src-ic" data-type="spec"></span><a href="https://www.rfc-editor.org/rfc/rfc8446">RFC 8446 — TLS 1.3</a></li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>See also:
+          <a href="glossary.html">TLS glossary</a> ·
+          <a href="../lessons/0003-trust-and-failure.html">Lesson 3</a>
+        </div>
+        <div class="meta">Reference · cheat sheet · verified 2026-06-26</div>
+      </footer>
+    </main>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+  </body>
+</html>

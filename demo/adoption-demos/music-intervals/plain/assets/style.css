@@ -1,0 +1,215 @@
+/* ============================================================================
+   Shared course stylesheet — "Intervals & the Major Scale"
+   Linked by every lesson and reference doc so the course reads as one book.
+   Aesthetic: Tufte-ish. Warm paper, generous margins, a serif reading face,
+   restrained ink. Designed to read on screen and print cleanly.
+   ============================================================================ */
+
+:root {
+  --paper:      #fdfaf3;
+  --ink:        #1c1a17;
+  --ink-soft:   #55504a;
+  --rule:       #e4ddcf;
+  --accent:     #8a5a2b;   /* warm sienna — keyboard & headings */
+  --accent-2:   #2f6f6a;   /* teal — interactive / "your turn" */
+  --good:       #2e7d32;
+  --bad:        #b3402c;
+  --key-hi:     #f3c969;   /* highlighted piano key */
+  --key-root:   #e08a3c;   /* scale root / primary highlight */
+  --shadow:     0 1px 2px rgba(0,0,0,.08), 0 8px 24px rgba(0,0,0,.06);
+  --maxw:       43rem;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+               Georgia, serif;
+  font-size: 19px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 4rem 1.5rem 7rem;
+}
+
+/* ---- Course masthead --------------------------------------------------- */
+.masthead {
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  font-size: .74rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: .6rem;
+  margin-bottom: 2.5rem;
+}
+.masthead a { color: var(--accent-2); text-decoration: none; }
+.masthead a:hover { text-decoration: underline; }
+
+/* ---- Typography -------------------------------------------------------- */
+h1, h2, h3 { line-height: 1.15; font-weight: 600; }
+h1 {
+  font-size: 2.3rem;
+  margin: .2rem 0 .4rem;
+  letter-spacing: -.01em;
+}
+.subtitle {
+  font-size: 1.15rem;
+  color: var(--ink-soft);
+  font-style: italic;
+  margin: 0 0 2.4rem;
+}
+h2 {
+  font-size: 1.4rem;
+  margin: 2.8rem 0 .8rem;
+  color: var(--accent);
+}
+h3 { font-size: 1.12rem; margin: 1.8rem 0 .5rem; }
+
+p { margin: 0 0 1.1rem; }
+strong { font-weight: 600; }
+
+a { color: var(--accent-2); }
+
+/* Footnote-style citation links */
+sup.cite { font-size: .68em; line-height: 0; }
+sup.cite a {
+  text-decoration: none;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  padding: 0 .12em;
+}
+
+/* ---- Callouts ---------------------------------------------------------- */
+.callout {
+  border-left: 3px solid var(--accent-2);
+  background: #f3efe4;
+  padding: 1rem 1.2rem;
+  margin: 1.6rem 0;
+  border-radius: 0 6px 6px 0;
+}
+.callout.win {
+  border-left-color: var(--key-root);
+  background: #f9efe0;
+}
+.callout.win h3 { margin-top: 0; color: var(--accent); }
+.callout .label {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .7rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  display: block;
+  margin-bottom: .35rem;
+}
+
+/* ---- Definition list for terms ----------------------------------------- */
+dl.terms { margin: 1.2rem 0; }
+dl.terms dt {
+  font-weight: 600;
+  font-variant: small-caps;
+  letter-spacing: .02em;
+}
+dl.terms dd { margin: .15rem 0 1rem; color: var(--ink-soft); }
+
+/* ---- Interval / pattern chips ------------------------------------------ */
+.chips { display: flex; flex-wrap: wrap; gap: .5rem; margin: 1.2rem 0; }
+.chip {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .82rem;
+  padding: .3rem .7rem;
+  border-radius: 999px;
+  background: #efe9db;
+  border: 1px solid var(--rule);
+  white-space: nowrap;
+}
+.chip b { color: var(--accent); }
+
+/* ---- Step ribbon (W W H W W W H) --------------------------------------- */
+.ribbon { display: flex; gap: .35rem; flex-wrap: wrap; margin: 1.3rem 0; }
+.ribbon .step {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  width: 2.2rem; height: 2.2rem;
+  display: grid; place-items: center;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+.ribbon .step.W { background: #eaf1f0; color: var(--accent-2); }
+.ribbon .step.H { background: #f7e7d6; color: var(--accent); }
+
+/* ---- Tables ------------------------------------------------------------ */
+table { border-collapse: collapse; width: 100%; margin: 1.4rem 0; font-size: .96rem; }
+th, td { text-align: left; padding: .5rem .6rem; border-bottom: 1px solid var(--rule); }
+th { font-family: ui-sans-serif, system-ui, sans-serif; font-size: .78rem;
+     letter-spacing: .06em; text-transform: uppercase; color: var(--ink-soft); }
+td.num { font-variant-numeric: tabular-nums; text-align: center; }
+
+/* ---- Footer / nav between lessons -------------------------------------- */
+.lesson-nav {
+  display: flex; justify-content: space-between; gap: 1rem;
+  margin-top: 3.5rem; padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-family: ui-sans-serif, system-ui, sans-serif; font-size: .9rem;
+}
+.lesson-nav a { text-decoration: none; }
+.lesson-nav .spacer { flex: 1; }
+
+.source-box {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .9rem;
+  background: #f1ece0;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin: 2rem 0;
+}
+.source-box .label {
+  font-size: .7rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--ink-soft); display: block; margin-bottom: .3rem;
+}
+
+.ask {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .88rem;
+  color: var(--ink-soft);
+  background: #eef2f1;
+  border: 1px dashed var(--accent-2);
+  border-radius: 8px;
+  padding: .8rem 1rem;
+  margin: 2rem 0 0;
+}
+.ask b { color: var(--accent-2); }
+
+footer.fineprint {
+  margin-top: 2.5rem; color: var(--ink-soft);
+  font-family: ui-sans-serif, system-ui, sans-serif; font-size: .76rem;
+}
+
+/* ---- Print ------------------------------------------------------------- */
+@media print {
+  body { background: #fff; font-size: 12pt; }
+  .wrap { padding: 0; max-width: none; }
+  .ask, .lesson-nav, .practice button.check { display: none; }
+  a { color: var(--ink); text-decoration: none; }
+  .keyboard { break-inside: avoid; }
+}
+
+@media (max-width: 480px) {
+  body { font-size: 17px; }
+  .wrap { padding: 2.5rem 1rem 5rem; }
+  h1 { font-size: 1.9rem; }
+}

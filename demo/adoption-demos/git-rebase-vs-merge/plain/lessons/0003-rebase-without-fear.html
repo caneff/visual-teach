@@ -3,180 +3,216 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 3 — Rebase without fear</title>
-<link rel="stylesheet" href="../assets/course.css">
+<title>Lesson 3 · Rebase without fear</title>
+<link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<div class="wrap">
 
-<p class="course-kicker">Git merge vs. rebase · Lesson 3 of 3</p>
-<h1>Rebase without fear</h1>
+  <p class="kicker">git merge vs rebase · Lesson 3 of 3</p>
+  <h1>Rebase without fear</h1>
+  <p class="lede">You know the two shapes and you know when to reach for each.
+  The last thing between you and a calm rebase is the fear: <em>"what if I lose
+  work, or clobber a teammate?"</em> This lesson removes it — one rule to stay
+  safe, one command to recover, one routine for conflicts.</p>
 
-<p>You know the two shapes (<a href="0001-two-shapes-of-history.html">Lesson 1</a>)
-and how to choose (<a href="0002-choosing-between-them.html">Lesson 2</a>). The
-last thing standing between you and a confident rebase is fear: <em>"I'll lose
-work."</em> This lesson dismantles it with three things — one rule, one safety
-net, and one conflict workflow.</p>
+  <p class="small">Your win for today: rebase a feature branch to clean it up
+  before a PR, knowing exactly how to undo it if anything looks wrong.</p>
 
-<h2>1 · The golden rule (your guardrail)</h2>
+  <hr>
 
-<div class="callout golden">
-  <span class="tag">The Golden Rule of Rebasing</span>
-  <strong>Never rebase commits that exist outside your repository and that other
-  people may have based work on.</strong><sup class="cite"><a href="#r1">1</a></sup>
-  Rewrite only <em>private, un-pushed</em> history.
-</div>
-
-<p>This is the same "are these commits shared?" question from Lesson 2, now
-stated as a safety rule. Obey it and rebase cannot hurt anyone else: you're only
-ever reshaping commits that are yours alone. The horror stories — clobbering a
-teammate's work — are <em>all</em> violations of this one rule.<sup class="cite"><a href="#r2">2</a></sup></p>
-
-<h2>2 · The safety net: you can't actually lose committed work</h2>
-
-<p>Here's the fact that kills the fear. A rebase doesn't delete your old commits;
-it builds new ones and <em>moves the branch pointer</em> to them. The originals
-linger in the <strong>reflog</strong> — git's local record of every place
-<code>HEAD</code> has been — for about 90 days.<sup class="cite"><a href="#r3">3</a></sup></p>
-
-<pre><code>git reflog
-# e3a1b2c HEAD@{0}: rebase finished: returning to refs/heads/feature
-# 9f8e7d6 HEAD@{1}: rebase: My second commit
-# 1a2b3c4 HEAD@{2}: checkout: moving to main
-# 7c6b5a4 HEAD@{3}: commit: My second commit   ← the ORIGINAL, pre-rebase tip
-#
-git reset --hard HEAD@{3}    # branch pointer jumps back; work restored</code></pre>
-
-<div class="callout win">
-  <span class="tag">Reframe</span>
-  A rebase you regret is <strong>undoable</strong>. Find the pre-rebase line in
-  <code>git reflog</code>, <code>git reset --hard</code> to it, and you're exactly
-  where you started. "Rebase loses work" is false for committed work.
-</div>
-
-<h2>3 · The conflict workflow (<code>--continue</code> / <code>--abort</code>)</h2>
-
-<p>Because rebase replays commits one at a time, a conflict can surface at each
-one. Git pauses and hands you the wheel. You have three buttons:<sup class="cite"><a href="#r4">4</a></sup></p>
-
-<table style="border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0">
-  <tr style="background:var(--code-bg)">
-    <th style="border:1px solid var(--rule);padding:.5rem .7rem;text-align:left">Command</th>
-    <th style="border:1px solid var(--rule);padding:.5rem .7rem;text-align:left">Meaning</th>
-  </tr>
-  <tr><td style="border:1px solid var(--rule);padding:.5rem .7rem"><code>git rebase --continue</code></td>
-      <td style="border:1px solid var(--rule);padding:.5rem .7rem">"Fixed it — replay the next commit." (After <code>git add</code>.)</td></tr>
-  <tr><td style="border:1px solid var(--rule);padding:.5rem .7rem"><code>git rebase --abort</code></td>
-      <td style="border:1px solid var(--rule);padding:.5rem .7rem">"Forget the whole thing — put my branch back exactly as it was."</td></tr>
-  <tr><td style="border:1px solid var(--rule);padding:.5rem .7rem"><code>git rebase --skip</code></td>
-      <td style="border:1px solid var(--rule);padding:.5rem .7rem">"Drop this one commit and keep going." (Use rarely, deliberately.)</td></tr>
-</table>
-
-<pre><code>git rebase main
-# CONFLICT (content): Merge conflict in app.js
-#
-# 1. open app.js, resolve the  &lt;&lt;&lt;&lt;&lt;&lt;&lt;  =======  &gt;&gt;&gt;&gt;&gt;&gt;&gt;  markers
-# 2. git add app.js
-# 3. git rebase --continue          # the next commit replays
-#
-# …repeat for each conflicting commit, OR at any moment:
-git rebase --abort                  # bail out, zero damage</code></pre>
-
-<div class="callout">
-  <span class="tag">The escape hatch removes the risk</span>
-  <code>--abort</code> always exists. If a rebase gets confusing, you are never
-  trapped — one command restores the original branch. Knowing the exit is what
-  lets you walk in calmly.
-</div>
-
-<h2>Interleaved recall — uses all three lessons</h2>
-<p>Mixing topics is harder than blocked practice, and that difficulty is what
-builds durable skill.<sup class="cite"><a href="#r2">2</a></sup></p>
-
-<div class="quiz" data-quiz>
-  <p class="q">You're 3 commits into rebasing a <strong>shared</strong> branch and
-  hit a nasty conflict. What's the <em>best</em> move?</p>
-  <button class="opt" data-correct>Abort — you shouldn't rebase a shared branch at all</button>
-  <button class="opt">Resolve it, then continue carefully through the rest</button>
-  <button class="opt">Skip the commit, then push the result with force</button>
-  <button class="opt">Reset hard to HEAD then start the rebase over</button>
-  <div class="feedback" data-when="right">
-    Right — this fails at the golden rule, not the conflict. The branch is
-    shared, so <code>git rebase --abort</code> and use <code>merge</code>
-    instead (Lesson 2). The conflict is a symptom; the wrong tool is the cause.
+  <h2>1 · The Golden Rule keeps you safe</h2>
+  <div class="callout warn">
+    <span class="tag">The Golden Rule of Rebasing</span>
+    <p><strong>Never rebase commits that have been pushed and shared</strong> —
+    that others may have based work on.</p>
+    <p class="small" style="margin-top:0.5rem">Pro Git puts it bluntly: "Do not
+    rebase commits that exist outside your repository and that people may have
+    based work on… if you don't, people will hate you."
+    <a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">[Pro Git §3.6]</a></p>
   </div>
-  <div class="feedback" data-when="wrong">
-    Look upstream of the conflict: the branch is <em>shared</em>. The golden rule
-    says don't rebase it at all — <code>--abort</code> and merge.
+  <p>This is the same private-vs-shared question from
+  <a href="0002-choosing-between-them.html">Lesson&nbsp;2</a>, now as a hard line.
+  Rewriting a <em>private</em> commit is harmless — nobody else has it. Rewriting a
+  <em>shared</em> one creates a divergent twin (<span style="color:#1f5673;font-weight:700">C</span>
+  vs <span style="color:#1f5673;font-weight:700">C'</span> from
+  <a href="0001-the-two-shapes-of-history.html">Lesson&nbsp;1</a>), and now two
+  people's histories disagree about reality. That's the mess.</p>
+
+  <div class="callout good">
+    <span class="tag">The safe default</span>
+    <p>Rebase your <em>own local</em> branch to tidy it before pushing. Once it's
+    pushed and someone else might be building on it, switch to merge. Best of both
+    worlds.</p>
   </div>
-</div>
 
-<div class="quiz" data-quiz>
-  <p class="q">You rebased a <strong>private</strong> branch, and the result looks
-  wrong. You want your pre-rebase commits back. Where do you look?</p>
-  <button class="opt" data-correct>git reflog — then reset hard to the old HEAD</button>
-  <button class="opt">git status — the old commits are staged there</button>
-  <button class="opt">git merge — it restores the previous branch tip</button>
-  <button class="opt">git rebase — run it again to reverse the first</button>
-  <div class="feedback" data-when="right">
-    Correct. <code>git reflog</code> still lists the pre-rebase tip; copy that
-    <code>HEAD@{n}</code> and <code>git reset --hard</code> to it. Committed work
-    isn't lost — it's one lookup away.
+  <h2>2 · The reflog is your undo button</h2>
+  <p>Here's the fear-killer. Rebase <em>almost never</em> truly destroys commits —
+  it moves the branch pointer to the new copies and leaves the originals sitting
+  unreferenced. Git remembers every place <code>HEAD</code> has been in the
+  <strong>reflog</strong> for weeks.
+  <a href="https://git-scm.com/docs/git-reflog">[git-reflog]</a></p>
+
+  <pre><code>$ git reflog
+a1b2c3d HEAD@{0}: rebase (finish): returning to refs/heads/feature
+e4f5g6h HEAD@{1}: rebase (pick): D
+1a2b3c4 HEAD@{2}: commit: D          <- here's my branch BEFORE the rebase
+...
+
+# "Take me back to exactly where I was before the rebase":
+$ git reset --hard HEAD@{2}</code></pre>
+
+  <div class="callout note">
+    <span class="tag">Read this and the fear is gone</span>
+    <p>A rebase you don't like is not a catastrophe — it's one
+    <code>git reset --hard</code> away from undone. The pre-rebase commit is still
+    in the reflog. Knowing the exit exists is what lets you walk in calmly.</p>
   </div>
-  <div class="feedback" data-when="wrong">
-    The undo button is the <strong>reflog</strong>: it records the old
-    <code>HEAD</code>; reset hard to that entry to restore your branch.
+
+  <h2>3 · Conflicts: pause, fix, continue (or abort)</h2>
+  <p>Replaying a commit can hit a line the new base also changed. Rebase
+  <em>pauses</em> and hands you the wheel. You are never stuck — there are exactly
+  two ways out, and both are safe.</p>
+
+  <pre><code>$ git rebase main
+CONFLICT (content): Merge conflict in app.js
+# rebase stops on the conflicting commit and waits.
+
+# 1. Open the file, resolve the &lt;&lt;&lt;&lt;/====/&gt;&gt;&gt;&gt; markers by hand.
+$ git add app.js              # stage the resolution
+
+$ git rebase --continue       # replay the next commit
+#   ...repeat if more commits conflict.</code></pre>
+
+  <div class="compare">
+    <div>
+      <h3 class="rebase-h"><code>--continue</code></h3>
+      <p>You fixed the conflict and staged it. Resume replaying the remaining
+      commits. The forward path.</p>
+    </div>
+    <div>
+      <h3 class="merge-h"><code>--abort</code></h3>
+      <p>Changed your mind, or the conflict is a mess. Instantly puts the branch
+      back exactly as it was before you started. The escape hatch.</p>
+    </div>
   </div>
+  <pre><code>$ git rebase --abort          # nothing happened; branch restored to pre-rebase state</code></pre>
+  <p class="small">(There's also <code>--skip</code> to drop the current commit, but
+  you rarely want it — reach for <code>--abort</code> and rethink instead.)
+  <a href="https://git-scm.com/docs/git-rebase">[git-rebase]</a></p>
+
+  <h2>The fearless-rebase checklist</h2>
+  <p>This is the whole course, distilled into a routine. Run it the next time you
+  clean up a branch before a PR (that's <a href="0002-choosing-between-them.html">scenario&nbsp;①</a>).</p>
+  <ul class="checklist">
+    <li><strong>Ask the deciding question.</strong> Are these commits still
+    private to my local branch? If shared → stop, merge instead.</li>
+    <li><strong>Know your shape.</strong> You're flattening a fork into a line
+    (Lesson&nbsp;1). Expect new hashes — that's normal, not loss.</li>
+    <li><strong>Note your escape route.</strong> Before rebasing, glance at
+    <code>git log --oneline -1</code> (or trust the reflog) so you know where
+    "before" is.</li>
+    <li><strong>Rebase.</strong> <code>git rebase main</code>.</li>
+    <li><strong>If it conflicts:</strong> resolve → <code>git add</code> →
+    <code>git rebase --continue</code>. Too messy? <code>git rebase --abort</code>
+    and nothing is lost.</li>
+    <li><strong>Verify the graph.</strong> <code>git log --graph --oneline --all</code>
+    — confirm a clean line on top of <code>main</code>.</li>
+    <li><strong>Regret it?</strong> <code>git reflog</code> →
+    <code>git reset --hard HEAD@{n}</code> back to before.</li>
+    <li><strong>Push.</strong> Now it's shared — Golden Rule is in force; no more
+    rebasing these commits.</li>
+  </ul>
+
+  <h2>Recall — interleaving everything</h2>
+  <p>These mix all three lessons on purpose. Mixed practice is harder and that's
+  the point — it's what makes the skill durable instead of just familiar.</p>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">Mid-rebase, a conflict in <code>app.js</code> looks too
+    risky to resolve right now. What's the safe move?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="--abort restores the branch to exactly its pre-rebase state. Nothing is lost; rethink and retry later.">Run git rebase --abort to back fully out</button></li>
+      <li><button class="opt"
+        data-feedback="--continue without resolving the conflict won't work, and force-pushing a half-done rebase is the dangerous path.">Force-push the half-finished rebase upstream</button></li>
+      <li><button class="opt"
+        data-feedback="Deleting the branch is destructive and unnecessary — abort already gives you a clean undo.">Delete the branch and re-clone the repo</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">You rebased and the result looks wrong. Your pre-rebase
+    work is gone from the branch tip. Is it actually lost?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="The old commit is unreferenced, not deleted. git reflog finds it; git reset --hard HEAD@{n} restores it.">No — the reflog still points to the old commit</button></li>
+      <li><button class="opt"
+        data-feedback="Rebase moves the pointer and leaves originals in the reflog for weeks; they're recoverable.">Yes — rebasing permanently erases old commits</button></li>
+      <li><button class="opt"
+        data-feedback="Only a fresh remote fetch isn't how you recover local work; the local reflog already has it.">Only if you re-pull the branch from origin</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">A teammate already pulled your pushed feature branch. You
+    want to clean up those commits. What does the Golden Rule say?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="They're shared now. Rewriting them creates divergent twins and breaks your teammate's history. Merge from here.">Don't rebase them — they are already shared</button></li>
+      <li><button class="opt"
+        data-feedback="Shared commits are exactly what the Golden Rule forbids rebasing, teammate's pull or not.">Rebase freely — cleanup always outweighs risk</button></li>
+      <li><button class="opt"
+        data-feedback="A message doesn't undo the history divergence a rebase of shared commits causes.">Rebase, then message them to re-clone it</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <h3>The final self-check</h3>
+  <details class="reveal">
+    <summary>From memory: after resolving a rebase conflict, what two commands
+    move you forward?</summary>
+    <div class="answer">
+      <p><code>git add &lt;file&gt;</code> to stage your resolution, then
+      <code>git rebase --continue</code> to replay the next commit. If it ever
+      feels wrong, <code>git rebase --abort</code> puts everything back.</p>
+    </div>
+  </details>
+
+  <div class="callout good">
+    <span class="tag">Mission check</span>
+    <p>That was the goal: understand exactly what merge and rebase do to history,
+    choose correctly, and rebase to tidy a branch <em>without anxiety</em> because
+    you can always recover. You're there. Go do it on a real branch — and bring me
+    the first one that surprises you.</p>
+  </div>
+
+  <div class="source-box">
+    <span class="tag">Primary source — read this next</span>
+    <p><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git,
+    §3.6 — "The Perils of Rebasing."</a> The official treatment of the Golden Rule
+    and what goes wrong when it's broken. Pair it with the
+    <a href="https://git-scm.com/docs/git-reflog">git-reflog manual</a> for the
+    recovery details.</p>
+  </div>
+
+  <div class="followup">
+    <span class="tag">Your teacher is here</span>
+    <p>Ready to try it for real? <strong>Tell me</strong> and I'll walk you through
+    setting up a throwaway repo where you can trigger a conflict on purpose,
+    resolve it, and practise <code>--abort</code> and reflog recovery with zero
+    stakes. Questions anytime — that's the job.</p>
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0002-choosing-between-them.html">← Back: Choosing between them</a>
+    <span class="spacer"></span>
+    <span class="small">Keep handy: <a href="../reference/merge-vs-rebase-cheatsheet.html">Cheat sheet &amp; glossary</a></span>
+  </nav>
+
 </div>
-
-<h2>The applied checklist</h2>
-<p>This is your whole course on one card. Run it before any rebase:</p>
-
-<ul class="checklist">
-  <li><strong>Shared?</strong> Has anyone pulled these commits? If yes → stop, use <code>merge</code> (Lessons 2 &amp; the golden rule).</li>
-  <li><strong>Private &amp; want it clean?</strong> → <code>git rebase main</code>. Expect new hashes (Lesson 1).</li>
-  <li><strong>Conflict appears?</strong> Resolve → <code>git add</code> → <code>git rebase --continue</code>. Confused at any point → <code>git rebase --abort</code>.</li>
-  <li><strong>Regret the result?</strong> <code>git reflog</code> → <code>git reset --hard HEAD@{n}</code>. Nothing committed is truly lost.</li>
-  <li><strong>Never</strong> force-push a rebased <em>shared</em> branch.</li>
-</ul>
-
-<div class="primary-source">
-  <span class="tag">Primary source — read this</span>
-  <p style="margin:.4rem 0 0"><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing"><strong>Pro Git, §3.6 — "The Perils of Rebasing" &amp; "Rebase When You Rebase"</strong></a>.
-  The definitive word on the golden rule and recovering when it's broken. Pair it
-  with the <a href="https://git-scm.com/docs/git-reflog">git-reflog</a> page for the safety net.</p>
-</div>
-
-<h2>Your tangible win — and the mission</h2>
-<div class="callout win">
-  <span class="tag">You can now</span>
-  Rebase a private branch without fear: you know the rule that keeps teammates
-  safe, the reflog that makes regret reversible, and the
-  <code>--continue</code>/<code>--abort</code> loop for conflicts. Combined with
-  Lessons 1–2, you can choose merge vs. rebase for any everyday situation and act
-  on it calmly. <strong>That was the mission.</strong>
-</div>
-
-<p class="followup"><strong>Take it to the real world.</strong> The fastest way
-to cement this is to do it on a throwaway repo — ask me to walk you through a
-hands-on rebase-with-conflict drill step by step. And when you hit a situation in
-real work that the checklist doesn't obviously cover, paste it to me, or sanity-check
-it with practitioners at <a href="https://www.reddit.com/r/git/">r/git</a> or the
-<a href="https://stackoverflow.com/questions/tagged/git-rebase">git-rebase tag on Stack Overflow</a>.</p>
-
-<h2 id="refs">References</h2>
-<ol class="refs">
-  <li id="r1"><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git §3.6 — "The Perils of Rebasing"</a> — the golden rule, verbatim.</li>
-  <li id="r2"><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — Merging vs. Rebasing</a> — golden rule restated; why violations clobber work.</li>
-  <li id="r3"><a href="https://git-scm.com/docs/git-reflog">git-reflog — official documentation</a> — the local record of where HEAD has been.</li>
-  <li id="r4"><a href="https://git-scm.com/docs/git-rebase">git-rebase — official documentation</a> — <code>--continue</code>, <code>--abort</code>, <code>--skip</code>.</li>
-</ol>
-
-<nav class="lesson-nav">
-  <span><a href="0002-choosing-between-them.html">← Lesson 2: Choosing between them</a></span>
-  <span class="spacer"></span>
-  <span><a href="../reference/merge-rebase-cheatsheet.html">📑 Cheat sheet</a></span>
-</nav>
-
 <script src="../assets/quiz.js"></script>
 </body>
 </html>

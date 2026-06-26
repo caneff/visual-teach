@@ -1,0 +1,108 @@
+/* ============================================================================
+   keyboard.css — styling for the shared <Music.Keyboard> component.
+   Pairs with keyboard.js. Linked by every lesson that shows a piano.
+   ============================================================================ */
+
+.keyboard {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 190px;
+  user-select: none;
+  margin: 1.4rem 0;
+  border: 1px solid #2b2620;
+  border-radius: 0 0 8px 8px;
+  background: #2b2620;       /* dark felt behind the keys */
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+/* ---- white keys -------------------------------------------------------- */
+.key.wkey {
+  position: relative;
+  flex: 1 1 0;
+  background: linear-gradient(#fff, #f4efe6);
+  border-right: 1px solid #d8d0c0;
+  border-radius: 0 0 5px 5px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: .5rem;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  cursor: default;
+}
+button.key.wkey { cursor: pointer; }
+.key.wkey:last-of-type { border-right: none; }
+
+/* ---- black keys -------------------------------------------------------- */
+.key.bkey {
+  position: absolute;
+  top: 0;
+  height: 60%;
+  background: linear-gradient(#3a342c, #1a1713);
+  border: 1px solid #000;
+  border-radius: 0 0 4px 4px;
+  z-index: 3;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: .3rem;
+  cursor: default;
+}
+button.key.bkey { cursor: pointer; }
+
+/* ---- labels ------------------------------------------------------------ */
+.klabel {
+  font-size: .72rem;
+  color: #6b6358;
+  pointer-events: none;
+}
+.bkey .klabel { color: #d8cdba; font-size: .6rem; }
+.klabel.forced { font-weight: 700; }
+
+/* ---- per-key number/letter badge -------------------------------------- */
+.kbadge {
+  position: absolute;
+  top: .35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 .2rem;
+  border-radius: 999px;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--accent-2);
+  pointer-events: none;
+  z-index: 5;
+}
+.kbadge.show { display: flex; }
+.kbadge.root { background: var(--key-root); }
+.kbadge.muted { background: #8a8478; }
+
+/* ---- highlight states -------------------------------------------------- */
+.key.hi   { background: linear-gradient(var(--key-hi), #e7b94e); }
+.bkey.hi  { background: linear-gradient(#caa23f, #a9831f); }
+.key.hi2  { background: linear-gradient(#bfe0db, #8fc4bd); }
+.bkey.hi2 { background: linear-gradient(#4f8c85, #356e68); }
+.key.root  { background: linear-gradient(var(--key-root), #c5701f); }
+.bkey.root { background: linear-gradient(#d07e34, #a85e1c); }
+.key.step  { background: linear-gradient(#f6dca6, #ecc578); }
+.key.dim   { opacity: .45; }
+
+/* pressed feedback */
+button.key:active { transform: translateY(1px); filter: brightness(.96); }
+
+/* interactive keys get a subtle hover */
+button.key.wkey:hover { background: linear-gradient(#fffdf8, #efe7d8); }
+button.key.bkey:hover { background: linear-gradient(#46402f, #221d16); }
+
+@media (max-width: 520px) {
+  .keyboard { height: 150px; }
+  .klabel { font-size: .62rem; }
+}

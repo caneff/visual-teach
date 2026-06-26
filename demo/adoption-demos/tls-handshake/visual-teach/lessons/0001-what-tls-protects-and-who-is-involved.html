@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>What TLS protects, and who's involved — TLS Handshake · Lesson 1</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/chip/chip.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">TLS Handshake · Lesson 1</p>
+      <h1>What TLS protects, and who's involved</h1>
+      <p class="vt-lede">
+        Before any bytes or key math: the three things TLS promises, and the
+        three actors who make those promises true.
+      </p>
+
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~10 min</strong></span>
+        <span class="item">Needs: <strong>nothing — start here</strong></span>
+        <span class="item"><span class="vt-level beginner">Beginner</span></span>
+        <span class="item">Lesson <strong>1</strong> of 3</span>
+      </div>
+
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Name the three guarantees TLS provides, and say what each one stops.</li>
+          <li>Name the three actors — client, server, certificate authority — and their jobs.</li>
+          <li>Say what a certificate actually <em>is</em>, in one sentence.</li>
+        </ul>
+      </div>
+
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> Every "certificate error"
+        you've ever clicked through is one of these three actors failing to keep
+        one of these three promises. Get the cast and the promises straight now,
+        and the error messages in
+        <a href="0003-trust-and-failure.html">Lesson&nbsp;3</a> stop being noise.
+      </div>
+
+      <h2><span class="vt-num">1</span>The three promises</h2>
+      <p>
+        When you load <code>https://bank.example</code>, TLS (the protocol behind
+        the <strong>S</strong> in HTTP<strong>S</strong>) wraps your plain HTTP
+        request in three guarantees. Every one of them is something an attacker
+        on the network — sharing your café Wi-Fi, running a router between you and
+        the server — would otherwise be free to do.
+      </p>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr>
+              <th>Guarantee</th>
+              <th>Plain meaning</th>
+              <th>What it stops</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="vt-row-key">
+              <th scope="row">Confidentiality</th>
+              <td>Nobody in the middle can <em>read</em> the bytes.</td>
+              <td>Eavesdropping — sniffing your password off the wire.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Integrity</th>
+              <td>Nobody in the middle can <em>change</em> the bytes undetected.</td>
+              <td>Tampering — flipping "$10" to "$1000" in transit.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Authentication</th>
+              <td>You're really talking to <em>the server you named</em>.</td>
+              <td>Impersonation — a fake server posing as your bank.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-callout insight">
+        <strong>Insight</strong> — The first two protect the
+        <em>data</em>; the third protects the <em>identity</em>. Encryption alone
+        is worthless without authentication: a perfectly encrypted line to an
+        impostor still hands them your password. Most of this course is really
+        about that third promise — and certificates are how it's kept.
+      </div>
+      <p class="vt-src-line">
+        Vendor-neutral definitions:
+        <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security">MDN — Transport Layer Security</a>.
+      </p>
+
+      <h2><span class="vt-num">2</span>The three actors</h2>
+      <p>
+        Only three parties matter for the whole handshake. Two are obvious; the
+        third is the one most developers never picture.
+      </p>
+
+      <div class="vt-diagram">
+        <div class="vt-row">
+          <div class="vt-col">
+            <div class="vt-col-label">Client</div>
+            <div class="vt-node em">Your browser / curl</div>
+            <div class="vt-node muted">Ships a list of trusted CAs</div>
+          </div>
+          <div class="vt-col">
+            <div class="vt-col-label">Server</div>
+            <div class="vt-node em">bank.example</div>
+            <div class="vt-node muted">Holds a private key + certificate</div>
+          </div>
+          <div class="vt-col">
+            <div class="vt-col-label">Certificate Authority</div>
+            <div class="vt-node em">e.g. Let's Encrypt</div>
+            <div class="vt-node muted">Signed the server's certificate</div>
+          </div>
+        </div>
+        <p class="vt-diagram-caption">
+          The CA isn't online during your connection — it signed the server's
+          certificate <em>earlier</em>. Your client trusts the CA in advance.
+        </p>
+      </div>
+
+      <ul>
+        <li>
+          <strong>Client</strong> — starts the connection and does the checking.
+          It ships with a built-in list of <strong>certificate authorities</strong>
+          it already trusts (your OS / browser trust store).
+        </li>
+        <li>
+          <strong>Server</strong> — proves who it is. It holds a
+          <strong>private key</strong> and a matching <strong>certificate</strong>,
+          and must prove it controls that private key.
+        </li>
+        <li>
+          <strong>Certificate Authority (CA)</strong> — the trusted third party.
+          It checked the server's identity once and <strong>signed</strong> its
+          certificate. It is <em>not</em> part of your live connection.
+        </li>
+      </ul>
+
+      <h2><span class="vt-num">3</span>The black-box keypair</h2>
+      <p>
+        We treat public-key crypto as a sealed box — no RSA or elliptic-curve
+        math in this course. You only need two properties of a
+        <strong>keypair</strong> (a public key + its matching private key):
+      </p>
+      <div class="vt-callout info">
+        <strong>The only two rules you need</strong>
+        <ul style="margin: 0.4rem 0 0">
+          <li>One key <strong>undoes</strong> the other: what one locks, only the other opens.</li>
+          <li>The <strong>public</strong> key can be shared with the world; the <strong>private</strong> key never leaves its owner.</li>
+        </ul>
+      </div>
+      <p>
+        From those two rules alone, a signature works like this: the CA "locks" a
+        summary of the certificate with <em>its</em> private key; anyone with the
+        CA's public key can unlock it and confirm the CA — and only the CA — wrote
+        it. That's all a signature is for our purposes.
+      </p>
+
+      <h2><span class="vt-num">4</span>So what <em>is</em> a certificate?</h2>
+      <p>
+        Put the actors and the keypair together and a certificate stops being
+        magic. It is just a signed claim:
+      </p>
+      <div class="vt-callout success">
+        A <strong>certificate</strong> is a <strong>public key</strong> bound to
+        an <strong>identity</strong> (a hostname like <code>bank.example</code>),
+        <strong>signed by a CA</strong> your client already trusts.
+      </div>
+      <p>
+        That's the whole idea. The server hands the client this certificate during
+        the handshake; the client trusts the <em>contents</em> because it trusts
+        the <em>CA's signature</em> on them. How the client actually verifies that
+        signature — and what happens when it can't — is
+        <a href="0003-trust-and-failure.html">Lesson&nbsp;3</a>.
+      </p>
+      <p class="vt-src-line">
+        Friendly illustrated version:
+        <a href="https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/">Cloudflare — What is an SSL certificate?</a>
+      </p>
+
+      <h2><span class="vt-num">5</span>Check yourself</h2>
+      <p>
+        Retrieval is what makes this stick — answer before you read on, and
+        don't peek at the table above.
+      </p>
+
+      <div aria-live="polite" class="vt-quiz-live"></div>
+
+      <div class="vt-quiz" data-answer="2">
+        <p class="q">
+          An attacker on your Wi-Fi silently rewrites a number inside your
+          request but can't read the rest. Which guarantee just failed?
+        </p>
+        <button class="opt">Confidentiality</button>
+        <button class="opt">Authentication</button>
+        <button class="opt">Integrity</button>
+        <button class="opt">Availability</button>
+
+        <template class="why-good">
+          <strong>Integrity</strong> is about bytes not changing in transit.
+          They couldn't <em>read</em> the request, so confidentiality held — but
+          they <em>altered</em> it undetected, which is exactly the integrity
+          promise being broken.
+        </template>
+        <template class="why-bad">Not quite — re-read what each guarantee protects, then try again.</template>
+        <template data-opt="0">
+          <strong>Confidentiality</strong> is about <em>reading</em> the bytes —
+          and here the attacker couldn't read them, so this promise held.
+        </template>
+        <template data-opt="1">
+          <strong>Authentication</strong> is about <em>who</em> you're talking to,
+          not about the bytes being altered mid-flight.
+        </template>
+        <template data-opt="3">
+          <strong>Availability</strong> (keeping a service reachable) isn't one of
+          the three things TLS sets out to guarantee.
+        </template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <div class="vt-quiz" data-answer="2">
+        <p class="q">
+          Who vouches that a public key truly belongs to <code>bank.example</code>?
+        </p>
+        <button class="opt">The web browser</button>
+        <button class="opt">The origin server</button>
+        <button class="opt">A trusted authority</button>
+        <button class="opt">The DNS resolver</button>
+
+        <template class="why-good">
+          <strong>A trusted authority</strong> — the CA. It checked the server's
+          identity once and signed the certificate; the client trusts the binding
+          because it trusts the CA.
+        </template>
+        <template class="why-bad">Not quite — recall which actor <em>signs</em> the certificate. Try again.</template>
+        <template data-opt="0">
+          <strong>The web browser</strong> is the client — it <em>checks</em> the
+          vouching, but it doesn't do the vouching itself.
+        </template>
+        <template data-opt="1">
+          <strong>The origin server</strong> <em>presents</em> the certificate,
+          but a claim about yourself isn't trustworthy on its own — that's why a
+          third party signs it.
+        </template>
+        <template data-opt="3">
+          <strong>The DNS resolver</strong> maps names to IP addresses; it has no
+          role in vouching for keys.
+        </template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <p class="vt-reveal-hint">
+        Now produce these from memory — say your answer aloud, then reveal.
+      </p>
+
+      <details class="vt-reveal">
+        <summary>Name the three guarantees and, for each, the attack it stops.</summary>
+        <div class="answer">
+          <strong>Confidentiality</strong> — stops eavesdropping (reading).
+          <strong>Integrity</strong> — stops tampering (undetected changes).
+          <strong>Authentication</strong> — stops impersonation (a fake server).
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>Define a certificate in one sentence.</summary>
+        <div class="answer">
+          A public key bound to an identity (a hostname), signed by a certificate
+          authority the client already trusts. See the
+          <a href="../reference/glossary.html">glossary</a> for the precise terms.
+        </div>
+      </details>
+
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        TLS keeps three promises — confidentiality, integrity, authentication —
+        among three actors — client, server, CA — and a certificate is just a
+        CA-signed binding of a public key to a hostname.
+      </div>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — ask me anything</p>
+          <p>
+            This lesson is the vocabulary the rest of the course leans on, so it's
+            worth nailing down. If any of it feels shaky, ask me — for instance:
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Why isn't encryption alone enough to be safe?</span>
+            <span class="vt-ask">Where does my browser keep its list of trusted CAs?</span>
+            <span class="vt-ask">What stops me from making my own cert for bank.example?</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="vt-upnext">
+        <em>Up next:</em>
+        <a href="0002-the-handshake-step-by-step.html">Lesson&nbsp;2 — The handshake, step by step</a>:
+        how these two sides agree on a secret key without ever sending it.
+      </p>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="video"></span
+            ><a href="https://howhttps.works/">How HTTPS Works — DNSimple (illustrated)</a>
+            <span class="note">— primary source: the friendly intro to keys, the handshake, and CAs.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security">MDN — Transport Layer Security</a>
+            <span class="note">— precise definitions of the guarantees.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://www.cloudflare.com/learning/ssl/what-is-an-ssl-certificate/">Cloudflare — What is an SSL certificate?</a>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/glossary.html">TLS glossary &amp; concept map</a>
+        </div>
+        <div class="meta">Lesson 0001 · verified 2026-06-26</div>
+      </footer>
+    </main>
+
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+  </body>
+</html>

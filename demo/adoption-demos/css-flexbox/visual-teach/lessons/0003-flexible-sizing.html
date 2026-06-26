@@ -1,291 +1,346 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 3 · Flexible sizing — CSS Flexbox</title>
-<link rel="stylesheet" href="../assets/lesson.css">
-<script src="../assets/lesson.js" defer></script>
-</head>
-<body>
-<main class="wrap">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 3 — Flexible sizing</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/checklist/checklist.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/components/flex-playground/flex-playground.css" />
+    <script src="../assets/prism/prism-core.min.js"></script>
+    <script src="../assets/prism/prism-markup.min.js"></script>
+    <script src="../assets/prism/prism-css.min.js"></script>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">CSS Flexbox · Lesson 3</p>
+      <h1>Flexible sizing</h1>
+      <p class="vt-lede">
+        The applied payoff: how items share leftover space, how a row reflows
+        onto new lines, and how to assemble one responsive row on purpose.
+      </p>
 
-  <p class="eyebrow">CSS Flexbox · Lesson 3 of 3</p>
-  <h1>Flexible sizing</h1>
-  <p class="dek">Items share leftover space and wrap when they run out — the "flex"
-  in flexbox, and the last piece of a responsive row.</p>
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~18 min</strong></span>
+        <span class="item">Needs: <strong><a href="0002-distributing-and-aligning.html">Lessons 1–2</a></strong></span>
+        <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
+        <span class="item">Lesson <strong>3</strong> of 3</span>
+      </div>
 
-  <div class="progress" aria-label="Course progress">
-    <span class="dot on"></span><span class="dot on"></span><span class="dot on"></span>
-    <span>Step 3 — applied</span>
-  </div>
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Read the <code>flex</code> shorthand and know what
+            <code>flex: 1</code> actually does.</li>
+          <li>Make one item absorb the leftover space (a stretchy search bar).</li>
+          <li>Let a row reflow onto multiple lines with <code>flex-wrap</code>.</li>
+          <li>Follow a short checklist to build a responsive nav bar end to end.</li>
+        </ul>
+      </div>
 
-  <p>So far your items have kept their natural size. The reason flexbox is called
-  <em>flex</em> is that items can <strong>flex</strong> — give back space when the
-  container is tight, take more when it's roomy. Add the ability to
-  <strong>wrap</strong> onto new lines and you have a row that reflows gracefully,
-  which is exactly the mission. This lesson interleaves
-  <a href="0001-the-container-and-its-axis.html">Lesson 1</a> and
-  <a href="0002-distributing-and-aligning.html">Lesson 2</a> into one real
-  component.</p>
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> "responsive rows that
+        reflow gracefully feel like luck" — this is where the luck ends. Lessons 1
+        and 2 placed and aligned items at a fixed size. Now the items themselves
+        flex: they share extra room, give up room when it's tight, and wrap when
+        the row runs out. That's the difference between a layout that survives a
+        phone screen and one that overflows it.
+      </div>
 
-  <h2>The <code>flex</code> shorthand: three numbers, one property</h2>
+      <h2><span class="vt-num">1</span>Free space, and who absorbs it</h2>
+      <p>
+        After items take their natural size, a row usually has leftover room on
+        the main axis — <strong>free space</strong>. In Lesson 2,
+        <code>justify-content</code> distributed that space <em>around</em> the
+        items. Now we let the <em>items themselves</em> soak it up, with three
+        properties — almost always written as one shorthand, <code>flex</code>:
+      </p>
 
-  <p>Sizing lives on the <em>items</em>, not the container, via the
-  <code>flex</code> shorthand. It bundles three longhands:</p>
-
-  <ul>
-    <li><strong><code>flex-grow</code></strong> — how greedily an item takes a
-    share of <em>leftover</em> space. <code>0</code> = never grow; <code>1</code> =
-    take an equal share; <code>2</code> = take twice the share of a <code>1</code>.</li>
-    <li><strong><code>flex-shrink</code></strong> — how readily it gives space back
-    when the container is too small. <code>1</code> (default) = shrinks;
-    <code>0</code> = refuses to shrink below its basis.</li>
-    <li><strong><code>flex-basis</code></strong> — the item's starting size along
-    the main axis <em>before</em> growing or shrinking. <code>auto</code> = use its
-    content/width; or a length like <code>200px</code>.</li>
-  </ul>
-
-  <pre><code><span class="k">.item</span> {
-  <span class="k">flex</span>: <span class="v">1 1 0</span>;     <span class="s">/* grow:1  shrink:1  basis:0  → equal-width columns */</span>
+      <div class="vt-code vt-static">
+        <div class="vt-code-head"><span>the flex shorthand</span></div>
+        <pre><code class="language-css">.item {
+  flex: 1;          /* shorthand for: flex-grow:1  flex-shrink:1  flex-basis:0 */
 }
 
-<span class="s">/* the three names you'll actually reach for: */</span>
-<span class="k">flex</span>: <span class="v">1</span>;        <span class="s">/* = 1 1 0   → share all space equally */</span>
-<span class="k">flex</span>: <span class="v">auto</span>;     <span class="s">/* = 1 1 auto → grow from natural size */</span>
-<span class="k">flex</span>: <span class="v">none</span>;     <span class="s">/* = 0 0 auto → fixed; never grow or shrink */</span></code></pre>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="gap:10px;">
-        <div class="item" style="flex:1;">1</div>
-        <div class="item" style="flex:1;">1</div>
-        <div class="item" style="flex:1;">1</div>
-      </div>
-    </div>
-    <div class="demo-cap">All three at <b>flex: 1</b> — leftover space split equally,
-    so the items become equal-width columns that fill the row.</div>
-  </div>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="gap:10px;">
-        <div class="item" style="flex:2;">2</div>
-        <div class="item" style="flex:1;">1</div>
-        <div class="item" style="flex:1;">1</div>
-      </div>
-    </div>
-    <div class="demo-cap">First item <b>flex: 2</b>, others <b>flex: 1</b> — the
-    first takes twice the share. A sidebar-plus-content ratio, no fixed widths.</div>
-  </div>
-
-  <div class="callout key">
-    <span class="label">The mental model</span>
-    <p><code>flex-grow</code> divides up the <em>extra</em> space, not the total
-    width. With three items at <code>flex: 1</code>, the leftover after their bases
-    is cut into three equal slices. Change one to <code>2</code> and it claims two
-    of (now) four slices. You're setting <em>ratios</em>, not pixels — which is what
-    makes the layout adapt on its own.</p>
-  </div>
-
-  <h2><code>flex-wrap</code>: let the row break onto new lines</h2>
-
-  <p>By default a flex container forces every item onto <em>one</em> line, shrinking
-  them until they fit (or overflow). That's <code>flex-wrap: nowrap</code>. Flip it
-  to <code>wrap</code> and items that don't fit drop to a new line instead — the
-  heart of a responsive row.</p>
-
-  <pre><code><span class="k">.cards</span> {
-  <span class="k">display</span>: <span class="v">flex</span>;
-  <span class="k">flex-wrap</span>: <span class="v">wrap</span>;        <span class="s">/* overflow items move to the next line */</span>
-  <span class="k">gap</span>: <span class="v">1rem</span>;
-}
-<span class="k">.cards > *</span> {
-  <span class="k">flex</span>: <span class="v">1 1 200px</span>;    <span class="s">/* grow & shrink, but aim for ~200px wide */</span>
+/* the three parts, spelled out */
+.item {
+  flex-grow: 1;     /* how greedily I absorb leftover space (0 = don't grow) */
+  flex-shrink: 1;   /* how readily I give up space when it's tight (default 1) */
+  flex-basis: 0;    /* my starting size before grow/shrink kicks in */
 }</code></pre>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="flex-wrap:wrap; gap:10px;">
-        <div class="item" style="flex:1 1 120px;">A</div>
-        <div class="item" style="flex:1 1 120px;">B</div>
-        <div class="item" style="flex:1 1 120px;">C</div>
-        <div class="item" style="flex:1 1 120px;">D</div>
-        <div class="item" style="flex:1 1 120px;">E</div>
       </div>
-    </div>
-    <div class="demo-cap"><b>flex-wrap: wrap</b> with <b>flex: 1 1 120px</b>. Each
-    item wants ~120px; as many as fit share each line, the rest wrap. Drag your
-    window narrower to watch the rows reflow — that's responsiveness with no media
-    query.</div>
-  </div>
 
-  <div class="callout watch">
-    <span class="label">Why your row overflowed instead of wrapping</span>
-    <p>The single most common surprise: nothing wraps until you set
-    <code>flex-wrap: wrap</code>. The default <code>nowrap</code> keeps everything
-    on one line and lets items overflow once they can't shrink further. If a row is
-    spilling off-screen, this property is almost always the fix.</p>
-  </div>
+      <p>
+        Two values cover almost everything you'll write:
+        <code>flex: 1</code> ("share the space equally with the other
+        <code>flex: 1</code> items") and <code>flex: 0 0 auto</code> ("don't grow,
+        don't shrink — stay my natural size").
+      </p>
 
-  <h2>Applied: build a responsive nav bar</h2>
+      <div class="vt-callout insight">
+        <strong>flex-grow is a ratio, not a width.</strong> If three items are
+        <code>flex: 1</code>, <code>flex: 2</code>, <code>flex: 1</code>, the
+        leftover space splits 1 : 2 : 1 — the middle item takes twice the
+        <em>extra</em>, not twice the total. Give one item <code>flex: 1</code> and
+        leave the rest at the default <code>0</code>, and that one item eats all
+        the slack — exactly how a search box stretches to fill a toolbar.
+      </div>
 
-  <p>Time to put all three lessons together. Work through this checklist against a
-  real file — it ticks persist if you close the tab and come back. The goal: a nav
-  bar with a logo on the left, links that space out, and that wraps cleanly on a
-  narrow screen.</p>
+      <p>
+        <strong>Try it.</strong> Click the boxes below to cycle each one's
+        <code>flex-grow</code> through 0 → 1 → 2. Watch how the leftover space
+        divides between whichever items are greedy, and read the rule that builds:
+      </p>
+      <div
+        class="vt-flexlab"
+        data-controls="gap"
+        data-items="3"
+        data-labels="Home,Search,Cart"
+        data-item-flex
+      ></div>
+      <p>
+        Set just the middle box to <code>flex-grow: 1</code> and leave the others
+        at <code>0</code>: the search field stretches, the buttons stay put. That's
+        the single most useful sizing move in flexbox.
+      </p>
 
-  <ul class="checklist" id="navbar">
-    <li>
-      <input type="checkbox" id="c1">
-      <label for="c1"><strong>Make the container.</strong> Put your logo and links
-      in a <code>&lt;nav&gt;</code> and give it <code>display: flex</code>
-      (Lesson 1). The children line up in a row.</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c2">
-      <label for="c2"><strong>Align the row vertically.</strong> Add
-      <code>align-items: center</code> so the logo and links sit on one centre line
-      regardless of height (Lesson 2, cross axis).</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c3">
-      <label for="c3"><strong>Push the links away from the logo.</strong> Either
-      <code>justify-content: space-between</code>, or give the logo
-      <code>margin-right: auto</code> — both shove the link group to the far
-      edge.</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c4">
-      <label for="c4"><strong>Space the links.</strong> Add <code>gap: 1.5rem</code>
-      on the link group so they breathe without per-item margins (Lesson 2).</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c5">
-      <label for="c5"><strong>Let it wrap.</strong> Add <code>flex-wrap: wrap</code>
-      so on a narrow screen the links drop to a second line instead of overflowing
-      (Lesson 3).</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c6">
-      <label for="c6"><strong>Make the search field flex.</strong> If you have a
-      search input, give it <code>flex: 1</code> so it absorbs the leftover space
-      while the buttons stay their natural size (<code>flex: none</code>).</label>
-    </li>
-    <li>
-      <input type="checkbox" id="c7">
-      <label for="c7"><strong>Resize and confirm.</strong> Drag the window from wide
-      to narrow. The bar should reflow on purpose — you should be able to
-      <em>name the property</em> doing each thing. That's the mission met.</label>
-    </li>
-  </ul>
+      <h2><span class="vt-num">2</span><code>flex-wrap</code> — let the row breathe onto new lines</h2>
+      <p>
+        By default a flex row <em>never</em> wraps: when space runs out, items
+        shrink (and keep shrinking past comfort). <code>flex-wrap: wrap</code> lets
+        them spill onto a second line instead — the foundation of a card grid that
+        survives a narrow screen.
+      </p>
 
-  <p>Here's a reference implementation to check yours against:</p>
+      <p>
+        Toggle <code>flex-wrap</code> below, then <strong>narrow your browser
+        window</strong> (or zoom in). With <code>nowrap</code> the items cram and
+        shrink; with <code>wrap</code> they reflow onto new rows:
+      </p>
+      <div
+        class="vt-flexlab"
+        data-controls="wrap,justify,gap"
+        data-items="5"
+        data-labels="Card 1,Card 2,Card 3,Card 4,Card 5"
+      ></div>
 
-  <pre><code><span class="k">nav</span> {
-  <span class="k">display</span>: <span class="v">flex</span>;
-  <span class="k">align-items</span>: <span class="v">center</span>;
-  <span class="k">flex-wrap</span>: <span class="v">wrap</span>;
-  <span class="k">gap</span>: <span class="v">1rem 1.5rem</span>;        <span class="s">/* row-gap  column-gap */</span>
+      <div class="vt-callout warn">
+        <strong>The responsive-card idiom.</strong> Pair wrap with a flex basis:
+        <code>flex-wrap: wrap</code> on the container and
+        <code>flex: 1 1 16rem</code> on each card means "be about 16rem wide, grow
+        to fill a row, and wrap to the next line when fewer than that fit." One
+        rule, and the cards reflow from four-up to one-up as the screen narrows —
+        no media queries.
+      </div>
+
+      <h2><span class="vt-num">3</span>Put it together — a responsive nav bar</h2>
+      <p>
+        This interleaves all three lessons: a container with an axis (L1),
+        distribution and alignment (L2), and flexible item sizing (L3). Work
+        through the checklist — each step is one declaration, building to the
+        finished bar. Progress is saved if you step away.
+      </p>
+
+      <ul class="vt-checklist" data-key="flexbox-navbar">
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Make the bar a flex container</span>
+            <span class="vt-step-body">
+              On the <code>&lt;nav&gt;</code>, set <code>display: flex</code>. Its
+              direct children — logo, links, sign-in button — become flex items in
+              a row. <em>(Lesson 1.)</em>
+            </span>
+          </div>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Center everything vertically</span>
+            <span class="vt-step-body">
+              Add <code>align-items: center</code> so the logo, text links, and
+              button share one baseline regardless of their heights.
+              <em>(Lesson 2 — cross axis.)</em>
+            </span>
+          </div>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Add even spacing</span>
+            <span class="vt-step-body">
+              Put <code>gap: 1rem</code> on the container so items don't touch —
+              no per-child margins to clean up. <em>(Lesson 2.)</em>
+            </span>
+          </div>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Push the sign-in button to the far right</span>
+            <span class="vt-step-body">
+              Give the spacer/links group <code>flex: 1</code> — that one item
+              absorbs all the free space, shoving the button to the edge. (Or use
+              <code>justify-content: space-between</code> if the bar has exactly
+              two groups.) <em>(Lesson 3.)</em>
+            </span>
+          </div>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Let it reflow on small screens</span>
+            <span class="vt-step-body">
+              Add <code>flex-wrap: wrap</code> so the bar drops the button to a
+              second line instead of overflowing when the viewport is tight.
+              <em>(Lesson 3.)</em>
+            </span>
+          </div>
+        </li>
+      </ul>
+
+      <p>Here's the rule that checklist builds — the whole bar in six declarations:</p>
+      <div class="vt-code">
+        <div class="vt-code-head"><span>nav-bar.css</span><button class="vt-code-copy" type="button"></button></div>
+        <pre><code class="language-css">nav {
+  display: flex;          /* L1 — container; children become items   */
+  align-items: center;    /* L2 — center on the cross axis            */
+  gap: 1rem;              /* L2 — even spacing, no edge gaps          */
+  flex-wrap: wrap;        /* L3 — reflow instead of overflow          */
 }
-<span class="k">nav .logo</span>   { <span class="k">margin-right</span>: <span class="v">auto</span>; }  <span class="s">/* push everything else right */</span>
-<span class="k">nav .search</span> { <span class="k">flex</span>: <span class="v">1 1 12rem</span>; }     <span class="s">/* grows; wraps below ~12rem */</span>
-<span class="k">nav .btn</span>    { <span class="k">flex</span>: <span class="v">none</span>; }          <span class="s">/* buttons keep their size */</span></code></pre>
+nav .links {
+  flex: 1;                /* L3 — eat the slack, push sign-in to edge */
+}</code></pre>
+      </div>
 
-  <h2>Lock it in</h2>
+      <h2><span class="vt-num">4</span>Lock it in</h2>
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">In a toolbar, you want one search box to absorb all the leftover space while the buttons keep their size. What do you put on the search box?</p>
+        <button class="opt"><code>flex: 1</code> on it only</button>
+        <button class="opt"><code>flex: 1</code> on every item</button>
+        <button class="opt"><code>width: 100%</code> on it</button>
+        <button class="opt"><code>flex-wrap</code> on the row</button>
 
-  <div class="quiz" data-answer="2">
-    <p class="q-kicker">Recall · 1 of 2</p>
-    <p class="q-stem">Three items, all <code>flex: 1</code>, in a container wider
-    than their combined content. What happens?</p>
-    <ul class="opts">
-      <li><button class="opt">They stay their natural size, left-packed</button></li>
-      <li><button class="opt">They overflow the container's right edge</button></li>
-      <li><button class="opt">They grow to equal widths filling the row</button></li>
-      <li><button class="opt">They each wrap onto their own line</button></li>
-    </ul>
-    <div class="feedback"
-      data-right="flex: 1 means grow:1 / basis:0, so the leftover space splits equally — equal-width columns."
-      data-wrong="flex: 1 expands to grow:1 shrink:1 basis:0. With basis 0 and equal grow, the leftover space divides equally, so the items become equal-width columns filling the row."></div>
-  </div>
+        <template class="why-good">
+          Exactly — one item at <code>flex: 1</code> with the rest left at the
+          default <code>flex-grow: 0</code> means only that item grows into the
+          free space.
+        </template>
+        <template class="why-bad">
+          Not quite — you want <em>one</em> item to grow and the others to stay
+          put. Try again.
+        </template>
+        <template data-opt="1">
+          If every item is <code>flex: 1</code> they all grow equally — the buttons
+          stretch too, which isn't what you want.
+        </template>
+        <template data-opt="2">
+          <code>width: 100%</code> fights the flex layout and forces the others
+          out; <code>flex-grow</code> is how items share space cooperatively.
+        </template>
+        <template data-opt="3">
+          <code>flex-wrap</code> controls line breaking, not which item absorbs
+          slack on a single line.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
 
-  <div class="quiz" data-answer="0">
-    <p class="q-kicker">Recall · 2 of 2</p>
-    <p class="q-stem">Your row of cards runs off the right edge of the screen on a
-    phone instead of stacking. The most likely one-line fix?</p>
-    <ul class="opts">
-      <li><button class="opt">Add <code>flex-wrap: wrap</code> to the container</button></li>
-      <li><button class="opt">Add <code>justify-content: center</code></button></li>
-      <li><button class="opt">Set <code>flex-grow: 0</code> on the cards</button></li>
-      <li><button class="opt">Switch to <code>flex-direction: column</code></button></li>
-    </ul>
-    <div class="feedback"
-      data-right="The default nowrap forces one line and lets items overflow. flex-wrap: wrap lets the overflow drop to new lines."
-      data-wrong="The default is nowrap, which keeps everything on one line and overflows. flex-wrap: wrap is what lets items that don't fit drop to the next line — the fix for an overflowing responsive row."></div>
-  </div>
+      <p class="vt-reveal-hint">From memory first, then reveal:</p>
+      <details class="vt-reveal">
+        <summary>What three properties does <code>flex: 1</code> expand to, and what's the headline effect?</summary>
+        <div class="answer">
+          <code>flex-grow: 1</code>, <code>flex-shrink: 1</code>,
+          <code>flex-basis: 0</code>. Effect: the item grows from a zero base to
+          take an equal share of the row's free space (equal-width columns when
+          every item has it).
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>Your row of cards overflows the screen on a phone instead of stacking. One property fixes it — which?</summary>
+        <div class="answer">
+          <code>flex-wrap: wrap</code> on the container. Pair it with
+          <code>flex: 1 1 16rem</code> (or similar) on the cards so they reflow to
+          fewer-per-row as the screen narrows.
+        </div>
+      </details>
 
-  <div class="recall">
-    <span class="label">Free recall — the whole course in four answers</span>
-    <p>From memory: (1) what makes children flex items? (2) which property positions
-    along the main axis? (3) which along the cross? (4) which two properties make a
-    row responsive?</p>
-    <details>
-      <summary>Reveal</summary>
-      <p>(1) <code>display: flex</code> on the parent. (2)
-      <code>justify-content</code>. (3) <code>align-items</code>. (4)
-      <code>flex</code> (so items share space) + <code>flex-wrap: wrap</code> (so
-      they reflow onto new lines). That's the entire model — container, two axes,
-      distribute, align, size, wrap.</p>
-    </details>
-  </div>
+      <div class="vt-callout success">
+        <strong>Test it for real.</strong> Open a page you've built, find a row you
+        once forced with floats or <code>position</code>, and rebuild it with these
+        three lessons. Then bring the gnarliest case to a community —
+        <a href="https://www.reddit.com/r/css/">r/css</a> or the
+        <a href="https://stackoverflow.com/questions/tagged/flexbox">flexbox tag on
+        Stack Overflow</a> — and have practitioners critique it. Real layouts under
+        real eyes is where the model hardens into wisdom.
+      </div>
 
-  <h2>You've met the mission</h2>
-  <p>You set out able to build pages but fighting layout — floats, absolute
-  positioning, margin hacks, and a box that wouldn't center. You can now turn on a
-  flex container, choose its axis, center anything, space a row exactly as a design
-  asks, and build a row that reflows gracefully on purpose. That's the flexbox
-  model, end to end.</p>
+      <div class="vt-recap">
+        <p class="h">✦ What you earned — and the course goal met</p>
+        Items share free space by <code>flex-grow</code> ratio (<code>flex: 1</code>
+        = equal share; one greedy item eats the slack), and
+        <code>flex-wrap</code> lets a row reflow instead of overflow. With Lessons
+        1–2 you can now lay out a row <em>or</em> a column on purpose, center on
+        either axis, and build a responsive bar — without guessing. That was the
+        mission.
+      </div>
 
-  <div class="callout key">
-    <span class="label">Keep it durable — spacing &amp; wisdom</span>
-    <p>Storage strength comes from <em>spaced</em> retrieval, not one sitting. In a
-    day or two, rebuild the nav bar from a blank file without looking. When a real
-    layout fights you, post it to <a href="https://www.reddit.com/r/css/">r/css</a>
-    or search the <a href="https://stackoverflow.com/questions/tagged/flexbox">flexbox
-    tag on Stack Overflow</a> — testing the skill on real problems is where wisdom
-    comes from.</p>
-  </div>
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — this isn't the end</p>
+          <p>
+            You've finished the core model — now bring me your real layouts. Paste
+            the CSS that won't behave and I'll trace exactly which axis or which
+            flex value is fighting you. A few directions we could take next:
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Review a responsive layout I built and tell me what to simplify.</span>
+            <span class="vt-ask">When should I reach for CSS Grid instead of flexbox?</span>
+            <span class="vt-ask">Teach me <code>align-self</code> and <code>order</code> as a follow-up.</span>
+          </div>
+        </div>
+      </div>
 
-  <div class="source-box">
-    <span class="label">Primary source — read this next</span>
-    <p><a href="https://www.joshwcomeau.com/css/interactive-guide-to-flexbox/">Josh
-    W. Comeau — <em>An Interactive Guide to Flexbox</em></a>, the "Growing and
-    Shrinking" and "Wrapping" sections. His live demos make <code>flex-grow</code>
-    and <code>flex-basis</code> click in a way static text can't. For exhaustive
-    per-property detail, keep
-    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Controlling_ratios_of_flex_items_along_the_main_axis">MDN
-    on controlling flex ratios</a> open. All sources:
-    <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
-  </div>
-
-  <div class="ask">
-    <b>Ready for what's next?</b> Ask me to set up the natural follow-on mission —
-    <b>CSS Grid</b> — or to design spaced-practice drills that interleave everything
-    here. Stuck on a real layout? Paste it and we'll debug it together.
-  </div>
-
-  <nav class="lesson-nav">
-    <a href="0002-distributing-and-aligning.html">← Lesson 2 · Distributing &amp; aligning</a>
-    <span class="spacer"></span>
-    <span></span>
-  </nav>
-
-  <p style="font-family:var(--sans);font-size:0.84rem;margin-top:1.4rem;">
-    See also: <a href="../reference/flexbox-cheatsheet.html">Flexbox cheat sheet</a>
-    · <a href="../MISSION.md">course mission</a>
-  </p>
-
-  <footer class="course">CSS Flexbox · a 3-lesson course · Lesson 3 of 3 · course complete</footer>
-</main>
-</body>
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Controlling_ratios_of_flex_items_along_the_main_axis">MDN — Controlling ratios of flex items along the main axis</a>
+            <span class="note">— flex-grow / shrink / basis and the shorthand, with the free-space math. Your primary source for this lesson.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://web.dev/learn/css/flexbox">web.dev — Flexbox (Learn CSS)</a>
+            <span class="note">— flex-wrap and sizing, with live demos.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span
+            ><a href="https://www.w3.org/TR/css-flexbox-1/#flexibility">W3C — Flexbox: flexibility (flex shorthand)</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="forum"></span
+            ><a href="https://www.reddit.com/r/css/">r/css</a>
+            <span class="note">— post a real layout for critique.</span>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/flexbox-cheatsheet.html">Flexbox Cheat Sheet &amp; Glossary</a>
+        </div>
+        <div class="meta">Lesson 0003 · verified 2026-06-26</div>
+      </footer>
+    </main>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
+    <script src="../assets/components/flex-playground/flex-playground.js"></script>
+  </body>
 </html>

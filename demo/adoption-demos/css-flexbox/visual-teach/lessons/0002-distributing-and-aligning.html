@@ -1,295 +1,301 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 · Distributing &amp; aligning — CSS Flexbox</title>
-<link rel="stylesheet" href="../assets/lesson.css">
-<script src="../assets/lesson.js" defer></script>
-</head>
-<body>
-<main class="wrap">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 2 — Distributing and aligning</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/components/flex-playground/flex-playground.css" />
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">CSS Flexbox · Lesson 2</p>
+      <h1>Distributing and aligning</h1>
+      <p class="vt-lede">
+        The workhorse skill: position items along the main axis, align them on
+        the cross axis, and finally center a box on purpose.
+      </p>
 
-  <p class="eyebrow">CSS Flexbox · Lesson 2 of 3</p>
-  <h1>Distributing &amp; aligning</h1>
-  <p class="dek">Two properties — one per axis — and the centering problem is
-  finally over.</p>
-
-  <div class="progress" aria-label="Course progress">
-    <span class="dot on"></span><span class="dot on"></span><span class="dot"></span>
-    <span>Step 2 — the workhorse</span>
-  </div>
-
-  <p>In <a href="0001-the-container-and-its-axis.html">Lesson 1</a> you set up a
-  container with a <strong>main axis</strong> and a perpendicular
-  <strong>cross axis</strong>. Today each axis gets one control. Master these two
-  and you can center anything and space a row evenly — the skills the whole mission
-  was built around.</p>
-
-  <div class="callout key">
-    <span class="label">The whole lesson in two lines</span>
-    <p><code>justify-content</code> positions items <strong>along the main axis</strong>.
-    <code>align-items</code> positions them <strong>along the cross axis</strong>.
-    That's the pair. Everything below is just learning their values.</p>
-  </div>
-
-  <h2>justify-content — spacing along the main axis</h2>
-
-  <p>This is how you distribute items in the direction they flow. With a default
-  row, that means horizontally. Six values cover essentially every layout you'll
-  reach for:</p>
-
-  <pre><code><span class="k">.bar</span> {
-  <span class="k">display</span>: <span class="v">flex</span>;
-  <span class="k">justify-content</span>: <span class="v">space-between</span>;
-}</code></pre>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: flex-start;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~15 min</strong></span>
+        <span class="item">Needs: <strong><a href="0001-the-container-and-its-axis.html">Lesson 1</a></strong></span>
+        <span class="item"><span class="vt-level beginner">Beginner</span></span>
+        <span class="item">Lesson <strong>2</strong> of 3</span>
       </div>
-    </div>
-    <div class="demo-cap"><b>flex-start</b> (the default) — items packed at the
-    main-axis start.</div>
-  </div>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: center;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Distribute items along the main axis with <code>justify-content</code>.</li>
+          <li>Align items on the cross axis with <code>align-items</code> — and
+            center a box both directions.</li>
+          <li>Add even spacing with <code>gap</code>.</li>
+          <li><strong>Read a target layout and pick the properties</strong> that
+            produce it, the first time.</li>
+        </ul>
       </div>
-    </div>
-    <div class="demo-cap"><b>center</b> — items packed in the middle of the main axis.</div>
-  </div>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: space-between;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> this is the lesson that
+        kills the margin hacks. "Center this box," "push the logo left and the
+        menu right," "space these buttons evenly" — all three are one declaration
+        each once you know which axis they act on. You bring the
+        <strong>main / cross</strong> axes from Lesson 1; here you learn the two
+        properties that ride them.
       </div>
-    </div>
-    <div class="demo-cap"><b>space-between</b> — first and last hug the edges; gaps
-    split evenly between. The classic nav bar.</div>
-  </div>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: space-around;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <h2><span class="vt-num">1</span><code>justify-content</code> — along the main axis</h2>
+      <p>
+        <code>justify-content</code> decides how items sit along the
+        <strong>main axis</strong> (horizontal in a default <code>row</code>). The
+        first three pack the items together; the last three spread the free space
+        between them.
+      </p>
+
+      <div class="vt-diagram">
+        <p class="vt-diagram-caption"><code>justify-content: flex-start</code> (the default)</p>
+        <div class="vt-flex jc-start"><div class="vt-flex-item">A</div><div class="vt-flex-item">B</div><div class="vt-flex-item">C</div></div>
+        <p class="vt-diagram-caption"><code>center</code></p>
+        <div class="vt-flex jc-center"><div class="vt-flex-item">A</div><div class="vt-flex-item">B</div><div class="vt-flex-item">C</div></div>
+        <p class="vt-diagram-caption"><code>space-between</code> — first and last hug the edges</p>
+        <div class="vt-flex jc-between"><div class="vt-flex-item">A</div><div class="vt-flex-item">B</div><div class="vt-flex-item">C</div></div>
+        <p class="vt-diagram-caption"><code>space-evenly</code> — equal gaps everywhere, edges included</p>
+        <div class="vt-flex jc-evenly"><div class="vt-flex-item">A</div><div class="vt-flex-item">B</div><div class="vt-flex-item">C</div></div>
       </div>
-    </div>
-    <div class="demo-cap"><b>space-around</b> — equal space <em>around</em> each item,
-    so edge gaps look half-sized (each item's own left+right space meets at the middle).</div>
-  </div>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: space-evenly;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <p>The difference between the three "space-*" values is only where the edge gaps go:</p>
+      <div class="vt-table-wrap">
+        <table class="vt-table compact">
+          <thead>
+            <tr><th>Value</th><th>Gap at the two outer edges</th><th>Gaps between items</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>space-between</code></td><td>none</td><td>equal</td></tr>
+            <tr><td><code>space-around</code></td><td>half a gap</td><td>full (so edges look tighter)</td></tr>
+            <tr><td><code>space-evenly</code></td><td>full gap</td><td>full (everything equal)</td></tr>
+          </tbody>
+        </table>
       </div>
-    </div>
-    <div class="demo-cap"><b>space-evenly</b> — every gap is identical, edges
-    included. This is the "row of buttons spaced evenly" you wanted.</div>
-  </div>
 
-  <p>The remaining value, <code>flex-end</code>, simply packs items at the
-  main-axis <em>end</em> — the mirror of <code>flex-start</code>.</p>
+      <h2><span class="vt-num">2</span><code>align-items</code> — along the cross axis</h2>
+      <p>
+        <code>align-items</code> positions items on the <strong>cross axis</strong>
+        (vertical in a default row). Its default is <code>stretch</code> — items
+        grow to fill the container's height. Set it to <code>center</code> and the
+        items sit in the vertical middle. <strong>This is the property that finally
+        centers things vertically</strong> — no <code>position</code>, no negative
+        margins.
+      </p>
 
-  <h2>align-items — alignment along the cross axis</h2>
-
-  <p>Same idea, other axis. With a default row the cross axis is vertical, so
-  <code>align-items</code> controls how items sit top-to-bottom inside the
-  container's height.</p>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc tall" style="align-items: stretch;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-diagram">
+        <p class="vt-diagram-caption"><code>align-items: flex-start</code> — items pinned to the cross-start edge</p>
+        <div class="vt-flex ai-start" style="height: 5rem">
+          <div class="vt-flex-item">A</div>
+          <div class="vt-flex-item" style="padding-top:1.2rem;padding-bottom:1.2rem">B</div>
+          <div class="vt-flex-item">C</div>
+        </div>
+        <p class="vt-diagram-caption"><code>align-items: center</code> — items centered on the cross axis</p>
+        <div class="vt-flex ai-center" style="height: 5rem">
+          <div class="vt-flex-item">A</div>
+          <div class="vt-flex-item" style="padding-top:1.2rem;padding-bottom:1.2rem">B</div>
+          <div class="vt-flex-item">C</div>
+        </div>
       </div>
-    </div>
-    <div class="demo-cap"><b>stretch</b> (the default) — items grow to fill the
-    cross axis. It's why equal-height columns happen for free.</div>
-  </div>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc tall" style="align-items: center;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-callout insight">
+        <strong>The centering recipe.</strong> To center a box both directions,
+        center it on each axis at once:
+        <code>display:flex; justify-content:center; align-items:center;</code>.
+        Main axis centers it horizontally, cross axis centers it vertically. The
+        thing you could never reliably do is now two words.
       </div>
-    </div>
-    <div class="demo-cap"><b>center</b> — items centred on the cross axis. The other
-    half of centering a box.</div>
-  </div>
 
-  <p>The values mirror <code>justify-content</code>'s ends: <code>flex-start</code>
-  pins items to the cross-axis start (top, in a row), <code>flex-end</code> to the
-  end (bottom).</p>
+      <h2><span class="vt-num">3</span><code>gap</code> — breathing room between items</h2>
+      <p>
+        <code>gap</code> sets space <em>between</em> items — and only between them,
+        never on the outer edges. It replaces the old trick of margins on every
+        child (and then fighting the leftover margin on the last one). One
+        property on the container does it for the whole row.
+      </p>
 
-  <div class="callout key">
-    <span class="label">Finally: centering a box, both directions</span>
-    <p>Center on the main axis <em>and</em> the cross axis at once, and the item
-    sits dead-centre — no margins, no <code>position</code>, no math:</p>
-    <pre style="margin:0.6rem 0 0;"><code><span class="k">.center-box</span> {
-  <span class="k">display</span>: <span class="v">flex</span>;
-  <span class="k">justify-content</span>: <span class="v">center</span>;  <span class="s">/* main axis  → horizontal */</span>
-  <span class="k">align-items</span>: <span class="v">center</span>;      <span class="s">/* cross axis → vertical   */</span>
-}</code></pre>
-  </div>
+      <h2><span class="vt-num">4</span>The skill: read the target, pick the properties</h2>
+      <p>
+        This is the move you came for. Below are <strong>target layouts</strong>.
+        For each, set the controls so the live boxes match the goal — the panel
+        tells you the moment your rule is right. Don't guess-and-check blindly:
+        decide which axis the goal acts on first, then choose the value.
+      </p>
 
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="justify-content: center; align-items: center; min-height: 150px;">
-        <div class="item">★</div>
+      <p><strong>Challenge 1 — center one card in its box, both directions.</strong></p>
+      <div
+        class="vt-flexlab"
+        data-controls="justify,align"
+        data-items="1"
+        data-labels="Card"
+        data-target="justify:center;align:center"
+      ></div>
+
+      <p>
+        <strong>Challenge 2 — a nav bar: logo hard left, links hard right,
+        vertically centered.</strong> (Which value puts the first item at one edge
+        and the last at the other?)
+      </p>
+      <div
+        class="vt-flexlab"
+        data-controls="justify,align"
+        data-items="3"
+        data-labels="Logo,Docs,Sign in"
+        data-target="justify:space-between;align:center"
+      ></div>
+
+      <p>
+        <strong>Challenge 3 — a toolbar of buttons spaced evenly across, with
+        equal room at both ends.</strong>
+      </p>
+      <div
+        class="vt-flexlab"
+        data-controls="justify,align,gap"
+        data-items="4"
+        data-labels="Cut,Copy,Paste,Undo"
+        data-target="justify:space-evenly;align:center"
+      ></div>
+
+      <p>
+        Now free play — no target. Build any layout you like and read the rule it
+        produces. Switch <code>flex-direction</code> to <code>column</code> and
+        watch <code>justify-content</code> and <code>align-items</code> swap the
+        directions they act on (they follow the axes, not the screen):
+      </p>
+      <div
+        class="vt-flexlab"
+        data-controls="direction,justify,align,gap"
+        data-items="3"
+        data-labels="One,Two,Three"
+        data-show-axis
+      ></div>
+
+      <h2><span class="vt-num">5</span>Lock it in</h2>
+      <div class="vt-quiz" data-answer="2">
+        <p class="q">You want a row's items centered vertically. Which property and value?</p>
+        <button class="opt"><code>justify-content: center</code></button>
+        <button class="opt"><code>vertical-align: middle</code></button>
+        <button class="opt"><code>align-items: center</code></button>
+        <button class="opt"><code>align-content: middle</code></button>
+
+        <template class="why-good">
+          Yes — <strong>vertical</strong> in a row is the <strong>cross axis</strong>,
+          and <code>align-items</code> rides the cross axis.
+        </template>
+        <template class="why-bad">
+          Not quite — vertical, in a default row, is the cross axis. Which property
+          works there? Try again.
+        </template>
+        <template data-opt="0">
+          <code>justify-content</code> acts on the <em>main</em> axis (horizontal
+          in a row) — that centers left-to-right, not top-to-bottom.
+        </template>
+        <template data-opt="1">
+          <code>vertical-align</code> is for inline/table cells, not flex items.
+        </template>
+        <template data-opt="3">
+          <code>align-content</code> only does anything across multiple wrapped
+          lines, and <code>middle</code> isn't one of its values.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
-    </div>
-    <div class="demo-cap">One item, both properties set to <b>center</b>. The
-    decades-old "how do I vertically center a div" problem, solved in two lines.</div>
-  </div>
 
-  <h2>gap — space between, the clean way</h2>
+      <p class="vt-reveal-hint">From memory — say it before you reveal:</p>
+      <details class="vt-reveal">
+        <summary>Name the two declarations that center a single box both horizontally and vertically.</summary>
+        <div class="answer">
+          <code>justify-content: center</code> (main axis → horizontal) and
+          <code>align-items: center</code> (cross axis → vertical), on a
+          <code>display: flex</code> container.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>A design needs the first item pinned to the far left and the last to the far right, gaps filling the middle. Which one <code>justify-content</code> value?</summary>
+        <div class="answer">
+          <code>space-between</code> — it puts zero gap at the outer edges and
+          distributes all the free space <em>between</em> the items.
+        </div>
+      </details>
 
-  <p>To put breathing room <em>between</em> items, don't reach for margins on each
-  child. Set one property on the container:</p>
-
-  <pre><code><span class="k">.row</span> {
-  <span class="k">display</span>: <span class="v">flex</span>;
-  <span class="k">gap</span>: <span class="v">1rem</span>;   <span class="s">/* space between items only — never outside edges */</span>
-}</code></pre>
-
-  <div class="demo">
-    <div class="demo-stage">
-      <div class="fc" style="gap: 1rem;">
-        <div class="item">1</div><div class="item">2</div><div class="item">3</div>
+      <div class="vt-callout success">
+        <strong>Spaced practice — do this before Lesson 3.</strong> Play a few
+        levels of <a href="https://flexboxfroggy.com/">Flexbox Froggy</a>. It drills
+        exactly <code>justify-content</code>, <code>align-items</code>, and
+        <code>flex-direction</code> by making you write real CSS — retrieval a day
+        later is what turns today's win into something that sticks.
       </div>
-    </div>
-    <div class="demo-cap"><b>gap: 1rem</b> — uniform space between items, none added
-    at the container's outer edges. No more margin-on-every-child-except-the-last hacks.</div>
-  </div>
 
-  <div class="callout watch">
-    <span class="label">Don't confuse them</span>
-    <p><code>gap</code> sets a <em>fixed</em> distance between items.
-    <code>justify-content: space-*</code> <em>distributes leftover space</em>, so
-    its gaps grow and shrink with the container. They compose: a common pattern is
-    <code>gap</code> for a guaranteed minimum plus <code>space-between</code> to
-    push groups apart.</p>
-  </div>
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        <code>justify-content</code> distributes items on the main axis;
+        <code>align-items</code> aligns them on the cross axis (and
+        <code>center</code> + <code>center</code> centers a box);
+        <code>gap</code> spaces them. Given a target layout, you can now name the
+        rule instead of nudging margins.
+      </div>
 
-  <h2>The decision loop — read the layout, pick the property</h2>
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — ask me anything</p>
+          <p>
+            If any challenge took more guesses than you'd like, that's the exact
+            thing to ask me about — tell me which target and what you tried, and
+            we'll make the decision automatic. Or start with:
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">When should I use <code>gap</code> vs <code>space-between</code>?</span>
+            <span class="vt-ask">Why does <code>align-items</code> default to <code>stretch</code>?</span>
+            <span class="vt-ask">How do I center just <em>one</em> item differently from the rest?</span>
+          </div>
+        </div>
+      </div>
 
-  <p>This is the skill itself: not reciting values, but mapping a <em>target
-  layout</em> to the property that produces it. Decide each one before you tap.</p>
+      <p class="vt-upnext">
+        <em>Up next:</em>
+        <a href="0003-flexible-sizing.html">Lesson 3 — Flexible sizing</a>: how
+        items share leftover space and reflow onto new lines, pulled together into
+        one responsive row.
+      </p>
 
-  <div class="quiz" data-answer="2">
-    <p class="q-kicker">Decision · 1 of 4</p>
-    <p class="q-stem">A row of nav links: logo hard against the left edge, the
-    account menu hard against the right, nothing in the middle. Which property?</p>
-    <ul class="opts">
-      <li><button class="opt"><code>align-items: center</code></button></li>
-      <li><button class="opt"><code>gap: auto</code></button></li>
-      <li><button class="opt"><code>justify-content: space-between</code></button></li>
-      <li><button class="opt"><code>justify-content: center</code></button></li>
-    </ul>
-    <div class="feedback"
-      data-right="space-between pins the first and last items to the edges and puts all leftover space between them — the canonical nav bar."
-      data-wrong="You want the first and last items pinned to opposite edges with the slack in between: that's justify-content: space-between. (gap: auto isn't valid.)"></div>
-  </div>
-
-  <div class="quiz" data-answer="0">
-    <p class="q-kicker">Decision · 2 of 4</p>
-    <p class="q-stem">A default row of items of different heights. You want them all
-    vertically centred within the row. Which property?</p>
-    <ul class="opts">
-      <li><button class="opt"><code>align-items: center</code></button></li>
-      <li><button class="opt"><code>justify-content: center</code></button></li>
-      <li><button class="opt"><code>flex-direction: column</code></button></li>
-      <li><button class="opt"><code>gap: center</code></button></li>
-    </ul>
-    <div class="feedback"
-      data-right="Vertical, in a default row, is the cross axis — and align-items controls the cross axis."
-      data-wrong="In a default row the cross axis is vertical, and the cross axis is align-items' job. justify-content would shift them horizontally instead. (gap: center isn't valid.)"></div>
-  </div>
-
-  <div class="quiz" data-answer="3">
-    <p class="q-kicker">Decision · 3 of 4</p>
-    <p class="q-stem">Five buttons in a wide bar, and you want <em>identical</em>
-    spacing everywhere — between each pair <strong>and</strong> at both outer edges.
-    Which property?</p>
-    <ul class="opts">
-      <li><button class="opt"><code>justify-content: space-between</code></button></li>
-      <li><button class="opt"><code>justify-content: space-around</code></button></li>
-      <li><button class="opt"><code>align-items: stretch</code></button></li>
-      <li><button class="opt"><code>justify-content: space-evenly</code></button></li>
-    </ul>
-    <div class="feedback"
-      data-right="space-evenly makes every gap equal, edges included. space-between would leave zero gap at the edges; space-around would make the edge gaps look half-sized."
-      data-wrong="space-evenly is the only one where every gap — including the two outer edges — is identical. space-between gives zero edge gap; space-around makes the edges look half-sized."></div>
-  </div>
-
-  <div class="quiz" data-answer="1">
-    <p class="q-kicker">Decision · 4 of 4</p>
-    <p class="q-stem">One card, and you want it dead-centre of its container both
-    horizontally and vertically. The minimum that does it?</p>
-    <ul class="opts">
-      <li><button class="opt">margin: auto on all four sides</button></li>
-      <li><button class="opt">display flex, then justify-content center and align-items center</button></li>
-      <li><button class="opt">position absolute with top and left at fifty percent</button></li>
-      <li><button class="opt">align-items center on its own is enough</button></li>
-    </ul>
-    <div class="feedback"
-      data-right="Center on both axes at once: justify-content centers along main (horizontal), align-items along cross (vertical)."
-      data-wrong="Make the parent a flex container, then center on BOTH axes: justify-content: center (horizontal) and align-items: center (vertical). align-items alone only handles the cross axis."></div>
-  </div>
-
-  <div class="recall">
-    <span class="label">Free recall — from memory, no scrolling</span>
-    <p>Name the one property for each job: (1) push items apart along the row;
-    (2) align items up/down in a row; (3) put a fixed space between items.</p>
-    <details>
-      <summary>Reveal</summary>
-      <p>(1) <code>justify-content</code> — main axis. (2) <code>align-items</code>
-      — cross axis. (3) <code>gap</code>. If you can recite "justify = main, align
-      = cross, gap = between," you have the whole lesson.</p>
-    </details>
-  </div>
-
-  <h2>Your tangible win</h2>
-  <p>You can now space a row any way a design asks for, center a box in two honest
-  lines, and choose the right property from the <em>look</em> you want instead of
-  guessing. <strong>Next</strong>, items stop being fixed-size: you'll let them
-  share leftover space and wrap onto new lines, turning today's row into a
-  responsive one.</p>
-
-  <div class="source-box">
-    <span class="label">Primary source — read this next</span>
-    <p><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/">CSS-Tricks
-    — <em>A Complete Guide to Flexbox</em> (Chris Coyier)</a>. Scroll to the
-    <code>justify-content</code> and <code>align-items</code> diagrams and compare
-    them against the demos above. To <em>drill</em> the values, play
-    <a href="https://flexboxfroggy.com/">Flexbox Froggy</a> — its tight feedback
-    loop is the fastest way to make these automatic. All sources:
-    <a href="../RESOURCES.md">RESOURCES.md</a>.</p>
-  </div>
-
-  <div class="ask">
-    <b>Something not centering?</b> Ask me — paste your CSS. Useful follow-ups:
-    "why won't <code>align-items</code> move anything?" (often: the container has no
-    extra cross-axis height), or "what's <code>align-self</code> for?"
-  </div>
-
-  <nav class="lesson-nav">
-    <a href="0001-the-container-and-its-axis.html">← Lesson 1 · The container &amp; its axis</a>
-    <span class="spacer"></span>
-    <a href="0003-flexible-sizing.html">Lesson 3 · Flexible sizing →</a>
-  </nav>
-
-  <p style="font-family:var(--sans);font-size:0.84rem;margin-top:1.4rem;">
-    See also: <a href="../reference/flexbox-cheatsheet.html">Flexbox cheat sheet</a>
-    · <a href="../MISSION.md">course mission</a>
-  </p>
-
-  <footer class="course">CSS Flexbox · a 3-lesson course · Lesson 2 of 3</footer>
-</main>
-</body>
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_flexible_box_layout/Aligning_items_in_a_flex_container">MDN — Aligning items in a flex container</a>
+            <span class="note">— justify-content, align-items, gap, in depth. Your primary source for this lesson.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="forum"></span
+            ><a href="https://flexboxfroggy.com/">Flexbox Froggy</a>
+            <span class="note">— practice game; ideal spaced-retrieval homework.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://css-tricks.com/snippets/css/a-guide-to-flexbox/">CSS-Tricks — A Complete Guide to Flexbox</a>
+            <span class="note">— the visual gallery of every justify/align value.</span>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/flexbox-cheatsheet.html">Flexbox Cheat Sheet &amp; Glossary</a>
+        </div>
+        <div class="meta">Lesson 0002 · verified 2026-06-26</div>
+      </footer>
+    </main>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/flex-playground/flex-playground.js"></script>
+  </body>
 </html>

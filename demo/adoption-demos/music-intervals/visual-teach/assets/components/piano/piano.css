@@ -1,0 +1,174 @@
+/* piano — an interactive, labelled keyboard for music-theory lessons.
+   Renders a span of semitone keys from a starting note; lessons highlight keys,
+   read clicks, and build exercises on top. Self-contained: pairs with piano.js.
+
+   Sizing is driven by CSS custom properties so a lesson can shrink the keyboard
+   without touching JS. Geometry (key left offsets, container width) is set inline
+   by piano.js from these same numbers. */
+.vt-piano {
+  --vt-pw: 42px; /* white-key width  */
+  --vt-ph: 168px; /* white-key height */
+  --vt-bw: 28px; /* black-key width  */
+  --vt-bh: 104px; /* black-key height */
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.4rem 0.2rem 0.6rem;
+  margin: 1.4rem 0 0.6rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* the fixed-width stage the absolutely-positioned keys live in */
+.vt-piano-keys {
+  position: relative;
+  margin: 0 auto;
+}
+
+/* shared key chrome */
+.vt-pkey {
+  position: absolute;
+  top: 0;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--vt-rule);
+  font: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background 0.12s ease,
+    transform 0.06s ease;
+}
+.vt-pkey:focus-visible {
+  outline: 3px solid var(--vt-accent);
+  outline-offset: -3px;
+  z-index: 5;
+}
+
+.vt-pkey.white {
+  width: var(--vt-pw);
+  height: var(--vt-ph);
+  background: light-dark(#fffffe, #f4f6fa);
+  color: #2a2f3a;
+  border-radius: 0 0 5px 5px;
+  z-index: 1;
+}
+.vt-pkey.black {
+  width: var(--vt-bw);
+  height: var(--vt-bh);
+  background: light-dark(#1f2530, #0c0f14);
+  color: #e6e9ee;
+  border-color: #000;
+  border-radius: 0 0 4px 4px;
+  z-index: 3;
+}
+
+/* key labels (white at the very bottom; black just above the white tops) */
+.vt-pkey .lbl {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+  margin-bottom: 0.4rem;
+}
+.vt-pkey.black .lbl {
+  font-size: 0.62rem;
+  margin-bottom: 0.3rem;
+}
+
+/* press feedback (transient, added by piano.js on click) */
+.vt-pkey.is-press {
+  transform: translateY(2px);
+}
+
+/* ---- highlight states (toggled by lessons via piano.js helpers) ---- */
+/* a generic emphasised key */
+.vt-pkey.is-on {
+  background: var(--vt-accent-soft);
+  color: var(--vt-accent-dk);
+}
+.vt-pkey.black.is-on {
+  background: color-mix(in oklch, var(--vt-accent) 55%, #000);
+  color: #fff;
+}
+/* the reference / root note (green) */
+.vt-pkey.is-root {
+  background: var(--vt-good);
+  color: var(--vt-accent-fg);
+  border-color: var(--vt-good);
+}
+/* the target note of an interval (accent) */
+.vt-pkey.is-target {
+  background: var(--vt-accent);
+  color: var(--vt-accent-fg);
+  border-color: var(--vt-accent);
+}
+/* a transient correct / wrong flash for exercises */
+.vt-pkey.is-good {
+  background: var(--vt-good);
+  color: var(--vt-accent-fg);
+  border-color: var(--vt-good);
+}
+.vt-pkey.is-bad {
+  background: var(--vt-bad);
+  color: #fff;
+  border-color: var(--vt-bad);
+}
+/* a soft user selection */
+.vt-pkey.is-sel {
+  background: var(--vt-warn-soft);
+  color: var(--vt-warn-dk);
+}
+.vt-pkey.black.is-sel {
+  background: color-mix(in oklch, var(--vt-warn) 60%, #000);
+  color: #fff;
+}
+
+/* a small step-number badge piano.js can drop onto a key (e.g. counting) */
+.vt-pkey .step {
+  position: absolute;
+  top: 0.3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: var(--vt-ink);
+  color: var(--vt-paper);
+  border-radius: 999px;
+  min-width: 1.25em;
+  height: 1.25em;
+  line-height: 1.25em;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* the spoken-name readout the component renders under the keyboard */
+.vt-piano-readout {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.9rem;
+  color: var(--vt-muted);
+  min-height: 1.4em;
+  margin: 0.1rem 0 0.2rem;
+}
+.vt-piano-readout strong {
+  color: var(--vt-ink);
+}
+
+/* print: keep the keyboard legible in ink, drop interactive affordances */
+@media print {
+  .vt-pkey {
+    cursor: default;
+  }
+  .vt-pkey.white {
+    background: #fff;
+    border-color: #999;
+  }
+  .vt-pkey.black {
+    background: #333;
+    border-color: #000;
+  }
+}

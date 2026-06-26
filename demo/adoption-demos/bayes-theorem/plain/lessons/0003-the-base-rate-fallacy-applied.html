@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 3 · The base-rate fallacy, applied</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+
+  <p class="eyebrow">Bayes' theorem · Lesson 3 of 3</p>
+  <h1>The base-rate fallacy, applied</h1>
+  <p class="subtitle">Why a positive result on an accurate test can still mean you're probably fine — and the checklist that proves it every time.</p>
+
+  <div class="mission-ribbon">
+    <strong>This is the mission:</strong> see through the screening paradox without
+    being fooled, using counts you can picture. Lessons
+    <a href="0001-conditional-probability-and-the-trap.html">1</a> and
+    <a href="0002-bayes-theorem.html">2</a> were the build-up. See the
+    <a href="../MISSION.md">mission</a>.
+  </div>
+
+  <h2>The paradox</h2>
+
+  <p>A disease affects <strong>1%</strong> of people. There's a screening test:</p>
+  <ul>
+    <li>If you <em>have</em> the disease, it catches it <strong>99%</strong> of the time. <small>(sensitivity — the <span class="t-likelihood">likelihood</span>)</small></li>
+    <li>If you <em>don't</em>, it's correct <strong>95%</strong> of the time — so it false-alarms 5%. <small>(specificity)</small></li>
+  </ul>
+
+  <p>
+    You test <strong>positive</strong>. Intuition screams "99% accurate, so I'm
+    almost certainly sick." Let's not trust intuition — let's count.
+  </p>
+
+  <h2>Lead with natural frequencies</h2>
+
+  <p>
+    Instead of juggling percentages, drop <strong>10,000 people</strong> through
+    the test and watch where they land.<sup><a href="#s1">1</a></sup> No algebra
+    yet — just bookkeeping.
+  </p>
+
+  <!-- Natural-frequency tree -->
+  <svg class="tree" viewBox="0 0 640 380" role="img"
+       aria-label="Tree: 10,000 people split into 100 with disease (99 test positive, 1 negative) and 9,900 without disease (495 test positive, 9,405 negative).">
+    <!-- branches -->
+    <path class="branch" d="M120,190 C200,190 200,90 280,90"/>
+    <path class="branch" d="M120,190 C200,190 200,290 280,290"/>
+    <path class="branch" d="M400,90 C470,90 470,45 540,45"/>
+    <path class="branch" d="M400,90 C470,90 470,120 540,120"/>
+    <path class="branch" d="M400,290 C470,290 470,250 540,250"/>
+    <path class="branch" d="M400,290 C470,290 470,330 540,330"/>
+
+    <!-- root -->
+    <g>
+      <rect class="node" x="10" y="168" width="110" height="44" rx="6"/>
+      <text x="65" y="186" text-anchor="middle" class="count">10,000</text>
+      <text x="65" y="202" text-anchor="middle">people</text>
+    </g>
+
+    <!-- level 1 -->
+    <g>
+      <rect class="node" x="280" y="68" width="120" height="44" rx="6" style="stroke:var(--accent)"/>
+      <text x="340" y="86" text-anchor="middle" class="count" style="fill:var(--accent)">100</text>
+      <text x="340" y="102" text-anchor="middle">have it (1%)</text>
+    </g>
+    <g>
+      <rect class="node" x="280" y="268" width="120" height="44" rx="6"/>
+      <text x="340" y="286" text-anchor="middle" class="count">9,900</text>
+      <text x="340" y="302" text-anchor="middle">healthy (99%)</text>
+    </g>
+
+    <!-- level 2 -->
+    <g>
+      <rect class="node" x="540" y="25" width="95" height="40" rx="6" style="stroke:var(--good)"/>
+      <text x="587" y="42" text-anchor="middle" class="count" style="fill:var(--good)">99</text>
+      <text x="587" y="57" text-anchor="middle">+ (true)</text>
+    </g>
+    <g>
+      <rect class="node" x="540" y="100" width="95" height="40" rx="6"/>
+      <text x="587" y="117" text-anchor="middle" class="count">1</text>
+      <text x="587" y="132" text-anchor="middle">&minus; (missed)</text>
+    </g>
+    <g>
+      <rect class="node" x="540" y="230" width="95" height="40" rx="6" style="stroke:var(--accent-2)"/>
+      <text x="587" y="247" text-anchor="middle" class="count" style="fill:var(--accent-2)">495</text>
+      <text x="587" y="262" text-anchor="middle">+ (false)</text>
+    </g>
+    <g>
+      <rect class="node" x="540" y="305" width="95" height="40" rx="6"/>
+      <text x="587" y="322" text-anchor="middle" class="count">9,405</text>
+      <text x="587" y="337" text-anchor="middle">&minus; (true)</text>
+    </g>
+  </svg>
+
+  <p>Now collect everyone who tested <strong>positive</strong> — both green and blue:</p>
+
+  <table>
+    <thead><tr><th>Among the positives</th><th class="num">Count</th></tr></thead>
+    <tbody>
+      <tr><td><span class="t-posterior">Actually have the disease</span> (true positives)</td><td class="num">99</td></tr>
+      <tr><td><span class="t-evidence">Healthy but false-alarmed</span> (false positives)</td><td class="num">495</td></tr>
+      <tr class="total"><td>Everyone who tests positive</td><td class="num">594</td></tr>
+    </tbody>
+  </table>
+
+  <div class="formula">
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+      <mi mathcolor="#1f6b3a">P</mi><mo mathcolor="#1f6b3a">(</mo><mtext mathcolor="#1f6b3a">disease</mtext><mo mathcolor="#1f6b3a">&#x2223;</mo><mtext mathcolor="#1f6b3a">positive</mtext><mo mathcolor="#1f6b3a">)</mo>
+      <mo>=</mo>
+      <mfrac><mn mathcolor="#1f6b3a">99</mn><mn>594</mn></mfrac>
+      <mo>&#x2248;</mo>
+      <mn>0.167</mn>
+      <mo>=</mo>
+      <mn>16.7%</mn>
+    </math>
+  </div>
+
+  <div class="callout trap">
+    <span class="label">The shock</span>
+    <p>
+      A positive result on a 99%-sensitive test, and the real chance you're sick
+      is about <strong>1 in 6</strong>. Why? The disease is <em>rare</em>. The
+      test's small 5% false-alarm rate, applied to the <em>huge</em> healthy
+      majority, manufactures 495 false alarms — five times more than the 99 true
+      ones. The base rate (1%) drowns the test's accuracy. Ignoring it is the
+      <strong>base-rate fallacy</strong>.<sup><a href="#s2">2</a></sup>
+    </p>
+  </div>
+
+  <h2>Confirm with the formula</h2>
+  <p>
+    The counts <em>are</em> Bayes' theorem — same numbers, regrouped. From
+    <a href="0002-bayes-theorem.html">Lesson 2</a>, build the
+    <span class="t-evidence">evidence</span> P(positive) then divide:
+  </p>
+  <div class="formula">
+    <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+      <mfrac>
+        <mrow><mn mathcolor="#1f4e7a">0.99</mn><mo>&#x22C5;</mo><mn mathcolor="#7a1f1f">0.01</mn></mrow>
+        <mrow>
+          <mrow><mo>(</mo><mn mathcolor="#1f4e7a">0.99</mn><mo>&#x22C5;</mo><mn mathcolor="#7a1f1f">0.01</mn><mo>)</mo></mrow>
+          <mo>+</mo>
+          <mrow><mo>(</mo><mn>0.05</mn><mo>&#x22C5;</mo><mn>0.99</mn><mo>)</mo></mrow>
+        </mrow>
+      </mfrac>
+      <mo>=</mo>
+      <mfrac><mn>0.0099</mn><mrow><mn>0.0099</mn><mo>+</mo><mn>0.0495</mn></mrow></mfrac>
+      <mo>=</mo>
+      <mfrac><mn>0.0099</mn><mn>0.0594</mn></mfrac>
+      <mo>&#x2248;</mo>
+      <mn>16.7%</mn>
+    </math>
+  </div>
+  <p>
+    Identical to the count. The 0.0099 and 0.0495 are just the 99 and 495 people,
+    divided by 10,000. <strong>Frequencies make it obvious; the formula
+    confirms it.</strong>
+  </p>
+
+  <h2>It's real — and it isn't just medicine</h2>
+  <p>
+    These aren't toy numbers. In a classic study, physicians shown a mammography
+    screening as percentages mostly got it badly wrong; shown the same facts as
+    natural frequencies — <em>"8 of every 1,000 women have breast cancer; 7 of
+    them test positive; 70 of the other 992 also test positive"</em> — most got it
+    right: only 7 of the 77 who test positive actually have cancer, about
+    <strong>9%</strong>.<sup><a href="#s1">1</a></sup> The same trap drives the
+    <a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">prosecutor's fallacy</a>
+    in court and false-alarm floods in airport and spam screening.
+  </p>
+
+  <h2>The checklist — interleaving everything</h2>
+  <p>
+    Any "positive test, should I worry?" moment. Run these six steps — they fold
+    in the Lesson 1 trap and the Lesson 2 formula:
+  </p>
+  <div class="callout">
+    <span class="label">"Should I worry?" — six steps</span>
+    <ol style="margin:0;padding-left:1.2rem">
+      <li>Name the <strong>hypothesis</strong> H (have the disease) and the <strong>evidence</strong> E (tested positive).</li>
+      <li>Which number were you handed — the test's <span class="t-likelihood">P(E&#8201;|&#8201;H)</span>, or the <span class="t-posterior">P(H&#8201;|&#8201;E)</span> you actually want? <em>Don't confuse them</em> (Lesson 1).</li>
+      <li>Find the <span class="t-prior">base rate P(H)</span>. If it's small, expect a surprise.</li>
+      <li>Imagine <strong>10,000 people.</strong> How many are true positives? How many false positives?</li>
+      <li><span class="t-posterior">Posterior</span> = true positives ÷ (true + false) positives.</li>
+      <li>Sanity-check with Bayes' theorem if you want the decimal exact.</li>
+    </ol>
+  </div>
+
+  <h2>Your turn — practice (new numbers)</h2>
+  <p>Interleaving: a <em>different</em> rare-disease screen. Don't reuse the answer above — rebuild the counts.</p>
+
+  <div class="callout">
+    <p style="margin:0">
+      A condition affects <strong>0.5%</strong> of people. The test is
+      <strong>98%</strong> sensitive and <strong>96%</strong> specific (4% false
+      alarms). You test positive. Out of 10,000 people, what's the chance you
+      actually have it?
+    </p>
+  </div>
+
+  <div class="quiz" data-answer="a">
+    <p class="q">Before computing: roughly, the answer will be…</p>
+    <div class="options">
+      <button class="opt" data-key="a">Low — well under half, because the condition is rare</button>
+      <button class="opt" data-key="b">High — near 98%, because the test is accurate</button>
+      <button class="opt" data-key="c">Exactly 96%, matching the test's specificity</button>
+    </div>
+    <div class="feedback" data-for="a"><strong>Right instinct.</strong> Rare condition + a few-percent false-alarm rate over a big healthy majority = many false positives. Now get the exact number below.</div>
+    <div class="feedback" data-for="b">That's the base-rate fallacy again — 98% is P(positive&#8201;|&#8201;disease), not P(disease&#8201;|&#8201;positive). The rare base rate pulls the real answer way down.</div>
+    <div class="feedback" data-for="c">Specificity isn't the answer — it describes healthy people. You want the fraction of <em>positives</em> who are truly sick. Rework it below.</div>
+  </div>
+
+  <div class="reveal">
+    <button>Show the worked answer</button>
+    <div class="answer">
+      <p><strong>10,000 people, by the counts:</strong></p>
+      <ul style="margin-top:0">
+        <li><span class="t-prior">50</span> have the condition (0.5%). Of them, 98% test positive → <span class="t-posterior">49 true positives</span>.</li>
+        <li><span class="t-prior">9,950</span> are healthy. Of them, 4% false-alarm → <span class="t-evidence">398 false positives</span>.</li>
+        <li>Total positives = 49 + 398 = <strong>447</strong>.</li>
+      </ul>
+      <div class="formula" style="box-shadow:none;border:none;background:transparent;">
+        <math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+          <mi>P</mi><mo>(</mo><mtext>condition</mtext><mo>&#x2223;</mo><mtext>positive</mtext><mo>)</mo>
+          <mo>=</mo>
+          <mfrac><mn>49</mn><mn>447</mn></mfrac>
+          <mo>&#x2248;</mo><mn>0.11</mn><mo>=</mo><mn>11%</mn>
+        </math>
+      </div>
+      <p style="margin-bottom:0">
+        About <strong>1 in 9</strong>, despite a 98% test. You identified prior
+        and likelihood (Lesson 2), refused to confuse the inverse (Lesson 1), and
+        led with frequencies (Lesson 3). That's the mission, done.
+      </p>
+    </div>
+  </div>
+
+  <div class="callout win">
+    <span class="label">Your win — and the whole course</span>
+    <p>
+      You can take any screening result, picture 10,000 people, separate true from
+      false positives, and report the real posterior — then confirm it with Bayes'
+      theorem. A positive on an accurate test no longer fools you, because you
+      always ask first: <em>how rare is the thing to begin with?</em>
+    </p>
+  </div>
+
+  <h2>Go deeper &amp; keep sharp</h2>
+  <p>
+    <strong>Primary source:</strong> Gigerenzer &amp; Edwards,
+    <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC200816/">"Simple tools for understanding risks: from innumeracy to insight" (<em>BMJ</em>, open access)</a>
+    — the case for natural frequencies, with the real mammography numbers.
+  </p>
+  <p>
+    <strong>Test your skill on real people:</strong> post a worked scenario to
+    <a href="https://stats.stackexchange.com/">Cross Validated</a> and ask whether
+    you set up the prior and likelihood correctly. Wisdom comes from being
+    checked by others — see <a href="../RESOURCES.md">RESOURCES.md</a>.
+  </p>
+
+  <div class="callout">
+    <span class="label">Spaced follow-up</span>
+    <p>
+      Storage strength needs spacing. In <strong>3 days</strong>, with no notes,
+      re-derive the 16.7% answer from scratch — picture the 10,000 people and fill
+      the tree. If it comes back easily, it's sticking. Keep the
+      <a href="../reference/bayes-cheatsheet.html">cheat sheet</a> nearby; revisit
+      the <a href="../reference/glossary.html">glossary</a> if a term feels fuzzy.
+    </p>
+  </div>
+
+  <p class="ask">
+    <strong>I'm your teacher — ask me anything.</strong> Want a quiz that mixes all
+    three lessons at random? A scenario from your own life (a real test result, a
+    news statistic)? Bring it and we'll run the checklist together.
+  </p>
+
+  <nav class="lesson-nav">
+    <a href="0002-bayes-theorem.html">← Lesson 2 — Bayes' theorem</a>
+    <span class="spacer"></span>
+    <a href="../reference/bayes-cheatsheet.html">Cheat sheet →</a>
+  </nav>
+
+  <footer class="course-footer">
+    <p class="eyebrow">Sources</p>
+    <ol class="sources">
+      <li id="s1">Gigerenzer &amp; Edwards, "Simple tools for understanding risks: from innumeracy to insight," <em>BMJ</em> 2003;327:741. Open access: <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC200816/">PMC200816</a>.</li>
+      <li id="s2">"Base rate fallacy," <em>Wikipedia</em>. <a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">en.wikipedia.org/wiki/Base_rate_fallacy</a>.</li>
+    </ol>
+    <p><small>Bayes' theorem course · Lesson 3 · see also the <a href="../reference/glossary.html">glossary</a> and <a href="../reference/bayes-cheatsheet.html">cheat sheet</a>.</small></p>
+  </footer>
+
+</main>
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

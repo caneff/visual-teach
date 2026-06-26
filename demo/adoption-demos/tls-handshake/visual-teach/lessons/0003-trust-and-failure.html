@@ -3,34 +3,31 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Trust and failure — TLS 1.3 · Lesson 3</title>
-    <link rel="stylesheet" href="../assets/base.css" />
+    <title>Trust and failure — TLS Handshake · Lesson 3</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
     <link rel="stylesheet" href="../assets/course.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/diagram.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/chip.css" />
-    <link rel="stylesheet" href="../assets/code.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/checklist.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <script src="../assets/prism/prism-core.min.js"></script>
-    <script src="../assets/prism/prism-clike.min.js"></script>
-    <script src="../assets/prism/prism-bash.min.js"></script>
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/diagram/diagram.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <link rel="stylesheet" href="../assets/components/chip/chip.css" />
+    <link rel="stylesheet" href="../assets/components/checklist/checklist.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
   </head>
   <body>
     <main>
-      <p class="vt-kicker">TLS 1.3 · Lesson 3 of 3</p>
+      <p class="vt-kicker">TLS Handshake · Lesson 3</p>
       <h1>Trust and failure</h1>
       <p class="vt-lede">
-        What the client actually checks in that certificate — and how to read the
-        error, and act on it, when one of those checks fails.
+        The certificate arrived in Lesson 2 — now we check it. Here's exactly
+        what the client validates, and how to read it when validation fails.
       </p>
 
       <div class="vt-metabar">
         <span class="item">⏱ <strong>~15 min</strong></span>
-        <span class="item">Needs: <strong>Lessons 1–2</strong></span>
+        <span class="item">Needs: <strong>Lessons 1 &amp; 2</strong></span>
         <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
         <span class="item">Lesson <strong>3</strong> of 3</span>
       </div>
@@ -38,271 +35,263 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Trace the certificate chain from leaf to a trusted root.</li>
-          <li>Name the four checks the client runs on a certificate.</li>
-          <li>Map a real TLS error to the check that failed — and what to do.</li>
+          <li>Explain the certificate chain (leaf → intermediate → root) and why it exists.</li>
+          <li>List the four checks a client runs on a certificate.</li>
+          <li>Map a real TLS error to its cause and fix — without guessing.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> This is the payoff. Every
-        "certificate error" you've ever clicked past is one of these four checks
-        failing. After this lesson you'll read the message and know <em>which</em>
-        — and whether it's safe to proceed (usually: no).
+        <strong>Why this matters for your goal:</strong> This is the lesson the
+        whole course was for. Everything from
+        <a href="0001-what-tls-protects-and-who-is-involved.html">Lesson&nbsp;1</a>
+        (the actors, the certificate) and
+        <a href="0002-the-handshake-step-by-step.html">Lesson&nbsp;2</a> (where in
+        the flow the certificate shows up) now turns into a checklist you can run
+        on a broken connection.
       </div>
 
       <h2><span class="vt-num">1</span>The chain of trust</h2>
       <p>
-        In <a href="0002-the-handshake-step-by-step.html">Lesson 2</a> the server
-        sent a Certificate message. It's rarely one certificate — it's a
-        <strong>chain</strong>. The server's own
-        <a href="../reference/tls-reference.html#glossary">leaf</a> certificate is
-        signed by an intermediate CA, which is signed by a root CA that already
-        sits in your <strong>trust store</strong>. Validation walks
-        <em>up</em> the chain, checking each signature, until it reaches a root the
-        client trusts.
+        Your client trusts a few dozen <strong>root CAs</strong> baked into its
+        trust store. But roots don't sign websites directly — they sign
+        <strong>intermediate</strong> CAs, which sign the
+        <strong>leaf</strong> certificate the server actually presents. The server
+        sends the leaf <em>and</em> the intermediate(s); the client walks the
+        chain upward until it reaches a root it already trusts.
       </p>
 
       <div class="vt-diagram">
         <div class="vt-flow">
-          <div class="vt-node">Leaf · <code>example.com</code></div>
+          <div class="vt-node em">Leaf · bank.example</div>
           <div class="vt-node">Intermediate CA</div>
-          <div class="vt-node em">Root CA · in trust store</div>
+          <div class="vt-node">Root CA · in trust store</div>
         </div>
         <p class="vt-diagram-caption">
-          Each certificate is signed by the next one up. Trust flows down from the
-          root the client already has.
+          Each certificate is signed by the one to its right. The client verifies
+          leaf → intermediate → root; the chain is valid only if it ends at a root
+          the client <em>already</em> trusts.
         </p>
       </div>
 
       <div class="vt-callout insight">
-        <strong>Why a chain, not one cert?</strong> Roots are precious — compromise
-        one and every cert under it is suspect — so CAs keep roots offline and sign
-        with intermediates day to day. The client trusts the root; the root vouches
-        for the intermediate; the intermediate vouches for the leaf. Trust is
-        transitive down the links.
+        <strong>Why an extra layer?</strong> Roots are kept offline and precious —
+        if a root key leaked, every device on earth would need updating. An
+        intermediate can be revoked and replaced without touching the roots in
+        your trust store. The leaf is cheap and short-lived; the root is rare and
+        guarded.
       </div>
+      <p class="vt-src-line">
+        How a CA issues and chains certificates:
+        <a href="https://letsencrypt.org/how-it-works/">Let's Encrypt — How It Works</a>.
+      </p>
 
       <h2><span class="vt-num">2</span>The four checks</h2>
       <p>
-        For the client to accept the leaf, <strong>all four</strong> of these must
-        pass. Each maps to a guarantee from
-        <a href="0001-what-tls-protects.html">Lesson 1</a> — together they deliver
-        <em>authentication</em>.
-      </p>
-
-      <table class="vt-kv">
-        <tbody>
-          <tr>
-            <th scope="row">1 · Chains to a trusted root</th>
-            <td>Every signature validates up to a root in the trust store.</td>
-          </tr>
-          <tr>
-            <th scope="row">2 · Hostname matches</th>
-            <td>The URL's host is in the cert's Subject Alternative Names.</td>
-          </tr>
-          <tr>
-            <th scope="row">3 · Within validity window</th>
-            <td>Now is between <code>notBefore</code> and <code>notAfter</code>.</td>
-          </tr>
-          <tr>
-            <th scope="row">4 · Not revoked</th>
-            <td>The CA hasn't invalidated it (via CRL or OCSP).</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <h2><span class="vt-num">3</span>The common failures</h2>
-      <p>
-        Every certificate error you'll meet is one of these four checks failing.
-        Learn the symptom → cause → action mapping; the live test hosts are
-        subdomains of <a href="https://badssl.com/">badssl.com</a>.
+        When the <strong>Certificate</strong> message lands (message 3 of the
+        handshake), the client runs four independent checks. Any one failing aborts
+        the connection — that's the error you see.
       </p>
 
       <div class="vt-table-wrap">
         <table class="vt-table compact">
           <thead>
             <tr>
-              <th>Error you see</th>
-              <th>Check failed</th>
-              <th>What it means</th>
-              <th>What to do</th>
+              <th>Check</th>
+              <th>The question</th>
+              <th>Ties back to</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>Certificate has expired</td>
-              <td>Validity</td>
-              <td>Past <code>notAfter</code> — usually a missed renewal</td>
-              <td>Renew the cert; verify the server clock</td>
+              <td><span class="vt-pill sm">Chain</span></td>
+              <td>Does the signature chain build up to a <strong>trusted root</strong>?</td>
+              <td>Authentication — a CA you trust vouched for this key.</td>
             </tr>
             <tr>
-              <td>Self-signed certificate</td>
-              <td>Chains to root</td>
-              <td>Signed by its own key; no CA vouches for it</td>
-              <td>Use a CA-issued cert; trust it only for local dev</td>
+              <td><span class="vt-pill sm">Hostname</span></td>
+              <td>Does the cert's name list include the <strong>host I asked for</strong>?</td>
+              <td>Authentication — the right server, not just <em>a</em> valid one.</td>
             </tr>
             <tr>
-              <td>Unable to get local issuer</td>
-              <td>Chains to root</td>
-              <td>Chain doesn't reach a trusted root (missing intermediate)</td>
-              <td>Install the intermediate on the server</td>
+              <td><span class="vt-pill sm">Validity</span></td>
+              <td>Is "now" inside the cert's <strong>not-before / not-after</strong> window?</td>
+              <td>Freshness — expired keys may be compromised.</td>
             </tr>
             <tr>
-              <td>Hostname mismatch</td>
-              <td>Hostname</td>
-              <td>URL host isn't in the cert's names</td>
-              <td>Use the covered name, or reissue with the right SAN</td>
-            </tr>
-            <tr>
-              <td>Certificate revoked</td>
-              <td>Revocation</td>
-              <td>CA invalidated it (key compromise, mis-issuance)</td>
-              <td>Get a fresh cert; never bypass revocation</td>
+              <td><span class="vt-pill sm">Revocation</span></td>
+              <td>Has the CA <strong>revoked</strong> this cert early (OCSP / CRL)?</td>
+              <td>Authentication — pulled before its expiry date.</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <h2><span class="vt-num">4</span>See it for real</h2>
+      <h2><span class="vt-num">3</span>The four common failures</h2>
       <p>
-        Two commands surface everything above. Point <code>curl</code> at a broken
-        host to read the error in one line, then use
-        <code>openssl s_client</code> to inspect the live chain and dates yourself —
-        don't take a tool's word for it.
+        Almost every TLS error you'll meet is one of these. Each row pairs the
+        failed check with the message <code>curl</code> prints and a one-line fix.
       </p>
 
-      <div class="vt-io">
-        <div class="vt-io-input">
-          <div class="vt-io-head">
-            <span>Reproduce a known failure</span>
-            <button class="vt-code-copy" type="button"></button>
-          </div>
-          <pre><code class="language-bash">curl -v https://expired.badssl.com/</code></pre>
-        </div>
-        <div class="vt-io-output">
-          <div class="vt-io-head"><span>curl says</span></div>
-          <pre><code>* SSL certificate problem: certificate has expired
-* Closing connection
-curl: (60) SSL certificate problem: certificate has expired</code></pre>
-        </div>
-      </div>
-
-      <div class="vt-code">
-        <div class="vt-code-head">
-          <span>Inspect the chain and dates yourself</span>
-          <button class="vt-code-copy" type="button"></button>
-        </div>
-        <pre><code class="language-bash"># -servername sends SNI so the right cert comes back;
-# the dates line shows the validity window from check #3
-openssl s_client -connect expired.badssl.com:443 \
-  -servername expired.badssl.com 2&gt;/dev/null \
-  | openssl x509 -noout -subject -dates -issuer</code></pre>
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr>
+              <th>Failure</th>
+              <th>What broke</th>
+              <th>Typical fix</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="vt-row-key">
+              <th scope="row">Expired certificate</th>
+              <td>Validity check — "now" is past <code>not-after</code>.</td>
+              <td>Renew/reissue the cert (often a lapsed auto-renewal).</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Self-signed</th>
+              <td>Chain check — the leaf signed itself; no CA above it.</td>
+              <td>Get a cert from a real CA, or trust it deliberately (dev only).</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Hostname mismatch</th>
+              <td>Hostname check — the name you used isn't in the cert.</td>
+              <td>Reissue covering the right name, or connect by a listed name.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Unknown / untrusted CA</th>
+              <td>Chain check — ends at a root your client doesn't trust.</td>
+              <td>Install the missing intermediate (server) or add the internal root (client).</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
       <div class="vt-callout warn">
-        <strong>"Proceed anyway" disables authentication.</strong> Clicking through
-        a cert warning keeps the encryption but throws away the one guarantee that
-        you're talking to the real server. On a network you don't fully control,
-        that's exactly when an attacker would be in the middle. Fix the cause
-        instead — the checklist below is how.
+        <strong>Watch out</strong> — "unable to get local issuer certificate" most
+        often means the <em>server forgot to send the intermediate</em>, not that
+        the CA is untrusted. Browsers sometimes paper over this by caching
+        intermediates; <code>curl</code> won't, which is why a site can work in
+        Chrome but fail in a script. Same root cause, different leniency.
       </div>
 
-      <h2><span class="vt-num">5</span>Applied: diagnose any TLS error</h2>
+      <h2><span class="vt-num">4</span>See each failure live</h2>
       <p>
-        This interleaves all three lessons into one routine you can run on a real
-        broken connection. Your progress is saved in this browser — keep it open as
-        a working checklist.
+        <a href="https://badssl.com/">badssl.com</a> hosts a broken cert for every
+        case — safe to probe. Run these and read the message, not the vibe:
+      </p>
+
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>curl against badssl.com</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code>$ curl https://expired.badssl.com/
+curl: (60) SSL certificate problem: certificate has expired
+
+$ curl https://self-signed.badssl.com/
+curl: (60) SSL certificate problem: self-signed certificate
+
+$ curl https://wrong.host.badssl.com/
+curl: (60) SSL: no alternative certificate subject name matches target host name
+
+$ curl https://untrusted-root.badssl.com/
+curl: (60) SSL certificate problem: unable to get local issuer certificate</code></pre>
+      </div>
+      <div class="vt-callout info">
+        <strong>Inspect the cert yourself</strong> — to see the dates and names a
+        check reads, run
+        <code>openssl s_client -connect example.com:443 -servername example.com</code>,
+        or in the browser click the padlock → "Connection is secure" →
+        "Certificate". The fields you'll see are defined in the
+        <a href="../reference/glossary.html">glossary</a>.
+      </div>
+
+      <h2><span class="vt-num">5</span>Your diagnostic checklist</h2>
+      <p>
+        This is the applied skill — interleaving everything so far. Work a real
+        TLS error top to bottom; the first check that fails <em>is</em> your
+        answer. Progress is saved, so this stays usable as a real runbook.
       </p>
 
       <ul class="vt-checklist" data-key="tls-diagnose">
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Reproduce on the command line</span>
-            <span class="vt-step-body"
-              >Run <code>curl -v https://HOST/</code>. The
-              <code>SSL certificate problem:</code> line names the failure in
-              plain words — start there, not in the browser.</span
-            >
+            <span class="vt-step-title">Read the exact error string</span>
+            <span class="vt-step-body">Run <code>curl -v https://the-host/</code>. Copy the literal message — "expired", "self-signed", "subject name", "local issuer" each point at a different check. Don't guess from the padlock color.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Locate where in the handshake it broke</span>
-            <span class="vt-step-body"
-              >Cert errors fire on the server's <em>Certificate</em> message
-              (Lesson 2, step 3). A failure here means the key exchange was fine —
-              the problem is trust, not crypto.</span
-            >
+            <span class="vt-step-title">Did it get past ServerHello?</span>
+            <span class="vt-step-body">If the handshake fails <em>before</em> the Certificate line (Lesson 2), it's a version/cipher mismatch, not a trust problem. A cert error means messages 1–3 arrived fine.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Inspect the real cert</span>
-            <span class="vt-step-body"
-              >Run the <code>openssl s_client … x509 -dates -subject -issuer</code>
-              command above. Read the actual hostname, dates, and issuer rather
-              than trusting the summary.</span
-            >
+            <span class="vt-step-title">Check validity dates</span>
+            <span class="vt-step-body">Is "now" inside not-before / not-after? An expired (or not-yet-valid) cert is the single most common cause — and often just a dead auto-renewal.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Map it to one of the four checks</span>
-            <span class="vt-step-body"
-              >Dates wrong → validity. Name wrong → hostname. Issuer unknown or
-              self → chains-to-root. CA killed it → revocation. Exactly one will
-              match.</span
-            >
+            <span class="vt-step-title">Check the hostname</span>
+            <span class="vt-step-body">Does the cert's Subject Alternative Name list the host you typed? <code>www.</code> vs apex, or a wildcard that doesn't cover a sub-subdomain, is a frequent mismatch.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Act on the cause, not the symptom</span>
-            <span class="vt-step-body"
-              >Apply the fix from the
-              <a href="../reference/tls-reference.html#failures">failure table</a>.
-              If it's not your server and the cert is genuinely broken, the right
-              move is to stop — not to click through.</span
-            >
+            <span class="vt-step-title">Walk the chain to a root</span>
+            <span class="vt-step-body">Does it reach a trusted root? "Self-signed" = no CA at all. "Unable to get local issuer" = a missing intermediate (server fix) or a private/internal root (add it to the client trust store).</span>
+          </div>
+        </li>
+        <li>
+          <input type="checkbox" />
+          <div>
+            <span class="vt-step-title">Decide: server-side or client-side</span>
+            <span class="vt-step-body">Renew / reissue with the right name / install the intermediate are <em>server</em> fixes. Trusting an internal root is a <em>client</em> fix. Name the side before you touch anything.</span>
           </div>
         </li>
       </ul>
 
-      <h2><span class="vt-num">6</span>Check yourself</h2>
+      <h2><span class="vt-num">6</span>Diagnose these</h2>
+      <p>Apply the checklist. Answer from the symptom before reading the explanation.</p>
+
       <div aria-live="polite" class="vt-quiz-live"></div>
 
-      <div class="vt-quiz" data-answer="0">
+      <div class="vt-quiz" data-answer="1">
         <p class="q">
-          <code>curl</code> reports <em>unable to get local issuer certificate</em>.
-          Which check failed?
+          A site loads fine in Chrome but your deploy script's <code>curl</code>
+          fails with "unable to get local issuer certificate." Most likely cause?
         </p>
-        <button class="opt">Chains to a trusted root</button>
-        <button class="opt">Hostname matches the cert</button>
-        <button class="opt">Within the validity window</button>
-        <button class="opt">Has not been revoked</button>
+        <button class="opt">The certificate has fully expired</button>
+        <button class="opt">The server omits an intermediate cert</button>
+        <button class="opt">The hostname is not in the cert</button>
+        <button class="opt">The private session key leaked</button>
 
         <template class="why-good">
-          <strong>Chains to a trusted root.</strong> The client couldn't link the
-          leaf up to a root it trusts — typically the server forgot to send the
-          intermediate certificate.
+          <strong>The server omits an intermediate cert.</strong> Chrome often has
+          the intermediate cached and fills the gap; <code>curl</code> doesn't, so
+          the chain can't reach a trusted root. Fix it on the server by sending the
+          full chain.
         </template>
-        <template class="why-bad">Not quite — "issuer" is about the chain of signatures.</template>
-        <template data-opt="1">
-          A hostname problem says the <em>name</em> doesn't match, not that the
-          issuer is missing.
+        <template class="why-bad">Re-run the checklist — which check does "local issuer" point at? Try again.</template>
+        <template data-opt="0">
+          <strong>Expiry</strong> would say "certificate has expired" and would
+          fail in Chrome too — but here the browser is happy.
         </template>
         <template data-opt="2">
-          A validity problem mentions dates or expiry, not the issuer.
+          <strong>A hostname mismatch</strong> prints "subject name" wording and,
+          again, would also fail in Chrome.
         </template>
         <template data-opt="3">
-          Revocation errors say the cert was <em>revoked</em>, not that an issuer
-          is missing.
+          <strong>A leaked session key</strong> isn't something the client could
+          detect mid-handshake — it produces no "local issuer" error at all.
         </template>
 
         <div class="feedback"></div>
@@ -311,89 +300,86 @@ openssl s_client -connect expired.badssl.com:443 \
 
       <div class="vt-quiz" data-answer="2">
         <p class="q">
-          You reach <code>https://wrong.host.badssl.com/</code> and the cert is
-          valid, unexpired, and CA-signed — but the browser still errors. Why?
+          <code>curl https://wrong.host.badssl.com/</code> reports
+          "no alternative certificate subject name matches." Which check failed?
         </p>
-        <button class="opt">The root was revoked</button>
-        <button class="opt">The key exchange failed</button>
-        <button class="opt">The hostname doesn't match</button>
-        <button class="opt">The cipher was rejected</button>
+        <button class="opt">The certificate validity window</button>
+        <button class="opt">The chain up to a root</button>
+        <button class="opt">The hostname matches the cert</button>
+        <button class="opt">The certificate revocation status</button>
 
         <template class="why-good">
-          <strong>The hostname doesn't match.</strong> A perfectly valid cert is
-          still rejected if the URL's host isn't among the names it covers — check
-          #2. Validity alone isn't enough.
+          <strong>The hostname check.</strong> The cert is otherwise valid and
+          trusted, but its Subject Alternative Name list doesn't include
+          <code>wrong.host.badssl.com</code> — right CA, wrong name.
         </template>
-        <template class="why-bad">Not quite — the cert is fine; think about <em>which</em> host it's for.</template>
+        <template class="why-bad">Match the wording to a check — "subject name" is about identity. Try again.</template>
         <template data-opt="0">
-          Nothing here points to revocation; the cert is described as valid.
+          <strong>Validity</strong> failures say "expired" or "not yet valid", not
+          anything about a subject name.
         </template>
         <template data-opt="1">
-          The key exchange happens in the Hellos and succeeded — this is a trust
-          check, not crypto.
+          <strong>A chain failure</strong> reads "self-signed" or "local issuer" —
+          this cert chains fine; the name is the problem.
         </template>
         <template data-opt="3">
-          A rejected cipher would fail earlier, at ServerHello, not as a cert
-          name error.
+          <strong>Revocation</strong> failures mention OCSP/CRL or "revoked", a
+          different message entirely.
         </template>
 
         <div class="feedback"></div>
         <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
 
-      <h2><span class="vt-num">7</span>Recall from memory</h2>
-      <p class="vt-reveal-hint">
-        Answer aloud first — then check. Last retrieval of the course; make it
-        count.
-      </p>
+      <p class="vt-reveal-hint">One free-recall pass to seal it — answer aloud, then reveal.</p>
 
       <details class="vt-reveal">
-        <summary>Name the four checks the client runs on a certificate.</summary>
+        <summary>Name the four checks a client runs on a certificate.</summary>
         <div class="answer">
-          <strong>1.</strong> Chains to a trusted root · <strong>2.</strong>
-          Hostname matches · <strong>3.</strong> Within the validity window ·
-          <strong>4.</strong> Not revoked. All four must pass.
+          <strong>Chain</strong> (builds to a trusted root),
+          <strong>Hostname</strong> (name matches),
+          <strong>Validity</strong> (not expired / not yet valid), and
+          <strong>Revocation</strong> (not pulled early). Any one failing aborts
+          the connection.
         </div>
       </details>
 
       <details class="vt-reveal">
-        <summary>What does a self-signed error tell you about the chain?</summary>
+        <summary>Self-signed vs. untrusted-CA — what's the difference?</summary>
         <div class="answer">
-          It never reaches a trusted root — the cert is signed by its own key, so
-          no CA in your trust store vouches for it. It fails check #1.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>Why is clicking "proceed anyway" risky, in TLS terms?</summary>
-        <div class="answer">
-          It keeps confidentiality but discards <em>authentication</em> — you may be
-          encrypting straight to an impostor. The connection looks secure while
-          pointing at the wrong server.
+          Both fail the <em>chain</em> check. <strong>Self-signed</strong> has no
+          CA above the leaf at all — it signs itself. <strong>Untrusted CA</strong>
+          does have a CA chain, but it ends at a root your client doesn't carry
+          (an internal/private root, or a missing intermediate).
         </div>
       </details>
 
       <div class="vt-recap">
-        <p class="h">✦ What you earned — and the course goal, reached</p>
-        A certificate is validated by walking the chain leaf → intermediate → root,
-        and the client runs four checks: chains-to-root, hostname, validity,
-        revocation. Every TLS error you'll meet is one of those four failing — and
-        now you can name which, read it on the command line, and fix the cause.
-        That was the mission: debug a real TLS error without guessing.
+        <p class="h">✦ What you earned</p>
+        You can trace a certificate chain, name the four checks a client runs, and
+        turn a real TLS error into a cause and a fix — the mission you started with.
+      </div>
+
+      <div class="vt-callout success">
+        <strong>Mission complete.</strong> You set out to debug a TLS error without
+        guessing — and now you have a runbook to do it. Keep the
+        <a href="../reference/tls-debugging-cheatsheet.html">debugging cheat sheet</a>
+        within reach, and pressure-test your understanding on real questions at
+        <a href="https://security.stackexchange.com/questions/tagged/tls">Information Security Stack Exchange</a>
+        — the <code>tls</code> tag is where this knowledge becomes wisdom.
       </div>
 
       <div class="vt-teacher">
         <div>
           <p class="h">I'm your teacher — ask me anything</p>
           <p>
-            You've finished the three lessons — now bring me real connections.
-            Paste an error you've actually hit and we'll diagnose it together, or
-            push further:
+            You've finished the core arc — so this is a great moment to bring me a
+            <em>real</em> broken site and debug it together. Or push further:
           </p>
           <div class="vt-asks">
-            <span class="vt-ask">Walk me through diagnosing this cert error I got.</span>
-            <span class="vt-ask">When is trusting a self-signed cert actually fine?</span>
-            <span class="vt-ask">How does mutual TLS add client authentication?</span>
+            <span class="vt-ask">Walk me through debugging a real expired cert on my server.</span>
+            <span class="vt-ask">How does OCSP stapling change the revocation check?</span>
+            <span class="vt-ask">What would a course on mTLS or HSTS cover next?</span>
           </div>
         </div>
       </div>
@@ -402,44 +388,37 @@ openssl s_client -connect expired.badssl.com:443 \
         <span class="lbl">Sources</span>
         <ul class="vt-reflist">
           <li>
-            <span class="vt-src-ic" data-type="forum"></span
-            ><a href="https://badssl.com/"
-              >badssl.com — deliberately broken TLS configs</a
-            >
-            <span class="note">— primary practice ground: reproduce every failure in this lesson live.</span>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://badssl.com/">badssl.com</a>
+            <span class="note">— primary source: a live, safe instance of every failure.</span>
           </li>
           <li>
-            <span class="vt-src-ic" data-type="book"></span
-            ><a href="https://hpbn.co/transport-layer-security-tls/"
-              >High Performance Browser Networking — TLS chapter (Grigorik)</a
-            >
-            <span class="note">— how the chain is built and validated.</span>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://letsencrypt.org/how-it-works/">Let's Encrypt — How It Works / Chain of Trust</a>
+            <span class="note">— how leaf/intermediate/root chains are built.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="spec"></span
-            ><a href="https://www.rfc-editor.org/rfc/rfc8446.html#section-4.4.2"
-              >RFC 8446 §4.4.2 — Certificate</a
-            >
+            ><a href="https://www.rfc-editor.org/rfc/rfc8446#section-4.4.2">RFC 8446 §4.4.2 — Certificate</a>
+            <span class="note">— what the Certificate message carries.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="forum"></span
-            ><a href="https://security.stackexchange.com/questions/tagged/tls"
-              >Information Security Stack Exchange — TLS tag</a
-            >
-            <span class="note">— sanity-check a real error against expert answers.</span>
+            ><a href="https://security.stackexchange.com/questions/tagged/tls">Information Security Stack Exchange — tls tag</a>
+            <span class="note">— wisdom: real debugging Q&amp;A.</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
-          <a href="../reference/tls-reference.html#failures">Failure-diagnosis table</a>
+          <a href="../reference/glossary.html">TLS glossary</a> ·
+          <a href="../reference/tls-debugging-cheatsheet.html">debugging cheat sheet</a>
         </div>
-        <div class="meta">Lesson 0003 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0003 · verified 2026-06-26</div>
       </footer>
     </main>
-    <script src="../assets/base.js"></script>
-    <script src="../assets/diagram.js"></script>
-    <script src="../assets/code.js"></script>
-    <script src="../assets/quiz.js"></script>
-    <script src="../assets/checklist.js"></script>
+
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
   </body>
 </html>

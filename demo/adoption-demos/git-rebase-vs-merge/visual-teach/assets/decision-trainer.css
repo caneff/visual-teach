@@ -1,0 +1,130 @@
+/* decision-trainer — bespoke feedback loop for the merge-vs-rebase decision.
+   Each .dt-scenario poses a real situation; the learner commits to Merge or
+   Rebase, then sees whether the call was right and the one-line justification.
+   A running tally builds across the set. This trains the *decision*, not just
+   recognition of a definition. Pairs with decision-trainer.js. */
+
+.vt-trainer {
+  margin: 1.6rem 0;
+  border: 1px solid var(--vt-rule);
+  border-radius: 12px;
+  background: var(--vt-soft);
+  padding: 0.4rem 1.1rem 1.1rem;
+}
+
+.dt-scoreboard {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.7rem 0.2rem 0.4rem;
+  border-bottom: 1px solid var(--vt-rule);
+  margin-bottom: 0.4rem;
+}
+.dt-scoreboard .lbl {
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vt-muted);
+}
+.dt-scoreboard .tally {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: var(--vt-ink);
+}
+
+.dt-scenario {
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--vt-rule);
+}
+.dt-scenario:last-of-type {
+  border-bottom: none;
+}
+
+.dt-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vt-accent);
+  margin-bottom: 0.3rem;
+}
+.dt-q {
+  margin: 0.1rem 0 0.8rem;
+  font-size: 1.04rem;
+}
+
+.dt-choices {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.dt-choice {
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.5rem 1.4rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-ink);
+  transition: border-color 0.12s, background 0.12s;
+}
+.dt-choice:hover:not(:disabled) {
+  border-color: var(--vt-accent);
+}
+.dt-choice:disabled {
+  cursor: default;
+}
+.dt-choice.picked-right {
+  border-color: var(--vt-good);
+  background: var(--vt-good-soft);
+  color: var(--vt-ink);
+}
+.dt-choice.picked-wrong {
+  border-color: var(--vt-bad);
+  background: var(--vt-bad-soft);
+  color: var(--vt-ink);
+}
+.dt-choice.reveal-right {
+  border-color: var(--vt-good);
+  box-shadow: inset 0 0 0 1px var(--vt-good);
+}
+
+.dt-explain {
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--vt-accent);
+  background: var(--vt-accent-soft);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.95rem;
+  /* hidden until the learner commits to an answer */
+  display: none;
+}
+.dt-scenario.answered .dt-explain {
+  display: block;
+}
+.dt-explain .verdict {
+  font-weight: 700;
+}
+.dt-explain .verdict.right {
+  color: var(--vt-good);
+}
+.dt-explain .verdict.wrong {
+  color: var(--vt-bad);
+}
+
+.dt-done {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  background: var(--vt-good-soft);
+  border: 1px solid var(--vt-good);
+  font-weight: 600;
+  display: none;
+}
+.vt-trainer.complete .dt-done {
+  display: block;
+}

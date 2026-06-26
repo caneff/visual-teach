@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Piano — Component Demo</title>
+    <link rel="stylesheet" href="../../base/base.css" />
+    <link rel="stylesheet" href="piano.css" />
+  </head>
+  <body>
+    <main>
+      <h1>Piano</h1>
+      <p class="vt-lede">
+        An interactive, labelled keyboard. Renders a span of semitone keys from a
+        starting note; lessons highlight keys, read clicks, and build exercises on
+        top. Pairs with <code>piano.js</code>.
+      </p>
+
+      <h2>Labelled white keys (click to name)</h2>
+      <p>
+        <code>data-start="C4" data-keys="25" data-labels="white"</code>. Click any
+        key — the readout names it.
+      </p>
+      <div class="vt-piano" id="d1" data-start="C4" data-keys="25" data-labels="white"></div>
+
+      <h2>One octave, every key labelled</h2>
+      <p><code>data-keys="13" data-labels="all" data-readout="off"</code>.</p>
+      <div class="vt-piano" data-start="C4" data-keys="13" data-labels="all" data-readout="off"></div>
+
+      <h2>Highlight states (set by lessons via the API)</h2>
+      <p>
+        <code>setState(i, 'is-root' | 'is-target' | 'is-on')</code> and
+        <code>badge(i, text)</code>. Here C is the root and G (7 semitones up) is the
+        target.
+      </p>
+      <div class="vt-piano" id="d3" data-start="C4" data-keys="13" data-labels="white" data-readout="off"></div>
+
+      <h2>Instance API</h2>
+      <p>After init, each block carries <code>el.vtPiano</code>:</p>
+      <ul>
+        <li><code>keys</code> — array of key elements, left→right</li>
+        <li><code>at(i)</code> / <code>find(abs)</code> — look up a key</li>
+        <li><code>setState(i, cls)</code> / <code>clear(cls?)</code> — highlight</li>
+        <li><code>badge(i, text)</code> — drop a small number badge</li>
+        <li><code>say(html)</code> — write the readout line</li>
+      </ul>
+      <p>
+        Every click also emits a <code>vt-key</code> CustomEvent with
+        <code>{ index, pc, name, octave, abs, white, el }</code>.
+      </p>
+    </main>
+
+    <script src="../../base/base.js"></script>
+    <script src="piano.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        var d3 = document.getElementById("d3");
+        if (d3 && d3.vtPiano) {
+          d3.vtPiano.setState(d3.vtPiano.find(48), "is-root"); // C4
+          d3.vtPiano.badge(d3.vtPiano.find(48), "R");
+          d3.vtPiano.setState(d3.vtPiano.find(55), "is-target"); // G4
+          d3.vtPiano.badge(d3.vtPiano.find(55), "7");
+        }
+      });
+    </script>
+  </body>
+</html>

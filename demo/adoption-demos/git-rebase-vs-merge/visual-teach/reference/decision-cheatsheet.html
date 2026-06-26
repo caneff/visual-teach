@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Merge vs. rebase — decision & recovery cheat sheet</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/table/table.css" />
+    <link rel="stylesheet" href="../assets/components/code/code.css" />
+    <style>
+      /* the decision spine: one question, two outcomes — prints on one page */
+      .gate {
+        margin: 1.4rem 0;
+        border: 2px solid var(--vt-rule);
+        border-radius: 14px;
+        overflow: hidden;
+      }
+      .gate-q {
+        padding: 0.9rem 1.1rem;
+        background: var(--vt-neutral-soft);
+        font-weight: 700;
+        font-size: 1.08rem;
+        text-align: center;
+      }
+      .gate-branches {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+      .gate-branches > div {
+        padding: 1rem 1.1rem;
+      }
+      .gate-yes {
+        background: var(--vt-good-soft);
+        border-right: 2px solid var(--vt-rule);
+      }
+      .gate-no { background: var(--vt-accent-soft); }
+      .gate-branches .verdict {
+        font-family: ui-monospace, monospace;
+        font-weight: 700;
+        font-size: 1.15rem;
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      .gate-yes .verdict { color: var(--vt-good); }
+      .gate-no .verdict { color: var(--vt-accent); }
+      @media (max-width: 30rem) {
+        .gate-branches { grid-template-columns: 1fr; }
+        .gate-yes { border-right: none; border-bottom: 2px solid var(--vt-rule); }
+      }
+      @media print { .vt-theme-toggle { display: none !important; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Git merge vs. rebase · Reference</p>
+      <h1>Decision &amp; recovery cheat sheet</h1>
+      <p class="vt-lede">
+        One page. The question that decides every case, the everyday defaults, and
+        the exact commands for rebasing and recovering. Print it.
+      </p>
+
+      <h2>The one question</h2>
+      <div class="gate">
+        <div class="gate-q">Have these commits been pushed and shared with anyone else?</div>
+        <div class="gate-branches">
+          <div class="gate-yes">
+            <span class="verdict">YES → merge</span>
+            Rewriting shared commits splits your history from theirs. Bring changes
+            in with <code>git merge</code>; never rebase the shared branch.
+          </div>
+          <div class="gate-no">
+            <span class="verdict">NO → rebase ok</span>
+            The commits are private. Rebase freely for a clean, linear history —
+            <code>git rebase --abort</code> and <code>git reflog</code> have your back.
+          </div>
+        </div>
+      </div>
+      <div class="vt-callout insight">
+        "Shared" means <strong>someone may have based work on it</strong> — not
+        merely that it's pushed. A branch only you have ever touched is private.
+      </div>
+
+      <h2>Everyday defaults</h2>
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr><th>Situation</th><th>Choice</th><th>Why</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Tidy a local branch before a PR</th>
+              <td><code>rebase</code></td>
+              <td>Private — free to rewrite; reviewers get a clean line.</td>
+            </tr>
+            <tr>
+              <th scope="row">Update your own branch with latest <code>main</code></th>
+              <td><code>rebase</code></td>
+              <td>Lands your work on the newest base, linear history.</td>
+            </tr>
+            <tr>
+              <th scope="row">Integrate <code>main</code> into a shared branch</th>
+              <td><code>merge</code></td>
+              <td>Others hold those commits — rebasing would break them.</td>
+            </tr>
+            <tr>
+              <th scope="row">Merge a finished feature into <code>main</code></th>
+              <td><code>merge</code></td>
+              <td><code>main</code> is canonical and shared; never rebase it.</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Your team mandates a house style</th>
+              <td>follow it</td>
+              <td>A team convention overrides every default above.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2>Rebase, end to end</h2>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>safe rebase of a private branch</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git status                       # 1. clean tree? stash/commit loose work
+git fetch                        # 2. get the latest base
+git switch feature               #    (be on the branch you're rebasing)
+git rebase origin/main           # 3. replay your commits onto main
+
+# 4. on a conflict, per commit:
+git status                       #    which files conflict?
+#    edit files, removing <<<<<<< ======= >>>>>>> markers
+git add path/to/file
+git rebase --continue            #    replay the next commit
+
+git rebase --abort               # bail out — restores pre-rebase state
+git log --oneline --graph        # 5. verify: one clean line
+git push --force-with-lease      # 6. only if it was already pushed</code></pre>
+      </div>
+
+      <h2>Recover anything</h2>
+      <div class="vt-code">
+        <div class="vt-code-head">
+          <span>the undo button</span>
+          <button class="vt-code-copy" type="button"></button>
+        </div>
+        <pre><code class="language-bash">git reflog                       # every place HEAD has been
+git branch rescue &lt;hash&gt;         # safest: park the lost commit on a branch
+git reset --hard &lt;hash&gt;          # or move current branch back to it
+git checkout &lt;hash&gt;              # or just look at it first</code></pre>
+      </div>
+
+      <div class="vt-callout risk">
+        <strong>Never</strong> rebase a shared branch, and never
+        <code>push --force</code> (bare) over one. Use
+        <code>--force-with-lease</code>, which refuses if someone else has pushed.
+      </div>
+
+      <div class="vt-callout info">
+        Lessons:
+        <a href="../lessons/0001-the-two-shapes-of-history.html">1 · The two shapes</a> ·
+        <a href="../lessons/0002-choosing-between-them.html">2 · Choosing</a> ·
+        <a href="../lessons/0003-rebase-without-fear.html">3 · Without fear</a> ·
+        <a href="glossary.html">Glossary</a>
+      </div>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — "Merging vs. Rebasing"</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="book"></span
+            ><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git — ch. 3.6 "Rebasing"</a>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://git-scm.com/docs/git-rebase">git-rebase manual</a>
+          </li>
+        </ul>
+        <div class="meta">Reference · verified 2026-06-26</div>
+      </footer>
+    </main>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/code/code.js"></script>
+  </body>
+</html>

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference — TLS 1.3 Glossary</title>
+<link rel="stylesheet" href="../assets/course.css">
+<style>
+  /* glossary-specific: tighter, scannable */
+  dl.glossary dt { font-weight: 600; margin-top: 1.1rem; color: var(--ink); }
+  dl.glossary dt .tag {
+    font-variant: small-caps; letter-spacing: 0.05em; font-size: 0.7rem;
+    color: var(--ink-soft); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 0.05rem 0.5rem; margin-left: 0.5rem; vertical-align: middle;
+  }
+  dl.glossary dd { margin: 0.15rem 0 0; }
+  .azindex { font-size: 0.9rem; color: var(--ink-soft); margin: 1rem 0 2rem; }
+</style>
+</head>
+<body>
+
+<nav class="crumbs">
+  <a href="../MISSION.md">Mission</a> ·
+  <a href="../lessons/0001-what-tls-protects-and-who-is-involved.html">L1</a> ·
+  <a href="../lessons/0002-the-handshake-step-by-step.html">L2</a> ·
+  <a href="../lessons/0003-trust-and-failure.html">L3</a> ·
+  <a href="tls-debug-checklist.html">Debug checklist</a> ·
+  <strong>Glossary</strong>
+</nav>
+
+<p class="eyebrow">TLS 1.3 · Reference</p>
+<h1>Glossary</h1>
+<p class="lead">The course nomenclature in one place. Every lesson uses these
+terms in exactly this sense. Keep it open while you read.</p>
+
+<dl class="glossary">
+
+  <dt>AEAD <span class="tag">out of scope</span></dt>
+  <dd>Authenticated Encryption with Associated Data — the cipher style TLS&nbsp;1.3
+  uses to get confidentiality and integrity in one step. Named here only so you
+  recognise it; the internals are out of scope for this mission.</dd>
+
+  <dt>Authentication <span class="tag">guarantee</span></dt>
+  <dd>Proof that you're talking to the party you intended, not an impostor. On
+  the web it's one-sided: the <em>server</em> proves itself to the client. The
+  bulk of the handshake and nearly every TLS error is about this. See
+  <a href="../lessons/0001-what-tls-protects-and-who-is-involved.html">Lesson&nbsp;1</a>.</dd>
+
+  <dt>Certificate (leaf) <span class="tag">object</span></dt>
+  <dd>A public key bound to a hostname, signed by a CA. The "leaf" is the
+  server's own certificate, at the bottom of the chain. Carries the public key,
+  valid hostname(s), a validity window, and the issuer's signature.</dd>
+
+  <dt>Certificate Authority (CA) <span class="tag">actor</span></dt>
+  <dd>A third party trusted to vouch for certificates by signing them after
+  verifying domain control. Does its work <em>ahead of time</em>; it is not
+  online during your handshake. Let's Encrypt is the largest.</dd>
+
+  <dt>CertificateVerify <span class="tag">message</span></dt>
+  <dd>A handshake message in which the server signs the conversation so far with
+  its certificate's <em>private</em> key. Proves it actually <em>holds</em> the
+  cert, defeating anyone who merely copied the public certificate.</dd>
+
+  <dt>Chain of trust <span class="tag">concept</span></dt>
+  <dd>leaf ← intermediate ← root. Validation walks up each signature until it
+  reaches a root in the client's trust store. A broken or missing link =
+  untrusted. See <a href="../lessons/0003-trust-and-failure.html">Lesson&nbsp;3</a>.</dd>
+
+  <dt>ClientHello <span class="tag">message</span></dt>
+  <dd>The client's opening message: offered TLS versions, a cipher list, a random
+  nonce, and its Diffie–Hellman <em>key share</em>. Starts key agreement
+  immediately.</dd>
+
+  <dt>Confidentiality <span class="tag">guarantee</span></dt>
+  <dd>Eavesdroppers see only ciphertext. Also called encryption or privacy.</dd>
+
+  <dt>Diffie–Hellman (ephemeral) — (EC)DHE <span class="tag">black box</span></dt>
+  <dd>The key-agreement method. Each side sends a public share; each mixes its
+  own private value with the other's public share to compute the same secret,
+  which never crosses the wire. <em>Ephemeral</em> = fresh, throwaway keys per
+  connection, giving forward secrecy. Treated as a black box; no math required.</dd>
+
+  <dt>Finished <span class="tag">message</span></dt>
+  <dd>Sent by each side: a MAC over the entire handshake transcript. If anything
+  was tampered with, or the sides disagree on what was said, the check fails and
+  the connection aborts. This is integrity made concrete.</dd>
+
+  <dt>Forward secrecy <span class="tag">property</span></dt>
+  <dd>Because key-exchange keys are ephemeral, recording today's traffic and
+  stealing the server's long-term key <em>later</em> still won't decrypt it.</dd>
+
+  <dt>Hostname mismatch <span class="tag">failure</span></dt>
+  <dd>The cert is trusted and in date but doesn't list the name you requested
+  (checked against the SAN field). The key↔hostname binding doesn't hold.</dd>
+
+  <dt>Integrity <span class="tag">guarantee</span></dt>
+  <dd>Tampering in transit is detected, not silently delivered. Enforced by the
+  Finished MAC and by AEAD on application data.</dd>
+
+  <dt>Intermediate CA <span class="tag">object</span></dt>
+  <dd>A CA certificate signed by a root and used to sign leaf certs, so the
+  root's key can stay offline. The server must send it; forgetting to is the
+  classic "unable to get local issuer certificate" bug.</dd>
+
+  <dt>Key share <span class="tag">field</span></dt>
+  <dd>The <code>key_share</code> extension carrying one side's public DH value.
+  One rides in ClientHello, one in ServerHello.</dd>
+
+  <dt>Private key / Public key <span class="tag">black box</span></dt>
+  <dd>A keypair where one key undoes the other: what one locks, only the other
+  opens; what one signs, only the other verifies. The server keeps the private
+  key secret and never transmits it. The only property TLS needs from
+  public-key crypto.</dd>
+
+  <dt>Revocation (CRL / OCSP) <span class="tag">check</span></dt>
+  <dd>A CA's way to recall a certificate before its expiry (e.g. after a key
+  leak). The client's fourth validity check.</dd>
+
+  <dt>Root CA <span class="tag">trust anchor</span></dt>
+  <dd>A self-signed CA certificate shipped in the client's trust store and
+  trusted <em>a priori</em>. The top of every valid chain.</dd>
+
+  <dt>Self-signed certificate <span class="tag">failure</span></dt>
+  <dd>A cert that signed itself; the chain never reaches a trusted root. Crypto is
+  fine, identity is unvouched. Routine on internal/dev hosts, a red flag on the
+  public web.</dd>
+
+  <dt>ServerHello <span class="tag">message</span></dt>
+  <dd>The server's reply: the chosen version and cipher, a random nonce, and its
+  key share. After it, both sides can derive the session key and everything
+  following is encrypted.</dd>
+
+  <dt>Session key <span class="tag">secret</span></dt>
+  <dd>The symmetric key both sides derive from the DH exchange and use to encrypt
+  the session. Never transmitted; independently computed on each end.</dd>
+
+  <dt>SNI (Server Name Indication) <span class="tag">field</span></dt>
+  <dd>The hostname the client states in ClientHello so a server hosting many
+  sites knows which certificate to present. (In <code>openssl s_client</code>,
+  the <code>-servername</code> flag.)</dd>
+
+  <dt>Trust store <span class="tag">object</span></dt>
+  <dd>The client's built-in set of root CA certificates it trusts a priori.
+  Shipped by the OS or browser.</dd>
+
+  <dt>TLS 1.2 vs 1.3 <span class="tag">contrast</span></dt>
+  <dd>1.3 cut the handshake from two round trips to one, encrypts the certificate,
+  and removed legacy/insecure options. This course targets 1.3.</dd>
+
+</dl>
+
+<div class="followup" style="margin-top:2.4rem">
+  <strong>Missing a term?</strong> Ask your teacher to add it — the glossary is
+  meant to be the course's single source of vocabulary.
+</div>
+
+<nav class="lesson-nav">
+  <a href="../lessons/0001-what-tls-protects-and-who-is-involved.html">‹ Back to Lesson 1</a>
+  <span class="spacer"></span>
+  <a href="tls-debug-checklist.html">Debug checklist ›</a>
+</nav>
+
+</body>
+</html>

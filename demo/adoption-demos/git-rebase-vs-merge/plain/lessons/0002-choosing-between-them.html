@@ -3,180 +3,190 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Lesson 2 — Choosing between them</title>
-<link rel="stylesheet" href="../assets/course.css">
+<title>Lesson 2 · Choosing between them</title>
+<link rel="stylesheet" href="../assets/style.css">
 </head>
 <body>
+<div class="wrap">
 
-<p class="course-kicker">Git merge vs. rebase · Lesson 2 of 3</p>
-<h1>Choosing between them</h1>
+  <p class="kicker">git merge vs rebase · Lesson 2 of 3</p>
+  <h1>Choosing between them</h1>
+  <p class="lede">You can already draw the two shapes
+  (<a href="0001-the-two-shapes-of-history.html">Lesson&nbsp;1</a>). Now the real
+  skill: standing at the keyboard in a concrete situation and picking the right
+  one — fast, and for a reason you can say out loud.</p>
 
-<p>In <a href="0001-two-shapes-of-history.html">Lesson 1</a> you learned the two
-shapes. Now the actual skill: <strong>given a real situation, pick merge or
-rebase and justify it in one sentence</strong> — fast, and without anxiety.</p>
+  <p class="small">Your win for today: a one-question decision rule, drilled
+  against real scenarios until the answer feels automatic.</p>
 
-<p>This lesson is mostly practice. Knowledge first (one small rule), then a
-decision feedback loop you work through.</p>
+  <hr>
 
-<h2>The one question that decides it</h2>
-
-<div class="callout">
-  <span class="tag">Ask yourself</span>
-  <strong>"Has anyone else already pulled these exact commits?"</strong><br>
-  · <strong>No</strong> (the commits are private/local) → you're <em>free</em> to
-  rebase for a clean, linear history.<br>
-  · <strong>Yes</strong> (they're shared) → <em>merge</em>; rebasing would rewrite
-  commits other people already have.
-</div>
-
-<p>That single question resolves most cases. The guiding principle, from the Pro
-Git book: <em>"Rebase local changes before pushing to clean up your work, but
-never rebase anything that you've pushed somewhere."</em><sup class="cite"><a href="#r1">1</a></sup>
-A secondary preference breaks ties: rebase when you value a clean, linear,
-readable history; merge when you value an exact record of what happened (and an
-auditable merge commit).<sup class="cite"><a href="#r2">2</a></sup></p>
-
-<h2>The three canonical situations</h2>
-
-<table style="border-collapse:collapse;width:100%;font-size:.92rem;margin:1rem 0">
-  <tr style="background:var(--code-bg)">
-    <th style="border:1px solid var(--rule);padding:.5rem .7rem;text-align:left">Situation</th>
-    <th style="border:1px solid var(--rule);padding:.5rem .7rem;text-align:left">Pick</th>
-  </tr>
-  <tr>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem">Tidy a <strong>local</strong> feature branch before opening a PR</td>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem"><strong style="color:var(--accent2)">rebase</strong></td>
-  </tr>
-  <tr>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem">Update your (unshared) branch with the latest <code>main</code></td>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem"><strong style="color:var(--accent2)">rebase</strong></td>
-  </tr>
-  <tr>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem">Integrate into a <strong>shared, long-running</strong> branch</td>
-    <td style="border:1px solid var(--rule);padding:.5rem .7rem"><strong style="color:var(--accent)">merge</strong></td>
-  </tr>
-</table>
-
-<p>Keep that picture handy, then close it and work the loop below from memory.
-The full table lives in the <a href="../reference/merge-rebase-cheatsheet.html">cheat sheet</a>.</p>
-
-<h2>Decision feedback loop</h2>
-<p>For each scenario, decide <em>before</em> you click. Immediate feedback —
-that's the loop that builds the skill.<sup class="cite"><a href="#r2">2</a></sup>
-Answers are kept the same length so formatting gives nothing away.</p>
-
-<div class="quiz" data-quiz>
-  <p class="q">Scenario 1</p>
-  <p class="scenario">You've been hacking on a local branch nobody else has
-  pulled. Before you open the PR you want a clean, readable history on top of the
-  current <code>main</code>.</p>
-  <button class="opt" data-correct>Rebase — the commits are private, so tidy freely</button>
-  <button class="opt">Merge — a merge commit keeps the branch history tidy</button>
-  <div class="feedback" data-when="right">
-    Yes. Private commits + want-it-clean → <code>git rebase main</code>. Linear
-    history makes the PR trivial to review, and no one is affected.
+  <h2>The whole decision in one question</h2>
+  <div class="callout note">
+    <span class="tag">The deciding question</span>
+    <p><strong>"Have these commits been shared with anyone else yet?"</strong></p>
+    <p>If <strong>no</strong> (they're private to your local branch) → you're free
+    to <strong>rebase</strong> for a clean, linear history.<br>
+    If <strong>yes</strong> (pushed and others may have built on them) →
+    <strong>merge</strong>, so you don't rewrite commits people already have.</p>
   </div>
-  <div class="feedback" data-when="wrong">
-    The commits are private and you want it clean — that's exactly the rebase case.
-  </div>
-</div>
+  <p>That single question — private vs. shared — settles most cases. Everything
+  below is just that rule applied to the situations you hit every week.
+  <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">[Atlassian]</a></p>
 
-<div class="quiz" data-quiz>
-  <p class="q">Scenario 2</p>
-  <p class="scenario"><code>main</code> moved ahead while you worked. Your branch
-  is still local-only, and you just want the newest <code>main</code> underneath
-  your commits.</p>
-  <button class="opt" data-correct>Rebase — replay your work onto the newest main</button>
-  <button class="opt">Merge — pull main in with a fresh merge commit now</button>
-  <div class="feedback" data-when="right">
-    Correct. <code>git rebase main</code> (or <code>git pull --rebase</code>)
-    lifts your commits onto the latest <code>main</code> with no merge-commit
-    noise — fine because the branch is unshared.
+  <h2>A second axis: do you want the fork on the record?</h2>
+  <p>When <em>both</em> options are safe, a taste question breaks the tie:</p>
+  <div class="compare">
+    <div>
+      <h3 class="rebase-h">Lean rebase when…</h3>
+      <ul>
+        <li>The work is yours and unshared</li>
+        <li>You want history readable and linear</li>
+        <li>The branch is short-lived (a PR)</li>
+        <li>The intermediate fork isn't worth recording</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="merge-h">Lean merge when…</h3>
+      <ul>
+        <li>The commits are shared / pushed</li>
+        <li>You want a true record of when lines joined</li>
+        <li>The branch is long-running and collaborative</li>
+        <li>The merge point itself is meaningful</li>
+      </ul>
+    </div>
   </div>
-  <div class="feedback" data-when="wrong">
-    Merging works, but it litters an unshared branch with merge commits. Rebase
-    is the cleaner choice while the branch is still private.
-  </div>
-</div>
 
-<div class="quiz" data-quiz>
-  <p class="q">Scenario 3</p>
-  <p class="scenario">Two teammates are committing to a long-running
-  <code>release</code> branch every day. You need to bring <code>main</code>'s
-  latest fixes into it.</p>
-  <button class="opt" data-correct>Merge — the branch is shared, so never rewrite</button>
-  <button class="opt">Rebase — linear history helps the whole shared team</button>
-  <div class="feedback" data-when="right">
-    Right. Others have these commits, so rebasing would rewrite history out from
-    under them. <code>git merge main</code> integrates safely and records the
-    real picture.
-  </div>
-  <div class="feedback" data-when="wrong">
-    A clean line is tempting, but the branch is shared — rewriting it breaks your
-    teammates' clones. This is a merge.
-  </div>
-</div>
+  <h2>The three scenarios you'll actually meet</h2>
 
-<div class="quiz" data-quiz>
-  <p class="q">Scenario 4 — the trap</p>
-  <p class="scenario">You already <code>push</code>ed your feature branch and a
-  reviewer pulled it. You now wish the history were a little cleaner.</p>
-  <button class="opt" data-correct>Merge or leave it — these commits are shared now</button>
-  <button class="opt">Rebase quietly — then force-push the cleaner result</button>
-  <div class="feedback" data-when="right">
-    Exactly. Once commits are pushed and pulled, they're public. Rewriting and
-    force-pushing would clobber the reviewer's copy — the classic way to
-    "lose work." Leave them, or merge. (More in
-    <a href="0003-rebase-without-fear.html">Lesson 3</a>.)
-  </div>
-  <div class="feedback" data-when="wrong">
-    This is the trap. Those commits are shared — rebasing + force-pushing is how
-    a teammate's work gets clobbered. The golden rule says don't.
-  </div>
-</div>
+  <h3>① Tidy your local feature branch before opening a PR</h3>
+  <p>Your commits live only on your machine. Meanwhile <code>main</code> drifted
+  forward and your branch has gone stale. You want a clean line for review.</p>
+  <pre><code>$ git switch feature
+$ git rebase main      # replay your work on the latest main, linear & clean</code></pre>
+  <p><strong>→ Rebase.</strong> Private commits, short-lived branch, readability
+  matters for the reviewer. Textbook rebase.</p>
 
-<details class="reveal">
-  <summary>One-sentence justifications — say each aloud, then check.</summary>
-  <div class="answer">
-    <ul>
-      <li><strong>Local cleanup:</strong> "Rebase — the commits are private, so I can linearise freely."</li>
-      <li><strong>Update unshared branch:</strong> "Rebase — replay my work onto the latest main with no merge noise."</li>
-      <li><strong>Shared branch:</strong> "Merge — others have these commits, so I must not rewrite them."</li>
-      <li><strong>Already pushed &amp; pulled:</strong> "Merge — they're public now; rewriting would clobber a teammate."</li>
+  <h3>② Update your branch with the latest <code>main</code> mid-flight</h3>
+  <p>Same situation, recurring: <code>main</code> moves while you work. To pull its
+  changes in <em>without</em> a merge commit every time:</p>
+  <pre><code>$ git pull --rebase origin main    # fetch, then replay your commits on top</code></pre>
+  <p><strong>→ Rebase</strong> (as long as your branch's commits aren't shared).
+  Keeps your branch a clean line that's easy to eventually fast-forward.</p>
+
+  <h3>③ Integrate <code>main</code> into a long-running shared branch</h3>
+  <p>A <code>release</code> branch several teammates have pulled and committed to.
+  Their commits are <em>shared</em>. Rebasing would rewrite history out from under
+  them.</p>
+  <pre><code>$ git switch release
+$ git merge main       # add a merge commit; nobody's commits are rewritten</code></pre>
+  <p><strong>→ Merge.</strong> Shared commits, long-running branch, the integration
+  point is real history worth keeping.</p>
+
+  <h2>Decision drill — the feedback loop</h2>
+  <p>This is the heart of the lesson. For each scenario, decide <em>before</em>
+  clicking. Getting it wrong (then seeing why) builds the skill faster than getting
+  it handed to you. Same idea, slightly different clothes each time — that's
+  deliberate.</p>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">Pick merge or rebase.</p>
+    <p class="q-scenario">You have three local-only commits on a feature branch.
+    <code>main</code> moved ahead. You're about to open a pull request and want a
+    tidy, linear history.</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="Private commits + short-lived PR branch + readability. Classic rebase onto main.">Rebase your branch onto the latest main</button></li>
+      <li><button class="opt"
+        data-feedback="Safe, but it leaves a noisy merge commit on a branch where a clean line is the goal.">Merge the latest main into your branch</button></li>
     </ul>
+    <div class="feedback"></div>
   </div>
-</details>
 
-<div class="primary-source">
-  <span class="tag">Primary source — read this</span>
-  <p style="margin:.4rem 0 0"><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing"><strong>Atlassian — "Merging vs. Rebasing"</strong></a>.
-  Read the "The Golden Rule of Rebasing" and "Workflow Walkthroughs" sections.
-  It walks the same scenarios with clear diagrams (~8 min).</p>
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">Pick merge or rebase.</p>
+    <p class="q-scenario">A shared <code>release</code> branch your whole team has
+    pulled and committed to needs the latest fixes from <code>main</code> pulled
+    in for the next deploy.</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="Shared commits must not be rewritten. Merge adds a commit and leaves everyone's history intact.">Merge main into the shared release branch</button></li>
+      <li><button class="opt"
+        data-feedback="Rebasing rewrites commits teammates already have — exactly the move that clobbers their work.">Rebase the release branch onto main</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">Pick the command.</p>
+    <p class="q-scenario"><code>main</code> drifts forward daily while you work
+    alone on an unshared branch. You want each update folded in without a merge
+    commit cluttering your line.</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="pull --rebase fetches, then replays your local commits on top — no merge-commit clutter.">Run git pull --rebase from your branch</button></li>
+      <li><button class="opt"
+        data-feedback="A plain pull merges, adding a merge commit every single time — the clutter you wanted to avoid.">Run a plain git pull from your branch</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <div class="quiz" data-quiz>
+    <p class="q-prompt">The deciding question, stated plainly.</p>
+    <p class="q-scenario">Which single question best decides whether rebasing a set
+    of commits is safe?</p>
+    <ul class="opts">
+      <li><button class="opt" data-correct
+        data-feedback="Shared vs. private is the whole safety call. Private = rebase freely; shared = don't.">Have these commits been shared yet?</button></li>
+      <li><button class="opt"
+        data-feedback="Count doesn't matter — one shared commit is as unsafe to rewrite as a hundred.">How many commits are on the branch?</button></li>
+      <li><button class="opt"
+        data-feedback="Conflicts can happen either way and aren't the safety question; sharing is.">Will there be any merge conflicts?</button></li>
+    </ul>
+    <div class="feedback"></div>
+  </div>
+
+  <h3>Say it back, in your own words</h3>
+  <details class="reveal">
+    <summary>Without looking up: what's the one-question rule, and what does each
+    answer tell you to do?</summary>
+    <div class="answer">
+      <p>"Have these commits been shared with anyone yet?" <strong>No</strong> →
+      rebase (private work, clean it up freely). <strong>Yes</strong> → merge
+      (don't rewrite history others already have). When both are safe, pick rebase
+      for a linear branch you'll discard, merge to record a meaningful join.</p>
+    </div>
+  </details>
+
+  <div class="callout warn">
+    <span class="tag">Carry this into Lesson 3</span>
+    <p>"Don't rebase shared commits" is the safety rule you just used. Next lesson
+    makes it concrete as the <strong>Golden Rule</strong>, and shows how to recover
+    when something still goes sideways.</p>
+  </div>
+
+  <div class="source-box">
+    <span class="tag">Primary source — read this next</span>
+    <p><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian
+    — "Merging vs. Rebasing."</a> Skim the "The Golden Rule of Rebasing" and
+    "Workflow Walkthroughs" sections; they mirror these three scenarios with
+    diagrams.</p>
+  </div>
+
+  <div class="followup">
+    <span class="tag">Your teacher is here</span>
+    <p>Got a real situation from your own repo that doesn't fit these three?
+    <strong>Describe it to me</strong> and we'll run it through the deciding
+    question together. Bring the messy ones — that's where the skill gets real.</p>
+  </div>
+
+  <nav class="lesson-nav">
+    <a href="0001-the-two-shapes-of-history.html">← Back: The two shapes of history</a>
+    <span class="spacer"></span>
+    <a href="0003-rebase-without-fear.html">Next: Rebase without fear →</a>
+  </nav>
+
 </div>
-
-<h2>Your tangible win</h2>
-<div class="callout win">
-  <span class="tag">You can now</span>
-  Look at a situation, ask "are these commits shared?", and pick merge or rebase
-  with a one-sentence reason. That's the decision skill the mission asked for.
-</div>
-
-<p class="followup"><strong>Want to pressure-test it?</strong> Ask me to throw
-<em>your</em> real situations at you — describe a branch you're actually working
-on and we'll decide together. Or ask "what exactly counts as 'shared'?"</p>
-
-<h2 id="refs">References</h2>
-<ol class="refs">
-  <li id="r1"><a href="https://git-scm.com/book/en/v2/Git-Branching-Rebasing">Pro Git §3.6 — "The Perils of Rebasing"</a> — "never rebase anything you've pushed somewhere."</li>
-  <li id="r2"><a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — Merging vs. Rebasing</a> — the golden rule and the workflow scenarios.</li>
-</ol>
-
-<nav class="lesson-nav">
-  <span><a href="0001-two-shapes-of-history.html">← Lesson 1: The two shapes</a></span>
-  <span class="spacer"></span>
-  <span><a href="0003-rebase-without-fear.html">Lesson 3: Rebase without fear →</a></span>
-</nav>
-
 <script src="../assets/quiz.js"></script>
 </body>
 </html>

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reference · Bayes' theorem glossary</title>
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main>
+
+  <p class="eyebrow">Bayes' theorem · Reference</p>
+  <h1>Glossary</h1>
+  <p class="subtitle">The canonical language for this course. Every lesson uses these terms — and only these.</p>
+
+  <h2>Core terms</h2>
+
+  <p>
+    <strong>Conditional probability</strong> —
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>&#x2223;</mo><mi>B</mi><mo>)</mo></math>,
+    "the probability of A given B." The probability of A computed <em>only</em>
+    among cases where B is true. Conditioning = zooming into the sub-group where B
+    holds. <small>(<a href="../lessons/0001-conditional-probability-and-the-trap.html">Lesson 1</a>)</small><br>
+    <em>Avoid</em>: "the probability of A and B," "the odds of A."
+  </p>
+
+  <p>
+    <strong>Confusion of the inverse</strong> — the error of treating
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>A</mi><mo>&#x2223;</mo><mi>B</mi><mo>)</mo></math>
+    and
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>B</mi><mo>&#x2223;</mo><mi>A</mi><mo>)</mo></math>
+    as the same number. They differ because they zoom into different-sized groups.
+    <small>(<a href="../lessons/0001-conditional-probability-and-the-trap.html">Lesson 1</a>)</small><br>
+    <em>Avoid</em>: "inverse fallacy," "flipping the conditional" (use as informal gloss only).
+  </p>
+
+  <p>
+    <strong>Bayes' theorem</strong> — the rule that recovers the conditional you
+    want from the one you have:
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2223;</mo><mi>E</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo><mo>&#x22C5;</mo><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo></mrow><mrow><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></mrow></mfrac></math>.
+    <small>(<a href="../lessons/0002-bayes-theorem.html">Lesson 2</a>)</small><br>
+    <em>Avoid</em>: "Bayes' rule" / "Bayes' law" (synonyms; pick <strong>Bayes' theorem</strong> here).
+  </p>
+
+  <h2>The four parts</h2>
+
+  <p>
+    <strong>Prior</strong> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo></math>.
+    Your belief in the hypothesis <em>before</em> the evidence; the base rate.<br>
+    <em>Avoid</em>: "initial guess," "assumption."
+  </p>
+  <p>
+    <strong>Likelihood</strong> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo></math>.
+    If the hypothesis were true, how often you'd see this evidence. For a test,
+    this is its <strong>sensitivity</strong>.<br>
+    <em>Avoid</em>: "probability of the hypothesis" (that's the posterior), "accuracy."
+  </p>
+  <p>
+    <strong>Evidence</strong> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>E</mi><mo>)</mo></math>.
+    How often the evidence occurs <em>at all</em>, across true and false
+    hypotheses:
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mi>H</mi><mo>)</mo><mi>P</mi><mo>(</mo><mi>H</mi><mo>)</mo><mo>+</mo><mi>P</mi><mo>(</mo><mi>E</mi><mo>&#x2223;</mo><mo>&#xAC;</mo><mi>H</mi><mo>)</mo><mi>P</mi><mo>(</mo><mo>&#xAC;</mo><mi>H</mi><mo>)</mo></math>.
+    The normaliser.<br>
+    <em>Avoid</em>: "marginal," "total probability" (correct but jargon — use <strong>evidence</strong>).
+  </p>
+  <p>
+    <strong>Posterior</strong> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mi>H</mi><mo>&#x2223;</mo><mi>E</mi><mo>)</mo></math>.
+    Your updated belief <em>after</em> seeing the evidence. The thing you wanted.<br>
+    <em>Avoid</em>: "the answer," "the result" (ambiguous — name it the posterior).
+  </p>
+
+  <h2>Applied terms</h2>
+
+  <p>
+    <strong>Base rate</strong> — the prior expressed as a population frequency
+    (e.g. "1% of people"). Same idea as the prior, phrased as how common the
+    hypothesis is at large. <small>(<a href="../lessons/0003-the-base-rate-fallacy-applied.html">Lesson 3</a>)</small>
+  </p>
+  <p>
+    <strong>Base-rate fallacy</strong> — ignoring the base rate and judging from
+    the test's accuracy alone, so a positive result feels far more conclusive than
+    it is. The headline error for rare conditions. <small>(<a href="../lessons/0003-the-base-rate-fallacy-applied.html">Lesson 3</a>)</small><br>
+    <em>Avoid</em>: "base-rate neglect" (synonym; pick <strong>base-rate fallacy</strong>).
+  </p>
+  <p>
+    <strong>Natural frequencies</strong> — statistics as plain counts over one
+    fixed population ("70 of 992 women…") instead of conditional percentages.
+    Easier for humans to reason with; the recommended first move on any screening
+    problem. <small>(<a href="../lessons/0003-the-base-rate-fallacy-applied.html">Lesson 3</a>)</small>
+  </p>
+  <p>
+    <strong>True / false positive</strong> — among everyone who tests positive:
+    those who really have the condition (true positives) versus those who don't
+    but tested positive anyway (false positives). The posterior is
+    <em>true positives ÷ all positives</em>.
+  </p>
+  <p>
+    <strong>Sensitivity</strong> — <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>positive</mtext><mo>&#x2223;</mo><mtext>disease</mtext><mo>)</mo></math>,
+    the test's catch rate. <strong>Specificity</strong> —
+    <math xmlns="http://www.w3.org/1998/Math/MathML"><mi>P</mi><mo>(</mo><mtext>negative</mtext><mo>&#x2223;</mo><mtext>healthy</mtext><mo>)</mo></math>;
+    1 − specificity is the false-alarm rate.
+  </p>
+
+  <footer class="course-footer">
+    <p><small>Bayes' theorem course · Reference · back to <a href="../lessons/0001-conditional-probability-and-the-trap.html">Lesson 1</a> · <a href="bayes-cheatsheet.html">Cheat sheet</a> · <a href="../RESOURCES.md">Resources</a></small></p>
+  </footer>
+
+</main>
+</body>
+</html>

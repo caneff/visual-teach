@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lesson 1 — What TLS protects, and who's involved</title>
+<link rel="stylesheet" href="../assets/course.css">
+<link rel="stylesheet" href="../assets/quiz.css">
+</head>
+<body>
+
+<nav class="crumbs">
+  <a href="../MISSION.md">Mission</a> ›
+  <strong>Lesson 1</strong> ·
+  <a href="0002-the-handshake-step-by-step.html">Lesson 2 ›</a>
+  <a href="0003-trust-and-failure.html">Lesson 3</a> ·
+  <a href="../reference/glossary.html">Glossary</a>
+</nav>
+
+<p class="eyebrow">TLS 1.3 · Lesson 1 of 3</p>
+<h1>What TLS protects, and who's involved</h1>
+<p class="lead">Before any bytes or key math: the smallest <em>true</em> picture
+of TLS — three promises, three actors, and one object (the certificate) that
+ties them together.</p>
+
+<p>You hit this protocol thousands of times a day. The <code>s</code> in
+<code>https</code> is TLS — Transport Layer Security — sitting between HTTP and
+the raw network. HTTP still writes the request; TLS wraps the pipe it travels
+through. Your goal for this course is to <a href="../MISSION.md">debug a real
+TLS error without guessing</a>. That starts here, with a model so simple it
+fits in one breath. We add mechanics in <a href="0002-the-handshake-step-by-step.html">Lesson&nbsp;2</a>
+and failures in <a href="0003-trust-and-failure.html">Lesson&nbsp;3</a>.</p>
+
+<h2>The three promises</h2>
+<p>When a TLS connection is established, it secures the link in exactly three
+ways. Every TLS feature exists to deliver one of these
+three<sup class="cite-ref"><a href="#c-mdn">1</a></sup>:</p>
+
+<dl class="defs">
+  <dt>Confidentiality <span class="note" style="border:0;display:inline;padding:0">(also: encryption / privacy)</span></dt>
+  <dd>An eavesdropper on the wire sees only ciphertext. They cannot read your
+  request — not the URL path, not the cookies, not the body.</dd>
+  <dt>Integrity</dt>
+  <dd>An attacker in the middle cannot quietly <em>alter</em> the bytes. Any
+  tampering is detected and the connection breaks, rather than delivering
+  forged data.</dd>
+  <dt>Authentication</dt>
+  <dd>You can prove you're really talking to <code>example.com</code> and not an
+  impostor. On the web this is almost always <em>one-sided</em>: the server
+  proves who it is to the client; the client usually does not.</dd>
+</dl>
+
+<div class="key">
+  <span class="label">The trap</span>
+  Encryption alone is worthless without authentication. A perfectly encrypted
+  conversation <em>with the wrong party</em> is exactly what an attacker wants.
+  This is why most of the handshake — and almost every error you'll ever see —
+  is about <strong>authentication</strong>, not encryption.
+</div>
+
+<h2>The three actors</h2>
+<p>Only three parties matter for the web case<sup class="cite-ref"><a href="#c-cf">2</a></sup>:</p>
+
+<table>
+  <thead><tr><th>Actor</th><th>Role</th><th>What it holds</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="actor-client">Client</span></td>
+      <td>Your browser or <code>curl</code>. Starts the connection and decides
+      whether to trust what the server presents.</td>
+      <td>A built-in list of <strong>root CAs it already trusts</strong>
+      (the trust store).</td>
+    </tr>
+    <tr>
+      <td><span class="actor-server">Server</span></td>
+      <td>The website. Must <em>prove</em> it owns the hostname you asked for.</td>
+      <td>Its <strong>private key</strong> + a <strong>certificate</strong> to
+      present.</td>
+    </tr>
+    <tr>
+      <td><span class="actor-ca">Certificate&nbsp;Authority&nbsp;(CA)</span></td>
+      <td>A third party both sides defer to. Vouches for the server by signing
+      its certificate after checking it controls the domain.</td>
+      <td>Its own key, used to <strong>sign</strong> certificates. (Let's
+      Encrypt is the largest.)</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The CA is not online during your connection. It did its job <em>earlier</em>,
+when it signed the server's certificate. At handshake time the client just
+checks that signature against the roots it already trusts. That offline,
+ahead-of-time vouching is the whole trick of web identity.</p>
+
+<h2>What a certificate actually is</h2>
+<p>Strip away the file formats and a certificate is one sentence, made
+unforgeable:</p>
+
+<div class="key">
+  <span class="label">Definition</span>
+  A <strong>certificate</strong> is a <span class="actor-server">public key</span>
+  bound to an <strong>identity</strong> (a hostname like <code>example.com</code>),
+  <span class="actor-ca">signed by a CA</span> the client already
+  trusts<sup class="cite-ref"><a href="#c-rfc">3</a></sup>.
+</div>
+
+<p>Three pieces, and you'll meet all three again as failure modes in
+<a href="0003-trust-and-failure.html">Lesson&nbsp;3</a>:</p>
+<ul>
+  <li><strong>The public key</strong> — the server's half of a keypair. We treat
+  the keypair as a <em>black box</em>: two keys where one undoes the other. What
+  one key locks, only the other opens; a signature one key makes, only the other
+  verifies. That single property is all TLS needs — we never touch the
+  math.<sup class="cite-ref"><a href="#c-rfc">3</a></sup></li>
+  <li><strong>The identity</strong> — the hostname(s) the cert is valid for, plus
+  a validity window (not-before / not-after dates).</li>
+  <li><strong>The CA's signature</strong> — proof that a trusted authority
+  checked the binding and stands behind it. Forge the public key or the hostname
+  and the signature no longer matches.</li>
+</ul>
+
+<p>So the server holds the matching <em>private</em> key but never sends it. It
+proves ownership by <em>using</em> the private key during the handshake; the
+certificate carries only the public half. Keeping the secret secret while still
+proving you hold it is the puzzle Lesson&nbsp;2 solves.</p>
+
+<div class="callout">
+  <p><strong>Self-signed, foreshadowed.</strong> If a server signs its own
+  certificate instead of getting a CA to sign it, the binding is still
+  <em>stated</em> — but no one you trust vouches for it. The client has no path
+  from its trusted roots to that signature, so it warns. Now you know why a
+  self-signed cert is "valid crypto, untrusted source," not "broken." We'll
+  diagnose it for real in <a href="0003-trust-and-failure.html">Lesson&nbsp;3</a>.</p>
+</div>
+
+<!-- ===================== RECALL / PRACTICE LOOP ===================== -->
+<h2>Recall — close the loop</h2>
+<p>Knowledge you don't retrieve doesn't stick. Answer from memory; feedback is
+instant. Don't peek above.</p>
+
+<span data-score></span>
+
+<div class="quiz">
+  <p class="stem">Question 1 — the promises</p>
+  <div data-quiz>
+    <p class="q">A passive eavesdropper records your whole TLS session but cannot
+    read a single request. Which guarantee stopped them?</p>
+    <button data-correct>Confidentiality keeps the payload unreadable</button>
+    <button>Authentication keeps the payload unreadable now</button>
+    <button>Integrity keeps the payload unreadable when read</button>
+    <div class="why" hidden><strong>Confidentiality.</strong> Encryption makes
+    the bytes unreadable to anyone on the wire. Integrity would catch a
+    <em>change</em>; authentication proves <em>who</em> you're talking to.</div>
+  </div>
+</div>
+
+<div class="quiz">
+  <p class="stem">Question 2 — the certificate</p>
+  <div data-quiz>
+    <p class="q">A certificate binds a public key to a hostname. What makes that
+    binding trustworthy to your browser?</p>
+    <button>The server keeps its private key secret from all</button>
+    <button data-correct>A CA the browser already trusts signed it</button>
+    <button>The public key is far too large to forge it</button>
+    <div class="why" hidden><strong>The CA's signature.</strong> Trust comes
+    from a signature that chains to a root your browser already ships with. A
+    secret private key matters too, but it isn't what makes the <em>binding</em>
+    believable to a stranger.</div>
+  </div>
+</div>
+
+<div class="quiz">
+  <p class="stem">Question 3 — the trap</p>
+  <div data-quiz>
+    <p class="q">Why isn't encryption alone enough for a safe web connection?</p>
+    <button>Because encryption is slow without a faster cipher</button>
+    <button>Because integrity checks must run before any keys</button>
+    <button data-correct>An encrypted chat with an impostor still leaks all</button>
+    <div class="why" hidden><strong>Right.</strong> Without authentication you
+    might have a flawlessly encrypted conversation with an attacker. That's why
+    most of TLS — and most TLS errors — are about proving identity.</div>
+  </div>
+</div>
+
+<div class="callout" data-flip>
+  <div class="flip-front">Free recall: name the three actors and the one thing
+  each holds. Then reveal.</div>
+  <div class="flip-back" hidden>
+    <strong><span class="actor-client">Client</span></strong> — holds a trust
+    store of root CAs. &nbsp;·&nbsp;
+    <strong><span class="actor-server">Server</span></strong> — holds its private
+    key + a certificate. &nbsp;·&nbsp;
+    <strong><span class="actor-ca">CA</span></strong> — holds a signing key and
+    vouched for the server <em>ahead of time</em>.
+  </div>
+</div>
+
+<!-- ===================== PRIMARY SOURCE ===================== -->
+<div class="primary-source">
+  <span class="label">Read next — primary source</span>
+  <p style="margin:0"><a href="https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/">Cloudflare
+  Learning Center — <em>What happens in a TLS handshake?</em></a> A plain-language
+  pass over the same actors and the role of the certificate. ~8&nbsp;minutes; read
+  it before Lesson&nbsp;2 and the message flow will already feel familiar.</p>
+</div>
+
+<!-- ===================== FOLLOWUP REMINDER ===================== -->
+<div class="followup">
+  <strong>I'm your teacher — ask me.</strong> Fuzzy on why the CA can be offline
+  during the handshake, or what "the trust store" really is on your machine?
+  Ask, and I'll build you a quick follow-up. Unanswered questions compound.
+</div>
+
+<!-- ===================== CITATIONS ===================== -->
+<hr>
+<h3>Citations</h3>
+<ol class="cite">
+  <li id="c-mdn">MDN Web Docs, <a href="https://developer.mozilla.org/en-US/docs/Web/Security/Transport_Layer_Security">Transport
+  Layer Security</a> — the three guarantees (encryption, integrity,
+  authentication) and what a certificate binds.</li>
+  <li id="c-cf">Cloudflare Learning Center, <a href="https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/">What
+  happens in a TLS handshake?</a> — actors and the CA's role.</li>
+  <li id="c-rfc">IETF, <a href="https://www.rfc-editor.org/rfc/rfc8446#section-4.4.2">RFC 8446
+  §4.4.2 (Certificate)</a> and <a href="https://www.rfc-editor.org/rfc/rfc8446#section-1">§1</a>
+  — what the certificate message conveys; keypair used as a black box.</li>
+</ol>
+
+<nav class="lesson-nav">
+  <span class="spacer"></span>
+  <a href="0002-the-handshake-step-by-step.html">Lesson 2 — The handshake, step by step ›</a>
+</nav>
+
+<script src="../assets/quiz.js"></script>
+</body>
+</html>

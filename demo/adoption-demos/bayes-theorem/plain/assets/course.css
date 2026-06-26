@@ -1,0 +1,334 @@
+/* ============================================================================
+   Bayes' theorem course — shared stylesheet
+   Linked by every lesson and reference doc so the course reads as one piece.
+   Aesthetic: Tufte-ish. Generous margins, restrained palette, real math.
+   ========================================================================== */
+
+:root {
+  --ink:        #1a1a1a;
+  --ink-soft:   #4a4a4a;
+  --paper:      #fdfcfa;
+  --rule:       #e3ded5;
+  --accent:     #7a1f1f;   /* deep red — priors / hypotheses          */
+  --accent-2:   #1f4e7a;   /* deep blue — evidence / likelihoods       */
+  --good:       #1f6b3a;
+  --bad:        #9a2a2a;
+  --highlight:  #fbf3d4;
+  --shadow:     0 1px 3px rgba(0,0,0,.07), 0 6px 18px rgba(0,0,0,.05);
+  --maxw:       42rem;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 3.5rem 1.5rem 6rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: et-book, Palatino, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  font-size: 1.125rem;
+  line-height: 1.62;
+  text-rendering: optimizeLegibility;
+}
+
+main, header, footer { max-width: var(--maxw); margin-inline: auto; }
+
+/* ---- Course chrome -------------------------------------------------------- */
+
+.eyebrow {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: .72rem;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin: 0 0 .6rem;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 2.1rem;
+  line-height: 1.15;
+  letter-spacing: -.012em;
+  margin: 0 0 .4rem;
+}
+
+.subtitle {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0 0 2.4rem;
+  font-size: 1.18rem;
+}
+
+h2 {
+  font-weight: 600;
+  font-size: 1.4rem;
+  letter-spacing: -.006em;
+  margin: 2.8rem 0 .7rem;
+  padding-bottom: .25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 1.12rem;
+  margin: 1.8rem 0 .5rem;
+}
+
+p { margin: 0 0 1.05rem; }
+
+a {
+  color: var(--accent-2);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(31,78,122,.32);
+}
+a:hover { border-bottom-color: var(--accent-2); }
+
+strong { font-weight: 600; }
+
+small { font-size: .82rem; color: var(--ink-soft); }
+
+/* ---- Callouts ------------------------------------------------------------- */
+
+.callout {
+  margin: 1.6rem 0;
+  padding: 1.1rem 1.3rem;
+  border-radius: 8px;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-left: 4px solid var(--accent-2);
+  box-shadow: var(--shadow);
+}
+.callout p:last-child { margin-bottom: 0; }
+.callout .label {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: .72rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  display: block;
+  margin-bottom: .45rem;
+}
+.callout.trap     { border-left-color: var(--bad); }
+.callout.trap .label { color: var(--bad); }
+.callout.mission  { border-left-color: var(--accent); background: #fffaf8; }
+.callout.mission .label { color: var(--accent); }
+.callout.win      { border-left-color: var(--good); background: #f6fbf7; }
+.callout.win .label { color: var(--good); }
+
+/* ---- The mission ribbon at the top of every lesson ------------------------ */
+
+.mission-ribbon {
+  font-size: .96rem;
+  color: var(--ink-soft);
+  background: #fffaf8;
+  border: 1px solid #f0e0d8;
+  border-radius: 8px;
+  padding: .7rem 1rem;
+  margin: 0 0 2.4rem;
+}
+.mission-ribbon strong { color: var(--accent); }
+
+/* ---- Math ----------------------------------------------------------------- */
+
+math { font-size: 1.06em; }
+
+.formula {
+  margin: 1.6rem auto;
+  padding: 1.2rem 1rem;
+  text-align: center;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  overflow-x: auto;
+}
+.formula math { font-size: 1.5em; }
+
+/* colour-coded parts of Bayes' rule, used inline and in formulae */
+.t-prior      { color: var(--accent);   }
+.t-likelihood { color: var(--accent-2); }
+.t-evidence   { color: #8a6d1f;         }
+.t-posterior  { color: var(--good);     }
+.term { font-weight: 600; }
+
+/* CSS fraction fallback for simple inline ratios where MathML is overkill */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  text-align: center;
+  vertical-align: middle;
+  margin: 0 .15em;
+  line-height: 1.05;
+}
+.frac > span:first-child { border-bottom: 1.5px solid currentColor; padding: 0 .35em; }
+.frac > span:last-child  { padding: 0 .35em; }
+
+/* ---- Population grid (the "zoom into a subgroup" visual) ------------------- */
+
+.popgrid {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 2px;
+  margin: 1.4rem 0 .6rem;
+  max-width: 30rem;
+}
+.popgrid .cell { aspect-ratio: 1; border-radius: 2px; background: var(--rule); }
+.popgrid .cell.has  { background: var(--accent); }
+.popgrid .cell.pos  { background: var(--accent-2); }
+.popgrid .cell.tp   { background: var(--good); }
+.legend {
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: .8rem;
+  color: var(--ink-soft);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-bottom: 1.6rem;
+}
+.legend span { display: inline-flex; align-items: center; gap: .4rem; }
+.swatch { width: .85rem; height: .85rem; border-radius: 2px; display: inline-block; }
+
+/* ---- Natural-frequency tree ----------------------------------------------- */
+
+.tree {
+  width: 100%;
+  margin: 1.4rem 0;
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+.tree text { font-size: 13px; fill: var(--ink); }
+.tree .node { fill: #fff; stroke: var(--rule); stroke-width: 1.5; }
+.tree .branch { stroke: var(--ink-soft); stroke-width: 1.5; fill: none; }
+.tree .count { font-weight: 700; }
+
+/* ---- Data table ----------------------------------------------------------- */
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.4rem 0;
+  font-size: .98rem;
+}
+th, td { padding: .55rem .7rem; text-align: left; border-bottom: 1px solid var(--rule); }
+th {
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: .76rem;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--ink); }
+
+/* ---- Quiz widget (interactive feedback loop) ------------------------------ */
+/* Behaviour lives in ./quiz.js; presentation lives here so it is shared.     */
+
+.quiz {
+  margin: 1.6rem 0;
+  padding: 1.3rem 1.4rem 1.1rem;
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+.quiz .q { font-weight: 600; margin-bottom: .9rem; }
+.quiz .options { display: grid; gap: .55rem; }
+.quiz button.opt {
+  font: inherit;
+  text-align: left;
+  padding: .65rem .85rem;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color .12s, background .12s;
+}
+.quiz button.opt:hover:not(:disabled) { border-color: var(--accent-2); }
+.quiz button.opt:disabled { cursor: default; }
+.quiz button.opt.correct { border-color: var(--good); background: #eef8f0; }
+.quiz button.opt.wrong   { border-color: var(--bad);  background: #fbeeee; }
+.quiz .feedback {
+  margin-top: .9rem;
+  font-size: .98rem;
+  padding: .7rem .9rem;
+  border-radius: 7px;
+  display: none;
+}
+.quiz .feedback.show { display: block; }
+.quiz .feedback.right { background: #eef8f0; color: var(--good); }
+.quiz .feedback.nope  { background: #fbeeee; color: var(--bad); }
+.quiz .feedback strong { color: inherit; }
+
+/* numeric self-check: reveal-on-demand */
+.reveal { margin: 1.2rem 0; }
+.reveal > button {
+  font: inherit;
+  font-size: .92rem;
+  padding: .45rem .9rem;
+  border: 1px solid var(--accent-2);
+  color: var(--accent-2);
+  background: #fff;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.reveal > button:hover { background: #f2f6fa; }
+.reveal .answer {
+  display: none;
+  margin-top: .9rem;
+  padding: .9rem 1.1rem;
+  background: var(--highlight);
+  border-radius: 8px;
+  border: 1px solid #ecdfa8;
+}
+.reveal.open .answer { display: block; }
+.reveal.open > button { display: none; }
+
+/* ---- Footer / nav --------------------------------------------------------- */
+
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3.5rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: .92rem;
+}
+.lesson-nav a { border: none; }
+.lesson-nav .spacer { flex: 1; }
+
+footer.course-footer {
+  margin-top: 2.4rem;
+  font-size: .86rem;
+  color: var(--ink-soft);
+}
+
+.sources { font-size: .9rem; }
+.sources li { margin-bottom: .4rem; }
+
+.ask {
+  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: .92rem;
+  background: #f4f1ea;
+  border-radius: 8px;
+  padding: .8rem 1rem;
+  margin: 2rem 0 0;
+}
+.ask::before { content: "💬 "; }
+
+/* print: lay it out like a clean handout */
+@media print {
+  body { padding: 0; font-size: 11pt; background: #fff; }
+  .quiz button.opt, .reveal > button { display: none; }
+  .reveal .answer, .quiz .feedback { display: block !important; }
+  .callout, .formula, .quiz { box-shadow: none; }
+  .lesson-nav { display: none; }
+  a { color: var(--ink); border: none; }
+}
+
+@media (max-width: 480px) {
+  body { padding: 2.2rem 1.1rem 4rem; font-size: 1.05rem; }
+  h1 { font-size: 1.7rem; }
+}

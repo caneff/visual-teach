@@ -1,37 +1,39 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The base-rate fallacy, applied — Bayes Lesson 3</title>
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/checklist.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <link rel="stylesheet" href="../assets/math.css" />
-    <link rel="stylesheet" href="../assets/katex/katex.min.css" />
-    <script src="../assets/base.js"></script>
-    <script src="../assets/katex/katex.min.js"></script>
-    <script src="../assets/katex/auto-render.min.js"></script>
-    <script src="../assets/math.js"></script>
-    <script src="../assets/quiz.js"></script>
-    <script src="../assets/checklist.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The base-rate fallacy, applied — Bayes' theorem · Lesson 3</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/math/math.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/checklist/checklist.css" />
+    <link rel="stylesheet" href="../assets/components/bayes-calc/bayes-calc.css" />
+    <link rel="stylesheet" href="../assets/components/freqgrid/freqgrid.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/math/math.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
+    <script src="../assets/components/bayes-calc/bayes-calc.js"></script>
+    <script src="../assets/components/freqgrid/freqgrid.js"></script>
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Bayes' Theorem · Lesson 3</p>
+      <p class="vt-kicker">Bayes' theorem · Lesson 3</p>
       <h1>The base-rate fallacy, applied</h1>
       <p class="vt-lede">
-        The screening result that scared you, finally defused — by counting real
-        people instead of trusting a percentage.
+        The famous screening paradox: a rare condition plus an excellent test
+        still gives a low chance of being sick. Here's why — and a checklist so
+        it never fools you again.
       </p>
 
       <div class="vt-metabar">
         <span class="item">⏱ <strong>~15 min</strong></span>
-        <span class="item">Needs: <strong>Lesson 2 complete</strong></span>
+        <span class="item">Needs: <strong><a href="0002-bayes-theorem.html">Lesson 2</a></strong></span>
         <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
         <span class="item">Lesson <strong>3</strong> of 3</span>
       </div>
@@ -39,269 +41,314 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Solve the classic medical-screening paradox with natural frequencies.</li>
-          <li>Explain why a rare condition keeps the posterior low after a positive.</li>
-          <li>Run a reusable checklist on any "positive test — should I worry?" moment.</li>
+          <li>Explain why a positive on a 99%-accurate test for a rare condition still means you're probably fine.</li>
+          <li>Work the paradox with natural frequencies — no formula panic required.</li>
+          <li>Run a 5-step checklist on any "positive test, should I worry?" moment.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>This is the mission.</strong> A positive result on an accurate
-        test, and you walk away knowing whether to actually worry — not fooled,
-        not panicked, just counting.
+        <strong>Why this matters for your goal:</strong> this is the exact moment
+        from your mission — a positive result on an accurate test. The skill that
+        ends the panic is keeping the <em>base rate</em> in view, because it, not
+        the test's accuracy, sets the ceiling on how worried you should be.
       </div>
 
-      <h2><span class="vt-num">1</span>The paradox, in words</h2>
-
+      <h2><span class="vt-num">1</span>The setup that fools almost everyone</h2>
       <p>
-        A condition affects <strong>1 in 100</strong> people. The screening test
-        is genuinely good: it catches <strong>90%</strong> of true cases
-        (sensitivity), and it wrongly flags only <strong>9%</strong> of healthy
-        people (false-positive rate). Your test comes back
-        <strong>positive</strong>. Intuition screams "90% — I'm almost certainly
-        sick." Intuition is reading the bar backwards. Let's count.
+        A condition affects <strong>1 in 1,000</strong> people (0.1%). The test is
+        genuinely good: it correctly flags <strong>99%</strong> of people who have
+        it (sensitivity) and correctly clears <strong>99%</strong> of people who
+        don't (specificity). You test positive.
+      </p>
+      <p>
+        Gut says: "99% accurate, so I'm almost certainly sick." Most people —
+        including most doctors when the problem is posed in percentages — land
+        near 99%.<sup><a href="#src-frontiers">[1]</a></sup> Watch what natural
+        frequencies do to that intuition.
       </p>
 
-      <div class="vt-callout warn">
-        <strong>Why natural frequencies?</strong> Percentages hide the crowd.
-        Gigerenzer's research shows that even doctors get this right far more often
-        when the same facts are phrased as counts — "90 out of 100" — instead of
-        conditional probabilities. So we count people, then confirm with the
-        formula.
-      </div>
-
-      <h2><span class="vt-num">2</span>Count 10,000 people</h2>
-
-      <p>Take a concrete crowd of <strong>10,000</strong>. Apply each rate as a count:</p>
-
-      <div class="vt-table-wrap">
-        <table class="vt-table compact">
-          <thead>
-            <tr><th>Group</th><th>How many</th><th>Test positive</th></tr>
-          </thead>
-          <tbody>
-            <tr><th scope="row">Have the condition (1%)</th><td>100</td><td>90 <span class="note">(90% caught)</span></td></tr>
-            <tr><th scope="row">Healthy (99%)</th><td>9,900</td><td>891 <span class="note">(9% false alarm)</span></td></tr>
-            <tr class="vt-row-key"><th scope="row">Everyone who tests positive</th><td>—</td><td>981</td></tr>
-          </tbody>
-        </table>
-      </div>
-
+      <h2><span class="vt-num">2</span>Count it out: 10,000 people</h2>
       <p>
-        Of the <strong>981</strong> people who test positive, only <strong>90</strong>
-        are actually sick. So after your positive result:
+        Instead of multiplying probabilities, just walk a crowd of 10,000 through
+        the test. Each square below is one person.
       </p>
 
-      <div class="vt-math vt-eq">
-        P(\text{sick} \mid \text{positive}) = \frac{90}{981} \approx 9\%
-      </div>
+      <div
+        class="vt-freqgrid"
+        data-cols="100"
+        data-total="10000"
+        data-groups='[{"n":10,"cls":"tp","label":"have it & test positive"},{"n":100,"cls":"fp","label":"healthy but test positive"}]'
+        data-caption="Each square is one of 10,000 people. Only ~10 truly have the condition — yet ~100 healthy people are flagged too."
+      ></div>
 
-      <p>The formula from Lesson 2 agrees, term for term:</p>
+      <ul>
+        <li><strong>10</strong> of the 10,000 actually have the condition (0.1%). The test flags about <strong>10</strong> of them.</li>
+        <li><strong>9,990</strong> are healthy. At 99% specificity the test still mislabels 1% of them — about <strong>100</strong> people.</li>
+        <li>So roughly <strong>110</strong> people test positive, but only <strong>10</strong> are truly sick.</li>
+      </ul>
 
-      <div class="vt-math vt-eq">
-        P(\text{sick} \mid +) = \frac{0.90 \times 0.01}{0.90 \times 0.01 + 0.09 \times 0.99}
-        = \frac{0.009}{0.0981} \approx 0.092
-      </div>
+      <p>
+        Your real chance of being sick, given a positive result, is about
+        <span>\(10 / 110 \approx 9\%\)</span>. The false alarms — drawn from a huge
+        healthy majority — simply <em>outnumber</em> the true cases, even though
+        each individual healthy person was very likely to be cleared.
+      </p>
 
       <div class="vt-callout insight">
-        <strong>Roughly 9%, not 90%.</strong> A positive on this "good" test still
-        leaves you about <strong>91% likely to be healthy</strong>. The 90% you
-        feared is <code>P(positive | sick)</code> — the likelihood. The number that
-        matters is <code>P(sick | positive)</code> — the posterior. Lesson 1's
-        flipped bar, now with a body count.
+        <strong>This is the base-rate fallacy.</strong> Ignoring the prior (the
+        0.1% base rate) and judging by the test's accuracy alone is the error.
+        The base rate is rare, so the pool of potential false positives is vast —
+        and that pool sets your real risk. Lesson 1's lesson, made physical:
+        <span>\(P(\text{positive}\mid\text{sick})=99\%\)</span> but
+        <span>\(P(\text{sick}\mid\text{positive})\approx 9\%\)</span>.
       </div>
 
-      <h2><span class="vt-num">3</span>Why the base rate wins</h2>
-
+      <h2><span class="vt-num">3</span>Confirm it with the formula and the calculator</h2>
       <p>
-        The healthy group is so much bigger that even a small 9% slice of it
-        (891 false alarms) buries the 90 true cases. <strong>Rarity</strong> is
-        doing the work — not the test's quality. Push the base rate up and the
-        posterior climbs; this is the same lever you pulled in Lesson 2.
+        Natural frequencies gave us ~9%. Bayes' theorem must agree — the count
+        <em>is</em> the theorem:
       </p>
 
-      <div aria-live="polite" class="vt-quiz-live"></div>
-      <div class="vt-quiz" data-answer="2">
-        <p class="q">Most directly, why is the posterior only ~9% after a positive?</p>
-        <button class="opt"><code>The test is poorly calibrated</code></button>
-        <button class="opt"><code>The sample size is far too small</code></button>
-        <button class="opt"><code>False alarms outnumber the true cases</code></button>
-        <button class="opt"><code>Ninety percent is the wrong figure</code></button>
-
-        <template class="why-good">
-          Yes. 891 false positives vs. 90 true positives — the rare condition
-          means the healthy crowd's small error rate still produces most of the
-          positives. Rarity, not test quality, drives the low posterior.
-        </template>
-        <template class="why-bad">Look at which two counts you divide — the answer is about their sizes.</template>
-        <template data-opt="0">
-          The test is fine — 90% sensitive, 9% false alarms. Calibration isn't the
-          issue; the base rate is.
-        </template>
-        <template data-opt="1">
-          10,000 is plenty. Scaling the crowd up or down leaves the ~9% unchanged
-          — it's the ratio that matters, not the sample size.
-        </template>
-        <template data-opt="3">
-          90% is a correct figure — it's just the likelihood, the wrong direction
-          of the bar. The arithmetic isn't wrong; the reading was.
-        </template>
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <h2><span class="vt-num">4</span>The reusable checklist</h2>
+      <div class="vt-math vt-eq">P(\text{sick}\mid +) = \frac{0.99 \times 0.001}{0.99 \times 0.001 + 0.01 \times 0.999} \approx 0.090</div>
 
       <p>
-        This is the whole course, interleaved into one routine. Run it on any
-        "positive test — should I worry?" moment. Your progress is saved in this
-        browser, so you can tick it off against a real result later.
+        Set the calculator to this scenario (it's preloaded). Then experiment:
+        raise the base rate and watch the posterior climb; tighten specificity
+        toward 100% and watch the false alarms drain away. The base rate and the
+        false-positive rate are the two levers that matter.
+      </p>
+
+      <div
+        class="vt-bayescalc"
+        data-pop="10000"
+        data-noun="people"
+        data-cond="have the condition"
+        data-test="test"
+      >
+        <div class="bc-controls">
+          <label
+            ><span class="bc-name">Base rate (prior)</span>
+            <span class="bc-inwrap">
+              <input class="bc-prev" type="number" value="0.1" min="0" max="100" step="any" />
+              <span class="bc-unit">% have it</span>
+            </span>
+          </label>
+          <label
+            ><span class="bc-name">Sensitivity</span>
+            <span class="bc-inwrap">
+              <input class="bc-sens" type="number" value="99" min="0" max="100" step="any" />
+              <span class="bc-unit">% true positive</span>
+            </span>
+          </label>
+          <label
+            ><span class="bc-name">Specificity</span>
+            <span class="bc-inwrap">
+              <input class="bc-spec" type="number" value="99" min="0" max="100" step="any" />
+              <span class="bc-unit">% true negative</span>
+            </span>
+          </label>
+        </div>
+        <div class="bc-out" aria-live="polite"></div>
+      </div>
+
+      <div class="vt-callout success">
+        <strong>The reassuring corollary.</strong> A positive on a rare-condition
+        screen is usually a reason to take a <em>second, confirmatory</em> test —
+        not to despair. Each positive multiplies your odds; it rarely jumps you
+        straight to certainty. That's why doctors retest.
+      </div>
+
+      <h2><span class="vt-num">4</span>Your field checklist — "positive test, should I worry?"</h2>
+      <p>
+        This is the takeaway tool. Run these five steps on any positive result —
+        a medical screen, a fraud flag, a spam filter, a security alert. Your
+        progress is saved on this device.
       </p>
 
       <ul class="vt-checklist" data-key="bayes-worry-checklist">
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Write the conditional you actually want</span>
-            <span class="vt-step-body">
-              It's <code>P(have it | positive)</code> — <em>not</em>
-              <code>P(positive | have it)</code>. Name the hypothesis and the
-              evidence so you don't flip the bar. <a href="0001-conditional-probability-and-the-trap.html">(Lesson 1)</a>
-            </span>
+            <span class="vt-step-title">Find the base rate first</span>
+            <span class="vt-step-body">How common is the condition <em>before</em> any test — 1 in 100? 1 in 10,000? This is your prior, and it anchors everything. If you don't know it, that's your first question to ask.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Find the base rate (the prior)</span>
-            <span class="vt-step-body">
-              How common is the condition in someone like you? Rare base rate →
-              the posterior will stay low no matter how good the test sounds.
-            </span>
+            <span class="vt-step-title">Find the false-positive rate</span>
+            <span class="vt-step-body">How often does the test flag people who are fine? (That's <span>\(100\% - \text{specificity}\)</span>.) A "99% accurate" test still has a 1% false-positive rate — and against a rare condition, 1% is a lot of people.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Find both test rates (the likelihoods)</span>
-            <span class="vt-step-body">
-              The true-positive rate <code>P(+ | have it)</code> and the
-              <strong>false-positive</strong> rate <code>P(+ | healthy)</code>.
-              The false-positive rate is the one people forget — and it decides everything.
-            </span>
+            <span class="vt-step-title">Walk 10,000 people through it</span>
+            <span class="vt-step-body">Count the <span class="bc-tp" style="color:var(--vt-good);font-weight:600">true positives</span> (base rate × 10,000 × sensitivity) and the <span style="color:var(--vt-warn-dk);font-weight:600">false positives</span> (the healthy majority × false-positive rate). Concrete counts beat slippery percentages.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Count a crowd of 10,000</span>
-            <span class="vt-step-body">
-              True positives = base-rate group × true-positive rate. False
-              positives = healthy group × false-positive rate. Concrete counts beat
-              decimals. <a href="0002-bayes-theorem.html">(Lesson 2)</a>
-            </span>
+            <span class="vt-step-title">Compute the posterior</span>
+            <span class="vt-step-body">Real chance = true positives ÷ (true positives + false positives). Compare it to your gut's "99%." The gap is the base-rate fallacy you just avoided.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Posterior = true ÷ (true + false) positives</span>
-            <span class="vt-step-body">
-              Then compare it to the prior. Did the positive move your belief as
-              far as your gut assumed? Usually far less.
-            </span>
-          </div>
-        </li>
-        <li>
-          <input type="checkbox" />
-          <div>
-            <span class="vt-step-title">Decide — and seek a second, independent test</span>
-            <span class="vt-step-body">
-              A single positive shifts belief upward; it rarely settles the
-              question. An independent confirmatory test multiplies the evidence
-              and sharpens the posterior.
-            </span>
+            <span class="vt-step-title">Decide like a Bayesian</span>
+            <span class="vt-step-body">A positive nudges your belief upward — it rarely settles it. For a rare condition, the right next move is usually a confirmatory test, not panic. Update again with that result.</span>
           </div>
         </li>
       </ul>
 
-      <div class="vt-callout success">
-        <strong>Play with the levers.</strong> Drag the base rate and test accuracy
-        in Brown University's
-        <a href="https://seeing-theory.brown.edu/bayesian-inference/index.html">Seeing Theory — Bayesian Inference</a>
-        simulator and watch the posterior move exactly as your counts predict.
+      <h2><span class="vt-num">5</span>Recall &amp; interleave — before you peek</h2>
+      <p class="vt-reveal-hint">
+        These mix all three lessons. Answer aloud, then reveal.
+      </p>
+
+      <details class="vt-reveal">
+        <summary>In one sentence: why does a 99%-accurate test give only a ~9% chance of being sick here?</summary>
+        <div class="answer">
+          Because the condition is rare, the few true cases are swamped by false
+          positives drawn from the huge healthy majority — so most positives are
+          false alarms. The base rate, not the accuracy, sets the ceiling.
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>Which two conditionals are being confused, in Lesson 1's language?</summary>
+        <div class="answer">
+          <span>\(P(\text{positive}\mid\text{sick})=99\%\)</span> (the accuracy)
+          is being mistaken for
+          <span>\(P(\text{sick}\mid\text{positive})\approx 9\%\)</span> (your
+          actual risk). The bar got flipped.
+        </div>
+      </details>
+
+      <details class="vt-reveal">
+        <summary>You take a second independent test and it's also positive. Roughly what happens to your ~9%?</summary>
+        <div class="answer">
+          It rises sharply. Your 9% becomes the new prior for the second test;
+          updating again pushes the posterior well above 50%. Confirmatory testing
+          is Bayes' theorem applied twice — which is exactly why it works.
+        </div>
+      </details>
+
+      <h2><span class="vt-num">6</span>Practice — the whole course at once</h2>
+      <div aria-live="polite" class="vt-quiz-live"></div>
+
+      <div class="vt-quiz" data-answer="2">
+        <p class="q">
+          A positive result on this rare-condition screen mainly tells you to —
+        </p>
+        <button class="opt"><code>assume the worst now</code></button>
+        <button class="opt"><code>ignore it completely now</code></button>
+        <button class="opt"><code>take a confirming test</code></button>
+        <button class="opt"><code>distrust every lab test</code></button>
+
+        <template class="why-good">
+          A single positive lifts your odds from tiny to "worth checking," not to
+          certainty. A second, independent test updates again — the Bayesian move.
+        </template>
+        <template class="why-bad">Think about what one positive does to a rare-condition prior: it raises it meaningfully, but not to certainty.</template>
+        <template data-opt="0">Overreacting — at ~9% you're still probably fine; that's the base-rate fallacy in the other direction.</template>
+        <template data-opt="1">Underreacting — 9% is far above the 0.1% base rate, so the positive genuinely is informative.</template>
+        <template data-opt="3">The tests aren't broken; they behave exactly as their accuracy says. The base rate, not the lab, drives the surprise.</template>
+
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
       </div>
 
-      <h2><span class="vt-num">5</span>Make it stick</h2>
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">
+          Which single change would raise the ~9% posterior the most?
+        </p>
+        <button class="opt"><code>a higher base rate</code></button>
+        <button class="opt"><code>a louder alarm tone</code></button>
+        <button class="opt"><code>more people tested</code></button>
+        <button class="opt"><code>a longer test name</code></button>
 
-      <p class="vt-reveal-hint">Answer from memory, then reveal — this is the retrieval that lasts.</p>
+        <template class="why-good">
+          The base rate is the dominant lever. Move 0.1% up to, say, 5% and the
+          posterior leaps — try it in the calculator above and watch.
+        </template>
+        <template class="why-bad">Which input actually appears in Bayes' theorem? Change that one and the posterior moves.</template>
+        <template data-opt="1">Cosmetic — the alarm's volume has nothing to do with the math.</template>
+        <template data-opt="2">Testing more people scales every count equally; the ratio — and so the posterior — is unchanged.</template>
+        <template data-opt="3">Also cosmetic — naming doesn't touch prior, likelihood, or evidence.</template>
 
-      <details class="vt-reveal">
-        <summary>A friend panics: "The test is 95% accurate and I'm positive — I must be sick!" What's the one question you ask back?</summary>
-        <div class="answer">
-          "How common is the condition?" Without the base rate, 95% is just a
-          likelihood. If the condition is rare, the false positives from the huge
-          healthy group can still outnumber the true cases — and the posterior
-          stays low.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>Two tests are equally "90% accurate." One screens for a 1-in-50 condition, the other for a 1-in-5,000 condition. Same positive result — which should worry you more, and why?</summary>
-        <div class="answer">
-          The 1-in-50 one. Higher base rate means more true positives relative to
-          false alarms, so the posterior is much higher. The rarer condition keeps
-          the posterior near the floor even after a positive.
-        </div>
-      </details>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
 
       <div class="vt-recap">
-        <p class="h">✦ What you earned — the mission, complete</p>
-        You can take a scary positive on an accurate test, count 10,000 people, and
-        report the real chance you're sick — usually far below the test's headline
-        accuracy. You see through the base-rate fallacy, and you have a checklist
-        to do it again under pressure.
+        <p class="h">✦ What you earned — and the whole course</p>
+        You can now defuse the screening paradox: count 10,000 people, let the
+        false positives from the healthy majority outweigh the rare true cases,
+        and read your real risk off the ratio. You've gone from "what
+        <span>\(P(A\mid B)\)</span> means" (Lesson 1) to the theorem (Lesson 2) to
+        seeing through the base-rate fallacy on a real screen (Lesson 3) — exactly
+        your mission.
       </div>
 
       <div class="vt-teacher">
         <div>
           <p class="h">I'm your teacher — ask me anything</p>
           <p>
-            Bring me a real screening stat — a test you've actually been offered,
-            with its sensitivity and false-positive rate — and we'll run your
-            checklist on it together, end to end. Or ask how a second independent
-            test stacks the evidence: that's the natural next step beyond this course.
+            Bring me a real number from your life — a screening test, a fraud
+            alert, a positive result that scared you — and we'll run the checklist
+            together on actual values. Or push further:
           </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Set up the two-positive-tests update with me.</span>
+            <span class="vt-ask">Where does this fail — when are tests <em>not</em> independent?</span>
+            <span class="vt-ask">Show me the odds / likelihood-ratio shortcut.</span>
+          </div>
         </div>
+      </div>
+
+      <div class="vt-callout info">
+        <strong>Test it on real people.</strong> Wisdom comes from arguing it out.
+        Post a worked screening problem to
+        <a href="https://stats.stackexchange.com/questions/tagged/bayesian">Cross Validated</a>
+        or <a href="https://www.reddit.com/r/statistics/">r/statistics</a> and see
+        if your setup holds up — explaining the base-rate fallacy to someone else
+        is the surest sign you own it.
       </div>
 
       <footer class="vt-sources">
         <span class="lbl">Sources</span>
         <ul class="vt-reflist">
-          <li>
+          <li id="src-frontiers">
             <span class="vt-src-ic" data-type="video"></span
-            ><a href="https://www.youtube.com/watch?v=R13BD8qKeTg">Veritasium — "The Bayesian Trap"</a>
-            <span class="note">— the screening paradox made visceral; watch first.</span>
-          </li>
-          <li>
-            <span class="vt-src-ic" data-type="book"></span
-            ><a href="https://journals.sagepub.com/doi/full/10.1111/j.1539-6053.2008.00033.x">Gigerenzer et al. — "Helping Doctors and Patients Make Sense of Health Statistics" (PSPI, 2007)</a>
-            <span class="note">— the evidence for teaching with natural frequencies.</span>
+            ><a href="https://www.3blue1brown.com/lessons/better-bayes/">The medical test paradox, and redesigning Bayes' rule — 3Blue1Brown</a>
+            <span class="note">— primary source. The screening paradox worked end to end, with the likelihood-ratio shortcut.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">Wikipedia — "Base rate fallacy"</a>
+            ><a href="https://en.wikipedia.org/wiki/Base_rate_fallacy">Base rate fallacy — Wikipedia</a>
+            <span class="note">— the fallacy named, with the same natural-frequency reframing.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span
+            ><a href="https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2015.01473/full">[1] McDowell &amp; Jacobs (2015), "Natural frequencies improve Bayesian reasoning"</a>
+            <span class="note">— the evidence that frequencies beat percentages (16/24 vs 1/24 physicians).</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="forum"></span
-            ><a href="https://stats.stackexchange.com/">Cross Validated — check your reasoning on a real problem</a>
+            ><a href="https://stats.stackexchange.com/questions/tagged/bayesian">Cross Validated — Bayesian tag</a>
+            <span class="note">— check your real-world setups against statisticians.</span>
           </li>
         </ul>
         <div class="vt-companion">
-          <span class="vt-src-ic" data-type="book"></span>Companion reference:
-          <a href="../reference/bayes-cheatsheet.html">Bayes in one page</a>
+          <span class="vt-src-ic" data-type="book"></span>Companion references:
+          <a href="../reference/cheatsheet.html">Cheat sheet</a> ·
+          <a href="../reference/glossary.html">Glossary</a>
         </div>
-        <div class="meta">Lesson 0003 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0003 · Bayes' theorem · verified 2026-06-26</div>
       </footer>
     </main>
   </body>

@@ -1,33 +1,30 @@
 <!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Groups, alternation, and capture — Regular expressions · Lesson 3</title>
-    <link rel="stylesheet" href="../assets/base.css" />
-    <link rel="stylesheet" href="../assets/callout.css" />
-    <link rel="stylesheet" href="../assets/code.css" />
-    <link rel="stylesheet" href="../assets/table.css" />
-    <link rel="stylesheet" href="../assets/chip.css" />
-    <link rel="stylesheet" href="../assets/quiz.css" />
-    <link rel="stylesheet" href="../assets/reveal.css" />
-    <link rel="stylesheet" href="../assets/checklist.css" />
-    <link rel="stylesheet" href="../assets/teacher-box.css" />
-    <link rel="stylesheet" href="../assets/regex-match.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lesson 3 · Groups, alternation, and capture — Regular Expressions</title>
+    <link rel="stylesheet" href="../assets/base/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/components/callout/callout.css" />
+    <link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
+    <link rel="stylesheet" href="../assets/components/reveal/reveal.css" />
+    <link rel="stylesheet" href="../assets/components/checklist/checklist.css" />
+    <link rel="stylesheet" href="../assets/components/teacher-box/teacher-box.css" />
+    <link rel="stylesheet" href="../assets/components/regex-lab/regex-lab.css" />
   </head>
   <body>
     <main>
-      <p class="vt-kicker">Regular expressions · Lesson 3</p>
-      <h1>Groups, alternation, and capture — applied</h1>
+      <p class="vt-kicker">Regular Expressions · Lesson 3</p>
+      <h1>Groups, alternation, and capture</h1>
       <p class="vt-lede">
-        The payoff lesson. Bundle pieces with <code>(...)</code>, offer choices
-        with <code>|</code>, and use capture groups to <em>pull the fields out</em>
-        of a real log line — interleaving everything from Lessons 1 and 2.
+        The applied payoff: bundle pieces into a chunk, match "this or that,"
+        and pull the fields you care about straight out of a real log line.
       </p>
 
       <div class="vt-metabar">
-        <span class="item">⏱ <strong>~18 min</strong></span>
-        <span class="item">Needs: <a href="0002-quantifiers-and-anchors.html"><strong>Lessons 1–2</strong></a></span>
+        <span class="item">⏱ <strong>~16 min</strong></span>
+        <span class="item">Needs: <strong><a href="0001-literals-and-character-classes.html">L1</a> + <a href="0002-quantifiers-and-anchors.html">L2</a></strong></span>
         <span class="item"><span class="vt-level intermediate">Intermediate</span></span>
         <span class="item">Lesson <strong>3</strong> of 3</span>
       </div>
@@ -35,357 +32,298 @@
       <div class="vt-objectives">
         <p class="h">By the end of this lesson you'll be able to:</p>
         <ul>
-          <li>Group pieces with <code>(...)</code> so a quantifier or <code>|</code> applies to the whole bundle.</li>
-          <li>Offer alternatives with <code>|</code> and scope it correctly with a group.</li>
-          <li>Tell a capturing group <code>(...)</code> from a non-capturing one <code>(?:...)</code>.</li>
-          <li>Write one pattern that <strong>extracts every field</strong> from a log line.</li>
+          <li>Group pieces with <code class="rx">(…)</code> so a quantifier or <code class="rx">|</code> applies to the whole chunk.</li>
+          <li>Match alternatives with <code class="rx">|</code>, and scope them with a group.</li>
+          <li>Tell a capturing group <code class="rx">(…)</code> from a non-capturing <code class="rx">(?:…)</code>.</li>
+          <li>Use captures to <em>extract</em> the fields out of a concrete string — a log line.</li>
         </ul>
       </div>
 
       <div class="vt-mission">
-        <strong>Why this matters for your goal:</strong> This is the whole
-        mission in one lesson — read a moderate pattern, then write one for a
-        concrete task without trial and error. Extracting fields from a string is
-        the single most common real-world regex job. See your
-        <a href="../MISSION.md">mission</a>.
+        <strong>Why this matters for your goal:</strong> reading and writing
+        patterns is the skill; extraction is what you'll actually <em>do</em>
+        with it at work. This lesson turns everything from Lessons 1–2 into one
+        real task: hand the engine a messy line and get back clean fields.
       </div>
 
-      <h2><span class="vt-num">1</span>Groups bundle pieces with <code>(...)</code></h2>
+      <h2><span class="vt-num">1</span>Grouping with <code class="rx">(…)</code></h2>
       <p>
-        A quantifier attaches to the one piece before it (Lesson 2). Parentheses
-        make several pieces act as <em>one</em> piece, so a quantifier can apply
-        to the whole bundle. Compare:
+        Parentheses bundle several pieces into one unit. Now a quantifier can
+        apply to the whole chunk, not just the last character. Compare
+        <code class="rx">ab+</code> ("<code>a</code> then one-or-more
+        <code>b</code>") with <code class="rx">(ab)+</code> ("one-or-more
+        <code>ab</code>"):
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>(ab)+<span class="slash">/</span></span>
+      <div class="rx-lab" data-initial="(ab)+">
+        <p class="rx-title">Try <code>(ab)+</code>, then <code>ab+</code> — watch the difference</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">ababab abbb ab a</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">z<mark>ababab</mark>z</span>
+      </div>
+      <p>
+        Grouping is also how you repeat a structured chunk. A dotted-quad like an
+        IPv4 address is "three of (digits-and-a-dot), then digits":
+        <code class="rx">(\d{1,3}\.){3}\d{1,3}</code>.
+      </p>
+      <div class="rx-lab" data-initial="(\d{1,3}\.){3}\d{1,3}">
+        <p class="rx-title">Grouping lets you repeat a whole shape</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">from 10.0.0.1 via 192.168.1.255 ok</pre>
         </div>
-        <p class="vt-rx-note">
-          <code>(ab)+</code> = "the pair <code>ab</code>, one or more times."
-          Without the group, <code>ab+</code> would mean "an <code>a</code>, then
-          one-or-more <code>b</code>" — a completely different pattern.
-        </p>
       </div>
 
-      <h2><span class="vt-num">2</span>Alternation <code>|</code> — this or that</h2>
+      <h2><span class="vt-num">2</span>Alternation <code class="rx">|</code> — this or that</h2>
       <p>
         A pipe means "match the thing on the left <em>or</em> the thing on the
         right." On its own it splits the <em>entire</em> pattern, so you almost
-        always wrap it in a group to scope the choice to just one slot.
+        always wrap the choice in a group to control its reach.
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>(cat|dog|fish)s?<span class="slash">/</span></span>
+      <dl class="rx-gloss">
+        <dt>cat|dog</dt><dd>the whole word <code>cat</code>, or the whole word <code>dog</code></dd>
+        <dt>gr(a|e)y</dt><dd><code>gr</code>, then <code>a</code> or <code>e</code>, then <code>y</code> — matches <code>gray</code> and <code>grey</code></dd>
+        <dt>(GET|POST|PUT)</dt><dd>any one of three HTTP methods</dd>
+      </dl>
+      <div class="rx-lab" data-initial="gr(a|e)y">
+        <p class="rx-title">Scope the choice with a group</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">gray and grey, but not groy or graey</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">two <mark>cats</mark>, one <mark>dog</mark>, three <mark>fish</mark></span>
-        </div>
-        <p class="vt-rx-note">
-          The group scopes the choice; the <code>s?</code> after it makes a
-          trailing plural optional. Without the group, <code>cat|dog|fishs?</code>
-          would mean "cat, OR dog, OR fish-with-optional-s" — the <code>s?</code>
-          would attach only to "fish".
-        </p>
       </div>
-
       <div class="vt-callout warn">
-        <strong>Alternation is greedy left-to-right and low-precedence.</strong>
-        The engine tries the leftmost alternative first. And <code>|</code> binds
-        looser than anything else, so <code>^cat|dog$</code> means "starts with
-        cat" OR "ends with dog" — rarely what you want. Group it:
-        <code>^(cat|dog)$</code>.
+        <strong>Scope matters.</strong> Without the group,
+        <code class="rx">gra|ey</code> means "<code>gra</code> or
+        <code>ey</code>" — two unrelated alternatives, not the single-letter
+        choice you meant. The group keeps the <code>|</code> on a leash.
       </div>
 
       <h2><span class="vt-num">3</span>Capturing vs. non-capturing</h2>
       <p>
-        Here's the feature that turns "does it match?" into "give me the parts." A
-        plain <code>(...)</code> is a <strong>capturing group</strong>: the engine
-        remembers the substring it matched and hands it back, numbered left to
-        right by opening parenthesis — group&nbsp;1, group&nbsp;2, and so on.
-        Group&nbsp;0 is always the whole match.
+        A plain group does two jobs: it bundles, <em>and</em> it
+        <strong>captures</strong> — the engine remembers the text it matched as a
+        numbered group (1, 2, 3… left to right by opening paren). Captures are
+        how you extract pieces of a match.
       </p>
       <p>
-        Sometimes you only need a group for scoping (a quantifier or a
-        <code>|</code>) and don't want it cluttering your captures. Write
-        <code>(?:...)</code> — a <strong>non-capturing group</strong>: it groups
-        without producing a numbered capture.
+        Below, each capture group is painted its own colour. The pattern
+        <code class="rx">(\w+)@(\w+)</code> remembers the name and the host
+        separately:
       </p>
-
-      <div class="vt-rx">
-        <div class="vt-rx-row">
-          <span class="lbl">pattern</span>
-          <span class="pat"><span class="slash">/</span>(\d{4})-(\d{2})<span class="slash">/</span></span>
+      <div class="rx-lab" data-initial="(\w+)@(\w+)">
+        <p class="rx-title">Two capture groups — see the legend appear</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">ada@math sam@lab grace@navy</pre>
         </div>
-        <div class="vt-rx-row">
-          <span class="lbl">subject</span>
-          <span class="subj">bill <span class="hit"><span class="g g1">2026</span>-<span class="g g2">06</span></span></span>
-        </div>
-        <div class="vt-rx-legend">
-          <span><span class="sw g1"></span>group 1 — year <code>2026</code></span>
-          <span><span class="sw g2"></span>group 2 — month <code>06</code></span>
-        </div>
-        <p class="vt-rx-note">
-          The whole match (group 0) is <code>2026-06</code>. Group 1 is
-          <code>2026</code>, group 2 is <code>06</code> — the hyphen is matched
-          but not captured, because it's outside both groups. That's how you pull
-          year and month apart in one pass.
-        </p>
       </div>
-
+      <p>
+        Sometimes you want a group only to bundle — to apply a quantifier or an
+        alternation — without spending a capture slot on it. Make it
+        <strong>non-capturing</strong> with <code class="rx">(?:…)</code>:
+      </p>
+      <dl class="rx-gloss">
+        <dt>(?:ab)+</dt><dd>repeat <code>ab</code>, but don't capture it</dd>
+        <dt>(\d{4})-(?:\d{2})-(\d{2})</dt><dd>capture year and day; group the month but skip capturing it</dd>
+      </dl>
       <div class="vt-callout insight">
-        <strong>Rule of thumb:</strong> if you'll <em>use</em> the substring
-        later (extract it, reference it), capture it with <code>(...)</code>. If
-        the parentheses are only there to scope a <code>|</code> or a quantifier,
-        make them <code>(?:...)</code> so your group numbers stay meaningful.
+        <strong>Why bother?</strong> Non-capturing groups keep your capture
+        numbers clean — group 1 stays the field you actually want, instead of
+        being some structural group you only added to attach a
+        <code class="rx">+</code>. Clearer patterns, and faster on big inputs.
       </div>
 
-      <h2><span class="vt-num">4</span>Applied: extract the fields from a log line</h2>
+      <h2><span class="vt-num">4</span>Applied — read a log line, then build the pattern</h2>
       <p>
-        Now the capstone. Here is one line from a server log. We'll build —
-        piece by piece — a single pattern that captures every field, using
-        literals and classes (Lesson 1), quantifiers and anchors (Lesson 2), and
-        groups and alternation (today).
+        Here's the real task. This line interleaves everything: literals,
+        classes, quantifiers, and now capture.
       </p>
-
-      <div class="vt-code">
-        <div class="vt-code-head">
-          <span>app.log — one line</span>
-          <button class="vt-code-copy" type="button"></button>
-        </div>
-        <pre><code class="language-none">2026-06-25T14:03:11 ERROR user=4471 payment declined</code></pre>
+      <div class="rx-scan">2026-06-26 ERROR auth: login failed</div>
+      <p>
+        Read it left to right and pick out the shape of each field:
+      </p>
+      <dl class="rx-gloss">
+        <dt>\d{4}-\d{2}-\d{2}</dt><dd>the date — four digits, dash, two, dash, two</dd>
+        <dt>\w+</dt><dd>the level — a run of word characters (<code>ERROR</code>)</dd>
+        <dt>\w+</dt><dd>the component — another word run (<code>auth</code>), before the colon</dd>
+      </dl>
+      <p>
+        Wrap each field you want to <em>keep</em> in a capturing group, and put
+        the literal spaces and colon between them:
+      </p>
+      <div class="vt-callout info">
+        <strong>Build it up:</strong>
+        <code class="rx">(\d{4}-\d{2}-\d{2})</code> + a space +
+        <code class="rx">(\w+)</code> + a space +
+        <code class="rx">(\w+)</code> + a literal <code class="rx">:</code>.
       </div>
 
-      <p>We want four fields: the date, the level, the user id, and the message.</p>
-
-      <p class="vt-reveal-hint">
-        Work the checklist below in order — build the pattern in your own editor
-        or in <a href="https://regex101.com/">regex101</a> as you go, and watch
-        the captures light up. State is saved, so you can stop and come back.
+      <h2><span class="vt-num">5</span>An applied checklist — build any extraction pattern</h2>
+      <p>
+        This is the routine to reuse every time you face a new string. Work it
+        top to bottom; your progress is saved.
       </p>
-
-      <ul class="vt-checklist" data-key="regex-logline">
+      <ul class="vt-checklist" data-key="rx-build-extraction">
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Capture the date</span>
-            <span class="vt-step-body">
-              The date is <code>4-2-2</code> digits joined by hyphens. Wrap it to
-              capture it: <code>(\d{4}-\d{2}-\d{2})</code>. Test it matches
-              <code>2026-06-25</code> and nothing more.
-            </span>
+            <span class="vt-step-title">Write out one concrete example line</span>
+            <span class="vt-step-body">Paste a real sample. You're matching <em>this</em>, not an idea of the data.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Skip the time (without capturing)</span>
-            <span class="vt-step-body">
-              After the date comes <code>T14:03:11</code>. You don't need it as a
-              field, so group it non-capturing:
-              <code>T(?:\d{2}:\d{2}:\d{2})</code>. The literal <code>T</code> and
-              colons match themselves.
-            </span>
+            <span class="vt-step-title">Name the fields you want to keep</span>
+            <span class="vt-step-body">Date? Level? Each one becomes a capturing group <code class="rx">(…)</code>.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Capture the level with alternation</span>
-            <span class="vt-step-body">
-              A space, then one of three known levels:
-              <code> (INFO|WARN|ERROR)</code>. The group both scopes the
-              <code>|</code> and captures which level fired.
-            </span>
+            <span class="vt-step-title">Pick the tightest class for each field</span>
+            <span class="vt-step-body">Prefer <code class="rx">\d</code> or <code class="rx">[^:]+</code> over a loose <code class="rx">.*</code> — tight classes can't overshoot (Lesson 2).</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Capture the user id</span>
-            <span class="vt-step-body">
-              A space, the literal <code>user=</code>, then digits:
-              <code> user=(\d+)</code>. The <code>=</code> is an ordinary literal;
-              only the digits are captured.
-            </span>
+            <span class="vt-step-title">Write the literal glue between fields</span>
+            <span class="vt-step-body">The spaces, dashes, colons that actually appear. Escape specials like <code class="rx">.</code> and <code class="rx">$</code>.</span>
           </div>
         </li>
         <li>
           <input type="checkbox" />
           <div>
-            <span class="vt-step-title">Capture the rest as the message</span>
-            <span class="vt-step-body">
-              A space, then everything to the end: <code> (.+)$</code>. The
-              <code>$</code> anchor pins it to the line end so you grab the whole
-              message.
-            </span>
-          </div>
-        </li>
-        <li>
-          <input type="checkbox" />
-          <div>
-            <span class="vt-step-title">Anchor and assemble</span>
-            <span class="vt-step-body">
-              Put a <code>^</code> at the front and join the pieces. Paste the
-              full pattern into regex101 and confirm all four captures fill in.
-              Then reveal below and compare.
-            </span>
+            <span class="vt-step-title">Test against the sample — and a near-miss</span>
+            <span class="vt-step-body">Confirm it captures the right fields, and that a slightly-wrong line <em>fails</em>. Then you're done.</span>
           </div>
         </li>
       </ul>
 
+      <h2><span class="vt-num">6</span>Recall — produce it from memory</h2>
+      <p class="vt-reveal-hint">Say it before you reveal it.</p>
       <details class="vt-reveal">
-        <summary>Reveal the full pattern and the captures</summary>
+        <summary>What two jobs does a plain <code class="rx">(…)</code> group do?</summary>
         <div class="answer">
-          <div class="vt-rx">
-            <div class="vt-rx-row">
-              <span class="lbl">pattern</span>
-              <span class="pat"><span class="slash">/</span>^(\d{4}-\d{2}-\d{2})T(?:\d{2}:\d{2}:\d{2}) (INFO|WARN|ERROR) user=(\d+) (.+)$<span class="slash">/</span></span>
-            </div>
-            <div class="vt-rx-row">
-              <span class="lbl">subject</span>
-              <span class="subj"><span class="g g1">2026-06-25</span>T14:03:11 <span class="g g2">ERROR</span> user=<span class="g g3">4471</span> payment declined</span>
-            </div>
-            <div class="vt-rx-legend">
-              <span><span class="sw g1"></span>group 1 — date</span>
-              <span><span class="sw g2"></span>group 2 — level</span>
-              <span><span class="sw g3"></span>group 3 — user id</span>
-            </div>
-            <p class="vt-rx-note">
-              Group 4 — the message <code>payment declined</code> — runs to the
-              <code>$</code>. The time is matched by the
-              <code>(?:…)</code> non-capturing group, so it never becomes a
-              numbered field. One pass, four clean captures.
-            </p>
-          </div>
+          It <strong>bundles</strong> pieces into one unit (so a quantifier or
+          <code class="rx">|</code> applies to all of them) and it
+          <strong>captures</strong> the matched text as a numbered group.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>When would you reach for <code class="rx">(?:…)</code> instead of <code class="rx">(…)</code>?</summary>
+        <div class="answer">
+          When you need the grouping (to repeat a chunk or scope a
+          <code class="rx">|</code>) but don't want it to consume a capture
+          number — keeping your real fields as groups 1, 2, 3.
+        </div>
+      </details>
+      <details class="vt-reveal">
+        <summary>Why does <code class="rx">^cat|dog$</code> probably not mean what someone intended?</summary>
+        <div class="answer">
+          <code class="rx">|</code> splits the whole pattern, so it reads as
+          "<code class="rx">^cat</code> OR <code class="rx">dog$</code>" — not
+          "the line is exactly cat or dog." For that, group it:
+          <code class="rx">^(cat|dog)$</code>.
+        </div>
+      </details>
+
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">In <code class="rx">(\d{4})-(?:\d{2})-(\d{2})</code> matched against <code>2026-06-26</code>, what is captured as group 2?</p>
+        <button class="opt">26 — the day at the end</button>
+        <button class="opt">06 — the middle month</button>
+        <button class="opt">2026 — the leading year</button>
+        <button class="opt">Nothing is captured here</button>
+        <template class="why-good">
+          <strong>26.</strong> The month group is non-capturing
+          (<code class="rx">(?:…)</code>), so it's skipped in the numbering. Group
+          1 is <code>2026</code>, and the next capturing group — the day — is
+          group 2.
+        </template>
+        <template class="why-bad">Count only the capturing <code>(…)</code> groups, left to right.</template>
+        <template data-opt="1">
+          <strong>06</strong> is inside <code class="rx">(?:…)</code> — that group
+          is deliberately not captured, so it never gets a number.
+        </template>
+        <template data-opt="2">
+          <strong>2026</strong> is group 1, not group 2 — it's the first
+          capturing group.
+        </template>
+        <template data-opt="3">
+          <strong>Something is</strong> captured — two capturing groups exist; the
+          year and the day.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <h2><span class="vt-num">7</span>Your win — extract the fields</h2>
+      <p>
+        The capstone. Write a pattern with <strong>three capturing groups</strong>
+        that pulls the <em>date</em>, the <em>level</em>, and the
+        <em>component</em> out of the log line. The lab checks your captured
+        fields, not just the match — it turns green when groups 1–3 are exactly
+        <code>2026-06-26</code>, <code>ERROR</code>, <code>auth</code>.
+      </p>
+      <div
+        class="rx-lab"
+        data-initial=""
+        data-want-captures='[["2026-06-26","ERROR","auth"]]'
+      >
+        <p class="rx-title">Capture date, level, component — in that order</p>
+        <div class="rx-samples">
+          <pre class="rx-sample">2026-06-26 ERROR auth: login failed</pre>
+        </div>
+      </div>
+      <details class="vt-reveal">
+        <summary>Stuck? Reveal the build (try the checklist first!)</summary>
+        <div class="answer">
+          <code class="rx">(\d{4}-\d{2}-\d{2}) (\w+) (\w+):</code> — date group,
+          a literal space, level group, a space, component group, then the literal
+          colon that ends the component. You could tighten the component to
+          <code class="rx">([^:]+)</code> to make "everything up to the colon"
+          explicit. Group 1 is the date, group 2 the level, group 3 the component.
         </div>
       </details>
 
       <div class="vt-callout success">
-        <strong>Tangible win:</strong> you just authored a non-trivial pattern
-        from scratch that reads <em>and</em> extracts — the exact capability the
-        mission named. You're no longer copy-pasting and hoping.
-      </div>
-
-      <h2><span class="vt-num">5</span>Check yourself</h2>
-      <div aria-live="polite" class="vt-quiz-live"></div>
-
-      <div class="vt-quiz" data-answer="2">
-        <p class="q">What is the difference between <code>(?:ab)+</code> and <code>(ab)+</code>?</p>
-        <button class="opt">The first repeats; the second matches once</button>
-        <button class="opt">The first is invalid syntax in PCRE</button>
-        <button class="opt">Both match the same text; only the second captures</button>
-        <button class="opt">The first is case-insensitive by default</button>
-
-        <template class="why-good">
-          <strong>Right.</strong> <code>(?:...)</code> groups without capturing,
-          so both match the same characters — but only <code>(ab)+</code> hands
-          back a numbered group you can extract.
-        </template>
-        <template class="why-bad">Not quite — the <code>?:</code> changes capturing, not what gets matched.</template>
-        <template data-opt="0">Both repeat — the <code>+</code> applies to the group in each.</template>
-        <template data-opt="1"><code>(?:...)</code> is standard, valid PCRE/JS syntax.</template>
-        <template data-opt="3"><code>?:</code> has nothing to do with case; that's a flag.</template>
-
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <div class="vt-quiz" data-answer="0">
-        <p class="q">In <code>(\w+)@(\w+)\.com</code> matching <code>ada@acme.com</code>, what is group 2?</p>
-        <button class="opt"><code>acme</code></button>
-        <button class="opt"><code>ada</code></button>
-        <button class="opt"><code>ada@acme.com</code></button>
-        <button class="opt"><code>acme.com</code></button>
-
-        <template class="why-good">
-          <strong>Right.</strong> Groups are numbered by opening parenthesis
-          left to right: group 1 is <code>ada</code>, group 2 is the second
-          <code>(\w+)</code> — <code>acme</code>. The <code>.com</code> is outside
-          any group.
-        </template>
-        <template class="why-bad">Not quite — count the opening parentheses from the left.</template>
-        <template data-opt="1">That's group 1, the part before the <code>@</code>.</template>
-        <template data-opt="2">That's group 0 — the whole match, not group 2.</template>
-        <template data-opt="3"><code>.com</code> is matched literally, outside the second group.</template>
-
-        <div class="feedback"></div>
-        <div aria-live="polite" class="vt-quiz-live"></div>
-      </div>
-
-      <h2><span class="vt-num">6</span>Recall from memory</h2>
-      <p class="vt-reveal-hint">Produce each answer before revealing — this is the last retrieval rep of the course.</p>
-
-      <details class="vt-reveal">
-        <summary>Why wrap an alternation in a group, as in <code>(cat|dog)s</code>?</summary>
-        <div class="answer">
-          Because <code>|</code> has the lowest precedence — it splits the whole
-          pattern. The group scopes the choice to one slot so the surrounding
-          pieces (here the <code>s</code>) apply to both alternatives.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>Write a pattern capturing the area code and number from <code>(415) 555-1234</code>.</summary>
-        <div class="answer">
-          <code>\((\d{3})\) (\d{3}-\d{4})</code> — escaped literal parentheses
-          around a captured 3-digit area code, a space, then the captured
-          7-digit number. Group 1 = <code>415</code>, group 2 = <code>555-1234</code>.
-        </div>
-      </details>
-
-      <details class="vt-reveal">
-        <summary>You only need a group to scope a quantifier, not to extract. Which group do you use?</summary>
-        <div class="answer">
-          The non-capturing group <code>(?:...)</code> — it scopes without adding
-          a numbered capture, keeping your group numbers clean.
-        </div>
-      </details>
-
-      <div class="vt-callout info">
-        <strong>Where to go next (wisdom):</strong> you've covered the portable
-        core. Pressure-test it on real strings — work the practice problems at
-        <a href="https://regexone.com/">RegexOne</a> (log lines, emails, URLs),
-        and when a pattern fights you, post it to
-        <a href="https://www.reddit.com/r/regex/">r/regex</a> or search the
-        <a href="https://stackoverflow.com/questions/tagged/regex">Stack Overflow regex tag</a>.
-        Building patterns under real constraints is how the skill becomes
-        durable.
+        <strong>That's the mission.</strong> You just read a messy line, named its
+        fields, chose tight classes, and wrote a capturing pattern that extracts
+        them — no copy-paste, no guessing. That's the whole skill, end to end.
       </div>
 
       <div class="vt-recap">
-        <p class="h">✦ What you earned</p>
-        <code>(...)</code> bundles pieces and captures them; <code>|</code>
-        offers alternatives (scope it with a group); <code>(?:...)</code> groups
-        without capturing. You combined all of it to extract four fields from a
-        log line — the full read-and-write skill the mission asked for.
+        <p class="h">✦ What you earned — and the course</p>
+        Groups bundle and capture; <code class="rx">|</code> chooses;
+        <code class="rx">(?:…)</code> bundles without capturing. You combined all
+        three lessons to extract fields from a real log line. Across the course
+        you built one mental model — a cursor checking one position at a time —
+        and the syntax to describe what to check: characters, repetition,
+        position, and structure.
       </div>
 
       <div class="vt-teacher">
         <div>
-          <p class="h">I'm your teacher — that's the course, but I'm still here</p>
+          <p class="h">I'm your teacher — let's point this at your real data</p>
           <p>
-            You finished the core. The best next move is to bring me a real
-            pattern from your own work — a validation you're unsure of, a log you
-            need to parse, a find-and-replace that's misbehaving. We'll read it
-            together, find where it over- or under-matches, and you'll fix it with
-            the model you just built. That's where reading turns into fluency.
+            The best next step is a string from your own work. Bring me a log
+            line, a CSV row, a filename pattern — and we'll build the extraction
+            together, live. A few directions:
           </p>
           <div class="vt-asks">
-            <span class="vt-ask">Here's a regex from my codebase — what does it actually match?</span>
-            <span class="vt-ask">Help me write a pattern to validate this exact input format.</span>
-            <span class="vt-ask">When should I reach for a real parser instead of a regex?</span>
+            <span class="vt-ask">Help me extract fields from this line in my codebase.</span>
+            <span class="vt-ask">When should I stop using regex and parse properly instead?</span>
+            <span class="vt-ask">What's the right next topic — lookaround, or named groups?</span>
           </div>
         </div>
       </div>
+
+      <p class="vt-upnext">
+        <em>You've finished the core course.</em> To go further, the natural next
+        topics are <strong>named groups</strong> (<code class="rx">(?&lt;year&gt;…)</code>)
+        and <strong>lookaround</strong> — ask your teacher when you're ready, or
+        take a pattern from your own work to
+        <a href="https://regex101.com/">regex101</a> and read it token by token.
+        Keep the <a href="../reference/regex-cheatsheet.html">cheat sheet</a> handy.
+      </p>
 
       <footer class="vt-sources">
         <span class="lbl">Sources</span>
@@ -393,35 +331,30 @@
           <li>
             <span class="vt-src-ic" data-type="doc"></span
             ><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Groups_and_backreferences">MDN — Groups and backreferences</a>
-            <span class="note">— primary source: capturing, non-capturing, and alternation from the reference.</span>
+            <span class="note">— primary source: capturing, non-capturing, and how groups are numbered.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://regexone.com/">RegexOne — interactive practice problems</a>
-            <span class="note">— extract fields from log lines, emails, and URLs.</span>
-          </li>
-          <li>
-            <span class="vt-src-ic" data-type="doc"></span
-            ><a href="https://regex101.com/">regex101 — live tester</a>
-            <span class="note">— watch every capture group fill in.</span>
+            ><a href="https://www.regular-expressions.info/brackets.html">regular-expressions.info — Grouping &amp; capturing</a>
+            <span class="note">— deeper prose on groups and alternation scope.</span>
           </li>
           <li>
             <span class="vt-src-ic" data-type="forum"></span
             ><a href="https://stackoverflow.com/questions/tagged/regex">Stack Overflow — regex tag</a>
+            <span class="note">— search before you ask: most extraction patterns are already solved and critiqued.</span>
           </li>
         </ul>
         <div class="vt-companion">
           <span class="vt-src-ic" data-type="book"></span>Companion reference:
           <a href="../reference/regex-cheatsheet.html">Regex cheat sheet &amp; glossary</a>
         </div>
-        <div class="meta">Lesson 0003 · verified 2026-06-25</div>
+        <div class="meta">Lesson 0003 · verified 2026-06-26</div>
       </footer>
     </main>
 
-    <script src="../assets/prism/prism-core.min.js"></script>
-    <script src="../assets/base.js"></script>
-    <script src="../assets/code.js"></script>
-    <script src="../assets/quiz.js"></script>
-    <script src="../assets/checklist.js"></script>
+    <script src="../assets/base/base.js"></script>
+    <script src="../assets/components/quiz/quiz.js"></script>
+    <script src="../assets/components/checklist/checklist.js"></script>
+    <script src="../assets/components/regex-lab/regex-lab.js"></script>
   </body>
 </html>

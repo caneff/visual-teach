@@ -1,0 +1,83 @@
+/* ============================================================================
+   quiz.css — styling for the shared feedback-loop widgets (quiz.js).
+   ============================================================================ */
+
+.practice {
+  border: 1px solid var(--rule);
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.3rem 1.4rem 1.5rem;
+  margin: 1.6rem 0;
+  box-shadow: var(--shadow);
+}
+.practice > h3 { margin-top: 0; }
+.practice .hint {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .82rem; color: var(--ink-soft); margin: .2rem 0 1rem;
+}
+
+.quiz-choices { display: flex; flex-wrap: wrap; gap: .55rem; margin: .6rem 0; }
+.quiz-choice {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .95rem;
+  padding: .55rem .9rem;
+  border-radius: 8px;
+  border: 1px solid var(--rule);
+  background: #f6f1e7;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background .12s, border-color .12s;
+}
+.quiz-choice:hover:not(:disabled) { background: #efe7d6; border-color: #cbbfa6; }
+.quiz-choice:disabled { cursor: default; opacity: 1; }
+.quiz-choice.right {
+  background: #e3f1e1; border-color: var(--good); color: #1f5b22; font-weight: 600;
+}
+.quiz-choice.wrong {
+  background: #f6e1da; border-color: var(--bad); color: #8c2c1c; font-weight: 600;
+}
+
+.quiz-feedback {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .9rem;
+  margin-top: .7rem;
+  display: none;
+}
+.quiz-feedback.show { display: block; }
+.quiz-feedback.good { color: var(--good); }
+.quiz-feedback.bad  { color: var(--bad); }
+
+/* drill scoreboard */
+.drill-head {
+  display: flex; justify-content: space-between; gap: 1rem;
+  font-family: ui-sans-serif, system-ui, sans-serif; font-size: .82rem;
+  color: var(--ink-soft); margin-bottom: .4rem;
+}
+.drill-head b { color: var(--ink); }
+.drill-prompt { font-size: 1.05rem; margin: .4rem 0 .2rem; }
+.drill-prompt .big {
+  font-size: 1.5rem; font-weight: 600; color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.check {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .9rem;
+  margin-top: .9rem;
+  padding: .5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--accent-2);
+  background: var(--accent-2);
+  color: #fff;
+  cursor: pointer;
+}
+.check:hover { filter: brightness(1.05); }
+
+.readout {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: .9rem;
+  margin: .8rem 0;
+  min-height: 1.3em;
+  color: var(--accent-2);
+}
+.readout b { color: var(--accent); }

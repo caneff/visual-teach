@@ -1,0 +1,358 @@
+/* ============================================================================
+   Shared stylesheet for the Regular Expressions course.
+   Tufte-inspired: warm paper, generous measure, quiet ornament.
+   Every lesson and reference doc links this file so the course reads as one.
+   ============================================================================ */
+
+:root {
+  --paper:      #fffff8;
+  --ink:        #111111;
+  --ink-soft:   #43413a;
+  --rule:       #d8d4c4;
+  --accent:     #0a7d77;   /* teal — links, structure */
+  --accent-2:   #b8531a;   /* burnt orange — emphasis  */
+  --match-bg:   #ffe9a8;   /* highlighted match        */
+  --match-bd:   #d9a300;
+  --good-bg:    #e3f3e8;
+  --good-bd:    #2e8b57;
+  --bad-bg:     #fbe6e3;
+  --bad-bd:     #c0392b;
+  --code-bg:    #f3f1e7;
+  --mono: "SFMono-Regular", "JetBrains Mono", "Fira Mono", Consolas, monospace;
+  --serif: Georgia, Cambria, "Times New Roman", serif;
+}
+
+* { box-sizing: border-box; }
+
+html { font-size: 17px; }
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  line-height: 1.55;
+  margin: 0;
+  padding: 0 1.25rem 6rem;
+}
+
+.wrap {
+  max-width: 47rem;
+  margin: 0 auto;
+}
+
+/* ---- Masthead -------------------------------------------------------------*/
+.masthead {
+  border-bottom: 1px solid var(--rule);
+  margin: 0 auto 2.4rem;
+  max-width: 47rem;
+  padding: 2.6rem 0 1.1rem;
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin: 0 0 0.4rem;
+}
+h1 {
+  font-weight: 400;
+  font-size: 2.1rem;
+  line-height: 1.15;
+  margin: 0 0 0.5rem;
+}
+.subtitle {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 1.08rem;
+  margin: 0;
+}
+
+h2 {
+  font-weight: 400;
+  font-size: 1.45rem;
+  margin: 2.6rem 0 0.6rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+h3 {
+  font-weight: 700;
+  font-size: 1.06rem;
+  margin: 1.7rem 0 0.4rem;
+}
+
+p { margin: 0.7rem 0; }
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(10,125,119,0.3); }
+a:hover { border-bottom-color: var(--accent); }
+
+/* ---- Code & regex literals -----------------------------------------------*/
+code, kbd, .re {
+  font-family: var(--mono);
+  font-size: 0.92em;
+}
+code {
+  background: var(--code-bg);
+  padding: 0.08em 0.34em;
+  border-radius: 3px;
+}
+.re {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 0.1em 0.4em;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+/* ---- Callouts -------------------------------------------------------------*/
+.callout {
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent-2);
+  background: #fffdf2;
+  border-radius: 4px;
+  padding: 0.7rem 1.05rem;
+  margin: 1.4rem 0;
+  font-size: 0.97rem;
+}
+.callout .label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.callout.mission { border-left-color: var(--accent); }
+.callout.mission .label { color: var(--accent); }
+
+/* ---- The match strip: makes matching visible -----------------------------*/
+.strip {
+  margin: 1.3rem 0;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.strip-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 0.8rem;
+  align-items: baseline;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.5rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+}
+.strip-head .pat { color: var(--accent-2); font-weight: 700; }
+.strip-head .note { color: var(--ink-soft); font-style: italic; font-family: var(--serif); }
+.strip-body {
+  padding: 0.85rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+mark.m {
+  background: var(--match-bg);
+  border-bottom: 2px solid var(--match-bd);
+  border-radius: 2px;
+  padding: 0.05em 0.12em;
+}
+mark.g {  /* a captured group inside a match */
+  background: #cfeee9;
+  border-bottom: 2px solid var(--accent);
+  border-radius: 2px;
+  padding: 0.05em 0.12em;
+}
+
+/* ---- Interactive lab (live pattern → highlights) -------------------------*/
+.lab {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  margin: 1.5rem 0;
+  overflow: hidden;
+}
+.lab-bar {
+  display: flex;
+  align-items: stretch;
+  background: var(--code-bg);
+  border-bottom: 1px solid var(--rule);
+}
+.lab-bar .slash {
+  font-family: var(--mono);
+  color: var(--ink-soft);
+  padding: 0.6rem 0.2rem 0.6rem 0.7rem;
+  font-size: 1.05rem;
+}
+.lab-bar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--mono);
+  font-size: 1.0rem;
+  color: var(--accent-2);
+  padding: 0.6rem 0.3rem;
+  outline: none;
+}
+.lab-bar .flags {
+  font-family: var(--mono);
+  color: var(--ink-soft);
+  padding: 0.6rem 0.7rem 0.6rem 0.2rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+.lab-sample {
+  padding: 0.9rem 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  line-height: 2;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.lab-status {
+  border-top: 1px solid var(--rule);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.88rem;
+  font-family: var(--mono);
+}
+.lab-status.ok   { background: var(--good-bg); color: var(--good-bd); }
+.lab-status.no   { background: var(--bad-bg);  color: var(--bad-bd); }
+.lab-status.idle { background: var(--code-bg); color: var(--ink-soft); }
+.lab-goal {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  padding: 0.6rem 0.9rem;
+  background: #fffdf2;
+  border-bottom: 1px solid var(--rule);
+}
+.lab-goal b { color: var(--accent-2); }
+
+/* ---- Quiz ----------------------------------------------------------------*/
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.1rem 1.15rem;
+  margin: 1.5rem 0;
+  background: #fffdf2;
+}
+.quiz .q {
+  font-weight: 700;
+  margin: 0 0 0.7rem;
+}
+.quiz .q .n {
+  font-family: var(--mono);
+  color: var(--accent-2);
+  font-size: 0.8rem;
+  margin-right: 0.4rem;
+}
+.quiz .opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--serif);
+  font-size: 0.98rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.5rem 0.75rem;
+  margin: 0.4rem 0;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz .opt:hover { border-color: var(--accent); }
+.quiz .opt.correct { background: var(--good-bg); border-color: var(--good-bd); }
+.quiz .opt.wrong   { background: var(--bad-bg);  border-color: var(--bad-bd); }
+.quiz .opt code { background: rgba(0,0,0,0.05); }
+.quiz .fb {
+  margin-top: 0.7rem;
+  font-size: 0.92rem;
+  min-height: 1.2em;
+}
+.quiz .fb.correct { color: var(--good-bd); }
+.quiz .fb.wrong   { color: var(--bad-bd); }
+
+/* ---- Tables --------------------------------------------------------------*/
+table { border-collapse: collapse; width: 100%; margin: 1.2rem 0; font-size: 0.95rem; }
+th, td { text-align: left; padding: 0.45rem 0.7rem; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-soft); }
+td .re, td code { white-space: nowrap; }
+
+/* ---- Nav / footer --------------------------------------------------------*/
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 3rem 0 0;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+.lesson-nav a { display: inline-block; }
+.lesson-nav .spacer { flex: 1; }
+
+.followup {
+  margin-top: 2.4rem;
+  background: #f3f1e7;
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  font-size: 0.95rem;
+}
+.followup .label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.source {
+  margin-top: 1.6rem;
+  font-size: 0.95rem;
+  border-left: 3px solid var(--accent);
+  padding: 0.2rem 0 0.2rem 0.9rem;
+}
+.source .label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  display: block;
+}
+
+.cite { font-size: 0.85rem; color: var(--ink-soft); }
+sup.cite a { border: none; color: var(--accent); }
+
+footer.tiny {
+  max-width: 47rem;
+  margin: 2rem auto 0;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+}
+
+/* ---- Print ---------------------------------------------------------------*/
+@media print {
+  body { background: #fff; }
+  .lab-bar input { color: #000; }
+  .followup, .lab-status.idle { background: #f5f5f5; }
+  a { color: #000; border: none; }
+  .no-print { display: none; }
+}

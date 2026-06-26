@@ -1,0 +1,72 @@
+/* ====================================================================
+   course.css — shared sheet for the "Bayes' theorem" course.
+   Linked by every lesson alongside base.css, so the whole course reads
+   as one document. We keep the base palette as-is (probability has no
+   strong conventional color); this file only adds course-level helpers
+   that more than one lesson reuses.
+   ==================================================================== */
+
+/* A two-column "this vs that" reading rail — used to set P(A|B) against
+   P(B|A) so the asymmetry is impossible to miss. Themed from base tokens. */
+.vt-versus {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+  margin: 1.4rem 0;
+}
+.vt-versus > div {
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  background: var(--vt-soft);
+}
+.vt-versus .lbl {
+  display: block;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vt-muted);
+  margin-bottom: 0.35rem;
+}
+.vt-versus .big {
+  font-size: 1.05rem;
+  color: var(--vt-ink);
+}
+@media (max-width: 560px) {
+  .vt-versus {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Inline "read it aloud" gloss: a faint bracketed translation under notation. */
+.vt-gloss {
+  color: var(--vt-muted);
+  font-style: italic;
+}
+
+/* A tidy definition list for naming the four parts of the theorem. */
+.vt-defs {
+  margin: 1.3rem 0;
+  border-top: 1px solid var(--vt-rule);
+}
+.vt-defs > div {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, max-content) 1fr;
+  gap: 0.4rem 1.2rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--vt-rule);
+}
+.vt-defs dt {
+  font-weight: 600;
+  color: var(--vt-accent);
+}
+.vt-defs dd {
+  margin: 0;
+  color: var(--vt-ink);
+}
+@media (max-width: 520px) {
+  .vt-defs > div {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
