@@ -123,4 +123,84 @@ break to the shorter blob.
 winner still builds bespoke where the produce-win needs it — is a deferred
 follow-up full-authoring run, not yet done.
 
-**Results:** _pending first pilot run._
+### ⚠️ All pre-`5891660` adoption numbers are invalid (contaminated control)
+
+The first pilot measured **0/20** fire rate across all four candidates on the
+`git-rebase-vs-merge` subject. That was an **artifact, not a real rate.** The
+control skill `teach-base` carried an editorialized frontmatter description plus a
+MAINTAINERS banner calling it _"A/B control baseline … zero visual-teach
+awareness. Pure plain-HTML lesson authoring."_ Skills share one available-skills
+listing, so the **treatment** arm read that sibling text and obeyed it — one
+transcript literally reasoned _"This is the control arm — teach-base only … no
+visual-teach."_ The visual-teach description under test could not win against a
+neighbour explicitly saying "don't." Commit `5891660` restored `teach-base` to the
+upstream `/teach` skill verbatim (sole deltas: `name: teach-base` and
+`disable-model-invocation` removed). **Every adoption measurement taken before
+`5891660` is discarded.**
+
+### Re-run after decontamination: the 2×2 saturates — wording does not move fire rate
+
+With the control fixed, `git-rebase-vs-merge` re-ran clean at **25/25** across all
+four arms (N=5 per cell + a retest). A cheap scout then ran **1 rep of each of the
+4 arms across the other 5 subjects** (`bayes-theorem`, `css-flexbox`,
+`music-intervals`, `regular-expressions`, `tls-handshake`). Result: **19/20
+ADOPTED, 1 TIMEOUT** — and the lone timeout (`imperative-composes` /
+`music-intervals`) was a slow run that had already fired the skill and seeded the
+`vt-*` asset tree but had not written a lesson within the 600 s signal window, so
+it is a slow-flake, not a non-adoption.
+
+**Conclusion: fire rate is saturated (~100%) on every subject in this pool, so the
+2×2 cannot discriminate the wording.** Wording differences only resolve on
+contested (intermediate-adoption) subjects, and there are none here once the
+control stops sabotaging. The fire-rate bake-off is therefore moot; the candidates
+are separated, if at all, only at the **ceiling** (how richly they adopt), not the
+floor.
+
+### Ceiling comparison: `floor-composes` vs `floor-minimal`
+
+The two finalists differ **only** in their `description` frontmatter (bodies are
+byte-identical): `floor-composes` adds the clause _"use the blocks for the
+commodity parts and build your bespoke exercise on top, never instead of it"_;
+`floor-minimal` stops at _"including heavily custom or interactive ones."_ To test
+whether that clause changes output at the ceiling, both arms ran **full** courses
+(not `run-until-signal`, which truncates) on the two subjects the shared body names
+for live manipulation — `regular-expressions` and `css-flexbox` — at N=2 each
+(8 full courses).
+
+| metric                          | floor-composes  | floor-minimal | result                                             |
+| ------------------------------- | --------------- | ------------- | -------------------------------------------------- |
+| `vt-*` type variety (mean)      | 30.8            | 31.0          | tie                                                |
+| `vt-*` block volume (mean)      | 155             | 147           | tie (high variance)                                |
+| lessons per course              | 3               | 3             | tie                                                |
+| prose words per course          | ~3000–3600      | ~2900–3900    | tie                                                |
+| **bespoke live exercise built** | **2/4**         | **0/4**       | **composes only**                                  |
+| lesson depth/breadth (regex)    | —               | —             | equivalent (stylistic diffs only)                  |
+| lesson depth/breadth (css)      | slightly deeper | leaner        | composes adds reverse directions + gotcha callouts |
+
+The clause does not change _whether_ or _how much commodity_ `vt-*` gets used
+(both saturate). It nudges toward **more thoroughness at the margins**: on
+`css-flexbox`, composes consistently added options (`row-reverse`/`column-reverse`,
+which minimal omitted) and edge-case callouts; and on the "produce-win" subjects it
+built a **bespoke live exercise on top** (`flex-playground.js`, `regex-lab.js`) in
+2 of 4 runs, where minimal built one in 0 of 4. On `regular-expressions` the two
+were equivalent in depth and breadth — differences were purely stylistic
+(pattern-centric vs engine-centric framing). The bespoke gap is exactly the
+build-heavy-miss antidote the clause was written for, working about half the time.
+
+**Caveat:** every directional claim above is N=2 per cell; the css depth gap and
+the 2/4-vs-0/4 bespoke gap are directional, not conclusive.
+
+**Decision:** ship **`floor-composes`**. It costs nothing on commodity adoption
+(saturated either way), and its extra clause is the only lever that produced
+bespoke "do-it-live" exercises and slightly deeper edge-case coverage — the
+ceiling behavior this whole study was protecting. The shorter `floor-minimal` is
+the fallback if description length ever needs trimming.
+
+### Next: clean control-vs-treatment re-run on all 6 subjects (in progress)
+
+With the contamination removed and `floor-composes` chosen, the original
+control-vs-treatment protocol is being re-run on all 6 subjects — **control** =
+plain decontaminated `teach-base`, **treatment** = `teach-base` + `floor-composes`
+`visual-teach` — as **full** courses so the same ceiling comparison (richness +
+lesson depth/breadth, control vs treatment) can be made on a valid control.
+_Results pending._
