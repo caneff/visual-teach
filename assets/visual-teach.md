@@ -37,6 +37,11 @@ copied on its own.
 > delivery mode is file://, so this footgun kills the whole page with no visible
 > error unless you inspect the console.
 
+> **Heavy deps:** after copy-all seeding, `./assets/` includes `katex/`, `prism/`,
+> and `mermaid.js`. If none of your lessons use those components (`math`, `code`,
+> `diagram`), you may delete those subdirectories/files — they are unreferenced
+> unless explicitly linked.
+
 ## Page shell
 
 Copy this `<main>` skeleton when starting a new lesson. It is the structural
