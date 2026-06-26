@@ -11,6 +11,7 @@ export default [
       ".claude/skills/teach/assets/katex/**", // vendored, minified
       ".claude/skills/teach/assets/mermaid.js", // vendored
       "course-tests/**",
+      "demo/adoption-demos/**", // generated A/B lesson output + vendored assets (#180)
       ".sandcastle/**", // includes .mts (TypeScript), not linted here
     ],
   },

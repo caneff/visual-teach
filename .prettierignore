@@ -1,0 +1,6 @@
+node_modules/
+# Generated A/B lesson output + vendored assets (#180) — do not reformat
+demo/adoption-demos/
+# Vendored, minified
+assets/prism/
+assets/katex/

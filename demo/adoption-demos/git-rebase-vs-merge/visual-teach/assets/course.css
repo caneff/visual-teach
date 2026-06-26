@@ -1,0 +1,82 @@
+/* course.css — the one stylesheet every lesson in this course links, alongside
+   base.css. It does two jobs and only two:
+
+   1. Sets the SINGLE course accent (git's rust-orange) once, so every lesson
+      shares one visual identity. Never recolor per lesson — vary lessons by the
+      components they use, not by hue.
+   2. Houses the bespoke `cg-*` commit-graph helper. A branching/merging commit
+      DAG is the one picture this whole course turns on, and it is exactly the
+      interaction the stock vt-* catalog cannot express — so it lives here as a
+      shared component rather than being re-inlined in every lesson. */
+
+:root {
+  /* Accent: keep the visual-teach default (no override) so this course stays in
+     the same visual family as every other visual-teach course. */
+
+  /* Commit-graph palette, derived from the vt tokens so it themes for free. */
+  --cg-main: var(--vt-muted); /* commits already on the shared base branch */
+  --cg-feature: var(--vt-accent); /* your feature-branch commits            */
+  --cg-merge: var(--vt-good); /* a merge commit                         */
+  /* connectors: visible but quiet — a soft grey that survives both themes */
+  --cg-line: color-mix(in srgb, var(--vt-muted) 60%, var(--vt-paper));
+}
+
+/* ---- commit-graph figure -------------------------------------------------- */
+
+/* The SVG itself scales to the diagram frame; height is intrinsic. */
+.cg-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* Commit dot labels and lane labels rendered as SVG <text> inherit these. */
+.cg-svg text {
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  fill: var(--vt-ink);
+}
+.cg-svg .cg-lane {
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--vt-muted);
+}
+.cg-svg .cg-hash {
+  font-family: ui-monospace, "Cascadia Code", Menlo, monospace;
+  font-size: 12px;
+  fill: var(--vt-muted);
+}
+
+/* A small inline legend that sits under a graph, mapping dot color → meaning. */
+.cg-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  justify-content: center;
+  margin: 0.6rem 0 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-size: 0.8rem;
+  color: var(--vt-muted);
+}
+.cg-legend .k {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.cg-legend .k::before {
+  content: "";
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+  background: var(--dot, var(--vt-muted));
+}
+.cg-legend .k.main {
+  --dot: var(--cg-main);
+}
+.cg-legend .k.feature {
+  --dot: var(--cg-feature);
+}
+.cg-legend .k.merge {
+  --dot: var(--cg-merge);
+}

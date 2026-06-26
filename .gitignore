@@ -22,3 +22,6 @@ test-results/
 
 # Saved deep-research output (local only, do not check in)
 .research/
+
+# Adoption harness arm HOMEs (contain copied credentials) + run workspaces
+.adoption-harness/

@@ -92,10 +92,13 @@ const DEFINED = [
   ".vt-badge",
   ".vt-badge.sm",
   ".vt-kbd",
-  // source card + teacher box
-  ".vt-source",
-  ".vt-source::before",
+  // teacher box
   ".vt-asks",
+  // reveal (free-recall)
+  ".vt-reveal",
+  ".vt-reveal[open]",
+  ".vt-reveal .answer",
+  ".vt-reveal-hint",
   // math (KaTeX)
   ".vt-math",
   ".vt-eq",

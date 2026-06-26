@@ -1,0 +1,272 @@
+/* course.css — shared stylesheet for the "merge vs. rebase" course.
+   The first reusable component: every lesson links this so the course looks
+   like one consistent thing. Tufte-inspired: generous margins, calm type,
+   restrained colour. */
+
+:root {
+  --ink:        #1a1a1a;
+  --ink-soft:   #555;
+  --paper:      #fdfcf9;
+  --rule:       #e3ded3;
+  --accent:     #7a1f1f;   /* deep red — merge */
+  --accent2:    #1f4f7a;   /* deep blue — rebase */
+  --gold:       #8a6d1a;   /* the golden rule */
+  --gold-bg:    #fbf6e3;
+  --good:       #1f6b3a;
+  --bad:        #9a2b2b;
+  --code-bg:    #f3f0e9;
+  --maxw:       42rem;
+}
+
+html { font-size: 18px; }
+
+body {
+  font-family: Charter, Georgia, Cambria, "Times New Roman", serif;
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.55;
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 3.5rem 1.4rem 6rem;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Course furniture ---------------------------------------------------- */
+
+.course-kicker {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 0.4rem;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 0 0 1.4rem;
+  font-weight: 600;
+}
+
+h2 {
+  font-size: 1.3rem;
+  margin: 2.6rem 0 0.6rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.25rem;
+}
+
+h3 { font-size: 1.05rem; margin: 1.6rem 0 0.4rem; font-weight: 600; }
+
+p, li { font-size: 1rem; }
+a { color: var(--accent2); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+a:hover { color: var(--accent); }
+
+small, .muted { color: var(--ink-soft); font-size: 0.85rem; }
+
+/* ---- Code ---------------------------------------------------------------- */
+
+code, pre, .graph {
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+}
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.85em;
+}
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+pre code { background: none; padding: 0; }
+
+/* ---- Commit-graph diagrams (ASCII art, but styled) ----------------------- */
+
+.graph {
+  background: #fff;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  white-space: pre;
+  overflow-x: auto;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  margin: 1rem 0;
+}
+.graph .label { color: var(--ink-soft); }
+.graph .merge  { color: var(--accent);  font-weight: 600; }
+.graph .rebase { color: var(--accent2); font-weight: 600; }
+
+.twoup { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.twoup h3 { margin-top: 0.2rem; }
+@media (max-width: 640px) { .twoup { grid-template-columns: 1fr; } }
+
+/* ---- Callouts ------------------------------------------------------------ */
+
+.callout {
+  border-left: 4px solid var(--rule);
+  background: #fff;
+  padding: 0.8rem 1.1rem;
+  margin: 1.3rem 0;
+  border-radius: 0 6px 6px 0;
+}
+.callout .tag {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 0.3rem;
+  color: var(--ink-soft);
+}
+.callout.golden { border-left-color: var(--gold); background: var(--gold-bg); }
+.callout.golden .tag { color: var(--gold); }
+.callout.danger { border-left-color: var(--bad); background: #fbeeee; }
+.callout.danger .tag { color: var(--bad); }
+.callout.win { border-left-color: var(--good); background: #eef6f0; }
+.callout.win .tag { color: var(--good); }
+
+/* ---- Primary source box -------------------------------------------------- */
+
+.primary-source {
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 1rem 1.2rem;
+  margin: 1.6rem 0;
+  background: #fff;
+}
+.primary-source .tag {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+/* ---- Citations ----------------------------------------------------------- */
+
+.cite { font-size: 0.8rem; }
+sup.cite a {
+  text-decoration: none;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+}
+.refs { font-size: 0.82rem; color: var(--ink-soft); }
+.refs li { margin-bottom: 0.4rem; }
+
+/* ---- Quiz / recall widget ------------------------------------------------ */
+
+.quiz {
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 1.1rem 1.2rem;
+  margin: 1.4rem 0;
+  background: #fff;
+}
+.quiz .q { font-weight: 600; margin: 0 0 0.7rem; }
+.quiz .scenario {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin-bottom: 0.6rem;
+}
+.quiz button.opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  font-size: 0.95rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  margin: 0.4rem 0;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+.quiz button.opt:hover { background: var(--code-bg); }
+.quiz button.opt:disabled { cursor: default; opacity: 1; }
+.quiz button.opt.correct   { border-color: var(--good); background: #eef6f0; }
+.quiz button.opt.incorrect { border-color: var(--bad);  background: #fbeeee; }
+.quiz .feedback {
+  margin-top: 0.7rem;
+  font-size: 0.9rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  display: none;
+}
+.quiz .feedback.show { display: block; }
+.quiz .feedback.right { background: #eef6f0; border: 1px solid var(--good); }
+.quiz .feedback.wrong { background: #fbeeee; border: 1px solid var(--bad); }
+
+/* Reveal-on-click "flashcard" for free recall */
+.reveal { margin: 1.2rem 0; }
+.reveal summary {
+  cursor: pointer;
+  font-weight: 600;
+  padding: 0.6rem 0.8rem;
+  background: var(--code-bg);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  list-style: none;
+}
+.reveal summary::-webkit-details-marker { display: none; }
+.reveal summary::before { content: "▸ "; color: var(--ink-soft); }
+.reveal[open] summary::before { content: "▾ "; }
+.reveal .answer {
+  padding: 0.8rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+}
+
+/* ---- Checklist ----------------------------------------------------------- */
+
+.checklist { list-style: none; padding-left: 0; }
+.checklist li { padding: 0.35rem 0 0.35rem 1.9rem; position: relative; }
+.checklist li::before {
+  content: "☐";
+  position: absolute;
+  left: 0.3rem;
+  color: var(--accent2);
+  font-size: 1.1rem;
+}
+
+/* ---- Navigation between lessons ------------------------------------------ */
+
+.lesson-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 3rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.85rem;
+}
+.lesson-nav a { text-decoration: none; }
+.lesson-nav .spacer { flex: 1; }
+
+.followup {
+  margin-top: 2.2rem;
+  font-size: 0.9rem;
+  background: #fff;
+  border: 1px dashed var(--rule);
+  border-radius: 6px;
+  padding: 0.9rem 1.1rem;
+}
+.followup strong { color: var(--accent); }
+
+hr { border: none; border-top: 1px solid var(--rule); margin: 2.4rem 0; }
+
+@media print {
+  body { max-width: none; padding: 0; }
+  .quiz button.opt { display: none; }
+  .reveal[open] .answer { display: block; }
+}

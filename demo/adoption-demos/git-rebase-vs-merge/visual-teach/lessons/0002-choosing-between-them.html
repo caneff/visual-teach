@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Choosing between them — merge vs rebase</title>
+
+    <link rel="stylesheet" href="../assets/base.css" />
+    <link rel="stylesheet" href="../assets/course.css" />
+    <link rel="stylesheet" href="../assets/table.css" />
+    <link rel="stylesheet" href="../assets/callout.css" />
+    <link rel="stylesheet" href="../assets/code.css" />
+    <link rel="stylesheet" href="../assets/chip.css" />
+    <link rel="stylesheet" href="../assets/quiz.css" />
+    <link rel="stylesheet" href="../assets/teacher-box.css" />
+
+    <script src="../assets/prism/prism-core.min.js"></script>
+    <script src="../assets/prism/prism-clike.min.js"></script>
+    <script src="../assets/prism/prism-bash.min.js"></script>
+    <script src="../assets/base.js"></script>
+    <script src="../assets/code.js"></script>
+    <script src="../assets/quiz.js"></script>
+  </head>
+  <body>
+    <main>
+      <p class="vt-kicker">Merge vs Rebase · Lesson 2 of 3</p>
+      <h1>Choosing between them</h1>
+      <p class="vt-lede">
+        You can picture both shapes now. This lesson turns that picture into a
+        decision you can make in two seconds, for any branch on your screen.
+      </p>
+
+      <div class="vt-metabar">
+        <span class="item">⏱ <strong>~12 min</strong></span>
+        <span class="item">Needs: <strong><a href="0001-two-shapes-of-history.html">Lesson 1</a></strong></span>
+        <span class="item"><span class="vt-level beginner">Beginner</span></span>
+        <span class="item">Lesson <strong>2</strong> of 3</span>
+      </div>
+
+      <div class="vt-objectives">
+        <p class="h">By the end of this lesson you'll be able to:</p>
+        <ul>
+          <li>Apply one question that decides merge vs rebase almost every time.</li>
+          <li>Pick correctly for three everyday scenarios — and justify it in a sentence.</li>
+          <li>Spot the one case where "pushed" doesn't mean "off-limits".</li>
+        </ul>
+      </div>
+
+      <div class="vt-mission">
+        <strong>Why this matters for your goal:</strong> the anxiety isn't really
+        about the commands — it's about not having a rule. Once a single question
+        decides it, the coin-flip dread is gone and you just answer.
+      </div>
+
+      <h2><span class="vt-num">1</span>The one question that decides it</h2>
+      <p>
+        Almost every merge-vs-rebase call collapses to a single question about the
+        commits you'd be rewriting:
+      </p>
+
+      <div class="vt-callout insight">
+        <strong>Has anyone else got these commits yet?</strong><br />
+        <strong>No</strong> (the commits are private — only on your machine, or on
+        a branch nobody has based work on) → <strong>rebase</strong> is safe, and a
+        clean straight line is the nicer result.<br />
+        <strong>Yes</strong> (the commits are shared — others have pulled them or
+        build on them) → <strong>merge</strong>. Never rewrite history other people
+        already have.
+      </div>
+
+      <p>
+        That's the golden rule of rebasing, stated as a decision. We'll meet it
+        again, with the recovery tools, in
+        <a href="0003-rebase-without-fear.html">Lesson&nbsp;3</a>. Here's how the
+        two stack up once you've answered that question:
+      </p>
+
+      <div class="vt-table-wrap">
+        <table class="vt-table">
+          <thead>
+            <tr>
+              <th>&nbsp;</th>
+              <th><code>git merge</code></th>
+              <th><code>git rebase</code></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">History shape</th>
+              <td>Fork preserved, tied off by a merge commit</td>
+              <td>One straight, linear line</td>
+            </tr>
+            <tr>
+              <th scope="row">Original commits</th>
+              <td>Untouched — same hashes</td>
+              <td>Replaced by new-hash copies</td>
+            </tr>
+            <tr>
+              <th scope="row">Safe on <em>shared</em> commits</th>
+              <td class="vt-ok"><span class="note">Always</span></td>
+              <td class="vt-no"><span class="note">No — rewrites history</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Records that branches met</th>
+              <td>Yes — the merge commit is the record</td>
+              <td>No — looks like it was always linear</td>
+            </tr>
+            <tr class="vt-row-key">
+              <th scope="row">Reach for it when…</th>
+              <td>Integrating <strong>shared</strong> history, or you <em>want</em> the merge recorded</td>
+              <td>Tidying or updating a <strong>private</strong> branch before review</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="vt-callout info">
+        <strong>Updating a private branch is the everyday rebase.</strong> To pull
+        the latest <code>main</code> into your own feature branch without a noisy
+        "Merge branch 'main'" commit, rebase instead of merge:
+        <div class="vt-code" style="margin-top: 0.7rem">
+          <div class="vt-code-head">
+            <span>keep your branch current, linearly</span>
+            <button class="vt-code-copy" type="button"></button>
+          </div>
+          <pre><code class="language-bash">git fetch origin
+git rebase origin/main      # replay your work on top of the latest main
+# shortcut for the same idea when pulling:
+git pull --rebase</code></pre>
+        </div>
+      </div>
+
+      <h2><span class="vt-num">2</span>Decide it — three real scenarios</h2>
+      <p>
+        This is the lesson. Read each scenario, decide <em>before</em> you look at
+        the options, then pick. Wrong picks explain themselves — keep going until
+        it's right. The scenarios are deliberately mixed so you practice the
+        <em>question</em>, not a pattern.
+      </p>
+
+      <div aria-live="polite" class="vt-quiz-live"></div>
+
+      <h3>Scenario A — your laptop only</h3>
+      <p>
+        Your <code>feature/login</code> branch lives only on your laptop — never
+        pushed. <code>main</code> has moved ahead and you want its latest changes
+        before you finish.
+      </p>
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">Merge <code>main</code> in, or rebase onto it?</p>
+        <button class="opt">Rebase — it's private, so the clean line is safe</button>
+        <button class="opt">Merge — rebasing local commits can lose them</button>
+        <button class="opt">Rebase — it's shared, so rewriting is fine</button>
+        <button class="opt">Merge — a branch should never be rebased</button>
+
+        <template class="why-good">
+          Nobody else has these commits, so rewriting them is free of risk — and
+          you get a tidy linear branch to send for review. This is the most common
+          rebase you'll do.
+        </template>
+        <template class="why-bad">Re-ask the one question: has anyone else got these commits? Try again.</template>
+        <template data-opt="1">
+          Rebasing local commits doesn't lose them — they're copied forward, and
+          the originals wait in the reflog. Private branch → rebase is the safe,
+          tidy choice.
+        </template>
+        <template data-opt="2">
+          Right call, wrong reason. The branch is <em>private</em>, not shared —
+          and that's exactly why rewriting is safe here.
+        </template>
+        <template data-opt="3">
+          Private branches are the ideal place to rebase. The "never" rule applies
+          only to <em>shared</em> commits.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <h3>Scenario B — the shared release branch</h3>
+      <p>
+        <code>release/2.0</code> is a long-running branch three teammates pull from
+        and commit to daily. It needs the latest <code>main</code>.
+      </p>
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">Bring <code>main</code> in with merge, or with rebase?</p>
+        <button class="opt">Merge — the branch is shared, never rewrite it</button>
+        <button class="opt">Rebase — to keep the shared branch linear</button>
+        <button class="opt">Merge — because rebase only works on main</button>
+        <button class="opt">Rebase — then force-push so everyone resyncs</button>
+
+        <template class="why-good">
+          Three people have these commits. Rebasing would rewrite history out from
+          under them — every one of them would hit a tangled mess on their next
+          pull. Merge is the only safe move.
+        </template>
+        <template class="why-bad">Has anyone else got these commits? Three teammates do. Try again.</template>
+        <template data-opt="1">
+          A linear shared branch isn't worth rewriting commits other people are
+          building on. The cost — everyone's history breaking — is far higher than
+          the tidiness.
+        </template>
+        <template data-opt="2">
+          Rebase works on any branch — that's not the issue. The issue is that this
+          branch is <em>shared</em>, which is what makes merge the right call.
+        </template>
+        <template data-opt="3">
+          That force-push is exactly the disaster the golden rule prevents: it
+          rewrites commits your three teammates already have.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <h3>Scenario C — pushed, but yours alone</h3>
+      <p>
+        You pushed <code>feature/login</code> to open a draft PR. CI ran on it, but
+        <em>nobody else has based any work on it</em>. <code>main</code> moved on,
+        and you'd like a tidy, linear branch before a reviewer looks.
+      </p>
+      <div class="vt-quiz" data-answer="0">
+        <p class="q">What's the right move here?</p>
+        <button class="opt">Rebase, then force-push with lease — nobody depends on it</button>
+        <button class="opt">Merge main in — once pushed, it's now untouchable</button>
+        <button class="opt">Rebase, then plain force-push to overwrite it</button>
+        <button class="opt">Rebase — a pushed branch needs no force-push</button>
+
+        <template class="why-good">
+          "Pushed" isn't the same as "shared". Since no one has based work on this
+          branch, rewriting it is fine — you just need
+          <code>--force-with-lease</code> to update the remote, which refuses to
+          clobber any work you didn't expect.
+        </template>
+        <template class="why-bad">Look again at who actually depends on these commits. Try again.</template>
+        <template data-opt="1">
+          Too cautious. The rule is about commits <em>others build on</em>, not
+          about the act of pushing. Nobody depends on this branch, so a rebase is
+          safe.
+        </template>
+        <template data-opt="2">
+          Right command, dangerous flag. Plain <code>--force</code> overwrites the
+          remote blindly; <code>--force-with-lease</code> first checks no one else
+          pushed, then updates. Always prefer the lease.
+        </template>
+        <template data-opt="3">
+          A rebase rewrites the commits, so the remote and your branch now disagree
+          — a plain push is rejected. You need a (lease-guarded) force-push.
+        </template>
+        <div class="feedback"></div>
+        <div aria-live="polite" class="vt-quiz-live"></div>
+      </div>
+
+      <div class="vt-callout warn">
+        <strong>Scenario C is the trap most people fall into</strong> — in both
+        directions. Some treat every pushed branch as frozen (and never tidy
+        anything); others rebase a branch teammates <em>are</em> building on and
+        cause chaos. The dividing line is never "did I push?" — it's
+        "<strong>does anyone else depend on these commits?</strong>"
+      </div>
+
+      <div class="vt-recap">
+        <p class="h">✦ What you earned</p>
+        One question now decides it: <strong>has anyone else got these commits?</strong>
+        No → rebase (private cleanup, a tidy line). Yes → merge (never rewrite
+        shared history). And you learned the edge case — "pushed" ≠ "shared", so a
+        solo PR branch can still be rebased, with <code>--force-with-lease</code>.
+      </div>
+
+      <div class="vt-teacher">
+        <div>
+          <p class="h">I'm your teacher — bring me your real branches</p>
+          <p>
+            The fastest way to cement this is to decide it for <em>your</em> repo.
+            Describe a branch you're actually working on and I'll walk the one
+            question with you — or invent a fourth scenario and quiz you on it.
+          </p>
+          <div class="vt-asks">
+            <span class="vt-ask">Here's my actual branch — merge or rebase?</span>
+            <span class="vt-ask">What does <code>--force-with-lease</code> actually check?</span>
+            <span class="vt-ask">My team squash-merges PRs — does that change my answer?</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="vt-upnext">
+        <em>Up next:</em>
+        <a href="0003-rebase-without-fear.html">Lesson&nbsp;3 — Rebase without fear</a>:
+        the golden rule in full, how to undo a rebase with <code>git reflog</code>,
+        and resolving conflicts mid-rebase. The
+        <a href="../reference/git-merge-vs-rebase-cheatsheet.html">cheat sheet</a>
+        has the decision flow on one page.
+      </p>
+
+      <footer class="vt-sources">
+        <span class="lbl">Sources</span>
+        <ul class="vt-reflist">
+          <li>
+            <span class="vt-src-ic" data-type="doc"></span>
+            <a href="https://www.atlassian.com/git/tutorials/merging-vs-rebasing">Atlassian — Merging vs. Rebasing</a>
+            <span class="note">— the golden rule and workflow walkthroughs.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span>
+            <a href="https://git-scm.com/docs/git-merge">git-merge — reference</a>
+            <span class="note">— fast-forward and <code>--no-ff</code> behavior.</span>
+          </li>
+          <li>
+            <span class="vt-src-ic" data-type="spec"></span>
+            <a href="https://git-scm.com/docs/git-rebase">git-rebase — reference</a>
+            <span class="note">— exact replay semantics.</span>
+          </li>
+        </ul>
+        <div class="vt-companion">
+          <span class="vt-src-ic" data-type="book"></span>Companion reference:
+          <a href="../reference/git-merge-vs-rebase-cheatsheet.html">Merge vs Rebase cheat sheet &amp; glossary</a>
+        </div>
+        <div class="meta">Lesson 0002 · verified 2026-06-25</div>
+      </footer>
+    </main>
+  </body>
+</html>

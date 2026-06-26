@@ -1,6 +1,6 @@
 # visual-teach — component catalog
 
-`visual-teach` ships as a **base + 9 standalone components**. Each component is
+`visual-teach` ships as a **base + standalone components**. Each component is
 self-contained: its CSS file, optional JS, and a co-located `demo.html` that is
 both the usage doc and the rendering proof. See `demo/showcase.html` for all
 components on one page.
@@ -71,19 +71,23 @@ frame only — not a complete lesson with fixed slots to fill.
   <h2><span class="vt-num">1</span>Section heading</h2>
   …prose: plain p / ul / code / a, auto-themed…
 
-  <!-- Primary-source card -->
-  <div class="vt-source">
-    <div>
-      <span class="h">Primary source</span> <a href="…">Source title</a> — one
-      sentence.
-    </div>
-  </div>
-
   <!-- Recap + up-next teaser -->
   <div class="vt-recap">
     <p class="h">✦ What you earned</p>
     One-sentence summary.
   </div>
+
+  <!-- Optional teacher-box: invite questions AFTER the recap, just before the
+       up-next teaser. Closing order is recap → teacher → up-next: earn it,
+       offer help on it, then point forward. -->
+  <div class="vt-teacher">
+    <div>
+      <p class="h">I'm your teacher — ask me anything</p>
+      <p>Write this fresh each lesson; never reuse the template wording.</p>
+    </div>
+  </div>
+
+  <!-- Optional forward teaser. Omit on the final lesson — nothing comes next. -->
   <p class="vt-upnext"><em>Up next:</em> next topic.</p>
 </main>
 ```
@@ -92,19 +96,20 @@ frame only — not a complete lesson with fixed slots to fill.
 
 Open only the component demos this lesson needs — loading all of them at once
 produces stamped, same-chrome-every-lesson output. Most lessons use 2–4
-components, not all nine.
+components, not all of them.
 
-| Component   | Reach for when…                                                                                        | Demo                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------- |
-| callout     | you need a tip, warning, insight, success, or risk box                                                 | [components/callout/demo.html](components/callout/demo.html)         |
-| code        | showing code snippets, shell output, or input→output pairs                                             | [components/code/demo.html](components/code/demo.html)               |
-| table       | comparing options, listing key-value pairs, or status grids                                            | [components/table/demo.html](components/table/demo.html)             |
-| chip        | labeling status, difficulty, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd / .vt-level) | [components/chip/demo.html](components/chip/demo.html)               |
-| quiz        | a knowledge check (single or multi-select, retry-until-correct)                                        | [components/quiz/demo.html](components/quiz/demo.html)               |
-| checklist   | a step-by-step procedure with persisted progress                                                       | [components/checklist/demo.html](components/checklist/demo.html)     |
-| diagram     | visualizing structure, flow, comparisons, or abstract concepts                                         | [components/diagram/demo.html](components/diagram/demo.html)         |
-| math        | equations, formulas, or symbolic notation (KaTeX)                                                      | [components/math/demo.html](components/math/demo.html)               |
-| teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                  | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
+| Component   | Reach for when…                                                                                                                    | Demo                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| callout     | you need a tip, warning, insight, success, or risk box                                                                             | [components/callout/demo.html](components/callout/demo.html)         |
+| code        | showing code snippets, shell output, or input→output pairs                                                                         | [components/code/demo.html](components/code/demo.html)               |
+| table       | comparing options, listing key-value pairs, or status grids                                                                        | [components/table/demo.html](components/table/demo.html)             |
+| chip        | labeling status, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd) — difficulty `.vt-level` is shell, always available | [components/chip/demo.html](components/chip/demo.html)               |
+| quiz        | a knowledge check (single or multi-select, retry-until-correct)                                                                    | [components/quiz/demo.html](components/quiz/demo.html)               |
+| reveal      | free-recall prompt with a click-to-reveal answer (active recall, self-graded — vs quiz's recognition)                              | [components/reveal/demo.html](components/reveal/demo.html)           |
+| checklist   | a step-by-step procedure with persisted progress                                                                                   | [components/checklist/demo.html](components/checklist/demo.html)     |
+| diagram     | visualizing structure, flow, comparisons, or abstract concepts                                                                     | [components/diagram/demo.html](components/diagram/demo.html)         |
+| math        | equations, formulas, or symbolic notation (KaTeX)                                                                                  | [components/math/demo.html](components/math/demo.html)               |
+| teacher-box | inviting the learner to ask a question (write fresh each time — never reuse template)                                              | [components/teacher-box/demo.html](components/teacher-box/demo.html) |
 
 ## Automatic breakout — wide tables, code, and diagrams
 
@@ -132,6 +137,10 @@ options stay scannable. Don't spell out punctuation: write `git merge` not
 ## Footer / sources
 
 Source types for `data-type`: `spec` `doc` `video` `forum` `book`
+
+List the lesson's **primary source first** — the one high-trust resource you'd
+have the learner read or watch. The footer carries this; there is no separate
+primary-source card.
 
 ```html
 <footer class="vt-sources">
@@ -163,15 +172,26 @@ Source types for `data-type`: `spec` `doc` `video` `forum` `book`
 </footer>
 ```
 
-## Theming — override any of the 9 tokens in the lesson `<head>`:
+## Theming — keep the defaults unless you have a real reason:
 
-```html
-<style>
-  :root {
-    --vt-accent: #4338ca;
-    --vt-accent-fg: #fff;
-  }
-</style>
+The base tokens already ship a tuned, dark-mode-correct palette. **Use it as-is by
+default** — do not override the accent just to make a course look "custom." The
+shared default is what keeps every course in the same visual family; if each
+course picks its own accent, the set stops looking like one product. Vary lessons
+by the **components** they use (see the catalog), never by recoloring.
+
+Override only with a genuine reason — e.g. the course has an established brand
+color, or its subject has a strong conventional color (a "TLS green" deploy
+course). When you do, set it **once** in the shared course stylesheet every
+lesson links, so the whole course stays consistent and you never hand-copy a
+color — never give each lesson its own accent:
+
+```css
+/* course.css — linked by every lesson, alongside base.css. Only if needed. */
+:root {
+  --vt-accent: #4338ca;
+  --vt-accent-fg: #fff;
+}
 ```
 
 A flat `:root` override is safe for **all 9 tokens** in both light and dark mode.
