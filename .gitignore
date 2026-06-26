@@ -25,3 +25,5 @@ test-results/
 
 # Adoption harness arm HOMEs (contain copied credentials) + run workspaces
 .adoption-harness/
+
+.vscode/
