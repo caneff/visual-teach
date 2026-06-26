@@ -10,10 +10,8 @@
       shared component rather than being re-inlined in every lesson. */
 
 :root {
-  /* Light side: deep rust-orange on white. Dark side: a brighter orange so it
-     stays legible on near-black paper. Dark text rides on the lighter fill. */
-  --vt-accent: light-dark(#c2410c, #fb923c);
-  --vt-accent-fg: light-dark(#ffffff, #1a1207);
+  /* Accent: keep the visual-teach default (no override) so this course stays in
+     the same visual family as every other visual-teach course. */
 
   /* Commit-graph palette, derived from the vt tokens so it themes for free. */
   --cg-main: var(--vt-muted); /* commits already on the shared base branch */
