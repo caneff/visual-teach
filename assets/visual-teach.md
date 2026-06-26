@@ -63,19 +63,9 @@ frame only — not a complete lesson with fixed slots to fill.
     <span class="item">Lesson <strong>3</strong> of 9</span>
   </div>
 
-  <!-- Objectives block -->
-  <div class="vt-objectives">
-    <p class="h">By the end of this lesson you'll be able to:</p>
-    <ul>
-      <li>First learning outcome</li>
-      <li>Second learning outcome</li>
-    </ul>
-  </div>
-
-  <!-- Mission tie-in -->
-  <div class="vt-mission">
-    <strong>Why this matters for your goal:</strong> …
-  </div>
+  <!-- Intro card: whatever sets up the lesson — objectives, why-it-matters,
+       a hook. Any prose/list inside; <p class="h"> gives a bold lead line. -->
+  <div class="vt-objectives">…</div>
 
   <!-- h2 sections: JS auto-adds id (slug of text) + hover "#" anchor -->
   <h2><span class="vt-num">1</span>Section heading</h2>
