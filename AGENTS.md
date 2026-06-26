@@ -28,3 +28,18 @@ Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/do
 ### Testing standards
 
 See `TESTING_STANDARDS.md`. Rule summary: test behavior in jsdom; CSS correctness via stylelint; no prose change-detectors; no source-grep tests.
+
+### Visual snapshots (Playwright)
+
+The `visual` CI check screenshots each component (and the base demo) and diffs
+against committed baselines in `tests/visual-snapshots/`. Any change that alters
+rendered output — adding/removing a component, changing base layout, anything
+that shifts page height or pixels — makes this check fail with a screenshot diff.
+That is expected: it means the baseline is stale, not that the code is wrong.
+
+To refresh: `npm run docker:regen-baselines`, then commit the changed `*.png`.
+Always regenerate in the pinned Playwright container (that's what the script
+does) — local fonts render differently and would fail CI. The script self-cleans
+`test-results/`/`playwright-report/` first (they can be left root-owned by a
+prior container run and otherwise block the regen with EACCES). Review the diff
+images under `test-results/` before committing to confirm the change is intended.
