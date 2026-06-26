@@ -37,6 +37,9 @@ Retire the owned fork (thin separation supersedes the fork model):
 - **Add `upstream-patch/teach-pointer.patch`** — the one optional pointer line
   that upstream `/teach` can apply to proactively invoke visual-teach. Applying
   this patch is not required; visual-teach can always be invoked manually first.
+  _Superseded (#180/#211): auto-fire adoption is high without the pointer
+  (12/12 on a clean control), so the patch and its `ab-harness.sh` pointer arm
+  were removed and the upstream-PR follow-on (#179) closed as obsolete._
 - **Delete `scripts/sync-teach-assets.sh`** and **`scripts/derive-treatment.sh`**
   — both existed only to serve the fork. Without the fork, neither is needed.
 - **A/B treatment arm** is now upstream `/teach` + `visual-teach` (invoked in
