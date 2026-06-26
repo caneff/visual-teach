@@ -1,6 +1,6 @@
 # visual-teach — component catalog
 
-`visual-teach` ships as a **base + 9 standalone components**. Each component is
+`visual-teach` ships as a **base + standalone components**. Each component is
 self-contained: its CSS file, optional JS, and a co-located `demo.html` that is
 both the usage doc and the rendering proof. See `demo/showcase.html` for all
 components on one page.
@@ -105,6 +105,7 @@ components, not all of them.
 | table       | comparing options, listing key-value pairs, or status grids                                                                        | [components/table/demo.html](components/table/demo.html)             |
 | chip        | labeling status, steps, or keyboard shortcuts (.vt-pill / .vt-badge / .vt-kbd) — difficulty `.vt-level` is shell, always available | [components/chip/demo.html](components/chip/demo.html)               |
 | quiz        | a knowledge check (single or multi-select, retry-until-correct)                                                                    | [components/quiz/demo.html](components/quiz/demo.html)               |
+| reveal      | free-recall prompt with a click-to-reveal answer (active recall, self-graded — vs quiz's recognition)                              | [components/reveal/demo.html](components/reveal/demo.html)           |
 | checklist   | a step-by-step procedure with persisted progress                                                                                   | [components/checklist/demo.html](components/checklist/demo.html)     |
 | diagram     | visualizing structure, flow, comparisons, or abstract concepts                                                                     | [components/diagram/demo.html](components/diagram/demo.html)         |
 | math        | equations, formulas, or symbolic notation (KaTeX)                                                                                  | [components/math/demo.html](components/math/demo.html)               |

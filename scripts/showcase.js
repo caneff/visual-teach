@@ -16,6 +16,7 @@ const REQUIRED = [
   "table",
   "chip",
   "quiz",
+  "reveal",
   "checklist",
   "diagram",
   "math",

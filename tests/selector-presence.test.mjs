@@ -94,6 +94,11 @@ const DEFINED = [
   ".vt-kbd",
   // teacher box
   ".vt-asks",
+  // reveal (free-recall)
+  ".vt-reveal",
+  ".vt-reveal[open]",
+  ".vt-reveal .answer",
+  ".vt-reveal-hint",
   // math (KaTeX)
   ".vt-math",
   ".vt-eq",
