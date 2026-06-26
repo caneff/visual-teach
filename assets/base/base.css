@@ -115,7 +115,6 @@ h1 {
   color: var(--vt-muted);
   font-style: italic;
   margin-bottom: 0.5rem;
-  text-wrap: balance;
 }
 .vt-meta {
   font-family: "Helvetica Neue", Arial, sans-serif;
@@ -258,7 +257,7 @@ a code {
   }
 }
 
-/* shell — objectives card */
+/* shell — intro card (objectives, why-it-matters, hook — author's call) */
 .vt-objectives {
   border-left: 3px solid var(--vt-accent);
   border-radius: 0 8px 8px 0;
@@ -278,17 +277,13 @@ a code {
 .vt-objectives li {
   margin: 0.25rem 0;
 }
-
-/* shell — mission tie-in */
-.vt-mission {
-  border-left: 3px solid var(--vt-accent);
-  border-radius: 0 8px 8px 0;
-  background: var(--vt-soft);
-  padding: 0.7rem 0.9rem;
-  margin: 1.5rem 0;
-  font-size: 0.95rem;
+.vt-objectives p {
+  margin: 0.4rem 0 0;
 }
-.vt-mission strong {
+.vt-objectives p:first-child {
+  margin-top: 0;
+}
+.vt-objectives strong {
   color: var(--vt-accent-dk);
 }
 
