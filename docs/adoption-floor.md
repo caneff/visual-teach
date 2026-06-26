@@ -60,10 +60,11 @@ Adoption raises the **consistency and polish floor** but can lower the
 The mitigation in flight is a strengthened "floor, not a ceiling" nudge that
 reframes the trigger from _can a block express this?_ to _what practices the
 win?_ — routing produce/manipulate wins toward a bespoke live exercise instead
-of settling for the nearest block. The two gaps this floor exposes are tracked
-as follow-ups: a generic free-input component (`vt-sandbox`) to cover the
-type-and-see-a-result interaction, and a cheaper measurement mode plus a
-description A/B to push the floor up without sacrificing the ceiling.
+of settling for the nearest block. The gaps this floor exposes are tracked as
+follow-ups: lowering the skill's perceived activation cost (#208), a generic
+free-input component (`vt-sandbox`) to cover the type-and-see-a-result
+interaction (#209), a cheaper fire/no-fire measurement mode (#210), and a
+description A/B to push the floor up without sacrificing the ceiling (#211).
 
 **Takeaway:** treat the floor as a quality _floor_, not a target to maximize
 blindly. The win is consistent, polished lessons by default; the guardrail is
