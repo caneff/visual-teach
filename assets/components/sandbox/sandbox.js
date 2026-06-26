@@ -61,20 +61,20 @@ function wireSandbox(sandbox) {
     if (!err) {
       err = document.createElement("div");
       err.className = "vt-sandbox-error";
+      err.setAttribute("aria-live", "polite");
       output.parentNode.insertBefore(err, output.nextSibling);
     }
     return err;
   }
 
   function evaluate() {
-    var err = sandbox.querySelector(".vt-sandbox-error");
     try {
       var result = fn(field.value);
       output.textContent = result == null ? "" : String(result);
+      var err = sandbox.querySelector(".vt-sandbox-error");
       if (err) err.textContent = "";
     } catch (e) {
-      var errEl = getOrCreateError();
-      errEl.textContent = e && e.message ? e.message : String(e);
+      getOrCreateError().textContent = e && e.message ? e.message : String(e);
     }
   }
 
