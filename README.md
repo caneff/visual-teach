@@ -1,16 +1,15 @@
 # visual-teach
 
 A component library for teaching lessons: a Base spine
-([`skills/visual-teach/assets/base/base.css`](./skills/visual-teach/assets/base/base.css) + [`skills/visual-teach/assets/base/base.js`](./skills/visual-teach/assets/base/base.js))
+([CSS](./skills/visual-teach/assets/base/base.css) + [JS](./skills/visual-teach/assets/base/base.js))
 plus a collection of self-contained, copyable components that give lesson HTML a
-consistent look and interactive behavior through `vt-*` CSS classes. There is no
-aggregate bundle — a lesson links Base and only the components it uses. Think
-Bootstrap for lessons, not a renderer or a framework.
+consistent look and interactive behavior. A lesson links Base and only the
+components it uses. Think Bootstrap for lessons, not a renderer or a framework.
 
 It does not own a lesson format, a schema, or any pedagogy. That is the job of
 the upstream [`/teach`](https://github.com/mattpocock/skills) skill
-(`mattpocock/skills`, `skills/productivity/teach`). visual-teach seeds reusable
-components into the workspace and then steps back; `/teach` authors the lessons.
+(`mattpocock/skills`). visual-teach seeds reusable components into the workspace
+and then steps back; `/teach` authors the lessons.
 
 ## Install
 
