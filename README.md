@@ -2,38 +2,33 @@
 
 A component library for teaching lessons: a Base spine
 ([CSS](./skills/visual-teach/assets/base/base.css) + [JS](./skills/visual-teach/assets/base/base.js))
-plus a collection of self-contained, copyable components that give lesson HTML a
-consistent look and interactive behavior. A lesson links Base and only the
-components it uses. Think Bootstrap for lessons, not a renderer or a framework.
+plus self-contained, copyable components that give lesson HTML a consistent look
+and interactive behavior. A lesson links only what it uses. Bootstrap for
+lessons, not a renderer or a framework.
 
-It does not own a lesson format, a schema, or any pedagogy. That is the job of
-the upstream [`/teach`](https://github.com/mattpocock/skills) skill
-(`mattpocock/skills`). visual-teach seeds reusable components into the workspace
-and then steps back; `/teach` authors the lessons.
+It owns no lesson format, schema, or pedagogy. That is the upstream
+[`/teach`](https://github.com/mattpocock/skills) skill's job. visual-teach seeds
+the components; `/teach` authors the lessons.
 
 ## Install
 
-Install the skill into your coding agent with the [`skills`](https://skills.sh) CLI:
+Add it to your coding agent with the [`skills`](https://skills.sh) CLI:
 
 ```sh
 npx skills add caneff/visual-teach
 ```
 
-That copies the skill — its `SKILL.md` and bundled `assets/` — into your agent's
-skills directory (`.claude/skills/visual-teach/` for Claude Code, and the
-equivalent for other agents). Nothing else in this repo ships: the demos, tests,
-and docs stay here for reading, not for installing. Once installed, `/teach` (or
-any lesson author) has the `vt-*` blocks on hand, and the skill seeds its assets
-into each new lesson workspace.
+That drops the skill (`SKILL.md` + `assets/`) into your agent's skills
+directory. Nothing else here ships. The demos, tests, and docs stay for reading.
 
 ## See it
 
-- [**Adoption gallery**](https://caneff.github.io/visual-teach/demo/adoption-demos/index.html) — a
-  side-by-side gallery: six subjects (git rebase, flexbox, TLS, regex, Bayes,
-  music), each taught twice from the same spec. The left lesson was generated
-  without visual-teach, the right one with it.
-- [**Component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) — every component on one page,
-  auto-generated from the per-component demos.
+- [**Adoption gallery**](https://caneff.github.io/visual-teach/demo/adoption-demos/index.html):
+  six subjects (git rebase, flexbox, TLS, regex, Bayes, music), each taught twice
+  from the same spec. The left lesson was generated without visual-teach, the
+  right one with it.
+- [**Component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html):
+  every component on one page, auto-generated from the per-component demos.
 
 ## What you get
 
@@ -56,7 +51,7 @@ See the [**full showcase**](https://caneff.github.io/visual-teach/demo/showcase.
 ## Usage
 
 Install the skill (see [Install](#install)). Once it's in, `/teach` seeds the
-assets and authors lessons with `vt-*` blocks — no manual wiring.
+assets and authors lessons with `vt-*` blocks, so you never wire them by hand.
 
 ## Tests
 
