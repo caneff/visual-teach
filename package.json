@@ -10,7 +10,7 @@
     "sync-demos": "node scripts/sync-demo-assets.js",
     "serve": "python3 -m http.server 8000",
     "lint": "eslint . && npm run lint:css",
-    "lint:css": "stylelint 'assets/**/*.css'",
+    "lint:css": "stylelint 'skills/visual-teach/assets/**/*.css'",
     "format": "prettier --write .",
     "typecheck": "tsc -p .sandcastle/tsconfig.json",
     "prepare": "husky"

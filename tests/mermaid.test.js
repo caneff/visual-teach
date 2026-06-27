@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const SRC = readFileSync(join(__dir, "../assets/mermaid.js"), "utf8");
+const SRC = readFileSync(
+  join(__dir, "../skills/visual-teach/assets/mermaid.js"),
+  "utf8"
+);
 
 // Execute the UMD module: in new Function() scope, `module` is not defined so
 // the browser branch runs and assigns vtMermaid onto globalThis.

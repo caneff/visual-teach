@@ -4,7 +4,7 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const root = join(__dir, "..");
+const root = join(__dir, "../skills/visual-teach");
 
 // ── Base files ─────────────────────────────────────────────────
 test("assets/base/base.css exists", () => {

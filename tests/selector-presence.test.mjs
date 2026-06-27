@@ -8,7 +8,7 @@ import { test, expect } from "vitest";
 import * as csstree from "css-tree";
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const assets = resolve(__dir, "../assets");
+const assets = resolve(__dir, "../skills/visual-teach/assets");
 const componentsDir = join(assets, "components");
 
 function tryRead(p) {

@@ -19,7 +19,7 @@ validator, and it does _not_ reimplement `/teach`'s pedagogy. It is invoked befo
 mission, zone-of-proximal-development, citations, and multi-session learning
 state. When visual-teach is installed, invoke it first so that assets are seeded
 before `/teach` authors lessons. Upstream `/teach` discovers and reuses whatever
-is in `./assets/` by its own charter.
+is in `./skills/visual-teach/assets/` by its own charter.
 
 **teach-base** — The frozen, pristine A/B control baseline. A copy of the
 upstream `/teach` with only `disable-model-invocation` removed so it can be
@@ -30,23 +30,23 @@ invalidates any comparison that uses it as the baseline. See
 `docs/ab-comparison-methodology.md`.
 
 **Component** — A self-contained, copyable CSS/JS unit in the component
-collection. Each component lives under `assets/components/<name>/` and ships a
+collection. Each component lives under `skills/visual-teach/assets/components/<name>/` and ships a
 `<name>.css` (required), an optional `<name>.js` (for interactive behavior), and
 a `demo.html` that both documents and renders the component — the
 **demo-as-doc** principle. A component is not an enforced type: unknown or
 malformed markup renders inert, never "invalid."
 
 **Base** — The always-linked spine every lesson must include:
-`assets/base/base.css` (the 9 `--vt-*` tokens, reset, and prose rules) and
-`assets/base/base.js` (the wiring for interactive blocks). Lesson 1 of any
+`skills/visual-teach/assets/base/base.css` (the 9 `--vt-*` tokens, reset, and prose rules) and
+`skills/visual-teach/assets/base/base.js` (the wiring for interactive blocks). Lesson 1 of any
 workspace copies these in first; every subsequent component adds on top.
 
-**Catalog** — The thin index at `assets/visual-teach.md`. Lists every component
+**Catalog** — The thin index at `skills/visual-teach/assets/visual-teach.md`. Lists every component
 cluster with a "reach for when…" trigger, links to each component's `demo.html`,
 and carries selective-load guidance. The agent reads the Catalog first, then opens
 only the component files the lesson needs.
 
-**chip** — The inline-marker component (`assets/components/chip/`). Ships
+**chip** — The inline-marker component (`skills/visual-teach/assets/components/chip/`). Ships
 `.vt-pill` (a status/topic badge), `.vt-badge` (a count/step badge), `.vt-kbd`
 (keyboard keycap), and `.vt-level` (difficulty pill). Known in the PRD as "pill"
 or "chip" interchangeably; `chip` is the canonical component directory name.
@@ -62,7 +62,7 @@ thing. Authored and owned by the `/teach` skill. Opened directly from `file://`.
 
 **Workspace** — A directory holding one topic's teaching artifacts (lessons,
 references, assets, learning records). The component library lives in the
-workspace's `./assets/`. (Term inherited from `/teach`.)
+workspace's `./skills/visual-teach/assets/`. (Term inherited from `/teach`.)
 
 **Author** — The agent (`/teach`) that writes lesson HTML. The author reaches for
 visual-teach components when it wants a block's look and behavior; nothing requires
@@ -70,7 +70,7 @@ it to.
 
 **adoption** — The treatment author firing visual-teach on its own and using **at
 least one `vt-*` block in the lesson markup** (not merely seeding assets into
-`./assets/`). Adoption is **orthogonal** to whether the lesson also builds a
+`./skills/visual-teach/assets/`). Adoption is **orthogonal** to whether the lesson also builds a
 **bespoke** exercise for its produce-win: visual-teach is a _floor_ (commodity
 look and behavior), and bespoke interaction stacks on top, never instead. Target
 is **100%** on every subject. Going fully bespoke without using a `vt-*` block is

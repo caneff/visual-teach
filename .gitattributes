@@ -2,7 +2,7 @@
 # "Binary files differ" line so tools that inline `git diff` (e.g. Sandcastle's
 # reviewer prompt) don't blow their context on 12k lines of minified code.
 # `linguist-generated` also hides them in GitHub PR diffs.
-assets/katex/**   -diff linguist-generated
-assets/prism/**   -diff linguist-generated
+skills/visual-teach/assets/katex/**   -diff linguist-generated
+skills/visual-teach/assets/prism/**   -diff linguist-generated
 *.min.js          -diff
 *.min.css         -diff

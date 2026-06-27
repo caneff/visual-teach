@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { wireChecklist } from "../assets/components/checklist/checklist.js";
+import { wireChecklist } from "../skills/visual-teach/assets/components/checklist/checklist.js";
 
 function makeChecklist(html) {
   const div = document.createElement("div");

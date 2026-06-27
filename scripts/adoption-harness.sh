@@ -65,10 +65,10 @@ build_homes() {
   # body is frozen during a run; splice candidate frontmatter onto the repo body if the
   # body starts changing mid-experiment.
   local skill_src="${CANDIDATE:+$REPO/scripts/adoption-candidates/$CANDIDATE.md}"
-  skill_src="${skill_src:-$REPO/SKILL.md}"
+  skill_src="${skill_src:-$REPO/skills/visual-teach/SKILL.md}"
   [[ -f "$skill_src" ]] || { echo "error: candidate not found: $skill_src" >&2; return 1; }
   ln -s "$skill_src" "$vt/SKILL.md"
-  ln -s "$REPO/assets"   "$vt/assets"
+  ln -s "$REPO/skills/visual-teach/assets" "$vt/assets"
   echo "built: $CONTROL_HOME (teach-base only)"
   echo "built: $TREATMENT_HOME (teach-base + visual-teach, SKILL.md=${CANDIDATE:-live-repo})"
 }
