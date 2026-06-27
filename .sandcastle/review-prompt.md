@@ -62,9 +62,9 @@ independent of however the change was built.
 
 6. **Apply project standards** (these override the generic guidance above on any conflict — e.g. they forbid consolidating deliberately duplicated component helpers). Loaded conditionally on what this branch's diff touches — only the standards relevant to the change appear below (a docs/proof-only diff loads neither):
 
-   - visual-teach standards (when the diff touches `assets/` or `tests/`):
+   - visual-teach standards (when the diff touches `skills/visual-teach/assets/` or `tests/`):
 
-     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(assets|tests)/' && cat CODING_STANDARDS.md || true`
+     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(skills/visual-teach/assets|tests)/' && cat CODING_STANDARDS.md || true`
 
    - Sandcastle standards (when the diff touches `.sandcastle/` code, ignoring `.sandcastle/proof/`):
 
@@ -80,10 +80,10 @@ still run `npm run test` after any refactor _you_ commit
 (see EXECUTION), but the authoritative green gate is CI.
 
 1. **Visual proof is present and real.** This repo is visual, so a code change to
-   `assets/` should carry proof. A pure docs/tooling change with no `assets/`
+   `skills/visual-teach/assets/` should carry proof. A pure docs/tooling change with no `skills/visual-teach/assets/`
    diff may legitimately have none. Check `.sandcastle/proof/issue-<id>/`:
    - `PROOF.md` exists. If it claims "no visual change" but the diff touches
-     `assets/visual-teach.{css,js}` or a `vt-*` block, that is wrong — flag it and
+     `skills/visual-teach/assets/visual-teach.{css,js}` or a `vt-*` block, that is wrong — flag it and
      have proof produced (see `.sandcastle/proof-protocol.md`).
    - `before.png` and `after.png` both exist and are **not identical**
      (`cmp -s before.png after.png` must report a difference). Identical shots

@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { wireSandbox } from "../assets/components/sandbox/sandbox.js";
+import { wireSandbox } from "../skills/visual-teach/assets/components/sandbox/sandbox.js";
 
 const SANDBOX_SRC = readFileSync(
   resolve(
     dirname(fileURLToPath(import.meta.url)),
-    "../assets/components/sandbox/sandbox.js"
+    "../skills/visual-teach/assets/components/sandbox/sandbox.js"
   ),
   "utf8"
 );

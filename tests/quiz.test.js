@@ -2,12 +2,12 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
-import { wireQuiz } from "../assets/components/quiz/quiz.js";
+import { wireQuiz } from "../skills/visual-teach/assets/components/quiz/quiz.js";
 
 const QUIZ_SRC = readFileSync(
   resolve(
     dirname(fileURLToPath(import.meta.url)),
-    "../assets/components/quiz/quiz.js"
+    "../skills/visual-teach/assets/components/quiz/quiz.js"
   ),
   "utf8"
 );

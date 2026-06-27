@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const JS_SRC = readFileSync(
-  resolve(__dirname, "../assets/components/math/math.js"),
+  resolve(__dirname, "../skills/visual-teach/assets/components/math/math.js"),
   "utf8"
 );
 

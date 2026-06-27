@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { wireThemeToggle } from "../assets/base/base.js";
+import { wireThemeToggle } from "../skills/visual-teach/assets/base/base.js";
 
 // Fake window: real document, stubbed localStorage/matchMedia, self===top
 // (not iframed). Flip `top` to simulate an embedded lesson.

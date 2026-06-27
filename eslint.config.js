@@ -5,13 +5,11 @@ export default [
   {
     ignores: [
       "node_modules/**",
-      "assets/prism/**", // vendored, minified
-      "assets/katex/**", // vendored, minified
-      ".claude/skills/teach/assets/prism/**", // vendored, minified
-      ".claude/skills/teach/assets/katex/**", // vendored, minified
-      ".claude/skills/teach/assets/mermaid.js", // vendored
+      "skills/visual-teach/assets/prism/**", // vendored, minified
+      "skills/visual-teach/assets/katex/**", // vendored, minified
       "course-tests/**",
       "demo/adoption-demos/**", // generated A/B lesson output + vendored assets (#180)
+      ".adoption-harness/**", // gitignored A/B scratch: generated runs + vendored assets
       ".sandcastle/**", // includes .mts (TypeScript), not linted here
     ],
   },
@@ -26,7 +24,7 @@ export default [
   {
     // Browser runtime: the shipped components. mermaid.js is a UMD wrapper, so
     // it also reads the CommonJS `module`; Prism is an external global.
-    files: ["assets/**/*.js", ".claude/skills/teach/assets/**/*.js"],
+    files: ["skills/visual-teach/assets/**/*.js"],
     languageOptions: {
       sourceType: "module",
       globals: {

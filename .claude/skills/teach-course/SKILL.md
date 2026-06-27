@@ -3,6 +3,8 @@ name: teach-course
 description: Test harness for the teach-base skill. Generates a complete 3-lesson course about a given subject with zero interactive input beyond the subject itself. Use to smoke-test teach-base end-to-end, or when the user wants a quick self-contained course and does not want to be interviewed.
 argument-hint: "What subject should the course cover?"
 effort: high
+metadata:
+  internal: true
 ---
 
 The subject to teach is `$ARGUMENTS`. If empty, ask the user for one and stop.

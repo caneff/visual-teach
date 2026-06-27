@@ -1,4 +1,4 @@
-// Showcase generator: globs assets/components/*/demo.html, splices bodies into
+// Showcase generator: globs skills/visual-teach/assets/components/*/demo.html, splices bodies into
 // one base-linked page, writes demo/showcase.html. Fails if any component lacks a demo.
 // Usage: node scripts/showcase.js
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";
@@ -6,7 +6,7 @@ import { resolve, join } from "path";
 import { fileURLToPath } from "url";
 
 const root = resolve(fileURLToPath(import.meta.url), "../..");
-const componentsDir = join(root, "assets", "components");
+const componentsDir = join(root, "skills/visual-teach/assets", "components");
 const outPath = join(root, "demo", "showcase.html");
 
 // Every component that must have a demo — assertion fails if any is missing.
@@ -62,13 +62,13 @@ function extractBody(html) {
 }
 
 // Build asset paths relative to demo/showcase.html.
-const baseCss = "../assets/base/base.css";
-const baseJs = "../assets/base/base.js";
+const baseCss = "../skills/visual-teach/assets/base/base.css";
+const baseJs = "../skills/visual-teach/assets/base/base.js";
 
 const componentCssLinks = components
   .map(
     (name) =>
-      `<link rel="stylesheet" href="../assets/components/${name}/${name}.css">`
+      `<link rel="stylesheet" href="../skills/visual-teach/assets/components/${name}/${name}.css">`
   )
   .join("\n");
 
@@ -82,19 +82,20 @@ const jsComponents = [
   "sandbox",
 ];
 const prismScripts = [
-  "../assets/prism/prism-core.min.js",
-  "../assets/prism/prism-markup.min.js",
-  "../assets/prism/prism-css.min.js",
-  "../assets/prism/prism-clike.min.js",
-  "../assets/prism/prism-javascript.min.js",
-  "../assets/prism/prism-python.min.js",
+  "../skills/visual-teach/assets/prism/prism-core.min.js",
+  "../skills/visual-teach/assets/prism/prism-markup.min.js",
+  "../skills/visual-teach/assets/prism/prism-css.min.js",
+  "../skills/visual-teach/assets/prism/prism-clike.min.js",
+  "../skills/visual-teach/assets/prism/prism-javascript.min.js",
+  "../skills/visual-teach/assets/prism/prism-python.min.js",
 ]
   .map((src) => `<script src="${src}"></script>`)
   .join("\n");
 
 const componentJsScripts = jsComponents
   .map(
-    (name) => `<script src="../assets/components/${name}/${name}.js"></script>`
+    (name) =>
+      `<script src="../skills/visual-teach/assets/components/${name}/${name}.js"></script>`
   )
   .join("\n");
 
@@ -147,7 +148,7 @@ ${sections}
 ${prismScripts}
 <script src="${baseJs}"></script>
 ${componentJsScripts}
-<script src="../assets/mermaid.js"></script>
+<script src="../skills/visual-teach/assets/mermaid.js"></script>
 </body>
 </html>`;
 

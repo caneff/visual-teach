@@ -5,7 +5,7 @@ spec, `CONTEXT.md` for the glossary, and `docs/adr/` for decisions.
 
 ## Component catalog is machine-enforced
 
-`npm run showcase` globs `assets/components/*/demo.html` and asserts every
+`npm run showcase` globs `skills/visual-teach/assets/components/*/demo.html` and asserts every
 registered component has a demo before writing `demo/showcase.html`. The
 pre-commit hook runs it automatically and stages the result, so the committed
 showcase is always fresh. When you add a new component, adding its

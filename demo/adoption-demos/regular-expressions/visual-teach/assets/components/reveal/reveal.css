@@ -9,7 +9,7 @@
   padding: 0 1rem;
 }
 .vt-reveal > summary {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-weight: 600;
   cursor: pointer;
   padding: 0.9rem 0.2rem 0.9rem 1.6rem;
@@ -40,7 +40,7 @@
 }
 /* small "recall" hint chip authors can drop next to a group of prompts */
 .vt-reveal-hint {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.85rem;
   color: var(--vt-muted);
   font-style: italic;

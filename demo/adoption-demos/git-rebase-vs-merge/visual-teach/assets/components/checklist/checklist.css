@@ -33,7 +33,7 @@
   cursor: pointer;
 }
 .vt-step-title {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-weight: 600;
   display: block;
   margin-bottom: 0.15rem;
@@ -63,13 +63,13 @@
   margin-top: 1rem;
 }
 .vt-progress {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.85rem;
   color: var(--vt-muted);
   margin: 0;
 }
 .vt-reset {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.72rem;
   color: var(--vt-muted);
   padding: 0;
