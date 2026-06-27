@@ -31,8 +31,8 @@ into each new lesson workspace.
 
 - [**Adoption gallery**](https://caneff.github.io/visual-teach/demo/adoption-demos/index.html) — a
   side-by-side gallery: six subjects (git rebase, flexbox, TLS, regex, Bayes,
-  music), each taught twice from the same spec, **control vs treatment**. The
-  treatment arm reached for visual-teach on its own every time.
+  music), each taught twice from the same spec. The left lesson was generated
+  without visual-teach, the right one with it.
 - [**Component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) — every component on one page,
   auto-generated from the per-component demos.
 
@@ -42,36 +42,21 @@ iframes are happiest over `http://`).
 
 ## What you get
 
-- [`skills/visual-teach/assets/base/base.css`](./skills/visual-teach/assets/base/base.css) + each component's CSS style every `vt-*` block from
-  9 themeable color tokens. They work in light and dark, and print cleanly.
-- [`skills/visual-teach/assets/base/base.js`](./skills/visual-teach/assets/base/base.js) is the always-linked spine (theme bridge/toggle,
-  section anchors); each component ships its own plain UMD/IIFE script that wires
-  its block — quizzes with per-option feedback, checklists that persist to
-  `localStorage`, copy buttons on code blocks, Prism syntax highlighting. (Not ES
-  modules — they load over `file://` without CORS.)
-- [`skills/visual-teach/assets/visual-teach.md`](./skills/visual-teach/assets/visual-teach.md) is the component catalog, the index of all
-  components and how to use them. Read it before authoring.
-- [`skills/visual-teach/assets/prism/`](./skills/visual-teach/assets/prism/) holds the bundled Prism grammars (HTML, CSS, JS, Python, SQL,
-  Bash) used for code highlighting.
-- [`skills/visual-teach/assets/mermaid.js`](./skills/visual-teach/assets/mermaid.js) is an opt-in bridge for computed graphs (sequence, state,
-  ER) that inherit the lesson's theme.
+Lessons pick up a consistent, themeable look and ready-made interactive blocks
+without hand-rolling CSS or JS each time: quizzes with per-option feedback,
+checklists that remember their state across reloads, code blocks with copy
+buttons and syntax highlighting, callouts, comparison tables, a CSS diagram
+vocabulary, and math rendering. Everything themes to light and dark, prints
+cleanly, and runs straight from `file://` with no build step.
 
-## Components
-
-The catalog covers the full set. A sample: page shell (kicker, lede, metabar,
-objectives, recap), callouts, tables (including key/value glossaries), pills and
-badges, persisted checklists, single- and multi-select quizzes, annotated code
-blocks, inline token emphasis, a CSS diagram vocabulary (nodes, flow, rows,
-splits, a flex playground), and a source/footer card set.
+See the [**component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html)
+for the full set on one page.
 
 ## Skills
 
-| Skill                        | Role                                                                                                                                            |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| `skills/visual-teach/`       | **This skill.** `SKILL.md` + `assets/`; the unit `npx skills add` installs. Invoked before `/teach` so lessons have rich `vt-*` blocks.         |
-| `.claude/skills/teach-base/` | **Frozen A/B control.** Pristine upstream `/teach` minus the invocation flag. Never edit — modifications silently invalidate prior comparisons. |
-
-See `docs/ab-comparison-methodology.md` for how to run a quality A/B comparison.
+| Skill                  | Role                                                                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `skills/visual-teach/` | **This skill.** `SKILL.md` + `assets/`; the unit `npx skills add` installs. Invoked before `/teach` so lessons have rich `vt-*` blocks. |
 
 ## Usage
 
