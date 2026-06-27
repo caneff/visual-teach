@@ -8,7 +8,7 @@ table {
 }
 th {
   text-align: start;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -118,7 +118,7 @@ td {
 }
 .vt-pick-badge {
   display: block;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.63rem;
   text-transform: uppercase;
   letter-spacing: 0.07em;

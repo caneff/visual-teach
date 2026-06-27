@@ -3,7 +3,7 @@
   display: inline-block;
   padding: 0.05rem 0.5rem;
   border-radius: 999px;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.78rem;
   color: var(--vt-accent-fg);
   background: var(--vt-accent);
@@ -86,7 +86,7 @@
   border-radius: 999px;
   background: var(--vt-accent);
   color: var(--vt-accent-fg);
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.8rem;
   font-weight: 700;
 }

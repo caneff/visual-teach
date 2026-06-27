@@ -41,9 +41,7 @@ const DEFINED = [
   // diagram vocabulary
   ".vt-diagram",
   ".vt-node",
-  ".vt-box",
   ".vt-node.em",
-  ".vt-box.em",
   ".vt-flow",
   ".vt-row-start",
   ".vt-row",

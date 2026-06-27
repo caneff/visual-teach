@@ -134,7 +134,7 @@ hand-composed CSS diagram system, tokenized to the 9 vars, degrades to styled HT
 (prints, no JS). Borrowed from visual-plan's proven `.diagram-*` set. Primitives:
 
 - `.vt-diagram` — the panel/canvas
-- `.vt-node` / `.vt-box` — labeled boxes/cards (+ emphasis variants)
+- `.vt-node` — labeled boxes/cards (+ emphasis variants)
 - `.vt-flow` — row that auto-renders arrow connectors between children
   (the "Connector → Data source → Report" staple)
 - `.vt-row` / `.vt-col` — lane / column layout

@@ -23,7 +23,7 @@
   mask: var(--teacher-icon) no-repeat center / contain;
 }
 .vt-teacher .h {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-weight: 600;
   margin: 0 0 0.4rem;
 }
@@ -38,7 +38,7 @@
   margin: 0.7rem 0 0.1rem;
 }
 .vt-ask {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.83rem;
   border: 1px solid var(--vt-rule);
   border-radius: 999px;

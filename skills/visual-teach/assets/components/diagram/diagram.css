@@ -22,7 +22,7 @@
 }
 
 .vt-diagram-caption {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.8rem;
   color: var(--vt-muted);
   text-align: center;
@@ -30,18 +30,17 @@
   letter-spacing: 0.02em;
 }
 
-/* node / box — labeled card.
+/* node — labeled card.
    inline-block (not inline-flex column) so <sup>/<sub> stay as baseline-
    shifted inline text rather than collapsing onto a separate flex-item row. */
-.vt-node,
-.vt-box {
+.vt-node {
   display: inline-block;
   vertical-align: middle;
   background: var(--vt-paper);
   border: 1.5px solid var(--vt-rule);
   border-radius: 8px;
   padding: 0.55rem 1rem;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.88rem;
   text-align: center;
   min-width: 5.5rem;
@@ -49,16 +48,14 @@
 }
 
 /* emphasis variants */
-.vt-node.em,
-.vt-box.em {
+.vt-node.em {
   background: var(--vt-accent-soft);
   border-color: var(--vt-accent);
   font-weight: 600;
   color: var(--vt-accent);
 }
 
-.vt-node.muted,
-.vt-box.muted {
+.vt-node.muted {
   background: var(--vt-soft);
   border-color: var(--vt-rule);
   color: var(--vt-muted);
@@ -126,7 +123,7 @@
   background: var(--vt-soft);
   border: 1px solid var(--vt-rule);
   border-radius: 6px;
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.85rem;
   white-space: nowrap;
 }
@@ -194,7 +191,7 @@
 
 .vt-col-label,
 .vt-split-label {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -267,8 +264,7 @@
     border: 1px solid #ccc; /* neutral print grey, independent of theme tokens */
     background: none;
   }
-  .vt-node,
-  .vt-box {
+  .vt-node {
     /* stylelint-disable-next-line color-no-hex */
     border: 1px solid #ccc;
   }
@@ -278,8 +274,7 @@
 }
 
 @media (forced-colors: active) {
-  .vt-node.em,
-  .vt-box.em {
+  .vt-node.em {
     outline: 2px solid ButtonText;
     outline-offset: 2px;
   }

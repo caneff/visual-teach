@@ -70,7 +70,7 @@
   border-radius: 0 0 8px 8px;
 }
 .vt-quiz-check {
-  font-family: "Helvetica Neue", Arial, sans-serif;
+  font-family: var(--vt-ui-font);
   font-size: 0.9rem;
   margin-top: 0.4rem;
   padding: 0.45rem 1rem;
