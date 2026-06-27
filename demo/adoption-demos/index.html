@@ -11,8 +11,6 @@
         --muted: #666;
         --rule: #ddd;
         --card: #fff;
-        --ok: #1a7f4b;
-        --no: #b23b3b;
       }
       @media (prefers-color-scheme: dark) {
         :root {
@@ -21,8 +19,6 @@
           --muted: #9a9a9a;
           --rule: #333;
           --card: #1f1f24;
-          --ok: #4cc88a;
-          --no: #e07a7a;
         }
       }
       * {
@@ -107,17 +103,6 @@
         font-weight: 700;
         color: var(--fg);
       }
-      /* adoption note in the treatment pane — set by render() per subject */
-      #vt-note {
-        font-weight: 600;
-        font-size: 0.78rem;
-      }
-      #vt-note.yes {
-        color: var(--ok);
-      }
-      #vt-note.no {
-        color: var(--no);
-      }
       iframe {
         flex: 1;
         width: 100%;
@@ -139,10 +124,9 @@
     <header>
       <h1>visual-teach · adoption demos</h1>
       <div class="sub">
-        Same frozen <code>teach-base</code> pedagogy, same spec, both arms. Only
-        variable: whether <code>visual-teach</code> was <em>available</em>
-        (never mentioned in the prompt). The right pane reached for it on its
-        own on every subject below.
+        Each subject below is taught from the same spec, twice: the left pane
+        with <code>/teach</code> alone, the right with <code>/teach</code> plus
+        <code>visual-teach</code>.
       </div>
       <div class="controls">
         <label
@@ -157,25 +141,23 @@
     </header>
     <main>
       <div class="pane before">
-        <h2><span class="tag">control</span></h2>
-        <iframe id="left" title="control lesson"></iframe>
+        <h2><span class="tag">/teach</span></h2>
+        <iframe id="left" title="/teach lesson"></iframe>
       </div>
       <div class="pane after">
-        <h2><span class="tag">treatment</span><span id="vt-note"></span></h2>
-        <iframe id="right" title="treatment lesson"></iframe>
+        <h2><span class="tag">/teach + visual-teach</span></h2>
+        <iframe id="right" title="/teach + visual-teach lesson"></iframe>
       </div>
     </main>
 
     <script>
       // Add a subject by appending here. `plain`/`visual` are lesson filenames
       // under <id>/plain/lessons and <id>/visual-teach/lessons (they may differ
-      // per arm). `adopted` = did the treatment arm reach for visual-teach on
-      // its own; drives the per-pane note in render().
+      // per pane).
       const SUBJECTS = [
         {
           id: "git-rebase-vs-merge",
           label: "git rebase vs merge",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -198,7 +180,6 @@
         {
           id: "css-flexbox",
           label: "CSS flexbox",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -221,7 +202,6 @@
         {
           id: "tls-handshake",
           label: "the TLS handshake",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -244,7 +224,6 @@
         {
           id: "regular-expressions",
           label: "regular expressions",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -267,7 +246,6 @@
         {
           id: "bayes-theorem",
           label: "Bayes' theorem",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -290,7 +268,6 @@
         {
           id: "music-intervals",
           label: "music: intervals & the major scale",
-          adopted: true,
           model: "opus",
           lessons: [
             {
@@ -332,11 +309,6 @@
         const l = s.lessons[lessonSel.value];
         $("left").src = `${s.id}/plain/lessons/${l.plain}`;
         $("right").src = `${s.id}/visual-teach/lessons/${l.visual}`;
-        const note = $("vt-note");
-        note.textContent = s.adopted
-          ? "✓ reached for visual-teach on its own"
-          : "✗ did not reach for visual-teach — bespoke output";
-        note.className = s.adopted ? "yes" : "no";
       }
 
       // The visual-teach pane shows base.js's own native theme toggle (it
