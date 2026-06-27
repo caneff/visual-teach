@@ -36,21 +36,17 @@ into each new lesson workspace.
 - [**Component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) — every component on one page,
   auto-generated from the per-component demos.
 
-These are served live via GitHub Pages, so the links above open as real,
-rendered pages. To browse locally instead, run `npm run serve` (the gallery's
-iframes are happiest over `http://`).
-
 ## What you get
 
-Lessons pick up a consistent, themeable look and ready-made interactive blocks
-without hand-rolling CSS or JS each time: quizzes with per-option feedback,
-checklists that remember their state across reloads, code blocks with copy
-buttons and syntax highlighting, callouts, comparison tables, a CSS diagram
-vocabulary, and math rendering. Everything themes to light and dark, prints
-cleanly, and runs straight from `file://` with no build step.
+Ready-made interactive blocks, so lessons don't hand-roll CSS or JS each time:
 
-See the [**component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html)
-for the full set on one page.
+- [**Quizzes**](https://caneff.github.io/visual-teach/demo/showcase.html#component-quiz) with per-option feedback
+- [**Checklists**](https://caneff.github.io/visual-teach/demo/showcase.html#component-checklist) that remember their state across reloads
+- [**Code blocks**](https://caneff.github.io/visual-teach/demo/showcase.html#component-code) with copy buttons and syntax highlighting
+- [**Callouts**](https://caneff.github.io/visual-teach/demo/showcase.html#component-callout), [**tables**](https://caneff.github.io/visual-teach/demo/showcase.html#component-table), and a [**diagram vocabulary**](https://caneff.github.io/visual-teach/demo/showcase.html#component-diagram) for visual explanations
+- [**Math**](https://caneff.github.io/visual-teach/demo/showcase.html#component-math) rendering, all themeable to light and dark
+
+See the [**full showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) for every component on one page.
 
 ## Skills
 
@@ -60,20 +56,8 @@ for the full set on one page.
 
 ## Usage
 
-Link the assets in each lesson (paths relative to `lessons/`):
-
-```html
-<link rel="stylesheet" href="../assets/base/base.css" />
-<link rel="stylesheet" href="../assets/components/quiz/quiz.css" />
-<!-- ...one <link> per component the lesson uses... -->
-<!-- ... lesson body ... -->
-<script src="../assets/base/base.js"></script>
-<script src="../assets/components/quiz/quiz.js"></script>
-<!-- ...one <script> per interactive component... -->
-```
-
-The `/teach` skill seeds the assets into a new workspace on its first run and
-authors lessons with `vt-*` blocks per the catalog.
+Install the skill (see [Install](#install)). Once it's in, `/teach` seeds the
+assets and authors lessons with `vt-*` blocks — no manual wiring.
 
 ## Tests
 
@@ -81,13 +65,3 @@ authors lessons with `vt-*` blocks per the catalog.
 npm test   # vitest run: quiz, checklist, code block, mermaid,
            # css classes, and asset-isolation behavior
 ```
-
-## Repository layout
-
-- [`skills/visual-teach/`](./skills/visual-teach/) — the installable skill: `SKILL.md` plus the component library under `assets/` (CSS, JS, catalog, per-component dirs, Prism, mermaid bridge).
-- [`.claude-plugin/plugin.json`](./.claude-plugin/plugin.json) — plugin manifest declaring the skill for the `skills` / Claude Code marketplace ecosystem.
-- [`demo/`](./demo/) — worked example lessons, the before/after gallery (`adoption-demos/`), and the component `showcase.html`. Browse-only; not part of the installed skill.
-- [`tests/`](./tests/) — vitest suites for the interactive blocks.
-- [`docs/PRD.md`](./docs/PRD.md) — the project spec; [`docs/adr/`](./docs/adr/) — architectural decisions.
-- [`CONTEXT.md`](./CONTEXT.md) — the glossary, the project's shared vocabulary.
-- [`AGENTS.md`](./AGENTS.md) — the contributor guide.
