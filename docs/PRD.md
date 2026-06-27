@@ -36,7 +36,7 @@ Authors (the `/teach` agent) rebuild this each time, and it drifts between lesso
    checklists, themed callouts) with **zero new authoring model** to learn.
 3. Adopt-by-subtraction: a lesson adopts by _deleting_ its inline CSS/JS and
    linking two assets.
-4. Own the authoring skill — the `/teach` fork bundles the component library and seeds it explicitly.
+4. Seed explicitly — a standalone installable skill that copies the component library into the workspace before `/teach` authors, composing with upstream `/teach` rather than forking it.
 5. No build step, no server, no dependency. Lessons keep opening from `file://`.
 
 ## 3a. Design principle — richness is the point
@@ -70,7 +70,7 @@ err toward expressive, not minimal.
 - Lessons stay readable and print correctly with **JS disabled** (progressive
   enhancement, not a JS-blank page).
 - A new lesson in a fresh workspace is born with `vt-*` blocks, seeded by the
-  owned `/teach` skill on its first run (ADR 0006).
+  visual-teach skill when it is invoked (ADR 0010).
 
 ## 6. Solution overview
 
@@ -87,18 +87,20 @@ durable, and printable (the `/teach` charter turns laziness OFF for deliverables
 Class+CSS markup is fully styled with JS off; a custom-element/MDX lesson is blank
 until JS runs. Graceful degradation is a requirement, not a nicety.
 
-Distributed as an owned fork of `/teach` (`.claude/skills/teach/`), with the component
-collection bundled under `assets/` and per-component seeding built into the skill — **ADR 0006**.
+Distributed as a standalone installable skill (`skills/visual-teach/`, installed with
+`npx skills add caneff/visual-teach`), composed with upstream `/teach` rather than forking it;
+the per-component seeding protocol lives in its own `SKILL.md` — **ADR 0010** (superseding the
+owned-fork model of ADR 0006).
 
 ## 7. How the component library reaches lessons
 
-visual-teach owns the `/teach` fork (`.claude/skills/teach/`). The fork bundles
-the full component collection under `assets/` and injects an explicit
-per-component seeding protocol directly into the skill (ADR 0006). There is no
-longer a third-party boundary to work around.
+visual-teach is a separate skill installed alongside upstream `/teach`, not a fork of it
+(ADR 0010, superseding ADR 0006). It bundles the full component collection under its own
+`assets/` and carries an explicit per-component seeding protocol in its `SKILL.md`; the two
+skills compose — visual-teach seeds, `/teach` authors.
 
-**Seeding is the skill's first action.** When the owned `/teach` starts in a fresh
-workspace, it copies the component assets into `./assets/` before authoring the
+**Seeding is the skill's first action.** When visual-teach is invoked in a fresh
+workspace, it copies the component assets into `./assets/` before `/teach` authors the
 first lesson. Subsequent lessons in the same workspace inherit the assets
 automatically.
 
@@ -186,11 +188,12 @@ localStorage keys. (Full markup: `assets/visual-teach.md`.)
 
 ## 9. Invocation
 
-visual-teach has no explicit verb. The owned `/teach` skill seeds the component
-assets on its first action in a fresh workspace, then authors lessons using `vt-*`
-blocks per the Catalog. No separate seeding step is needed by the user.
+visual-teach has no explicit verb. Invoked in a fresh workspace, it seeds the component
+assets as its first action; `/teach` then authors lessons using `vt-*` blocks per the
+Catalog. No separate seeding step is needed by the user.
 
-See ADR 0006 for the owned-fork decision record.
+See ADR 0010 for the current thin-separation distribution model (it supersedes the
+owned-fork record in ADR 0006).
 
 ## 10. The hard bet: runnable code (deferred)
 
@@ -239,17 +242,17 @@ sandbox or multi-language runner.
 1. ~~Diagram block in v1?~~ **Resolved → full CSS diagram vocabulary** (`.vt-diagram`
    /`.vt-node`/`.vt-flow`/`.vt-row`/`.vt-col`/`.vt-split`) + opt-in mermaid; sketch
    look deferred. See §8 + §3a.
-2. ~~Auto-adoption in the real flagged `/teach`~~ — resolved by owning the fork (ADR 0006).
+2. ~~Auto-adoption in the real flagged `/teach`~~ — resolved: the standalone skill composes with upstream `/teach` (ADR 0010).
 3. ~~Same-model/session-context in the 5/5 test~~ — resolved; seeding is now explicit.
 4. ~~Dark mode — deferred~~ **→ v1** (token overrides; prototyping).
 5. **Authors reach past the block set** (invented `vt-map`, misused token names) —
    inert, harmless, but informs which blocks to add next + cheatsheet wording.
-6. **Release/distribution** of the skill itself — undecided.
+6. ~~**Release/distribution** of the skill itself~~ — resolved: standalone installable skill via `npx skills add` + `.claude-plugin/plugin.json` (ADR 0010).
 
 ## References
 
 - ADR 0001 — copy assets into each workspace (`docs/adr/0001-*`)
-- ADR 0006 — owned fork, fork decision record (`docs/adr/0006-*`)
+- ADR 0010 — thin separation, current distribution model; supersedes the owned fork of ADR 0006 (`docs/adr/0010-*`)
 - ADR 0004 — no Convert verb (`docs/adr/0004-*`)
 - `CONTEXT.md` — glossary (visual-teach, Component, Catalog, …)
 - `docs/visual-plan-analysis.md` — the research that motivated the split
