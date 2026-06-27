@@ -29,15 +29,16 @@ into each new lesson workspace.
 
 ## See it
 
-- [`demo/adoption-demos/index.html`](./demo/adoption-demos/index.html) — a
+- [**Adoption gallery**](https://caneff.github.io/visual-teach/demo/adoption-demos/index.html) — a
   side-by-side gallery: six subjects (git rebase, flexbox, TLS, regex, Bayes,
   music), each taught twice from the same spec, **control vs treatment**. The
   treatment arm reached for visual-teach on its own every time.
-- [`demo/showcase.html`](./demo/showcase.html) — every component on one page,
+- [**Component showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) — every component on one page,
   auto-generated from the per-component demos.
 
-Run `npm run serve` and open either page (the gallery's iframes are happiest
-over `http://`).
+These are served live via GitHub Pages, so the links above open as real,
+rendered pages. To browse locally instead, run `npm run serve` (the gallery's
+iframes are happiest over `http://`).
 
 ## What you get
 
