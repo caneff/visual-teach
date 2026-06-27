@@ -22,8 +22,8 @@
   --vt-warn: light-dark(#f9ab00, #f5c451); /* caution callout */
   --vt-warn-fg: #000; /* text on warn fill (dark for contrast on amber) */
   --vt-warn-dk: #9a6b00; /* dark amber for outline/foreground warn uses */
-  --vt-ui-font: "Helvetica Neue", Arial,
-    sans-serif; /* sans UI chrome: kickers, labels, metabar, component text (body stays Georgia serif) */
+  --vt-ui-font:
+    "Helvetica Neue", Arial, sans-serif; /* sans UI chrome: kickers, labels, metabar, component text (body stays Georgia serif) */
 }
 
 /* derived tints */
