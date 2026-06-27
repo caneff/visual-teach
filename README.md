@@ -3,8 +3,9 @@
 A component library for teaching lessons: a Base spine
 ([CSS](./skills/visual-teach/assets/base/base.css) + [JS](./skills/visual-teach/assets/base/base.js))
 plus self-contained, copyable components that give lesson HTML a consistent look
-and interactive behavior. A lesson links only what it uses. Bootstrap for
-lessons, not a renderer or a framework.
+and interactive behavior. A lesson links only what it uses, and it's a plain HTML
+file: open it straight from disk and it runs offline, with no build step and no
+server. Bootstrap for lessons, not a renderer or a framework.
 
 It owns no lesson format, schema, or pedagogy. That is the upstream
 [`/teach`](https://github.com/mattpocock/skills) skill's job. visual-teach seeds
