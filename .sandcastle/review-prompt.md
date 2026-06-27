@@ -64,7 +64,7 @@ independent of however the change was built.
 
    - visual-teach standards (when the diff touches `skills/visual-teach/assets/` or `tests/`):
 
-     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(assets|tests)/' && cat CODING_STANDARDS.md || true`
+     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(skills/visual-teach/assets|tests)/' && cat CODING_STANDARDS.md || true`
 
    - Sandcastle standards (when the diff touches `.sandcastle/` code, ignoring `.sandcastle/proof/`):
 

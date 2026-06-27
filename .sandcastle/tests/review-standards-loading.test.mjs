@@ -68,8 +68,8 @@ const SANDCASTLE_MARKER = readFileSync(
 ).split("\n")[0];
 
 describe("review-prompt step 6: diff-aware CODING_STANDARDS loading", () => {
-  test("a diff under assets/ loads the visual-teach standards only", () => {
-    const out = runSnippets(["assets/base/base.css"]);
+  test("a diff under skills/visual-teach/assets/ loads the visual-teach standards only", () => {
+    const out = runSnippets(["skills/visual-teach/assets/base/base.css"]);
     expect(out).toContain(ROOT_MARKER);
     expect(out).not.toContain(SANDCASTLE_MARKER);
   });

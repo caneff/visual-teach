@@ -1,4 +1,4 @@
-// Showcase generator: globs assets/components/*/demo.html, splices bodies into
+// Showcase generator: globs skills/visual-teach/assets/components/*/demo.html, splices bodies into
 // one base-linked page, writes demo/showcase.html. Fails if any component lacks a demo.
 // Usage: node scripts/showcase.js
 import { readFileSync, writeFileSync, readdirSync, existsSync } from "fs";

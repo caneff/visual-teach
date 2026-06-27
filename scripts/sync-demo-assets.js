@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Mirror each adoption demo's copy of the shared visual-teach assets from the
-// canonical `assets/` tree.
+// canonical `skills/visual-teach/assets/` tree.
 //
 // The demos under `demo/adoption-demos/*/visual-teach/` are committed real files
 // (not symlinks) so the gallery renders everywhere it gets hosted — GitHub Pages,
