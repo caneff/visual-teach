@@ -44,9 +44,8 @@ See the [**full showcase**](https://caneff.github.io/visual-teach/demo/showcase.
 
 ## Skills
 
-| Skill           | Role                                                                                                                                    |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `/visual-teach` | **This skill.** `SKILL.md` + `assets/`; the unit `npx skills add` installs. Invoked before `/teach` so lessons have rich `vt-*` blocks. |
+**`/visual-teach`** — this skill. `SKILL.md` + `assets/`; the unit `npx skills add`
+installs. Invoked before `/teach` so lessons have rich `vt-*` blocks.
 
 ## Usage
 
