@@ -12,6 +12,18 @@ the upstream [`/teach`](https://github.com/mattpocock/skills) skill
 (`mattpocock/skills`, `skills/productivity/teach`). visual-teach seeds reusable
 components into the workspace and then steps back; `/teach` authors the lessons.
 
+## See it
+
+- [`demo/adoption-demos/index.html`](./demo/adoption-demos/index.html) — a
+  side-by-side gallery: six subjects (git rebase, flexbox, TLS, regex, Bayes,
+  music), each taught twice from the same spec, **control vs treatment**. The
+  treatment arm reached for visual-teach on its own every time.
+- [`demo/showcase.html`](./demo/showcase.html) — every component on one page,
+  auto-generated from the per-component demos.
+
+Run `npm run serve` and open either page (the gallery's iframes are happiest
+over `http://`).
+
 ## What you get
 
 - [`assets/base/base.css`](./assets/base/base.css) + each component's CSS style every `vt-*` block from
@@ -72,6 +84,7 @@ npm test   # vitest run: quiz, checklist, code block, mermaid,
 ## Repository layout
 
 - [`assets/`](./assets/) — the component library (CSS, JS, catalog, per-component dirs, Prism, mermaid bridge).
+- [`demo/`](./demo/) — worked example lessons, the before/after gallery (`adoption-demos/`), and the component `showcase.html`.
 - [`tests/`](./tests/) — vitest suites for the interactive blocks.
 - [`docs/PRD.md`](./docs/PRD.md) — the project spec; [`docs/adr/`](./docs/adr/) — architectural decisions.
 - [`CONTEXT.md`](./CONTEXT.md) — the glossary, the project's shared vocabulary.

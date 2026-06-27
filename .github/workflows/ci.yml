@@ -18,6 +18,11 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - name: demo assets mirror canonical
+        run: |
+          npm run sync-demos
+          git diff --exit-code -- demo/ \
+            || { echo "::error::demo assets drifted from canonical — run 'npm run sync-demos' and commit"; exit 1; }
 
   visual:
     runs-on: ubuntu-latest

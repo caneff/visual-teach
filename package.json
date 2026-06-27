@@ -7,6 +7,7 @@
     "test:visual:update": "playwright test --update-snapshots",
     "docker:regen-baselines": "docker run --rm -v \"$(pwd):/work\" -w /work mcr.microsoft.com/playwright:v1.61.1-jammy rm -rf test-results playwright-report && docker run --rm --user \"$(id -u):$(id -g)\" -v \"$(pwd):/work\" -w /work mcr.microsoft.com/playwright:v1.61.1-jammy npm run test:visual:update",
     "showcase": "node scripts/showcase.js",
+    "sync-demos": "node scripts/sync-demo-assets.js",
     "serve": "python3 -m http.server 8000",
     "lint": "eslint . && npm run lint:css",
     "lint:css": "stylelint 'assets/**/*.css'",
