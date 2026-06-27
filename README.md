@@ -39,9 +39,11 @@ Ready-made interactive blocks, so lessons don't hand-roll CSS or JS each time:
 - [**Checklists**](https://caneff.github.io/visual-teach/demo/showcase.html#component-checklist) that remember their state across reloads
 - [**Code blocks**](https://caneff.github.io/visual-teach/demo/showcase.html#component-code) with copy buttons and syntax highlighting
 - [**Callouts**](https://caneff.github.io/visual-teach/demo/showcase.html#component-callout), [**tables**](https://caneff.github.io/visual-teach/demo/showcase.html#component-table), and a [**diagram vocabulary**](https://caneff.github.io/visual-teach/demo/showcase.html#component-diagram) for visual explanations
-- [**Math**](https://caneff.github.io/visual-teach/demo/showcase.html#component-math) rendering, all themeable to light and dark
+- [**Math**](https://caneff.github.io/visual-teach/demo/showcase.html#component-math) rendering
 
-See the [**full showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) for every component on one page.
+Every block is themeable to light and dark. See the
+[**full showcase**](https://caneff.github.io/visual-teach/demo/showcase.html) for
+every component on one page.
 
 ## Skills
 
