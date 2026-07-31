@@ -83,6 +83,16 @@ import { z } from "zod";
 // GH_TOKEN. Load the env file here, before any sandboxIdentity() call.
 if (existsSync(".sandcastle/.env")) process.loadEnvFile(".sandcastle/.env");
 
+// bot-setup.md's final step retires the personal GH_TOKEN once the App bot works
+// ("blank out the old personal GH_TOKEN line ... so runs can't silently fall back
+// to your account"). Enforce it here rather than trusting every .env: loadEnvFile
+// above pulls EVERY key into the HOST process, and `gh` prefers an env token over
+// ~/.config/gh — so a stale GH_TOKEN silently shadows the working keyring
+// credential and 401s every host-side gh call. Dropping it host-side is safe:
+// sandboxes get their token from sandboxIdentity()'s minted App token, and
+// Sandcastle forwards the .env FILE into sandboxes independently of process.env.
+delete process.env.GH_TOKEN;
+
 // ---------------------------------------------------------------------------
 // Issue lifecycle labels (managed host-side, never by the agents)
 //
