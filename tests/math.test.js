@@ -96,6 +96,13 @@ describe("initKatex — inline math via renderMathInElement", () => {
     expect(lefts).toContain("\\(");
     expect(lefts).toContain("\\[");
   });
+
+  it("ignores already-rendered katex output and .vt-math blocks", () => {
+    setup("<p>Inline \\(x\\)</p>");
+    const [, opts] = globalThis.renderMathInElement.mock.calls[0];
+    expect(opts.ignoredClasses).toContain("katex");
+    expect(opts.ignoredClasses).toContain("vt-math");
+  });
 });
 
 describe("initKatex — self-loads KaTeX when absent", () => {
@@ -116,6 +123,19 @@ describe("initKatex — self-loads KaTeX when absent", () => {
     expect(
       scripts.some((s) => s && s.endsWith("katex/auto-render.min.js"))
     ).toBe(false); // auto-render loads only after katex.min.js resolves
+  });
+
+  it("injects katex.min.css at the START of head so author CSS wins", () => {
+    // katex.min.css sets .katex{font:…1.21em…}; math.css resets it to 1em at
+    // equal specificity — the reset only wins if the KaTeX sheet loads first.
+    document.head.innerHTML =
+      '<link rel="stylesheet" href="/assets/visual-teach.css">';
+    setup('<div class="vt-math">\\gamma</div>');
+    const first = document.head.firstElementChild;
+    expect(first.tagName).toBe("LINK");
+    expect(first.getAttribute("href").endsWith("katex/katex.min.css")).toBe(
+      true
+    );
   });
 });
 

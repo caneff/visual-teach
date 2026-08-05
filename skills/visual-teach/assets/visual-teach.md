@@ -47,6 +47,13 @@ copied on its own.
 Copy this `<main>` skeleton when starting a new lesson. It is the structural
 frame only — not a complete lesson with fixed slots to fill.
 
+> **Start every lesson file with `<!DOCTYPE html>`.** Without it, file://
+> delivery renders in quirks mode — KaTeX's `render()` (the auto-render
+> path behind inline `\(...\)` math) refuses outright in quirks mode, so
+> inline formulas stay raw LaTeX while `.vt-math` display blocks (rendered
+> via `renderToString`) still work. That asymmetry makes the failure easy
+> to misdiagnose.
+
 ```html
 <main>
   <p class="vt-kicker">Topic · Lesson 1</p>
