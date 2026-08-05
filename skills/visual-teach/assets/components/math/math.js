@@ -37,6 +37,8 @@ function renderKatex() {
           { left: "\\(", right: "\\)", display: false },
           { left: "\\[", right: "\\]", display: true },
         ],
+        // katex: skip already-rendered output; vt-math: renderToString owns those
+        ignoredClasses: ["katex", "vt-math"],
         throwOnError: false,
       });
     } catch (e) {
@@ -78,7 +80,10 @@ function ensureKatex() {
     var link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = katexBase + "katex.min.css";
-    document.head.appendChild(link);
+    // Insert at head START: katex.min.css sets .katex{font:…1.21em…} at the
+    // same specificity as math.css's 1em reset — the reset only wins if the
+    // KaTeX sheet loads first. Appending it last silently oversizes all math.
+    document.head.insertBefore(link, document.head.firstChild);
   }
 
   return _loadScript(katexBase + "katex.min.js").then(function () {
