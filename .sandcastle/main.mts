@@ -48,7 +48,12 @@ import {
   buildMultiParentBase,
 } from "./base-resolution.mts";
 import { prComponents, CompletedIssue } from "./pr-components.mts";
-import { parseSpecVerdict, isHarnessError } from "./review-verdict.mts";
+import {
+  parseSpecVerdict,
+  parseStandardsVerdict,
+  combineVerdicts,
+  isHarnessError,
+} from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
   decideInReviewAction,
@@ -139,6 +144,15 @@ function git(args: string): string | null {
   } catch {
     return null;
   }
+}
+
+// Post a body to one or more issues via a temp file (avoids shell-quoting the
+// whole findings blob). The logs dir already exists (mkdirSync below); the file
+// is gitignored under .sandcastle/logs/.
+function commentIssues(ids: string[], slug: string, body: string): void {
+  const file = `.sandcastle/logs/${slug}.md`;
+  writeFileSync(file, body);
+  for (const id of ids) gh(`issue comment ${id} --body-file ${file}`);
 }
 
 // Log verbosity via SANDCASTLE_VERBOSE:
@@ -660,32 +674,70 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           ) ?? "(issue text unavailable)";
 
         try {
-          const review = await sandbox.run({
-            name: "reviewer",
-            logging: logging("reviewer", issue.branch),
+          // Two read-only judges replace the single committing reviewer (#1):
+          // a Spec judge and a Standards judge, each in its own isolated context
+          // so neither sees the other's working notes. Both diff against this
+          // issue's resolved base — its parent's branch or main. The base is
+          // immutable for the issue's lifetime in the forest, so the judges see
+          // only THIS issue's commits, not the parent chain it was stacked on.
+          // Can't reuse the built-in TARGET_BRANCH arg — sandcastle reserves it
+          // and pins it to the host branch (main), which would leak the parent
+          // chain's commits into the diff. Neither judge writes the branch; the
+          // implementer is the sole writer. Run them sequentially — both are
+          // read-only, so order is irrelevant.
+          const specReview = await sandbox.run({
+            name: "spec-reviewer",
+            logging: logging("spec-reviewer", issue.branch),
             maxIterations: 1,
-            agent: sandcastle.claudeCode("claude-sonnet-4-6"),
-            promptFile: "./.sandcastle/review-prompt.md",
-            // Diff against this issue's resolved base — its parent's branch or
-            // main. The base is immutable for the issue's lifetime in the forest,
-            // so the reviewer sees only THIS issue's commits, not the parent
-            // chain it was stacked on. Can't reuse the built-in TARGET_BRANCH arg
-            // — sandcastle reserves it and pins it to the host branch (main),
-            // which would leak the parent chain's commits into the diff.
+            agent: sandcastle.claudeCode("claude-sonnet-5"),
+            promptFile: "./.sandcastle/review-spec-prompt.md",
             promptArgs: {
               BRANCH: issue.branch,
               REVIEW_BASE: base,
               ISSUE_SPEC: `#${issue.id} ${issueSpec}`,
             },
           });
-          // Spec-conformance gate (#130): sandbox.run has no structured output,
-          // so the reviewer emits a sentinel line. An explicit FAIL means the
-          // branch does not satisfy the issue — re-implement it (handled in the
-          // outcome loop), do not accept it as done.
-          const verdict = parseSpecVerdict(review.stdout);
-          if (!verdict.pass) {
+          const standardsReview = await sandbox.run({
+            name: "standards-reviewer",
+            logging: logging("standards-reviewer", issue.branch),
+            maxIterations: 1,
+            agent: sandcastle.claudeCode("claude-sonnet-5"),
+            promptFile: "./.sandcastle/review-standards-prompt.md",
+            promptArgs: {
+              BRANCH: issue.branch,
+              REVIEW_BASE: base,
+            },
+          });
+          // Each judge emits a sentinel line (sandbox.run has no structured
+          // output, #130). Fail-open per axis: only an explicit FAIL blocks.
+          const specVerdict = parseSpecVerdict(specReview.stdout);
+          const standardsVerdict = parseStandardsVerdict(
+            standardsReview.stdout
+          );
+          const combined = combineVerdicts(specVerdict, standardsVerdict);
+          if (!combined.pass) {
+            // Post the failing judges' findings so the re-implement pass — the
+            // sole writer — gets targeted context. Route through the existing
+            // spec-fail path (shared retry cap; escalates to ready-for-human at
+            // the cap).
+            const sections: string[] = [];
+            if (!specVerdict.pass)
+              sections.push(
+                `### Spec axis — FAIL\n\n${specReview.stdout.trim()}`
+              );
+            if (!standardsVerdict.pass)
+              sections.push(
+                `### Standards axis — FAIL\n\n${standardsReview.stdout.trim()}`
+              );
+            const body =
+              `## Sandcastle review — changes requested\n\n` +
+              `This branch was reviewed read-only on two axes; the axes below ` +
+              `failed. Re-implement to address the findings (don't just silence ` +
+              `the verdict line).\n\n` +
+              sections.join("\n\n");
+            commentIssues([issue.id], `review-findings-${issue.id}`, body);
             console.warn(
-              `  ⚠ ${issue.id} failed spec review: ${verdict.reason}`
+              `  ⚠ ${issue.id} failed review (${combined.failedAxes.join(", ")})`
             );
             return { issue, kind: "spec-fail" as const };
           }
