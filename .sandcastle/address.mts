@@ -14,8 +14,7 @@
 
 import { execSync } from "node:child_process";
 import * as sandcastle from "@ai-hero/sandcastle";
-import { docker } from "@ai-hero/sandcastle/sandboxes/docker";
-import { sandboxIdentity } from "./sandbox-identity.mts";
+import { sandboxIdentity, sandboxConfig } from "./sandbox-identity.mts";
 
 const sh = (cmd: string) => execSync(cmd, { encoding: "utf8" }).trim();
 
@@ -61,14 +60,6 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
 
   // Mint once per run; installation tokens are valid ~1h, no caching needed.
   const identity = await sandboxIdentity();
-  const hooks = {
-    sandbox: {
-      onSandboxReady: [
-        ...identity.gitConfigCommands,
-        { command: "npm install" },
-      ],
-    },
-  };
 
   // Sequential: each run pushes to a branch, so we avoid concurrent pushes and
   // keep token spend predictable. `branchStrategy: branch` fetches that branch
@@ -79,13 +70,12 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
       `\n=== Addressing review comments on PR #${pr} (${branch}) ===\n`
     );
     await sandcastle.run({
-      hooks,
-      copyToWorktree: ["node_modules"],
-      sandbox: docker({ env: identity.env }),
+      ...sandboxConfig(identity),
+      copyToWorktree: ["node_modules"], // visual-teach: TypeScript, not a .venv
       branchStrategy: { type: "branch", branch },
       name: `address-pr-${pr}`,
       maxIterations: 30,
-      agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+      agent: sandcastle.claudeCode("claude-sonnet-5"),
       promptFile: "./.sandcastle/address-comments-prompt.md",
       promptArgs: { PR_NUMBER: pr },
     });

@@ -36,34 +36,73 @@ const { sandboxIdentity, sandboxConfig } =
 
 // ── sandboxConfig ─────────────────────────────────────────────────────────────
 
-test("sandboxConfig: calls dockerFn with identity.env", () => {
+test("sandboxConfig: calls dockerFn with identity.env and the read-only skills mount", () => {
   const identity = { env: { GH_TOKEN: "tok" }, gitConfigCommands: [] };
   let captured = null;
   sandboxConfig(identity, (opts) => {
     captured = opts;
     return {};
   });
-  expect(captured).toEqual({ env: { GH_TOKEN: "tok" } });
+  expect(captured.env).toEqual({
+    GH_TOKEN: "tok",
+    UV_PROJECT_ENVIRONMENT: "/home/agent/.venv",
+  });
+  // The host's global Claude skills are mounted read-only so the in-sandbox
+  // agent has /tdd etc. — not vendored into the repo.
+  expect(captured.mounts).toContainEqual({
+    hostPath: "~/.claude/skills",
+    sandboxPath: "~/.claude/skills",
+    readonly: true,
+  });
 });
 
-test("sandboxConfig: gitConfigCommands and npm install land in onSandboxReady", () => {
-  const gitCmd = { command: "git config user.name Bot" };
-  const identity = { env: {}, gitConfigCommands: [gitCmd] };
+// visual-teach local edit: the bootstrap command is `npm install`, not the
+// template's `uv sync` — this repo is TypeScript. The ordering these two tests
+// assert is the template's; only the command name differs.
+test("sandboxConfig: gitConfigCommands fold into the chained git entry, before the bootstrap", () => {
+  const identity = {
+    env: {},
+    gitConfigCommands: [{ command: "git config user.name Bot" }],
+  };
   const cfg = sandboxConfig(identity, () => ({}));
   const ready = cfg.hooks.sandbox.onSandboxReady;
-  expect(ready).toContainEqual(gitCmd);
-  expect(ready).toContainEqual({ command: "npm install" });
-  const gitIdx = ready.findIndex((c) => c.command === gitCmd.command);
-  const npmIdx = ready.findIndex((c) => c.command === "npm install");
-  expect(gitIdx).toBeLessThan(npmIdx);
+  // The identity write is chained into the single git-config entry (not its own
+  // entry — that would race the lock, #52), which still runs before the bootstrap.
+  const gitIdx = ready.findIndex((c) => c.command.includes("git config"));
+  const bootIdx = ready.findIndex((c) => c.command === "npm install");
+  expect(ready[gitIdx].command).toContain("git config user.name Bot");
+  expect(gitIdx).toBeLessThan(bootIdx);
 });
 
-test("sandboxConfig: onSandboxReady is exactly [npm install] when no gitConfigCommands", () => {
+test("sandboxConfig: onSandboxReady is [disable-hooks, npm install] when no gitConfigCommands", () => {
   const identity = { env: {}, gitConfigCommands: [] };
   const cfg = sandboxConfig(identity, () => ({}));
   expect(cfg.hooks.sandbox.onSandboxReady).toEqual([
+    {
+      command:
+        "mkdir -p /home/agent/.git-no-hooks && git config core.hooksPath /home/agent/.git-no-hooks",
+    },
     { command: "npm install" },
   ]);
+});
+
+test("sandboxConfig: ALL git-config writes chain into ONE onSandboxReady entry (no .git/config.lock race, #52)", () => {
+  // Identity writes and the core.hooksPath write hit the same .git/config.lock;
+  // Sandcastle runs onSandboxReady hooks concurrently, so any two git-config
+  // entries race and the loser dies. Exactly one entry may touch `git config`.
+  const identity = {
+    env: {},
+    gitConfigCommands: [
+      { command: 'git config user.name "Bot" && git config user.email "b@x"' },
+    ],
+  };
+  const ready = sandboxConfig(identity, () => ({})).hooks.sandbox
+    .onSandboxReady;
+  const gitEntries = ready.filter((c) => c.command.includes("git config"));
+  expect(gitEntries).toHaveLength(1);
+  // That one entry carries both the identity writes and the hooks-path write.
+  expect(gitEntries[0].command).toContain("user.name");
+  expect(gitEntries[0].command).toContain("core.hooksPath");
 });
 
 // ── no-op branch: bot vars unset ─────────────────────────────────────────────

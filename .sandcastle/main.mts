@@ -12,9 +12,11 @@
 //                               (the forest); a child branch carries its parent's
 //                               commits but never an unrelated chain's. The
 //                               implementer runs first (100 iterations); if
-//                               there's work on the branch a reviewer runs in the
-//                               same sandbox (1 iteration). All issue pipelines
-//                               run concurrently via Promise.allSettled().
+//                               there's work on the branch two read-only judges
+//                               (Spec + Standards) run in the same sandbox (1
+//                               iteration each), committing nothing. All issue
+//                               pipelines run concurrently via
+//                               Promise.allSettled().
 //   Phase 3 (Open PRs):         The host splits the run's completed issues into
 //                               connected dependency components and opens ONE PR
 //                               per component: it merges each component's leaf
@@ -41,29 +43,43 @@
 
 import * as sandcastle from "@ai-hero/sandcastle";
 import { addressOpenPRs } from "./address.mts";
-import { sandboxIdentity, sandboxConfig } from "./sandbox-identity.mts";
+import {
+  sandboxIdentity,
+  sandboxConfig,
+  applyBotToken,
+} from "./sandbox-identity.mts";
 import {
   resolveBase,
   issueBranch,
   buildMultiParentBase,
 } from "./base-resolution.mts";
-import { prComponents, CompletedIssue } from "./pr-components.mts";
+import {
+  prComponents,
+  parentsFromBlockedBy,
+  mergeParentEdges,
+  landedIssues,
+  CompletedIssue,
+} from "./pr-components.mts";
 import {
   parseSpecVerdict,
   parseStandardsVerdict,
   combineVerdicts,
   isHarnessError,
+  parseCheckVerdict,
 } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
   decideInReviewAction,
   bucketIssues,
   buildRunSummary,
+  planGateOutcome,
+  planOutcomeTransition,
   OpenIssue,
   PrRef,
 } from "./reconcile.mts";
 import { parseOpenIssues, parsePrsClosingIssues } from "./github-parse.mts";
 import { parseSandcastleWorktrees } from "./worktrees.mts";
+import { planRetention } from "./log-retention.mts";
 import {
   REVIEW_RETRY_CAP,
   readAttempts,
@@ -88,14 +104,15 @@ import { z } from "zod";
 // GH_TOKEN. Load the env file here, before any sandboxIdentity() call.
 if (existsSync(".sandcastle/.env")) process.loadEnvFile(".sandcastle/.env");
 
-// bot-setup.md's final step retires the personal GH_TOKEN once the App bot works
-// ("blank out the old personal GH_TOKEN line ... so runs can't silently fall back
-// to your account"). Enforce it here rather than trusting every .env: loadEnvFile
-// above pulls EVERY key into the HOST process, and `gh` prefers an env token over
-// ~/.config/gh — so a stale GH_TOKEN silently shadows the working keyring
-// credential and 401s every host-side gh call. Dropping it host-side is safe:
-// sandboxes get their token from sandboxIdentity()'s minted App token, and
-// Sandcastle forwards the .env FILE into sandboxes independently of process.env.
+// visual-teach local edit (repo commit a47b9e2). bot-setup.md's final step retires
+// the personal GH_TOKEN once the App bot works ("blank out the old personal
+// GH_TOKEN line ... so runs can't silently fall back to your account"). Enforce it
+// here rather than trusting every .env: loadEnvFile above pulls EVERY key into the
+// HOST process, and `gh` prefers an env token over ~/.config/gh — so a stale
+// GH_TOKEN silently shadows the working keyring credential and 401s every
+// host-side gh call. Dropping it host-side is safe: sandboxes get their token from
+// sandboxIdentity()'s minted App token, and Sandcastle forwards the .env FILE into
+// sandboxes independently of process.env.
 delete process.env.GH_TOKEN;
 
 // ---------------------------------------------------------------------------
@@ -146,9 +163,9 @@ function git(args: string): string | null {
   }
 }
 
-// Post a body to one or more issues via a temp file (avoids shell-quoting the
-// whole findings blob). The logs dir already exists (mkdirSync below); the file
-// is gitignored under .sandcastle/logs/.
+// Write a Markdown body to a log file, then comment it on each issue with
+// `--body-file` (not an inline `--body`) so a body with backticks or quotes
+// can't break shell escaping. One place owns that file-not-shell-string choice.
 function commentIssues(ids: string[], slug: string, body: string): void {
   const file = `.sandcastle/logs/${slug}.md`;
   writeFileSync(file, body);
@@ -170,25 +187,18 @@ mkdirSync(".sandcastle/logs", { recursive: true });
 // A log with no run inside the window is emptied (all its runs are stale).
 // ponytail: parse the header we already emit; no run-index/db needed.
 const LOG_RETENTION_DAYS = 14;
+// Thin file-IO caller; the keep/empty/keep-from decision lives in the pure,
+// tested planRetention (ADR-0002).
 function pruneOldRuns(dir: string, cutoffMs: number) {
-  const hdr = /^--- Run started: (.+?) ---$/;
   for (const name of readdirSync(dir)) {
     if (!name.endsWith(".log")) continue;
     const file = `${dir}/${name}`;
     const lines = readFileSync(file, "utf8").split("\n");
-    let keepFrom = lines.length; // no recent run found → empty the file
-    for (let i = 0; i < lines.length; i++) {
-      const m = lines[i].match(hdr);
-      if (m && Date.parse(m[1]) >= cutoffMs) {
-        keepFrom = i;
-        break;
-      }
-    }
-    if (keepFrom === 0) continue; // already all-recent
-    const kept = lines.slice(keepFrom).join("\n");
-    if (kept.trim() === "")
+    const plan = planRetention(lines, cutoffMs);
+    if (plan.action === "keep-all") continue; // already all-recent
+    if (plan.action === "empty")
       unlinkSync(file); // no recent runs → drop the file
-    else writeFileSync(file, kept);
+    else writeFileSync(file, lines.slice(plan.index).join("\n"));
   }
 }
 try {
@@ -278,6 +288,54 @@ function getPrsReferencingIssues(): Map<number, PrRef[]> {
   );
 }
 
+// Each in-review issue's `blockedBy` edge ids, keyed by issue number (issue
+// #50). The reconciliation sweep uses these to rebuild a recovered branch's
+// parents (see `parentsFromBlockedBy`) instead of dropping the dependency graph.
+// One bulk query for the whole in-review set — no per-issue fetch — mirroring
+// the `blockedBy` pull the planner already does in plan-prompt.md.
+const blockedByRowsSchema = z.array(
+  z.object({ number: z.number(), blockedBy: z.array(z.number()) })
+);
+
+function getBlockedByForInReview(): Map<number, number[]> {
+  const out = gh(
+    `issue list --state open --label "in-review" --limit 100 --json number,blockedBy --jq '[.[] | {number, blockedBy: [.blockedBy.nodes[].number]}]'`
+  );
+  const map = new Map<number, number[]>();
+  if (!out) return map;
+  for (const row of blockedByRowsSchema.parse(JSON.parse(out))) {
+    map.set(row.number, row.blockedBy);
+  }
+  return map;
+}
+
+// GitHub's native sub-issue edge (each open issue's `parent` field), as a
+// childId → parentId map (issue #90). Folded into the PR-set graph via
+// `mergeParentEdges` at Phase 3 so a spec and a sub-issue that supersedes it
+// group into ONE PR instead of two — the durable backstop to the LLM planner,
+// which is told to honor `parent` (plan-prompt.md) but can still miss it. String
+// ids match `CompletedIssue.parents`; `mergeParentEdges` only reads edges for
+// issues completed this run, and `prComponents` drops any parent not present, so
+// fetching the whole open set is harmless.
+const parentRowsSchema = z.array(
+  z.object({ number: z.number(), parent: z.number().nullable() })
+);
+
+function getParentEdges(): Map<string, string> {
+  // ponytail: --limit 100 matches every other issue fetch here; a repo with
+  // >100 open issues could miss a completed issue's parent edge (it then falls
+  // back to the planner-declared parents). Raise the limit if that ceiling bites.
+  const out = gh(
+    `issue list --state open --limit 100 --json number,parent --jq '[.[] | {number, parent: .parent.number}]'`
+  );
+  const map = new Map<string, string>();
+  if (!out) return map;
+  for (const row of parentRowsSchema.parse(JSON.parse(out))) {
+    if (row.parent !== null) map.set(String(row.number), String(row.parent));
+  }
+  return map;
+}
+
 // ---------------------------------------------------------------------------
 // Reconciliation sweep: run once at run start to restore the invariant
 //   in-review ⟺ an open PR references the issue.
@@ -309,6 +367,7 @@ function reconciliationSweep(): {
     `\n=== Reconciliation sweep: ${inReview.length} in-review issue(s) ===\n`
   );
   const prsForIssues = getPrsReferencingIssues();
+  const blockedByForIssues = getBlockedByForInReview();
 
   const sweepInjected = new Set<string>();
   const sweepRequeued = new Set<string>();
@@ -345,7 +404,10 @@ function reconciliationSweep(): {
         id,
         title: issue.title,
         branch,
-        parents: [],
+        // Rebuild the dependency graph from GitHub blockedBy edges (issue #50);
+        // prComponents drops any parent not also completed this run, so a
+        // stacked recovery collapses into one PR instead of one per tip.
+        parents: parentsFromBlockedBy(blockedByForIssues.get(issue.number) ?? []),
       });
     } else {
       // requeue: no branch, no work, OR a stale branch that conflicts with main.
@@ -413,13 +475,20 @@ const planSchema = z.object({
 // guards against a pathological re-planning loop.
 const MAX_ITERATIONS = 20;
 
-// Resolve sandbox identity once. No-op when bot env vars are unset.
-// Installation tokens are short-lived (~1h); minting per run keeps them fresh.
-const identity = await sandboxIdentity();
+// Resolve sandbox identity. No-op when bot env vars are unset.
+// GitHub caps App installation tokens at ~1h, so a token minted once dies on any
+// run that outlasts it (retries routinely push past the hour). We re-mint at the
+// top of each iteration (below) instead; `identity` is reassigned there, and
+// applyBotToken pushes each fresh token into process.env so the host gh()/git()
+// calls stay authenticated too. This first mint covers Phase 0 + the sweep.
+let identity = await sandboxIdentity();
+applyBotToken(identity, process.env);
 
-// Copy node_modules from the host into the worktree before each sandbox
-// starts. Avoids a full npm install from scratch; sandboxConfig's npm install
-// hook handles platform-specific binaries and packages added since the copy.
+// visual-teach local edit: this repo is TypeScript, so the host's node_modules is
+// what a sandbox needs seeded, not a .venv. Copied into the worktree before each
+// sandbox starts to avoid a full install from scratch; sandboxConfig's
+// `npm install` hook handles platform-specific binaries and anything added since
+// the copy. A future `copier update` will conflict-mark this — keep the npm side.
 const copyToWorktree = ["node_modules"];
 
 // ---------------------------------------------------------------------------
@@ -459,6 +528,16 @@ const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 // Phase 3 head merge.
 const allCompleted: CompletedIssue[] = [];
 
+// Issues aborted this run because their multi-parent base could not be built:
+// two declared parents conflict when merged (issue #64). Parent branches are
+// static across a run's iterations, so the merge fails identically every time —
+// re-attempting burns iterations for nothing. We block the issue for the rest of
+// THIS run (no GitHub label: the block evaporates next run, and self-heals once a
+// human merges the conflicting parents into main). Map value is the conflicting
+// parent ids, so the run summary can name them. Authoritative hard gate; the
+// planner is also told (BLOCKED_THIS_RUN) so it stops re-selecting them.
+const blockedThisRun = new Map<string, string[]>();
+
 // Phase 0: clear pending review comments on open sandcastle PRs before taking
 // on new issue work. Once per run — humans don't comment mid-run, so a
 // per-iteration sweep would only re-scan the same set. Set SANDCASTLE_SKIP_ADDRESS=1
@@ -479,8 +558,21 @@ allCompleted.push(...completedFromSweep);
 // Track issue → PR number across all Phase 3 opens for the run summary.
 const prAssignments = new Map<string, number>();
 
+// Issue id → bounded failing-test tail for sets retired by the Phase-3
+// consecutive gate-failure cap (#25). A retired set is relabeled ready-for-human,
+// has its work branch PRESERVED (skipped in the post-Phase-3 reconciliation
+// below), and is named — with its failing tests — in the run summary.
+const retiredByGate = new Map<string, string>();
+
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);
+
+  // Re-mint before this iteration's sandboxes are cut: installation tokens
+  // expire ~1h after minting, so a long run's later iterations would otherwise
+  // bake a dead token into every sandbox (and the host gh() calls) and 401.
+  // Minting is one JWT sign + one REST call — cheap enough to do every pass.
+  identity = await sandboxIdentity();
+  applyBotToken(identity, process.env);
 
   // -------------------------------------------------------------------------
   // Phase 1: Plan
@@ -520,6 +612,20 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             })
             .join("\n")
         : "(none yet — first iteration)",
+      // Issues aborted this run by a deterministic multi-parent conflict (#64).
+      // They cannot be built until a human merges their conflicting parents, so
+      // the planner must NOT re-select them this run. Belt-and-suspenders: the
+      // host also hard-drops them from `work` above.
+      BLOCKED_THIS_RUN: blockedThisRun.size
+        ? [...blockedThisRun]
+            .map(
+              ([id, parents]) =>
+                `- #${id} — parents ${parents
+                  .map((p) => `#${p}`)
+                  .join(", ")} conflict; do not select`
+            )
+            .join("\n")
+        : "(none)",
     },
     // Extract and validate the <plan> JSON into a typed object. Throws
     // StructuredOutputError if the tag is missing, the JSON is malformed, or
@@ -541,7 +647,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // local state with no index lag — filter against it.
   const handled = new Set(allCompleted.map((i) => i.id));
   const fresh = plan.output.issues
-    .filter((i) => !handled.has(i.id))
+    // Also drop issues blocked this run by a multi-parent conflict (#64) — the
+    // hard gate, in case the planner re-selects one despite BLOCKED_THIS_RUN.
+    .filter((i) => !handled.has(i.id) && !blockedThisRun.has(i.id))
     .map((i) => ({
       ...i,
       mode: "full" as const,
@@ -595,10 +703,15 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           buildMultiParentBase(issue.id, ps, { git, branchExistsWithWork }),
       });
       if (base === null) {
+        // Deterministic conflict: the parents conflict with each other, so this
+        // fails identically every iteration. Block the issue for the rest of the
+        // run (see blockedThisRun) instead of re-skipping to the iteration cap —
+        // it needs a human to merge the parents upstream first (#64).
+        blockedThisRun.set(issue.id, parents);
         console.error(
           `  ✗ ${issue.id} multi-parent base merge conflicted (${parents
             .map((p) => `#${p}`)
-            .join(", ")}); skipping this iteration, will retry next time`
+            .join(", ")}); blocked this run — merge parents upstream first`
         );
         return { issue, kind: "nothing" as const };
       }
@@ -642,7 +755,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             name: "implementer",
             logging: logging("implementer", issue.branch),
             maxIterations: 100,
-            agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+            agent: sandcastle.claudeCode("claude-sonnet-5"),
             promptFile: "./.sandcastle/implement-prompt.md",
             promptArgs: {
               TASK_ID: issue.id,
@@ -711,20 +824,16 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           // Each judge emits a sentinel line (sandbox.run has no structured
           // output, #130). Fail-open per axis: only an explicit FAIL blocks.
           const specVerdict = parseSpecVerdict(specReview.stdout);
-          const standardsVerdict = parseStandardsVerdict(
-            standardsReview.stdout
-          );
+          const standardsVerdict = parseStandardsVerdict(standardsReview.stdout);
           const combined = combineVerdicts(specVerdict, standardsVerdict);
           if (!combined.pass) {
             // Post the failing judges' findings so the re-implement pass — the
             // sole writer — gets targeted context. Route through the existing
-            // spec-fail path (shared retry cap; escalates to ready-for-human at
-            // the cap).
+            // spec-fail path (shared REVIEW_RETRY_CAP; escalates to
+            // ready-for-human at the cap).
             const sections: string[] = [];
             if (!specVerdict.pass)
-              sections.push(
-                `### Spec axis — FAIL\n\n${specReview.stdout.trim()}`
-              );
+              sections.push(`### Spec axis — FAIL\n\n${specReview.stdout.trim()}`);
             if (!standardsVerdict.pass)
               sections.push(
                 `### Standards axis — FAIL\n\n${standardsReview.stdout.trim()}`
@@ -737,7 +846,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
               sections.join("\n\n");
             commentIssues([issue.id], `review-findings-${issue.id}`, body);
             console.warn(
-              `  ⚠ ${issue.id} failed review (${combined.failedAxes.join(", ")})`
+              `  ⚠ ${issue.id} failed review (${combined.failedAxes.join(
+                ", "
+              )})`
             );
             return { issue, kind: "spec-fail" as const };
           }
@@ -782,69 +893,24 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   }
 
   // Transition each issue's label the moment its outcome is known, so the NEXT
-  // iteration's planner (and any future run) sees the right state:
-  //   done         → in-review  (drop ready-for-agent + needs-review)
-  //   needs-review → needs-review (drop ready-for-agent; keep branch commits)
-  //   spec-fail    → ready-for-agent (re-implement), or ready-for-human at cap
-  //   nothing      → left ready-for-agent for a clean retry
-  // Only `done` issues are accumulated into the consolidated PR.
+  // iteration's planner (and any future run) sees the right state. Which label
+  // each outcome lands on is planOutcomeTransition's call (#102, ADR-0002); this
+  // loop only applies the plan it returns. A rejection carries no value, so its
+  // issue comes from `work` by index.
   let attempts = readAttempts();
   const completedIssues: CompletedIssue[] = [];
-  for (const outcome of settled) {
-    if (outcome.status !== "fulfilled") continue;
-    const { issue, kind } = outcome.value;
-    if (kind === "done") {
-      // Pure bookkeeping — no git mutation. A completed issue's branch IS its
-      // place in the forest; it was built on its real parent, so there is
-      // nothing to fold and the parent branch is immutable from here. We just
-      // record the edge so later iterations and Phase 3 can use it.
-      relabel(issue.id, "in-review", ["ready-for-agent", "needs-review"]);
-      delete attempts[issue.id]; // reviewed clean — reset the retry counter
-      completedIssues.push({
-        id: issue.id,
-        title: issue.title,
-        branch: issue.branch,
-        parents: issue.mode === "full" ? issue.parents : [],
-        ...(issue.mode === "full" && issue.group ? { group: issue.group } : {}),
-      });
-    } else if (kind === "needs-review") {
-      const r = recordAttempt(attempts, issue.id);
-      attempts = r.attempts;
-      if (r.escalate) {
-        // Cheap re-review failed REVIEW_RETRY_CAP times — the branch can't be
-        // salvaged by review alone. Escalate to a full implement pass (which
-        // can actually change the code) against current main.
-        relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
-        console.warn(
-          `  ${issue.id} hit review-retry cap (${REVIEW_RETRY_CAP}); back to ready-for-agent for a full re-implement`
-        );
-      } else {
-        relabel(issue.id, "needs-review", ["ready-for-agent"]);
-      }
-    } else if (kind === "spec-fail") {
-      // The branch was reviewed cleanly for code quality but does NOT satisfy
-      // the issue (#130). Re-implementing is the fix — re-review can't repair
-      // "built the wrong thing" — so send it back to ready-for-agent. Cap the
-      // re-implements with a distinct counter so a persistently-misunderstood
-      // issue doesn't loop forever; at the cap, hand it to a human.
-      const r = recordAttempt(attempts, `spec-${issue.id}`);
-      attempts = r.attempts;
-      if (r.escalate) {
-        relabel(issue.id, "ready-for-human", [
-          "ready-for-agent",
-          "needs-review",
-          "in-review",
-        ]);
-        console.warn(
-          `  ${issue.id} failed spec review ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`
-        );
-      } else {
-        relabel(issue.id, "ready-for-agent", ["needs-review", "in-review"]);
-        console.warn(
-          `  ${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${r.count}/${REVIEW_RETRY_CAP})`
-        );
-      }
-    }
+  for (const [i, outcome] of settled.entries()) {
+    const issue = outcome.status === "fulfilled" ? outcome.value.issue : work[i]!;
+    const kind =
+      outcome.status === "fulfilled" ? outcome.value.kind : ("nothing" as const);
+    const plan = planOutcomeTransition({ kind, issue, attempts });
+    attempts = plan.attempts;
+    if (plan.addLabel) relabel(issue.id, plan.addLabel, plan.removeLabels);
+    if (plan.note) console.warn(`  ${plan.note}`);
+    // A completed issue's branch IS its place in the forest; it was built on its
+    // real parent, so there is nothing to fold and the parent branch is
+    // immutable from here. Recording the edge is all Phase 3 needs.
+    if (plan.completed) completedIssues.push(plan.completed);
   }
   writeAttempts(attempts);
 
@@ -888,7 +954,12 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
 // head and an agent opens ONE PR from it into main (prose only — the agent runs
 // no git).
 // ---------------------------------------------------------------------------
-const components = prComponents(allCompleted);
+// Fold GitHub sub-issue (`parent`) edges into the graph before grouping (issue
+// #90), so a spec and a child that supersedes it land in one PR set even when the
+// planner declared no edge between them. One fetch covers every completed issue —
+// fresh-plan and sweep-injected alike — so this is the single deterministic
+// chokepoint the LLM planner can't slip past.
+const components = prComponents(mergeParentEdges(allCompleted, getParentEdges()));
 if (components.length === 0) {
   console.log("\nNo completed issues across the run. No PR to open.");
 } else {
@@ -944,6 +1015,146 @@ if (components.length === 0) {
       continue;
     }
 
+    // -----------------------------------------------------------------------
+    // Full-suite gate (#22): before opening the PR, run the whole `just check`
+    // (lint + typecheck + tests) on the assembled head IN A SANDBOX — the same
+    // toolchain the target's CI runs, never the bare host worktree — so a red set
+    // never reaches a human as an open PR. A green verdict opens as today; any
+    // non-pass withholds the PR and requeues the whole set: the failing tail is
+    // commented on every issue, then the set flows into the post-Phase-3
+    // reconciliation below (which relabels ready-for-agent + deletes the stale
+    // branch) so the next iteration rebuilds it informed by the comment.
+    //
+    // The gate agent runs `just check && echo <sentinel>` and reports its raw
+    // stdout; parseCheckVerdict reads the sentinel and fails CLOSED — a crashed or
+    // garbled check is test-fail, and only a THROWN sandbox/harness fault (caught
+    // below, passed as `error`) classifies as harness-error. Both non-pass verdicts
+    // requeue; harness-error is retried next iteration without a real code failure.
+    // -----------------------------------------------------------------------
+    const gateIds = issues.map((i) => i.id);
+    let checkStdout = "";
+    let checkError: unknown;
+    try {
+      const gateCfg = sandboxConfig(identity);
+      const gate = await sandcastle.createSandbox({
+        branch: prBranch, // already built + local; checked out, not re-cut
+        ...gateCfg,
+        copyToWorktree, // seed .venv so `just check` reuses deps, no re-resolve
+      });
+      try {
+        const check = await gate.run({
+          name: `check-gate-${n + 1}`,
+          logging: logging(`check-gate-${n + 1}`, prBranch),
+          maxIterations: 1,
+          agent: sandcastle.claudeCode("claude-sonnet-5"),
+          promptFile: "./.sandcastle/check-prompt.md",
+          promptArgs: { MERGE_HEAD: prBranch },
+        });
+        checkStdout = check.stdout;
+      } finally {
+        await gate.close();
+      }
+    } catch (e) {
+      // The harness-error channel parseCheckVerdict reads via `error` — a thrown
+      // FiberFailure (prompt assembly, sandbox launch), never scanned from stdout.
+      // Requeue rather than abort: a bad head is not a broken run.
+      checkError = e;
+    }
+
+    const verdict = parseCheckVerdict(checkStdout, checkError);
+
+    // Consecutive gate-failure cap (#25): count one failure per issue under key
+    // gate-<id>. A real "test-fail" increments and may escalate at the cap; a
+    // "harness-error" is an infra fault and is NEVER counted (it can't retire a
+    // good set); a "pass" clears the counter so the cap is CONSECUTIVE failures.
+    // The set fails and passes the gate in lockstep, so all its gate-<id>
+    // counters move together and escalate on the same iteration.
+    let escalated = false;
+    {
+      let gateAttempts = readAttempts();
+      if (verdict.status === "pass") {
+        for (const id of gateIds) delete gateAttempts[`gate-${id}`];
+      } else if (verdict.status === "test-fail") {
+        for (const id of gateIds) {
+          const r = recordAttempt(gateAttempts, `gate-${id}`);
+          gateAttempts = r.attempts;
+          // OR-reduce, not last-wins: the set escalates if ANY member hit the
+          // cap. In lockstep every gate-<id> escalates together, but recordAttempt
+          // deletes a key when it escalates, so were the counters ever out of step
+          // a last-wins read could miss an escalation and loop the set forever.
+          escalated ||= r.escalate;
+        }
+      }
+      writeAttempts(gateAttempts);
+    }
+
+    const plan = planGateOutcome(verdict, gateIds, escalated);
+
+    if (plan.action === "retire") {
+      // The set has failed the full suite REVIEW_RETRY_CAP times running.
+      // Requeuing again would loop forever, so park it on a human: relabel
+      // ready-for-human, comment the failing tail, and — when the plan says so —
+      // PRESERVE the work branch. Recording the id in retiredByGate is what
+      // preserves it: the post-Phase-3 reconciliation below skips those ids, so
+      // the human inherits the actual failing tree instead of a deleted branch.
+      const body =
+        `## Sandcastle full-suite gate — retired to a human\n\n` +
+        `\`just check\` on this set's merged head (\`${prBranch}\`) failed the ` +
+        `full suite ${REVIEW_RETRY_CAP} times running, so the set is parked as ` +
+        `**ready-for-human** rather than requeued again. Its work branch is ` +
+        `preserved for you to inspect. Address the failure below.\n\n` +
+        "```\n" +
+        `${verdict.tail || "(no output captured)"}\n` +
+        "```\n";
+      commentIssues(plan.commentIssueIds, `check-gate-${runId}-${n + 1}`, body);
+      for (const id of plan.commentIssueIds) {
+        relabel(id, "ready-for-human", [
+          "ready-for-agent",
+          "needs-review",
+          "in-review",
+        ]);
+        if (plan.preserveBranch)
+          retiredByGate.set(id, plan.summaryNote ?? verdict.tail);
+      }
+      console.error(
+        `  ✗ Component ${n + 1}: full-suite gate failed ${REVIEW_RETRY_CAP}x; ` +
+          `set retired → ready-for-human (branch ${prBranch} preserved).`
+      );
+      continue; // skip push + PR open; reconciliation must not touch these
+    }
+
+    if (plan.action === "requeue") {
+      const body =
+        `## Sandcastle full-suite gate — PR withheld\n\n` +
+        `\`just check\` on this set's merged head (\`${prBranch}\`) came back ` +
+        `**${verdict.status}**, so no PR was opened. The set is requeued for a ` +
+        `fresh rebuild — address the failure below, don't just silence it.\n\n` +
+        "```\n" +
+        `${verdict.tail || "(no output captured)"}\n` +
+        "```\n";
+      commentIssues(plan.commentIssueIds, `check-gate-${runId}-${n + 1}`, body);
+      console.error(
+        `  ✗ Component ${n + 1}: full-suite gate ${verdict.status}; PR withheld, ` +
+          `${plan.commentIssueIds.length} issue(s) commented → requeued.`
+      );
+      continue; // skip push + PR open; post-Phase-3 reconciliation requeues them
+    }
+
+    // Which of this set's issues actually reached the head (#115) — see
+    // `landedIssues` for why ancestry rather than a set of failed leaf ids. The two
+    // consumers that speak for the PR read THIS list, never `issues`: the PR body
+    // below and `prAssignments` once the PR is open. An excluded issue is therefore
+    // neither named in the PR nor credited to it, which leaves the post-Phase-3
+    // reconciliation — it skips any issue already assigned — free to re-queue it.
+    // The gate paths above stay set-wide on purpose: no PR exists for them to lie
+    // about. Computed here, after the gate, so a withheld PR spends no subprocesses.
+    // `git` returns "" on success and null on failure, so compare against null —
+    // `--is-ancestor` reports its verdict through the exit code and prints nothing.
+    const landed = landedIssues(
+      issues,
+      (branch) => git(`merge-base --is-ancestor ${branch} ${prBranch}`) !== null
+    );
+
     // Push the assembled head host-side so the agent only has to open the PR.
     git(`push -u --force-with-lease origin ${prBranch}`);
     await sandcastle.run({
@@ -951,12 +1162,14 @@ if (components.length === 0) {
       name: `pr-consolidator-${n + 1}`,
       logging: logging(`pr-consolidator-${n + 1}`, headBranch),
       maxIterations: 1,
-      agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+      agent: sandcastle.claudeCode("claude-sonnet-5"),
       promptFile: "./.sandcastle/pr-prompt.md",
       promptArgs: {
         MERGE_HEAD: prBranch,
-        // One markdown line per issue in THIS component: id, title, branch.
-        ISSUES: issues
+        // One markdown line per issue whose commits are IN this head: id, title,
+        // branch. Excluded issues are omitted — the PR must not claim work it
+        // does not carry (#115).
+        ISSUES: landed
           .map((i) => `- #${i.id} — ${i.title} (branch \`${i.branch}\`)`)
           .join("\n"),
       },
@@ -966,7 +1179,7 @@ if (components.length === 0) {
     const prNumRaw = gh(`pr view ${prBranch} --json number --jq .number`);
     const prNum = prNumRaw ? parseInt(prNumRaw, 10) : 0;
     if (prNum > 0) {
-      for (const issue of issues) prAssignments.set(issue.id, prNum);
+      for (const issue of landed) prAssignments.set(issue.id, prNum);
     }
   }
   console.log(`\n${components.length} PR(s) opened.`);
@@ -990,6 +1203,9 @@ if (components.length === 0) {
 // re-queued, never "PR opened".
 for (const issue of allCompleted) {
   if (prAssignments.has(issue.id)) continue;
+  // Retired by the gate cap (#25): already relabeled ready-for-human, and its
+  // branch is deliberately preserved for the human — do NOT requeue or delete it.
+  if (retiredByGate.has(issue.id)) continue;
   relabel(issue.id, "ready-for-agent", ["in-review", "needs-review"]);
   git(`branch -D ${issue.branch}`);
   sweepInjected.delete(issue.id);
@@ -1016,6 +1232,8 @@ gcWorktrees();
     sweepInjected,
     sweepRequeued,
     prAssignments,
+    blockedByParentConflict: blockedThisRun,
+    retiredByGate,
   });
   const summary = buildRunSummary(bucketed);
   console.log(summary);
