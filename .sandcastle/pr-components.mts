@@ -37,6 +37,56 @@ export interface PrComponent {
   leaves: CompletedIssue[];
 }
 
+// Rebuild a swept branch's `parents` from its GitHub `blockedBy` edges (issue
+// #50). The reconciliation sweep recovers a stranded branch but used to inject
+// `parents: []`, discarding the dependency graph — a stacked recovery then
+// opened one redundant PR per tip. `blockedBy` is the durable ground truth on
+// the issues, so the sweep reconstructs parents from it. Every edge is kept as a
+// string id (matching `parents`); `prComponents` drops any not completed this
+// run via its own present-filter, so there is no pre-restriction here. Purely
+// inferred parents (file-overlap edges with no `blockedBy` behind them) can't be
+// recovered post-crash and are the known gap.
+export function parentsFromBlockedBy(blockedBy: number[]): string[] {
+  return blockedBy.map(String);
+}
+
+// Fold GitHub's native sub-issue edge into each issue's `parents` (issue #90).
+// A child linked to a parent via GitHub's `parent` field — not `blockedBy`, and
+// regardless of what the LLM planner declared — carries that intent invisibly:
+// the planner (soft guidance) can still miss it, so a parent spec and a child
+// that supersedes it get built independently and open as two PRs. `parentOf`
+// maps childId → parentId from GitHub; this appends each edge to the child's
+// `parents` (deduped), and `prComponents`' own present-filter drops any parent
+// not completed this run — so an edge to an already-merged parent is a no-op.
+export function mergeParentEdges(
+  issues: CompletedIssue[],
+  parentOf: Map<string, string>
+): CompletedIssue[] {
+  return issues.map((issue) => {
+    const p = parentOf.get(issue.id);
+    if (!p || issue.parents.includes(p)) return issue;
+    return { ...issue, parents: [...issue.parents, p] };
+  });
+}
+
+// Which of a PR set's issues actually reached the assembled head (issue #115).
+//
+// The head is built by merging the set's leaf tips; a tip whose merge conflicts is
+// aborted and excluded, and its commits never land. Crediting the whole set
+// regardless both falsified the run summary and suppressed the strand
+// reconciliation, which skips any issue already carrying a PR assignment.
+//
+// Outcome-based, not failure-tracked: `isAncestor` answers "did this branch reach
+// the head", so a conflicting tip drops AND so does its whole ancestor chain,
+// whose commits only ever reached the head through that tip. A set of failed leaf
+// ids would miss those ancestors. Pure — the caller supplies the predicate.
+export function landedIssues(
+  issues: CompletedIssue[],
+  isAncestor: (branch: string) => boolean
+): CompletedIssue[] {
+  return issues.filter((i) => isAncestor(i.branch));
+}
+
 // Partition completed issues into connected components by parent edges, each with
 // its leaf tips. Component order follows first appearance in `issues`.
 export function prComponents(issues: CompletedIssue[]): PrComponent[] {

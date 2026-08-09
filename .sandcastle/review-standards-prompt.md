@@ -42,46 +42,29 @@ with your findings — you never refactor or fix it yourself.
    refactor needed" is a valid, common outcome.
 
 4. **Apply project standards** (these override the generic guidance above on any
-   conflict — e.g. they forbid consolidating deliberately duplicated component
-   helpers). Loaded conditionally on what this branch's diff touches — only the
-   standards relevant to the change appear below (a docs/proof-only diff loads
-   neither):
+   conflict). Loaded conditionally on what this branch's diff touches — only the
+   standards relevant to the change appear below (a docs-only diff loads neither):
 
-   - visual-teach standards (when the diff touches `skills/visual-teach/assets/` or `tests/`):
+   - Project standards (when the diff touches application code under `src/`, tests included — they're interleaved there):
 
-     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(skills/visual-teach/assets|tests)/' && cat CODING_STANDARDS.md || true`
+     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^src/' && cat CODING_STANDARDS.md || true`
 
-   - Sandcastle standards (when the diff touches `.sandcastle/` code, ignoring `.sandcastle/proof/`):
+   - Sandcastle standards (when the diff touches the `.sandcastle/` orchestrator itself):
 
-     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -E '^\.sandcastle/' | grep -qv '^\.sandcastle/proof/' && cat .sandcastle/CODING_STANDARDS.md || true`
+     !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^\.sandcastle/' && cat .sandcastle/CODING_STANDARDS.md || true`
 
 # GATES
 
 Lint, type checks, and tests are enforced mechanically by CI on the PR
-(`.github/workflows/ci.yml`), so they are not your job to babysit — judge coding
+(`.github/workflows/`), so they are not your job to babysit — judge coding
 standards and quality, not the mechanical green gate.
-
-One gate does belong to this axis, because no CI check covers it:
-
-1. **Visual proof is present and real.** This repo is visual, so a code change to
-   `skills/visual-teach/assets/` should carry proof. A pure docs/tooling change
-   with no `skills/visual-teach/assets/` diff may legitimately have none. Check
-   `.sandcastle/proof/issue-<id>/`:
-   - `PROOF.md` exists. If it claims "no visual change" but the diff touches
-     `skills/visual-teach/assets/visual-teach.{css,js}` or a `vt-*` block, that is
-     wrong — FAIL the standards axis and have proof produced (see
-     `.sandcastle/proof-protocol.md`). You do not produce it yourself — you are
-     read-only; the re-implement pass does.
-   - `before.png` and `after.png` both exist and are **not identical**
-     (`cmp -s before.png after.png` must report a difference). Identical shots
-     mean the before was taken after the change; FAIL so it is regenerated.
 
 # STANDARDS VERDICT (required — emit the verdict last)
 
-Decide whether the diff conforms to the standards and quality criteria above,
-including the visual-proof gate. This axis judges **coding standards only** —
-whether the change satisfies the originating issue is judged separately by the
-Spec judge, so do not fail the branch here for missing features.
+Decide whether the diff conforms to the standards and quality criteria above.
+This axis judges **coding standards only** — whether the change satisfies the
+originating issue is judged separately by the Spec judge, so do not fail the
+branch here for missing features.
 
 Emit your verdict on its own line, exactly one of the two forms below. The line
 MUST start at column zero with `SANDCASTLE_STANDARDS:` — no leading `- `, no

@@ -70,6 +70,57 @@ export async function sandboxIdentity(
 }
 
 /**
+ * Push a freshly-minted bot token into an env map so host-side `gh()`/`git()`
+ * calls authenticate as the bot. Called after each `sandboxIdentity()` mint —
+ * at startup and once per iteration — to keep the host token under GitHub's
+ * 1-hour installation-token cap on long runs.
+ *
+ * No-op when identity carries no token (personal-token mode, bot vars unset):
+ * the maintainer's ambient GH_TOKEN must never be clobbered.
+ */
+export function applyBotToken(
+  identity: SandboxIdentity,
+  env: Record<string, string | undefined>
+): void {
+  const token = identity.env.GH_TOKEN;
+  if (token) {
+    env.GH_TOKEN = token;
+    env.GITHUB_TOKEN = token;
+  }
+}
+
+/**
+ * The `onSandboxReady` command list, shared by every sandbox creation site
+ * (`sandboxConfig` here and `address.mts`).
+ *
+ * Sandcastle runs `onSandboxReady` hooks with unbounded concurrency, and every
+ * `git config` write takes an exclusive `.git/config.lock` on the bind-mounted
+ * host `.git`. So ALL git-config writes — the identity pair AND the hook-path
+ * isolation — must live in ONE entry, chained with `&&`, or they race and the
+ * loser dies with "could not lock config file: File exists" (issue #52). `mkdir`
+ * doesn't touch the lock, so its position in the chain is harmless.
+ *
+ * Hook-path isolation: the host `.git` (carrying the host pre-commit hook) is
+ * mounted in, but pre-commit isn't on the container PATH, so a plain commit
+ * dies; pointing `core.hooksPath` at an empty dir disables it in-sandbox. The
+ * Phase-3 `just check` gate runs the same ruff/ty.
+ */
+export function onSandboxReadyCommands(
+  identity: SandboxIdentity
+): Array<{ command: string }> {
+  const gitWrites = [
+    "mkdir -p /home/agent/.git-no-hooks",
+    ...identity.gitConfigCommands.map((c) => c.command),
+    "git config core.hooksPath /home/agent/.git-no-hooks",
+  ];
+  // visual-teach local edit: this repo is TypeScript, not Python, so the sandbox
+  // bootstraps with `npm install` where the template runs `uv sync`. Carried
+  // across the v1 → v5 migration; expect `copier update` to conflict-mark this
+  // line on a future sync, and keep the npm side.
+  return [{ command: gitWrites.join(" && ") }, { command: "npm install" }];
+}
+
+/**
  * Returns the sandbox and hooks config that bakes identity into every sandbox
  * creation site. Spread the result into sandcastle.run() or createSandbox():
  *   sandcastle.run({ ...sandboxConfig(identity), name: "...", ... })
@@ -83,13 +134,22 @@ export function sandboxConfig(
   dockerFn: typeof docker = docker
 ) {
   return {
-    sandbox: dockerFn({ env: identity.env }),
+    sandbox: dockerFn({
+      env: { ...identity.env, UV_PROJECT_ENVIRONMENT: "/home/agent/.venv" },
+      // Mount the host's global Claude skills read-only so the in-sandbox
+      // `claude` agent has the same skills you do (e.g. /tdd, referenced by
+      // implement-prompt.md). Not vendored into the repo — always live/current.
+      mounts: [
+        {
+          hostPath: "~/.claude/skills",
+          sandboxPath: "~/.claude/skills",
+          readonly: true,
+        },
+      ],
+    }),
     hooks: {
       sandbox: {
-        onSandboxReady: [
-          ...identity.gitConfigCommands,
-          { command: "npm install" },
-        ],
+        onSandboxReady: onSandboxReadyCommands(identity),
       },
     },
   };

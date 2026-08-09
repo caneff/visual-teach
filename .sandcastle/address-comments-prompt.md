@@ -38,22 +38,12 @@ If a comment is unclear, or you think the requested change is wrong, do NOT
 guess. Make no change for that thread and instead reply (below) explaining the
 question or your reasoning. A wrong "fix" is worse than a question.
 
-# REGENERATE VISUAL PROOF (if your fix changed any rendered output)
-
-This repo is visual. If a fix you made alters how any `vt-*` block renders, the
-PR's existing "after" screenshot is now stale — regenerate it. Follow the shared
-protocol in `.sandcastle/proof-protocol.md` for the issue whose visuals you
-changed (this PR may bundle several — proof lives under
-`.sandcastle/proof/issue-<id>/`). You are in the **regeneration** case:
-`before.png` already exists, so re-shoot **only** `after.png` and re-upload it to
-the same R2 key — the PR body embeds that stable URL and refreshes on its own.
-Do not touch `before.png`, do not rewrite the PR description, do not change
-screenshot hosting. Skip only if your fix had no visual surface.
-
 # VERIFY, COMMIT, PUSH
 
-1. Run `npm run lint && npm run test`. All must pass.
-2. Commit the changes: `git commit -am "Address review comments on #{{PR_NUMBER}}"`.
+1. Run `just check`. It must pass.
+2. Stage everything and commit — use `git add -A`, not `git commit -am`, because
+   `-am` skips any NEW file a fix added and it would never reach the PR:
+   `git add -A && git commit -m "Address review comments on #{{PR_NUMBER}}"`.
    (The pre-commit hook will re-run lint/format/tests — let it.)
 3. `git push` to update the PR.
 4. Capture the new commit SHA: `SHA=$(git rev-parse --short HEAD)`.
@@ -62,10 +52,20 @@ screenshot hosting. Skip only if your fix had no visual surface.
 
 For every comment you addressed or chose not to, post a reply in its thread.
 
+Run `mkdir -p .sandcastle/logs` once, then write each reply to
+`.sandcastle/logs/reply.md` and post the file. Write it there, never in the repo
+root: that directory is gitignored, so a reply cannot leave the checkout dirty.
+The `mkdir` matters because `logs/` is gitignored and so is absent from a fresh
+worktree or clone. Do NOT pass
+the reply inline with `-f body="…"` / `--body "…"`: the blockquote `>` and the
+backticks around the SHA get mangled by the shell (the backticks run as a command
+substitution and the code span vanishes). Substitute the real SHA into the file
+as you write it.
+
 - **Inline thread** — reply in the same thread:
-  `gh api repos/$OWNER_REPO/pulls/{{PR_NUMBER}}/comments/<comment_id>/replies -f body="<reply>"`
+  `gh api repos/$OWNER_REPO/pulls/{{PR_NUMBER}}/comments/<comment_id>/replies -F body=@.sandcastle/logs/reply.md`
   where `<comment_id>` is the thread-starting comment's `id`.
-- **Top-level** — `gh pr comment {{PR_NUMBER}} --body "<reply>"`.
+- **Top-level** — `gh pr comment {{PR_NUMBER}} --body-file .sandcastle/logs/reply.md`.
 
 Reply content: **start every reply with a Markdown blockquote of the comment you
 are responding to** so the thread is self-contained — one or two `> `-prefixed
