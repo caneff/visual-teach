@@ -78,9 +78,7 @@ describe("parseStandardsVerdict", () => {
   });
 
   test("the spec sentinel does not trip the standards gate", () => {
-    expect(parseStandardsVerdict("SANDCASTLE_SPEC: FAIL — x\n").pass).toBe(
-      true
-    );
+    expect(parseStandardsVerdict("SANDCASTLE_SPEC: FAIL — x\n").pass).toBe(true);
   });
 });
 

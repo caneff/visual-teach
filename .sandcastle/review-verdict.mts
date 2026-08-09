@@ -141,8 +141,5 @@ export function parseCheckVerdict(
     return { status: "harness-error", tail: boundedTail(String(error)) };
   // A non-harness throw (or no throw) with no PASS sentinel fails CLOSED.
   if (CHECK_PASS.test(output)) return { status: "pass", tail: "" };
-  return {
-    status: "test-fail",
-    tail: boundedTail(output || String(error ?? "")),
-  };
+  return { status: "test-fail", tail: boundedTail(output || String(error ?? "")) };
 }

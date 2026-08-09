@@ -12,9 +12,11 @@
 //                               (the forest); a child branch carries its parent's
 //                               commits but never an unrelated chain's. The
 //                               implementer runs first (100 iterations); if
-//                               there's work on the branch a reviewer runs in the
-//                               same sandbox (1 iteration). All issue pipelines
-//                               run concurrently via Promise.allSettled().
+//                               there's work on the branch two read-only judges
+//                               (Spec + Standards) run in the same sandbox (1
+//                               iteration each), committing nothing. All issue
+//                               pipelines run concurrently via
+//                               Promise.allSettled().
 //   Phase 3 (Open PRs):         The host splits the run's completed issues into
 //                               connected dependency components and opens ONE PR
 //                               per component: it merges each component's leaf
@@ -63,6 +65,7 @@ import {
   parseStandardsVerdict,
   combineVerdicts,
   isHarnessError,
+  parseCheckVerdict,
 } from "./review-verdict.mts";
 import {
   classifyInReviewIssue,
@@ -76,6 +79,7 @@ import {
 } from "./reconcile.mts";
 import { parseOpenIssues, parsePrsClosingIssues } from "./github-parse.mts";
 import { parseSandcastleWorktrees } from "./worktrees.mts";
+import { planRetention } from "./log-retention.mts";
 import {
   REVIEW_RETRY_CAP,
   readAttempts,
@@ -100,14 +104,15 @@ import { z } from "zod";
 // GH_TOKEN. Load the env file here, before any sandboxIdentity() call.
 if (existsSync(".sandcastle/.env")) process.loadEnvFile(".sandcastle/.env");
 
-// bot-setup.md's final step retires the personal GH_TOKEN once the App bot works
-// ("blank out the old personal GH_TOKEN line ... so runs can't silently fall back
-// to your account"). Enforce it here rather than trusting every .env: loadEnvFile
-// above pulls EVERY key into the HOST process, and `gh` prefers an env token over
-// ~/.config/gh — so a stale GH_TOKEN silently shadows the working keyring
-// credential and 401s every host-side gh call. Dropping it host-side is safe:
-// sandboxes get their token from sandboxIdentity()'s minted App token, and
-// Sandcastle forwards the .env FILE into sandboxes independently of process.env.
+// visual-teach local edit (repo commit a47b9e2). bot-setup.md's final step retires
+// the personal GH_TOKEN once the App bot works ("blank out the old personal
+// GH_TOKEN line ... so runs can't silently fall back to your account"). Enforce it
+// here rather than trusting every .env: loadEnvFile above pulls EVERY key into the
+// HOST process, and `gh` prefers an env token over ~/.config/gh — so a stale
+// GH_TOKEN silently shadows the working keyring credential and 401s every
+// host-side gh call. Dropping it host-side is safe: sandboxes get their token from
+// sandboxIdentity()'s minted App token, and Sandcastle forwards the .env FILE into
+// sandboxes independently of process.env.
 delete process.env.GH_TOKEN;
 
 // ---------------------------------------------------------------------------
@@ -158,9 +163,9 @@ function git(args: string): string | null {
   }
 }
 
-// Post a body to one or more issues via a temp file (avoids shell-quoting the
-// whole findings blob). The logs dir already exists (mkdirSync below); the file
-// is gitignored under .sandcastle/logs/.
+// Write a Markdown body to a log file, then comment it on each issue with
+// `--body-file` (not an inline `--body`) so a body with backticks or quotes
+// can't break shell escaping. One place owns that file-not-shell-string choice.
 function commentIssues(ids: string[], slug: string, body: string): void {
   const file = `.sandcastle/logs/${slug}.md`;
   writeFileSync(file, body);
@@ -182,25 +187,18 @@ mkdirSync(".sandcastle/logs", { recursive: true });
 // A log with no run inside the window is emptied (all its runs are stale).
 // ponytail: parse the header we already emit; no run-index/db needed.
 const LOG_RETENTION_DAYS = 14;
+// Thin file-IO caller; the keep/empty/keep-from decision lives in the pure,
+// tested planRetention (ADR-0002).
 function pruneOldRuns(dir: string, cutoffMs: number) {
-  const hdr = /^--- Run started: (.+?) ---$/;
   for (const name of readdirSync(dir)) {
     if (!name.endsWith(".log")) continue;
     const file = `${dir}/${name}`;
     const lines = readFileSync(file, "utf8").split("\n");
-    let keepFrom = lines.length; // no recent run found → empty the file
-    for (let i = 0; i < lines.length; i++) {
-      const m = lines[i].match(hdr);
-      if (m && Date.parse(m[1]) >= cutoffMs) {
-        keepFrom = i;
-        break;
-      }
-    }
-    if (keepFrom === 0) continue; // already all-recent
-    const kept = lines.slice(keepFrom).join("\n");
-    if (kept.trim() === "")
+    const plan = planRetention(lines, cutoffMs);
+    if (plan.action === "keep-all") continue; // already all-recent
+    if (plan.action === "empty")
       unlinkSync(file); // no recent runs → drop the file
-    else writeFileSync(file, kept);
+    else writeFileSync(file, lines.slice(plan.index).join("\n"));
   }
 }
 try {
@@ -369,6 +367,7 @@ function reconciliationSweep(): {
     `\n=== Reconciliation sweep: ${inReview.length} in-review issue(s) ===\n`
   );
   const prsForIssues = getPrsReferencingIssues();
+  const blockedByForIssues = getBlockedByForInReview();
 
   const sweepInjected = new Set<string>();
   const sweepRequeued = new Set<string>();
@@ -405,7 +404,10 @@ function reconciliationSweep(): {
         id,
         title: issue.title,
         branch,
-        parents: [],
+        // Rebuild the dependency graph from GitHub blockedBy edges (issue #50);
+        // prComponents drops any parent not also completed this run, so a
+        // stacked recovery collapses into one PR instead of one per tip.
+        parents: parentsFromBlockedBy(blockedByForIssues.get(issue.number) ?? []),
       });
     } else {
       // requeue: no branch, no work, OR a stale branch that conflicts with main.
@@ -482,9 +484,11 @@ const MAX_ITERATIONS = 20;
 let identity = await sandboxIdentity();
 applyBotToken(identity, process.env);
 
-// Copy node_modules from the host into the worktree before each sandbox
-// starts. Avoids a full npm install from scratch; sandboxConfig's npm install
-// hook handles platform-specific binaries and packages added since the copy.
+// visual-teach local edit: this repo is TypeScript, so the host's node_modules is
+// what a sandbox needs seeded, not a .venv. Copied into the worktree before each
+// sandbox starts to avoid a full install from scratch; sandboxConfig's
+// `npm install` hook handles platform-specific binaries and anything added since
+// the copy. A future `copier update` will conflict-mark this — keep the npm side.
 const copyToWorktree = ["node_modules"];
 
 // ---------------------------------------------------------------------------
@@ -524,6 +528,16 @@ const headBranch = git("rev-parse --abbrev-ref HEAD") ?? "main";
 // Phase 3 head merge.
 const allCompleted: CompletedIssue[] = [];
 
+// Issues aborted this run because their multi-parent base could not be built:
+// two declared parents conflict when merged (issue #64). Parent branches are
+// static across a run's iterations, so the merge fails identically every time —
+// re-attempting burns iterations for nothing. We block the issue for the rest of
+// THIS run (no GitHub label: the block evaporates next run, and self-heals once a
+// human merges the conflicting parents into main). Map value is the conflicting
+// parent ids, so the run summary can name them. Authoritative hard gate; the
+// planner is also told (BLOCKED_THIS_RUN) so it stops re-selecting them.
+const blockedThisRun = new Map<string, string[]>();
+
 // Phase 0: clear pending review comments on open sandcastle PRs before taking
 // on new issue work. Once per run — humans don't comment mid-run, so a
 // per-iteration sweep would only re-scan the same set. Set SANDCASTLE_SKIP_ADDRESS=1
@@ -543,6 +557,12 @@ allCompleted.push(...completedFromSweep);
 
 // Track issue → PR number across all Phase 3 opens for the run summary.
 const prAssignments = new Map<string, number>();
+
+// Issue id → bounded failing-test tail for sets retired by the Phase-3
+// consecutive gate-failure cap (#25). A retired set is relabeled ready-for-human,
+// has its work branch PRESERVED (skipped in the post-Phase-3 reconciliation
+// below), and is named — with its failing tests — in the run summary.
+const retiredByGate = new Map<string, string>();
 
 for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   console.log(`\n=== Iteration ${iteration}/${MAX_ITERATIONS} ===\n`);
@@ -592,6 +612,20 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             })
             .join("\n")
         : "(none yet — first iteration)",
+      // Issues aborted this run by a deterministic multi-parent conflict (#64).
+      // They cannot be built until a human merges their conflicting parents, so
+      // the planner must NOT re-select them this run. Belt-and-suspenders: the
+      // host also hard-drops them from `work` above.
+      BLOCKED_THIS_RUN: blockedThisRun.size
+        ? [...blockedThisRun]
+            .map(
+              ([id, parents]) =>
+                `- #${id} — parents ${parents
+                  .map((p) => `#${p}`)
+                  .join(", ")} conflict; do not select`
+            )
+            .join("\n")
+        : "(none)",
     },
     // Extract and validate the <plan> JSON into a typed object. Throws
     // StructuredOutputError if the tag is missing, the JSON is malformed, or
@@ -613,7 +647,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
   // local state with no index lag — filter against it.
   const handled = new Set(allCompleted.map((i) => i.id));
   const fresh = plan.output.issues
-    .filter((i) => !handled.has(i.id))
+    // Also drop issues blocked this run by a multi-parent conflict (#64) — the
+    // hard gate, in case the planner re-selects one despite BLOCKED_THIS_RUN.
+    .filter((i) => !handled.has(i.id) && !blockedThisRun.has(i.id))
     .map((i) => ({
       ...i,
       mode: "full" as const,
@@ -667,10 +703,15 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           buildMultiParentBase(issue.id, ps, { git, branchExistsWithWork }),
       });
       if (base === null) {
+        // Deterministic conflict: the parents conflict with each other, so this
+        // fails identically every iteration. Block the issue for the rest of the
+        // run (see blockedThisRun) instead of re-skipping to the iteration cap —
+        // it needs a human to merge the parents upstream first (#64).
+        blockedThisRun.set(issue.id, parents);
         console.error(
           `  ✗ ${issue.id} multi-parent base merge conflicted (${parents
             .map((p) => `#${p}`)
-            .join(", ")}); skipping this iteration, will retry next time`
+            .join(", ")}); blocked this run — merge parents upstream first`
         );
         return { issue, kind: "nothing" as const };
       }
@@ -714,7 +755,7 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
             name: "implementer",
             logging: logging("implementer", issue.branch),
             maxIterations: 100,
-            agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+            agent: sandcastle.claudeCode("claude-sonnet-5"),
             promptFile: "./.sandcastle/implement-prompt.md",
             promptArgs: {
               TASK_ID: issue.id,
@@ -783,20 +824,16 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           // Each judge emits a sentinel line (sandbox.run has no structured
           // output, #130). Fail-open per axis: only an explicit FAIL blocks.
           const specVerdict = parseSpecVerdict(specReview.stdout);
-          const standardsVerdict = parseStandardsVerdict(
-            standardsReview.stdout
-          );
+          const standardsVerdict = parseStandardsVerdict(standardsReview.stdout);
           const combined = combineVerdicts(specVerdict, standardsVerdict);
           if (!combined.pass) {
             // Post the failing judges' findings so the re-implement pass — the
             // sole writer — gets targeted context. Route through the existing
-            // spec-fail path (shared retry cap; escalates to ready-for-human at
-            // the cap).
+            // spec-fail path (shared REVIEW_RETRY_CAP; escalates to
+            // ready-for-human at the cap).
             const sections: string[] = [];
             if (!specVerdict.pass)
-              sections.push(
-                `### Spec axis — FAIL\n\n${specReview.stdout.trim()}`
-              );
+              sections.push(`### Spec axis — FAIL\n\n${specReview.stdout.trim()}`);
             if (!standardsVerdict.pass)
               sections.push(
                 `### Standards axis — FAIL\n\n${standardsReview.stdout.trim()}`
@@ -809,7 +846,9 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
               sections.join("\n\n");
             commentIssues([issue.id], `review-findings-${issue.id}`, body);
             console.warn(
-              `  ⚠ ${issue.id} failed review (${combined.failedAxes.join(", ")})`
+              `  ⚠ ${issue.id} failed review (${combined.failedAxes.join(
+                ", "
+              )})`
             );
             return { issue, kind: "spec-fail" as const };
           }
@@ -1123,7 +1162,7 @@ if (components.length === 0) {
       name: `pr-consolidator-${n + 1}`,
       logging: logging(`pr-consolidator-${n + 1}`, headBranch),
       maxIterations: 1,
-      agent: sandcastle.claudeCode("claude-sonnet-4-6"),
+      agent: sandcastle.claudeCode("claude-sonnet-5"),
       promptFile: "./.sandcastle/pr-prompt.md",
       promptArgs: {
         MERGE_HEAD: prBranch,
@@ -1164,6 +1203,9 @@ if (components.length === 0) {
 // re-queued, never "PR opened".
 for (const issue of allCompleted) {
   if (prAssignments.has(issue.id)) continue;
+  // Retired by the gate cap (#25): already relabeled ready-for-human, and its
+  // branch is deliberately preserved for the human — do NOT requeue or delete it.
+  if (retiredByGate.has(issue.id)) continue;
   relabel(issue.id, "ready-for-agent", ["in-review", "needs-review"]);
   git(`branch -D ${issue.branch}`);
   sweepInjected.delete(issue.id);
@@ -1190,6 +1232,8 @@ gcWorktrees();
     sweepInjected,
     sweepRequeued,
     prAssignments,
+    blockedByParentConflict: blockedThisRun,
+    retiredByGate,
   });
   const summary = buildRunSummary(bucketed);
   console.log(summary);
