@@ -114,9 +114,8 @@ export function onSandboxReadyCommands(
     "git config core.hooksPath /home/agent/.git-no-hooks",
   ];
   // visual-teach local edit: this repo is TypeScript, not Python, so the sandbox
-  // bootstraps with `npm install` where the template runs `uv sync`. Carried
-  // across the v1 → v5 migration; expect `copier update` to conflict-mark this
-  // line on a future sync, and keep the npm side.
+  // bootstraps with `npm install` where the template runs `uv sync`. A future
+  // `copier update` will conflict-mark this line — keep the npm side.
   return [{ command: gitWrites.join(" && ") }, { command: "npm install" }];
 }
 
@@ -134,22 +133,13 @@ export function sandboxConfig(
   dockerFn: typeof docker = docker
 ) {
   return {
-    sandbox: dockerFn({
-      env: { ...identity.env, UV_PROJECT_ENVIRONMENT: "/home/agent/.venv" },
-      // Mount the host's global Claude skills read-only so the in-sandbox
-      // `claude` agent has the same skills you do (e.g. /tdd, referenced by
-      // implement-prompt.md). Not vendored into the repo — always live/current.
-      mounts: [
-        {
-          hostPath: "~/.claude/skills",
-          sandboxPath: "~/.claude/skills",
-          readonly: true,
-        },
-      ],
-    }),
+    sandbox: dockerFn({ env: identity.env }),
     hooks: {
       sandbox: {
-        onSandboxReady: onSandboxReadyCommands(identity),
+        onSandboxReady: [
+          ...identity.gitConfigCommands,
+          { command: "npm install" },
+        ],
       },
     },
   };

@@ -64,7 +64,7 @@ independent of however the change was built.
    - Assert values must trace to the **spec**, not to whatever the code happens
      to return. When the implementer writes both the code and its test, a wrong
      output can get frozen into the assertion as "correct" — the test then
-     passes *because* it encodes the bug. For each expected value, check it
+     passes _because_ it encodes the bug. For each expected value, check it
      against the issue's stated numbers/behavior; a value that only matches
      current output is unverified, not confirmed.
 

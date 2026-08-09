@@ -2,7 +2,7 @@
 
 Fix issue {{TASK_ID}}: {{ISSUE_TITLE}}
 
-Pull in the issue using `gh issue view {{TASK_ID}}`. If it has a parent PRD, pull that in too.
+Pull in the issue using `gh issue view <ID>`. If it has a parent PRD, pull that in too.
 
 Only work on the issue specified.
 
@@ -35,10 +35,10 @@ exact "crap tests" `/tdd` warns against.
 
 - **No new behavior** (deletion / refactor / docs / config): skip red-green. Make
   the change, then assert the end-state as plain verification (or just confirm the
-  tests covering what you touched still pass — see FEEDBACK LOOPS). Do not
-  manufacture a test file to have something to go RED on.
-- **New behavior**: use the **`/tdd` skill** and follow it — do not improvise
-  your own test rhythm. Its load-bearing rules:
+  existing suite still passes). Do not manufacture a test file to have something
+  to go RED on.
+- **New behavior**: use the **`/tdd` skill** (vendored at `.claude/skills/tdd/`)
+  and follow it — do not improvise your own test rhythm. Its load-bearing rules:
   one vertical slice at a time (RED: one failing test → GREEN: minimal code to
   pass → REPEAT), never write all tests first then all code, test observable
   behavior through the public interface (not source shape), refactor only once
@@ -46,19 +46,14 @@ exact "crap tests" `/tdd` warns against.
 
 # FEEDBACK LOOPS
 
-Before each commit, run a **fast scoped check** — not the full `just check`:
+Before committing, run `npm run test` to ensure the tests pass.
 
-- `just lint` and `just typecheck` — both are fast and cover the whole repo.
-- The tests for the code you touched: run `git diff --name-only` (plus
-  `git status --porcelain` for untracked new files) to see what changed, map
-  those paths to their test files, and run only those with
-  `uv run pytest <files>`.
+# VISUAL PROOF (before / after)
 
-This is a git-diff heuristic, not a test-impact tool — when unsure whether a
-test is affected, include it. The full suite is **not** your per-commit gate:
-the Phase-3 gate runs `just check` on the set's merged head before any PR
-opens, and PR CI runs it again. Your job here is a fast local check, not the
-full run.
+Follow the shared visual-proof protocol in `.sandcastle/proof-protocol.md`, using
+`<id>` = `{{TASK_ID}}`. This is new work, so capture **both** before (on the
+unchanged code, before you edit) and after, upload both to R2, and write
+`.sandcastle/proof/issue-{{TASK_ID}}/PROOF.md`.
 
 # COMMIT
 

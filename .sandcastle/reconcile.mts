@@ -266,8 +266,6 @@ export type BucketName =
   | "human-gated-untriaged" // open, no lifecycle label
   | "in-flight-needs-review" // implemented; reviewer errored; pending re-review
   | "ready-for-agent" // queued for agent; may be blocked by dependencies
-  | "blocked-parent-conflict" // ≥2 parents conflict; needs a human merge (#64)
-  | "retired-gate-failure" // failed the full-suite gate at the cap → human (#25)
   | "uncategorized"; // BUG: should not happen
 
 export interface BucketedIssue {
@@ -275,20 +273,12 @@ export interface BucketedIssue {
   title: string;
   bucket: BucketName;
   prNumber?: number; // set for built-this-run / repaired-sweep-pr
-  blockedParents?: string[]; // conflicting parent ids, for blocked-parent-conflict
-  gateFailure?: string; // failing-test tail, for retired-gate-failure (#25)
 }
 
 const HUMAN_GATED_BUCKETS = new Set<BucketName>([
   "human-gated-pr",
   "human-gated-ready-for-human",
   "human-gated-untriaged",
-  // A parent-conflict block needs a human to merge the parents — from the bot's
-  // view it is gated on a human, so "nothing left for the bot" stays accurate.
-  "blocked-parent-conflict",
-  // A gate-retired set is parked on a human (ready-for-human); the bot won't
-  // touch it again this or next run, so it counts as human-gated too (#25).
-  "retired-gate-failure",
 ]);
 const IN_FLIGHT_BUCKETS = new Set<BucketName>(["in-flight-needs-review"]);
 
@@ -302,41 +292,11 @@ export function bucketIssues(options: {
   sweepRequeued: Set<string>;
   // issue id → PR number, set during Phase 3
   prAssignments: Map<string, number>;
-  // issue id → conflicting parent ids: aborted this run because its multi-parent
-  // base could not be built (#64). Still carries its ready-for-agent label, so it
-  // must be caught before the label buckets below.
-  blockedByParentConflict: Map<string, string[]>;
-  // issue id → bounded failing-test tail: the set was retired by the Phase-3
-  // consecutive gate-failure cap (#25). Relabeled ready-for-human AND completed
-  // (in builtThisRun), so it must be caught before both those buckets below.
-  retiredByGate: Map<string, string>;
 }): BucketedIssue[] {
   return options.openIssues.map((issue) => {
     const id = String(issue.number);
     const labelSet = new Set(issue.labels);
     const prNumber = options.prAssignments.get(id);
-
-    const blockedParents = options.blockedByParentConflict.get(id);
-    if (blockedParents) {
-      return {
-        number: issue.number,
-        title: issue.title,
-        bucket: "blocked-parent-conflict",
-        blockedParents,
-      };
-    }
-
-    // Retired by the gate cap (#25): caught before builtThisRun and the
-    // ready-for-human label bucket, both of which it would otherwise match.
-    const gateFailure = options.retiredByGate.get(id);
-    if (gateFailure != null) {
-      return {
-        number: issue.number,
-        title: issue.title,
-        bucket: "retired-gate-failure",
-        gateFailure,
-      };
-    }
 
     // A requeued-but-not-PR'd issue reports re-queued. Requeue happens two ways:
     // up front in the sweep (stale branch deleted) or post-Phase-3 (its merge
@@ -410,13 +370,7 @@ export function buildRunSummary(bucketed: BucketedIssue[]): string {
     items
       .map((i) => {
         const pr = prSuffix && i.prNumber != null ? ` → PR #${i.prNumber}` : "";
-        // For a parent-conflict block, name the parents a human must merge.
-        const blocked = i.blockedParents?.length
-          ? ` — parents ${i.blockedParents
-              .map((p) => `#${p}`)
-              .join(", ")} conflict; merge upstream first`
-          : "";
-        return `  #${i.number} — ${i.title}${pr}${blocked}`;
+        return `  #${i.number} — ${i.title}${pr}`;
       })
       .join("\n");
 
@@ -433,38 +387,11 @@ export function buildRunSummary(bucketed: BucketedIssue[]): string {
   section("Repaired by sweep (re-queued)", "repaired-sweep-requeued");
   section("Human-gated: open PR pending merge", "human-gated-pr");
   section("Human-gated: ready for human", "human-gated-ready-for-human");
-
-  // Gate-retired sets (#25): name the set AND its failing tests, so the human
-  // sees what broke without opening the issue. Custom render — the generic
-  // section() helper drops the gateFailure tail.
-  const retired = byBucket.get("retired-gate-failure") ?? [];
-  if (retired.length > 0) {
-    const items = retired
-      .map((i) => {
-        const tail = i.gateFailure?.trim();
-        const failing = tail
-          ? "\n" +
-            tail
-              .split("\n")
-              .map((l) => `      ${l}`)
-              .join("\n")
-          : "";
-        return `  #${i.number} — ${i.title}${failing}`;
-      })
-      .join("\n");
-    sections.push(
-      `Retired: full-suite gate failed ${retired.length > 1 ? "these sets" : "at the cap"} → ready-for-human (${retired.length}):\n${items}`
-    );
-  }
   section(
     "Human-gated: untriaged (needs ready-for-agent)",
     "human-gated-untriaged"
   );
   section("In-flight: needs-review", "in-flight-needs-review");
-  section(
-    "Blocked: parent conflict (human must merge parents)",
-    "blocked-parent-conflict"
-  );
   section("Available (queued / blocked)", "ready-for-agent");
 
   const bugs = byBucket.get("uncategorized") ?? [];

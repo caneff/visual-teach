@@ -1,13 +1,14 @@
 # Sandcastle coding standards
 
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`
-sources and prompt-drawer `.md` files. This tooling _builds_ the project; it has
-no runtime relationship with the shipped code and never ships. The project has
-its own standards in the root `CODING_STANDARDS.md`.
+sources, prompt-drawer `.md` files, and their tests. This tooling _builds_
+visual-teach; it has no runtime relationship with the library and never ships.
+The shipped component library has its own standards in the root
+`CODING_STANDARDS.md`.
 
-Deliberately short. Strict `tsc --noEmit` and vitest already enforce the
-mechanical rules — restating them here would be noise. These are only the
-project-specific rules those gates **can't** catch.
+Deliberately short. Strict `tsc --noEmit` (ADR-0007), eslint, and vitest already
+enforce the mechanical rules — restating them here would be noise. These are only
+the project-specific rules those gates **can't** catch.
 
 ## Rules
 

@@ -17,7 +17,7 @@ your only job is to open ONE pull request from it and write its prose.
 
 Read-only inspection to write an accurate body is expected:
 
-- `git fetch origin main {{MERGE_HEAD}}`
+- `git fetch origin {{MERGE_HEAD}}`
 - `git log --oneline origin/main..origin/{{MERGE_HEAD}}` — these are the commits the PR contains.
 - `git diff origin/main...origin/{{MERGE_HEAD}}` — the full diff, for writing the body below.
 
@@ -53,24 +53,33 @@ One subsection per issue that made it in. For each:
 
 - A `### #<id> — <title>` heading.
 - 1-3 bullets describing the actual change (read the issue's commits/diff with
-  `git log` / `git diff origin/main...origin/{{MERGE_HEAD}} -- <paths>`; describe
-  behavior, not file lists).
+  `git log` / `git diff main...{{MERGE_HEAD}} -- <paths>`; describe behavior, not
+  file lists).
 - A `Closes #<id>` line so the squash-merge auto-closes every issue.
+
+## Visual proof
+
+This `## Visual proof` heading is the ONLY one — emit it exactly once. For each
+issue, paste the body of its `.sandcastle/proof/issue-<id>/PROOF.md` (the
+implementer uploaded the before/after screenshots to the Cloudflare R2 bucket and
+committed the embed block). Each PROOF.md should start with a
+`### #<id>` subheading; if an older one instead starts with its own
+`## Visual proof` line, drop that line so the heading isn't printed twice. If an
+issue has no `PROOF.md`, note "#<id>: no visual change (docs/tooling only)".
 
 ## QA checklist
 
 A checklist of concrete things I should verify myself before approving. Include
 one item per user-visible change, plus any risky or uncertain area you hit while
 merging. Derive each item from the actual diffs in this run, not generic
-boilerplate, and favor things a human must verify that the automated tests do
-not cover. Examples of the right altitude (adapt to the real changes):
+boilerplate, and favor things a human must eyeball or click that tests do not
+cover. Examples of the right altitude (adapt to the real changes):
 
-- [ ] Run `<the new CLI subcommand>` against a real input; confirm the output
-      matches the issue's acceptance criteria.
-- [ ] Point the pipeline at a large/edge-case document; confirm no unhandled
-      exception and the result is sensible.
-- [ ] Check the migration/config change against an existing environment, not
-      just a fresh one.
+- [ ] Open a lesson with a `vt-split` of two code blocks at ~1100px; confirm no
+      horizontal page scroll and neither panel clips.
+- [ ] Check the quiz options render inline code (not "re dot findall").
+- [ ] Toggle dark mode on `demo/showcase.html`; confirm the changed block still
+      reads.
 
 # AFTER OPENING
 

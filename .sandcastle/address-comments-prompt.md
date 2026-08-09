@@ -38,12 +38,22 @@ If a comment is unclear, or you think the requested change is wrong, do NOT
 guess. Make no change for that thread and instead reply (below) explaining the
 question or your reasoning. A wrong "fix" is worse than a question.
 
+# REGENERATE VISUAL PROOF (if your fix changed any rendered output)
+
+This repo is visual. If a fix you made alters how any `vt-*` block renders, the
+PR's existing "after" screenshot is now stale — regenerate it. Follow the shared
+protocol in `.sandcastle/proof-protocol.md` for the issue whose visuals you
+changed (this PR may bundle several — proof lives under
+`.sandcastle/proof/issue-<id>/`). You are in the **regeneration** case:
+`before.png` already exists, so re-shoot **only** `after.png` and re-upload it to
+the same R2 key — the PR body embeds that stable URL and refreshes on its own.
+Do not touch `before.png`, do not rewrite the PR description, do not change
+screenshot hosting. Skip only if your fix had no visual surface.
+
 # VERIFY, COMMIT, PUSH
 
-1. Run `just check`. It must pass.
-2. Stage everything and commit — use `git add -A`, not `git commit -am`, because
-   `-am` skips any NEW file a fix added and it would never reach the PR:
-   `git add -A && git commit -m "Address review comments on #{{PR_NUMBER}}"`.
+1. Run `npm run lint && npm run test`. All must pass.
+2. Commit the changes: `git commit -am "Address review comments on #{{PR_NUMBER}}"`.
    (The pre-commit hook will re-run lint/format/tests — let it.)
 3. `git push` to update the PR.
 4. Capture the new commit SHA: `SHA=$(git rev-parse --short HEAD)`.
