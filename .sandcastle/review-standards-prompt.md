@@ -41,25 +41,44 @@ with your findings — you never refactor or fix it yourself.
    extend. A change that is already clean and well-structured PASSES — "no
    refactor needed" is a valid, common outcome.
 
+<!-- sandcastle:local — this repo's code lives under skills/visual-teach/assets/
+     rather than src/, its standards name a duplication rule a judge otherwise
+     "fixes", and .sandcastle/proof/ holds screenshots, not code. -->
+
 4. **Apply project standards** (these override the generic guidance above on any
    conflict — e.g. they forbid consolidating deliberately duplicated component
    helpers). Loaded conditionally on what this branch's diff touches — only the
    standards relevant to the change appear below (a docs/proof-only diff loads
    neither):
 
+   <!-- sandcastle:local — the trigger path is this repo's own asset directory. -->
+
    - visual-teach standards (when the diff touches `skills/visual-teach/assets/` or `tests/`):
 
      !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -qE '^(skills/visual-teach/assets|tests)/' && cat CODING_STANDARDS.md || true`
 
+   <!-- sandcastle:local — proof/ is screenshots, so it must not trigger the
+        orchestrator's own standards. -->
+
    - Sandcastle standards (when the diff touches `.sandcastle/` code, ignoring `.sandcastle/proof/`):
+
+     <!-- sandcastle:local — the second grep drops .sandcastle/proof/, so a
+          screenshot-only diff does not load the orchestrator's standards. -->
 
      !`git diff --name-only {{REVIEW_BASE}}...{{BRANCH}} | grep -E '^\.sandcastle/' | grep -qv '^\.sandcastle/proof/' && cat .sandcastle/CODING_STANDARDS.md || true`
 
 # GATES
 
+<!-- sandcastle:local — this repo runs its checks from a single ci.yml, so the
+     prompt names the file rather than the directory. -->
+
 Lint, type checks, and tests are enforced mechanically by CI on the PR
 (`.github/workflows/ci.yml`), so they are not your job to babysit — judge coding
 standards and quality, not the mechanical green gate.
+
+<!-- sandcastle:local — the visual-proof gate below exists only here: this repo
+     ships pages a reader looks at, and no CI check can tell whether the
+     before/after shots are real. -->
 
 One gate does belong to this axis, because no CI check covers it:
 
@@ -77,6 +96,8 @@ One gate does belong to this axis, because no CI check covers it:
      mean the before was taken after the change; FAIL so it is regenerated.
 
 # STANDARDS VERDICT (required — emit the verdict last)
+
+<!-- sandcastle:local — names the visual-proof gate added above. -->
 
 Decide whether the diff conforms to the standards and quality criteria above,
 including the visual-proof gate. This axis judges **coding standards only** —

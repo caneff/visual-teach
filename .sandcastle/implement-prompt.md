@@ -2,7 +2,7 @@
 
 Fix issue {{TASK_ID}}: {{ISSUE_TITLE}}
 
-Pull in the issue using `gh issue view <ID>`. If it has a parent PRD, pull that in too.
+Pull in the issue using `gh issue view {{TASK_ID}}`. If it has a parent PRD, pull that in too.
 
 Only work on the issue specified.
 
@@ -35,8 +35,10 @@ exact "crap tests" `/tdd` warns against.
 
 - **No new behavior** (deletion / refactor / docs / config): skip red-green. Make
   the change, then assert the end-state as plain verification (or just confirm the
-  existing suite still passes). Do not manufacture a test file to have something
-  to go RED on.
+  tests covering what you touched still pass — see FEEDBACK LOOPS). Do not
+  manufacture a test file to have something to go RED on.
+<!-- sandcastle:local — this repo vendors the /tdd skill into the sandbox image
+     rather than relying on a plugin marketplace the container cannot reach. -->
 - **New behavior**: use the **`/tdd` skill** (vendored at `.claude/skills/tdd/`)
   and follow it — do not improvise your own test rhythm. Its load-bearing rules:
   one vertical slice at a time (RED: one failing test → GREEN: minimal code to

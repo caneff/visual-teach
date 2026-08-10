@@ -17,7 +17,7 @@ your only job is to open ONE pull request from it and write its prose.
 
 Read-only inspection to write an accurate body is expected:
 
-- `git fetch origin {{MERGE_HEAD}}`
+- `git fetch origin main {{MERGE_HEAD}}`
 - `git log --oneline origin/main..origin/{{MERGE_HEAD}}` — these are the commits the PR contains.
 - `git diff origin/main...origin/{{MERGE_HEAD}}` — the full diff, for writing the body below.
 
@@ -53,9 +53,13 @@ One subsection per issue that made it in. For each:
 
 - A `### #<id> — <title>` heading.
 - 1-3 bullets describing the actual change (read the issue's commits/diff with
-  `git log` / `git diff main...{{MERGE_HEAD}} -- <paths>`; describe behavior, not
-  file lists).
+  `git log` / `git diff origin/main...origin/{{MERGE_HEAD}} -- <paths>`; describe
+  behavior, not file lists).
 - A `Closes #<id>` line so the squash-merge auto-closes every issue.
+
+<!-- sandcastle:local — this repo's deliverable is a rendered page, so its PR
+     body carries the before/after shots the implementer uploaded. No other
+     adopter produces a picture to embed. -->
 
 ## Visual proof
 
@@ -74,6 +78,10 @@ one item per user-visible change, plus any risky or uncertain area you hit while
 merging. Derive each item from the actual diffs in this run, not generic
 boilerplate, and favor things a human must eyeball or click that tests do not
 cover. Examples of the right altitude (adapt to the real changes):
+
+<!-- sandcastle:local — the template's examples are CLI and pipeline shaped; what
+     a human checks by hand here is a rendered lesson at a given width, so the
+     examples are this repo's own surfaces. -->
 
 - [ ] Open a lesson with a `vt-split` of two code blocks at ~1100px; confirm no
       horizontal page scroll and neither panel clips.

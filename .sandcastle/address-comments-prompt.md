@@ -38,6 +38,10 @@ If a comment is unclear, or you think the requested change is wrong, do NOT
 guess. Make no change for that thread and instead reply (below) explaining the
 question or your reasoning. A wrong "fix" is worse than a question.
 
+<!-- sandcastle:local — a fix here can change what a lesson page looks like, and
+     the PR's "after" shot is the only record of that. No other adopter has a
+     rendered surface for a comment fix to invalidate. -->
+
 # REGENERATE VISUAL PROOF (if your fix changed any rendered output)
 
 This repo is visual. If a fix you made alters how any `vt-*` block renders, the
