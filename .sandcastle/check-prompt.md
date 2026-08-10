@@ -12,10 +12,10 @@ attached.
 From the repo root, run exactly this, once:
 
 ```
-just check && echo "SANDCASTLE_CHECK: PASS"
+npm run lint && npm run typecheck && npm run test && echo "SANDCASTLE_CHECK: PASS"
 ```
 
-`just check` runs the project's lint, typecheck, and full test suite. The
+`npm run lint && npm run typecheck && npm run test` runs the project's lint, typecheck, and full test suite. The
 `&& echo` prints the sentinel line **only when the suite exits zero**. Never
 print that line yourself under any other circumstance, and never remove, reword,
 or reformat it when it does appear — the orchestrator gates the PR on that exact

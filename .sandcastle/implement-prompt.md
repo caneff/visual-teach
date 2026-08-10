@@ -46,7 +46,23 @@ exact "crap tests" `/tdd` warns against.
 
 # FEEDBACK LOOPS
 
-Before committing, run `npm run test` to ensure the tests pass.
+Before each commit, run a **fast scoped check** — not the full `npm run lint && npm run typecheck && npm run test`:
+
+- `npm run lint` and `npm run typecheck` — both are fast and cover the whole repo.
+- The tests for the code you touched: run `git diff --name-only` (plus
+  `git status --porcelain` for untracked new files) to see what changed, map
+  those paths to their test files, and run only those with
+  `npx vitest run <files>`.
+
+This is a git-diff heuristic, not a test-impact tool — when unsure whether a
+test is affected, include it. The full suite is **not** your per-commit gate:
+the Phase-3 gate runs `npm run lint && npm run typecheck && npm run test` on the set's merged head before any PR
+opens, and PR CI runs it again. Your job here is a fast local check, not the
+full run.
+
+<!-- sandcastle:local — this repo ships lesson pages a reader looks at, so a
+     change here is only reviewable with a picture of it. No other adopter has a
+     rendered surface to photograph. -->
 
 # VISUAL PROOF (before / after)
 

@@ -1,3 +1,7 @@
+<!-- sandcastle:local — the before/after protocol the implement and address
+     prompts both point at. It is here rather than in the template because only
+     this repo ships a rendered page there is anything to photograph. -->
+
 # Visual proof protocol
 
 This repo is visual: a change to a `vt-*` block changes how it renders, so the PR
