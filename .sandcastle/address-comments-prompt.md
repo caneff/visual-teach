@@ -52,8 +52,10 @@ screenshot hosting. Skip only if your fix had no visual surface.
 
 # VERIFY, COMMIT, PUSH
 
-1. Run `npm run lint && npm run test`. All must pass.
-2. Commit the changes: `git commit -am "Address review comments on #{{PR_NUMBER}}"`.
+1. Run `npm run lint && npm run typecheck && npm run test`. It must pass.
+2. Stage everything and commit — use `git add -A`, not `git commit -am`, because
+   `-am` skips any NEW file a fix added and it would never reach the PR:
+   `git add -A && git commit -m "Address review comments on #{{PR_NUMBER}}"`.
    (The pre-commit hook will re-run lint/format/tests — let it.)
 3. `git push` to update the PR.
 4. Capture the new commit SHA: `SHA=$(git rev-parse --short HEAD)`.

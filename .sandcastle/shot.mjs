@@ -1,3 +1,7 @@
+// sandcastle:local — this repo's deliverable is a rendered lesson page, so a
+// reviewer cannot judge a change to one without seeing it. No other adopter
+// produces a visual artifact, which is why this lives here and not in the
+// template.
 // Screenshot a demo lesson (or one element of it) to a PNG.
 // Usage: node .sandcastle/shot.mjs <html-file> [out.png] [cssSelector]
 //   node .sandcastle/shot.mjs demo/cron-0001-after.html              -> full page  -> demo/cron-0001-after.png

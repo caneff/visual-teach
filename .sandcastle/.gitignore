@@ -2,5 +2,7 @@
 logs/
 worktrees/
 worktree
+# sandcastle:local — screenshots and PROOF.md are per-run output of this repo's
+# visual-proof step, regenerated every issue. Only this repo produces them.
 proof/
 review-attempts.json
