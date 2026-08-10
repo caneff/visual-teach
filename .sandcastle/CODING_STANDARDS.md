@@ -1,12 +1,12 @@
 # Sandcastle coding standards
 
-<!-- sandcastle:local — this paragraph names visual-teach and its component
-     library, which the template cannot do for an adopter it has not met. -->
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`
 sources and prompt-drawer `.md` files. This tooling _builds_
 visual-teach; it has no runtime relationship with the library and never ships.
 The shipped component library has its own standards in the root
 `CODING_STANDARDS.md`.
+<!-- sandcastle:local — the paragraph above names visual-teach and its component
+     library, which the template cannot do for an adopter it has not met. -->
 
 <!-- sandcastle:local — this repo's orchestrator is also linted by eslint and
      its typecheck rule is argued in root docs/adr/0007. Both are local gates
