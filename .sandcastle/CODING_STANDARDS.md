@@ -1,7 +1,7 @@
 # Sandcastle coding standards
 
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`
-sources, prompt-drawer `.md` files, and their tests. This tooling _builds_
+sources and prompt-drawer `.md` files. This tooling _builds_
 visual-teach; it has no runtime relationship with the library and never ships.
 The shipped component library has its own standards in the root
 `CODING_STANDARDS.md`.
