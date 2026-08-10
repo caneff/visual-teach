@@ -2,7 +2,6 @@
 
 <!-- sandcastle:local — this paragraph names visual-teach and its component
      library, which the template cannot do for an adopter it has not met. -->
-
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`
 sources and prompt-drawer `.md` files. This tooling _builds_
 visual-teach; it has no runtime relationship with the library and never ships.
