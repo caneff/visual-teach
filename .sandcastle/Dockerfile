@@ -3,14 +3,15 @@
 # in this image; only the in-sandbox agent + its tools live here.
 FROM node:22-bookworm
 
-# Install system dependencies
+# System dependencies
 RUN apt-get update && apt-get install -y \
   git \
   curl \
+  ca-certificates \
   jq \
   && rm -rf /var/lib/apt/lists/*
 
-# Install GitHub CLI
+# GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
   | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
@@ -32,9 +33,9 @@ RUN npm install -g wrangler@4
 RUN npx -y playwright@1.61.0 install-deps chromium \
   && rm -rf /var/lib/apt/lists/*
 
-# Build-args for UID/GID alignment: sandcastle docker build-image
-# defaults these to the host user's UID/GID so image-built files
-# and bind-mounted files share an owner without runtime chown.
+# Build-args for UID/GID alignment: sandcastle docker build-image defaults these
+# to the host user's UID/GID so image-built files and bind-mounted files share
+# an owner without runtime chown.
 ARG AGENT_UID=1000
 ARG AGENT_GID=1000
 

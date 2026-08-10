@@ -1,3 +1,9 @@
+<!-- sandcastle:local — the preamble names visual-teach and its component
+     library by name, and cites this repo's own ADR-0007 (docs/adr/) for the
+     typecheck rule and its eslint config. All three are facts about this repo,
+     so they cannot be lifted into the template. Rules 1-6 below are the
+     template's and are not edited here. -->
+
 # Sandcastle coding standards
 
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`

@@ -1,7 +1,8 @@
-<!-- sandcastle:local — artwork for the bot GitHub App's avatar, which was
-     created from this repo, so its source lives here. Covers logo.png beside
-     it: that is this file exported for the upload, and a PNG has no comment
-     syntax to carry a marker of its own. -->
+<!-- sandcastle:local — this repo's own drawing. Every adopter provisions a bot
+     App, so the template ships bot-setup.md; nobody else's App wears this
+     artwork, which is why the source sits here and not upstream. Covers
+     logo.png beside it — that is this file exported for the avatar upload, and
+     a PNG has no comment syntax to carry a marker of its own. -->
 <svg width="512" height="512" viewBox="98 116 316 316" xmlns="http://www.w3.org/2000/svg">
   <!-- Solid sandcastle figure only — NO background circle. GitHub adds its own
        circular badge + background color around this. Transparent background;
