@@ -53,6 +53,11 @@ tips are merged into a throwaway **merge head** branch. Base is always `main`.
 already in `main`. It does not adopt another run's unmerged work as a parent;
 cross-run dependencies wait for a human merge.
 
+**Live parent** — A parent an issue may stack on: its issue is still open
+_and_ its branch carries work not yet in `main`. A closed parent is never
+live, however its branch looks. Opposite: a stale branch, which the run
+deletes.
+
 **Human-gated** — An open issue whose next move is a human's, so a run
 leaving it untouched is correct: an open PR pending merge, `ready-for-human`,
 or untriaged. Opposite: buildable (ready-for-agent) or stranded.

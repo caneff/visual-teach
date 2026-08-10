@@ -43,10 +43,10 @@ test("sandboxConfig: calls dockerFn with identity.env and the read-only skills m
     captured = opts;
     return {};
   });
-  expect(captured.env).toEqual({
-    GH_TOKEN: "tok",
-    UV_PROJECT_ENVIRONMENT: "/home/agent/.venv",
-  });
+  // Node arm: the sandbox env is the identity's and nothing more. The Python
+  // arm adds UV_PROJECT_ENVIRONMENT here; this repo renders neither a .venv nor
+  // the variable that points at one.
+  expect(captured.env).toEqual({ GH_TOKEN: "tok" });
   // The host's global Claude skills are mounted read-only so the in-sandbox
   // agent has /tdd etc. — not vendored into the repo.
   expect(captured.mounts).toContainEqual({
@@ -56,9 +56,9 @@ test("sandboxConfig: calls dockerFn with identity.env and the read-only skills m
   });
 });
 
-// visual-teach local edit: the bootstrap command is `npm install`, not the
-// template's `uv sync` — this repo is TypeScript. The ordering these two tests
-// assert is the template's; only the command name differs.
+// The bootstrap command is `npm install` because the template renders it from
+// this repo's LANGUAGE answer — the template's own value, not a local edit. The
+// ordering these two tests assert is the template's too.
 test("sandboxConfig: gitConfigCommands fold into the chained git entry, before the bootstrap", () => {
   const identity = {
     env: {},

@@ -52,6 +52,7 @@ import {
   resolveBase,
   issueBranch,
   buildMultiParentBase,
+  staleClosedBranches,
 } from "./base-resolution.mts";
 import {
   prComponents,
@@ -72,6 +73,7 @@ import {
   decideInReviewAction,
   bucketIssues,
   buildRunSummary,
+  deliveredParentIds,
   planGateOutcome,
   planOutcomeTransition,
   OpenIssue,
@@ -104,15 +106,12 @@ import { z } from "zod";
 // GH_TOKEN. Load the env file here, before any sandboxIdentity() call.
 if (existsSync(".sandcastle/.env")) process.loadEnvFile(".sandcastle/.env");
 
-// visual-teach local edit (repo commit a47b9e2). bot-setup.md's final step retires
-// the personal GH_TOKEN once the App bot works ("blank out the old personal
-// GH_TOKEN line ... so runs can't silently fall back to your account"). Enforce it
-// here rather than trusting every .env: loadEnvFile above pulls EVERY key into the
-// HOST process, and `gh` prefers an env token over ~/.config/gh — so a stale
-// GH_TOKEN silently shadows the working keyring credential and 401s every
-// host-side gh call. Dropping it host-side is safe: sandboxes get their token from
-// sandboxIdentity()'s minted App token, and Sandcastle forwards the .env FILE into
-// sandboxes independently of process.env.
+// …but not GH_TOKEN. The load above pulls EVERY key into the HOST process, and
+// `gh` prefers an env token over ~/.config/gh — so a stale GH_TOKEN in .env
+// shadows the working keyring credential and 401s every host-side gh call.
+// Dropping it restores what the load broke: sandboxes still get their token,
+// either from sandboxIdentity()'s minted App token or from the .env FILE
+// Sandcastle forwards independently of process.env.
 delete process.env.GH_TOKEN;
 
 // ---------------------------------------------------------------------------
@@ -244,6 +243,56 @@ function branchExistsWithWork(parentId: string): boolean {
   return branchHasWork(branch);
 }
 
+// Issue ids GitHub reports as CLOSED. Base resolution asks this before trusting
+// what a parent branch's commits look like (issue #127, ADR-0004), and the branch
+// GC below asks it to clear the branches of shipped issues. Memoised over one
+// fetch: the answer is read once per parent per issue per iteration, and the bot
+// never closes an issue mid-run.
+let closedIds: Set<string> | null = null;
+function issueIsClosed(id: string): boolean {
+  if (closedIds === null) {
+    const rows = fetchIssueEdges();
+    if (rows === null) {
+      // Fail OPEN (an empty set): liveness falls back to branch content, the
+      // pre-#127 behaviour. Failing closed would call every parent dead and base
+      // the whole forest on main — a wrong answer for every issue, to avoid a
+      // wrong answer for one.
+      console.error(
+        "  ! could not list issue states; base resolution falls back to branch content this run"
+      );
+    }
+    closedIds = new Set(
+      (rows ?? [])
+        .filter((row) => row.state === "CLOSED")
+        .map((row) => String(row.number))
+    );
+  }
+  return closedIds.has(id);
+}
+
+// Delete the local `sandcastle/issue-<n>` branches of closed issues, once per
+// run before any branch is cut. A closed issue's branch has no reader left: its
+// work either landed or was superseded, and leaving it on disk is what let a
+// diamond merge #101's dead implementation into #107's base every run (#127).
+// Local only — deleting a remote branch is a human's call, and base resolution
+// reads local refs anyway.
+function gcClosedIssueBranches(): void {
+  const stale = staleClosedBranches(
+    git(`for-each-ref --format=%(refname:short) refs/heads/sandcastle/issue-*`),
+    issueIsClosed
+  );
+  for (const branch of stale) {
+    // Only claim the delete git actually did: `branch -D` fails when the branch
+    // is checked out in a leftover worktree, and a log line saying otherwise
+    // would hide the exact landmine this GC exists to clear.
+    if (git(`branch -D ${branch}`) === null) {
+      console.error(`  ! ${branch} — issue closed but the branch would not delete`);
+    } else {
+      console.log(`  ${branch} — issue closed; stale branch deleted`);
+    }
+  }
+}
+
 // Whether `branch` still merges into main without conflict. merge-tree writes
 // the merged tree and exits non-zero (git() → null) when the merge would
 // conflict — a read-only check, no worktree or index mutation. A stranded
@@ -334,6 +383,42 @@ function getParentEdges(): Map<string, string> {
     if (row.parent !== null) map.set(String(row.number), String(row.parent));
   }
   return map;
+}
+
+// Every issue's state and native parent, open AND closed — getParentEdges'
+// open-only fetch cannot see the closed children that make a parent "delivered".
+const issueEdgeRowsSchema = z.array(
+  z.object({
+    number: z.number(),
+    state: z.enum(["OPEN", "CLOSED"]),
+    parent: z.number().nullable(),
+  })
+);
+
+// Every issue's id, state and parent — the one query behind both the closed-set
+// `issueIsClosed` memoises (#127) and the spent-parent check below. Null when the
+// query fails; each caller decides what that means for it.
+//
+// ponytail: --state all spans every closed issue, so the limit is higher than
+// the open-only fetches. gh returns newest-first, and a spec's children sit
+// near it in numbering, so truncation rarely splits a family. If it ever does
+// (a repo past the cap), the flag can be wrong in either direction — this is a
+// human-verified close reminder, not an auto-close, so the harm is a stray
+// suggestion. Raise the limit if that ceiling bites.
+function fetchIssueEdges(): z.infer<typeof issueEdgeRowsSchema> | null {
+  const out = gh(
+    `issue list --state all --limit 1000 --json number,state,parent --jq '[.[] | {number, state, parent: .parent.number}]'`
+  );
+  return out ? issueEdgeRowsSchema.parse(JSON.parse(out)) : null;
+}
+
+// Open parents whose every sub-issue is closed: the spec is delivered and only
+// its umbrella issue lingers. The bot never closes an issue, so the run summary
+// surfaces these for a human to close (spent-parent hygiene). Fetched fresh at
+// the end of the run rather than reusing the start-of-run memo, so an issue a
+// human closed mid-run is counted.
+function getDeliveredParents(): Set<string> {
+  return deliveredParentIds(fetchIssueEdges() ?? []);
 }
 
 // ---------------------------------------------------------------------------
@@ -484,11 +569,9 @@ const MAX_ITERATIONS = 20;
 let identity = await sandboxIdentity();
 applyBotToken(identity, process.env);
 
-// visual-teach local edit: this repo is TypeScript, so the host's node_modules is
-// what a sandbox needs seeded, not a .venv. Copied into the worktree before each
-// sandbox starts to avoid a full install from scratch; sandboxConfig's
-// `npm install` hook handles platform-specific binaries and anything added since
-// the copy. A future `copier update` will conflict-mark this — keep the npm side.
+// Copy the host's installed dependencies into the worktree before each sandbox
+// starts. Avoids resolving+downloading every dependency from scratch;
+// sandboxConfig's install hook reconciles anything added since the copy.
 const copyToWorktree = ["node_modules"];
 
 // ---------------------------------------------------------------------------
@@ -546,6 +629,11 @@ if (process.env.SANDCASTLE_SKIP_ADDRESS !== "1") {
   console.log("\n=== Phase 0: Address open sandcastle PR comments ===\n");
   await addressOpenPRs();
 }
+
+// Before the sweep, and before any branch is cut this run: clear the branches of
+// closed issues, so nothing downstream can mistake shipped work for live work.
+console.log("\n=== Stale branch GC: closed issues ===\n");
+gcClosedIssueBranches();
 
 // Pre-loop reconciliation sweep: restore in-review ⟺ open PR invariant before
 // the plan loop runs. Stranded branches are injected into allCompleted so Phase 3
@@ -699,8 +787,13 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
       const base = resolveBase({
         parents,
         branchExistsWithWork,
+        issueIsClosed,
         onMultiParent: (ps) =>
-          buildMultiParentBase(issue.id, ps, { git, branchExistsWithWork }),
+          buildMultiParentBase(issue.id, ps, {
+            git,
+            branchExistsWithWork,
+            issueIsClosed,
+          }),
       });
       if (base === null) {
         // Deterministic conflict: the parents conflict with each other, so this
@@ -828,8 +921,8 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
           const combined = combineVerdicts(specVerdict, standardsVerdict);
           if (!combined.pass) {
             // Post the failing judges' findings so the re-implement pass — the
-            // sole writer — gets targeted context. Route through the existing
-            // spec-fail path (shared REVIEW_RETRY_CAP; escalates to
+            // sole writer — gets targeted context. Route through the review-fail
+            // path (both axes share one REVIEW_RETRY_CAP; escalates to
             // ready-for-human at the cap).
             const sections: string[] = [];
             if (!specVerdict.pass)
@@ -850,7 +943,11 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
                 ", "
               )})`
             );
-            return { issue, kind: "spec-fail" as const };
+            return {
+              issue,
+              kind: "review-fail" as const,
+              failedAxes: combined.failedAxes,
+            };
           }
           return { issue, kind: "done" as const };
         } catch (e) {
@@ -903,7 +1000,12 @@ for (let iteration = 1; iteration <= MAX_ITERATIONS; iteration++) {
     const issue = outcome.status === "fulfilled" ? outcome.value.issue : work[i]!;
     const kind =
       outcome.status === "fulfilled" ? outcome.value.kind : ("nothing" as const);
-    const plan = planOutcomeTransition({ kind, issue, attempts });
+    // Only a review-fail outcome carries failedAxes; narrow before reading it.
+    const failedAxes =
+      outcome.status === "fulfilled" && "failedAxes" in outcome.value
+        ? outcome.value.failedAxes
+        : undefined;
+    const plan = planOutcomeTransition({ kind, issue, attempts, failedAxes });
     attempts = plan.attempts;
     if (plan.addLabel) relabel(issue.id, plan.addLabel, plan.removeLabels);
     if (plan.note) console.warn(`  ${plan.note}`);
@@ -1016,7 +1118,7 @@ if (components.length === 0) {
     }
 
     // -----------------------------------------------------------------------
-    // Full-suite gate (#22): before opening the PR, run the whole `just check`
+    // Full-suite gate (#22): before opening the PR, run the whole `npm run lint && npm run typecheck && npm run test`
     // (lint + typecheck + tests) on the assembled head IN A SANDBOX — the same
     // toolchain the target's CI runs, never the bare host worktree — so a red set
     // never reaches a human as an open PR. A green verdict opens as today; any
@@ -1025,7 +1127,7 @@ if (components.length === 0) {
     // reconciliation below (which relabels ready-for-agent + deletes the stale
     // branch) so the next iteration rebuilds it informed by the comment.
     //
-    // The gate agent runs `just check && echo <sentinel>` and reports its raw
+    // The gate agent runs `npm run lint && npm run typecheck && npm run test && echo <sentinel>` and reports its raw
     // stdout; parseCheckVerdict reads the sentinel and fails CLOSED — a crashed or
     // garbled check is test-fail, and only a THROWN sandbox/harness fault (caught
     // below, passed as `error`) classifies as harness-error. Both non-pass verdicts
@@ -1039,7 +1141,7 @@ if (components.length === 0) {
       const gate = await sandcastle.createSandbox({
         branch: prBranch, // already built + local; checked out, not re-cut
         ...gateCfg,
-        copyToWorktree, // seed .venv so `just check` reuses deps, no re-resolve
+        copyToWorktree, // seed the deps so the check reuses them, no re-resolve
       });
       try {
         const check = await gate.run({
@@ -1099,7 +1201,7 @@ if (components.length === 0) {
       // the human inherits the actual failing tree instead of a deleted branch.
       const body =
         `## Sandcastle full-suite gate — retired to a human\n\n` +
-        `\`just check\` on this set's merged head (\`${prBranch}\`) failed the ` +
+        `\`npm run lint && npm run typecheck && npm run test\` on this set's merged head (\`${prBranch}\`) failed the ` +
         `full suite ${REVIEW_RETRY_CAP} times running, so the set is parked as ` +
         `**ready-for-human** rather than requeued again. Its work branch is ` +
         `preserved for you to inspect. Address the failure below.\n\n` +
@@ -1126,7 +1228,7 @@ if (components.length === 0) {
     if (plan.action === "requeue") {
       const body =
         `## Sandcastle full-suite gate — PR withheld\n\n` +
-        `\`just check\` on this set's merged head (\`${prBranch}\`) came back ` +
+        `\`npm run lint && npm run typecheck && npm run test\` on this set's merged head (\`${prBranch}\`) came back ` +
         `**${verdict.status}**, so no PR was opened. The set is requeued for a ` +
         `fresh rebuild — address the failure below, don't just silence it.\n\n` +
         "```\n" +
@@ -1234,6 +1336,7 @@ gcWorktrees();
     prAssignments,
     blockedByParentConflict: blockedThisRun,
     retiredByGate,
+    deliveredParents: getDeliveredParents(),
   });
   const summary = buildRunSummary(bucketed);
   console.log(summary);

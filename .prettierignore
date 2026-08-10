@@ -4,3 +4,8 @@ demo/adoption-demos/
 # Vendored, minified
 skills/visual-teach/assets/prism/
 skills/visual-teach/assets/katex/
+
+# Rendered by copier from the sandcastle template — its formatting is the
+# template's, not this repo's. Reformatting it here guarantees a conflict on
+# every `copier update` and fills the divergence report with noise.
+.sandcastle/

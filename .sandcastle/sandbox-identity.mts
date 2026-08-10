@@ -103,7 +103,7 @@ export function applyBotToken(
  * Hook-path isolation: the host `.git` (carrying the host pre-commit hook) is
  * mounted in, but pre-commit isn't on the container PATH, so a plain commit
  * dies; pointing `core.hooksPath` at an empty dir disables it in-sandbox. The
- * Phase-3 `just check` gate runs the same ruff/ty.
+ * Phase-3 check gate runs the same linters anyway.
  */
 export function onSandboxReadyCommands(
   identity: SandboxIdentity
@@ -113,9 +113,6 @@ export function onSandboxReadyCommands(
     ...identity.gitConfigCommands.map((c) => c.command),
     "git config core.hooksPath /home/agent/.git-no-hooks",
   ];
-  // visual-teach local edit: this repo is TypeScript, not Python, so the sandbox
-  // bootstraps with `npm install` where the template runs `uv sync`. A future
-  // `copier update` will conflict-mark this line — keep the npm side.
   return [{ command: gitWrites.join(" && ") }, { command: "npm install" }];
 }
 
@@ -134,7 +131,7 @@ export function sandboxConfig(
 ) {
   return {
     sandbox: dockerFn({
-      env: { ...identity.env, UV_PROJECT_ENVIRONMENT: "/home/agent/.venv" },
+      env: { ...identity.env },
       // Mount the host's global Claude skills read-only so the in-sandbox
       // `claude` agent has the same skills you do (e.g. /tdd, referenced by
       // implement-prompt.md). Not vendored into the repo — always live/current.

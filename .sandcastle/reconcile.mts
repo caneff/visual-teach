@@ -6,7 +6,7 @@
 // planGateOutcome: decide open-vs-requeue from the Phase-3 full-suite verdict.
 // planOutcomeTransition: decide one issue's labels from its post-build outcome.
 
-import type { CheckVerdict } from "./review-verdict.mts";
+import type { CheckVerdict, ReviewAxis } from "./review-verdict.mts";
 import type { CompletedIssue } from "./pr-components.mts";
 import { recordAttempt, REVIEW_RETRY_CAP, type Attempts } from "./retry-policy.mts";
 
@@ -116,11 +116,12 @@ export function planGateOutcome(
 // What the execute+review pipeline concluded for one issue.
 //   done         — implemented and reviewed clean; belongs in a PR set.
 //   needs-review — the reviewer errored; the branch is fine, re-review it.
-//   spec-fail    — reviewed, but the branch doesn't satisfy the issue.
+//   review-fail  — reviewed, but a review axis (spec and/or standards) failed;
+//                  `failedAxes` names which. Re-implemented up to the cap.
 //   nothing      — no work happened: a multi-parent base conflict blocked the
 //                  issue, or the branch has no diff vs main. main.mts also maps
 //                  a rejected pipeline (sandbox crash, network) here.
-export type OutcomeKind = "done" | "needs-review" | "spec-fail" | "nothing";
+export type OutcomeKind = "done" | "needs-review" | "review-fail" | "nothing";
 
 // The issue as the execute loop knows it. A full-mode issue came from the
 // planner and carries its forest position (parents) and topic group; a
@@ -161,8 +162,11 @@ export function planOutcomeTransition(input: {
   kind: OutcomeKind;
   issue: OutcomeIssue;
   attempts: Attempts;
+  // The review axes that failed, for a review-fail outcome — names the axis in
+  // the operator note instead of always saying "spec". Absent otherwise.
+  failedAxes?: ReviewAxis[];
 }): OutcomePlan {
-  const { kind, issue, attempts } = input;
+  const { kind, issue, attempts, failedAxes } = input;
 
   if (kind === "done") {
     // Reviewed clean, so the retry counter is reset rather than incremented —
@@ -210,11 +214,12 @@ export function planOutcomeTransition(input: {
     };
   }
 
-  if (kind === "spec-fail") {
-    // Re-review cannot repair "built the wrong thing" — only re-implementing
-    // can. Counted under spec-<id> so a persistently-misunderstood issue burns
-    // its own cap rather than the re-review one.
-    const r = recordAttempt(attempts, `spec-${issue.id}`);
+  if (kind === "review-fail") {
+    // Re-review cannot repair a failing review axis — only re-implementing can.
+    // Both axes share one cap, counted under review-<id> so a persistently-
+    // failing issue burns its own cap rather than the re-review one.
+    const axes = failedAxes?.length ? failedAxes.join(", ") : "review";
+    const r = recordAttempt(attempts, `review-${issue.id}`);
     if (r.escalate)
       return {
         addLabel: "ready-for-human",
@@ -222,7 +227,7 @@ export function planOutcomeTransition(input: {
         attempts: r.attempts,
         attemptCount: r.count,
         escalated: true,
-        note: `${issue.id} failed spec review ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`,
+        note: `${issue.id} failed review (${axes}) ${REVIEW_RETRY_CAP}x; handing to a human (ready-for-human)`,
       };
     return {
       addLabel: "ready-for-agent",
@@ -230,7 +235,7 @@ export function planOutcomeTransition(input: {
       attempts: r.attempts,
       attemptCount: r.count,
       escalated: false,
-      note: `${issue.id} failed spec review; back to ready-for-agent to re-implement (attempt ${r.count}/${REVIEW_RETRY_CAP})`,
+      note: `${issue.id} failed review (${axes}); back to ready-for-agent to re-implement (attempt ${r.count}/${REVIEW_RETRY_CAP})`,
     };
   }
 
@@ -264,6 +269,7 @@ export type BucketName =
   | "human-gated-pr" // in-review with an open PR (from a previous run)
   | "human-gated-ready-for-human" // handed off to human
   | "human-gated-untriaged" // open, no lifecycle label
+  | "human-gated-delivered-parent" // open parent; every child closed → ready to close
   | "in-flight-needs-review" // implemented; reviewer errored; pending re-review
   | "ready-for-agent" // queued for agent; may be blocked by dependencies
   | "blocked-parent-conflict" // ≥2 parents conflict; needs a human merge (#64)
@@ -283,6 +289,9 @@ const HUMAN_GATED_BUCKETS = new Set<BucketName>([
   "human-gated-pr",
   "human-gated-ready-for-human",
   "human-gated-untriaged",
+  // A fully-delivered parent only a human can close (the bot never closes an
+  // issue) — gated on a human, so "nothing left for the bot" stays accurate.
+  "human-gated-delivered-parent",
   // A parent-conflict block needs a human to merge the parents — from the bot's
   // view it is gated on a human, so "nothing left for the bot" stays accurate.
   "blocked-parent-conflict",
@@ -291,6 +300,40 @@ const HUMAN_GATED_BUCKETS = new Set<BucketName>([
   "retired-gate-failure",
 ]);
 const IN_FLIGHT_BUCKETS = new Set<BucketName>(["in-flight-needs-review"]);
+
+// A sub-issue edge: every issue's own state plus its native GitHub parent (null
+// if it has none). Fed from an all-state fetch so closed children are visible.
+export interface IssueEdge {
+  number: number;
+  state: "OPEN" | "CLOSED";
+  parent: number | null;
+}
+
+// The set of parent ids (as strings) that are open while every one of their
+// sub-issues is closed — a spec fully delivered, its umbrella issue lingering.
+// Pure so it is unit-tested; the gh fetch that feeds it lives in main.mts.
+export function deliveredParentIds(edges: IssueEdge[]): Set<string> {
+  const stateById = new Map<number, "OPEN" | "CLOSED">();
+  const childStates = new Map<number, ("OPEN" | "CLOSED")[]>();
+  for (const e of edges) {
+    stateById.set(e.number, e.state);
+    if (e.parent !== null) {
+      const kids = childStates.get(e.parent) ?? [];
+      kids.push(e.state);
+      childStates.set(e.parent, kids);
+    }
+  }
+  const delivered = new Set<string>();
+  for (const [parent, states] of childStates) {
+    if (
+      stateById.get(parent) === "OPEN" &&
+      states.every((s) => s === "CLOSED")
+    ) {
+      delivered.add(String(parent));
+    }
+  }
+  return delivered;
+}
 
 export function bucketIssues(options: {
   openIssues: OpenIssue[];
@@ -310,6 +353,11 @@ export function bucketIssues(options: {
   // consecutive gate-failure cap (#25). Relabeled ready-for-human AND completed
   // (in builtThisRun), so it must be caught before both those buckets below.
   retiredByGate: Map<string, string>;
+  // parent issue ids (as strings) that are open with ≥1 sub-issue, all closed:
+  // the spec is delivered and only its umbrella issue lingers. Caught before the
+  // label buckets so a spent parent carrying a stray label (e.g. ready-for-human)
+  // still surfaces as ready-to-close rather than hiding behind that label.
+  deliveredParents: Set<string>;
 }): BucketedIssue[] {
   return options.openIssues.map((issue) => {
     const id = String(issue.number);
@@ -359,6 +407,16 @@ export function bucketIssues(options: {
           : "built-this-run";
       return { number: issue.number, title: issue.title, bucket, prNumber };
     }
+
+    // A delivered parent (open, every sub-issue closed) surfaces as ready-to-
+    // close before any label bucket: a spent spec often still carries a stray
+    // lifecycle label, and the close reminder must win over it.
+    if (options.deliveredParents.has(id))
+      return {
+        number: issue.number,
+        title: issue.title,
+        bucket: "human-gated-delivered-parent",
+      };
 
     if (labelSet.has("in-review"))
       return {
@@ -459,6 +517,10 @@ export function buildRunSummary(bucketed: BucketedIssue[]): string {
   section(
     "Human-gated: untriaged (needs ready-for-agent)",
     "human-gated-untriaged"
+  );
+  section(
+    "Human-gated: delivered (every child closed — ready to close)",
+    "human-gated-delivered-parent"
   );
   section("In-flight: needs-review", "in-flight-needs-review");
   section(

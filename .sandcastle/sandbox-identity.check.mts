@@ -1,5 +1,5 @@
-// Self-check for applyBotToken — no test runner in this repo (package.json
-// "test" is a stub, `just check` is Python-only), so this runs via `npx tsx`.
+// Self-check for applyBotToken — no test runner ships inside `.sandcastle/`, so
+// this runs via `npx tsx`:
 //   npx tsx .sandcastle/sandbox-identity.check.mts
 import assert from "node:assert";
 import { applyBotToken } from "./sandbox-identity.mts";

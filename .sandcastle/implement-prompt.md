@@ -46,9 +46,24 @@ exact "crap tests" `/tdd` warns against.
 
 # FEEDBACK LOOPS
 
-Before committing, run `npm run test` to ensure the tests pass.
+Before each commit, run a **fast scoped check** — not the full `npm run lint && npm run typecheck && npm run test`:
+
+- `npm run lint` and `npm run typecheck` — both are fast and cover the whole repo.
+- The tests for the code you touched: run `git diff --name-only` (plus
+  `git status --porcelain` for untracked new files) to see what changed, map
+  those paths to their test files, and run only those with
+  `npx vitest run <files>`.
+
+This is a git-diff heuristic, not a test-impact tool — when unsure whether a
+test is affected, include it. The full suite is **not** your per-commit gate:
+the Phase-3 gate runs `npm run lint && npm run typecheck && npm run test` on the set's merged head before any PR
+opens, and PR CI runs it again. Your job here is a fast local check, not the
+full run.
 
 # VISUAL PROOF (before / after)
+
+<!-- sandcastle:local — only this repo captures visual proof; shot.mjs and the
+     R2 bucket exist nowhere else in the fleet. -->
 
 Follow the shared visual-proof protocol in `.sandcastle/proof-protocol.md`, using
 `<id>` = `{{TASK_ID}}`. This is new work, so capture **both** before (on the

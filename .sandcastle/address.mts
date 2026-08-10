@@ -71,7 +71,7 @@ export async function addressOpenPRs(prs?: string[]): Promise<void> {
     );
     await sandcastle.run({
       ...sandboxConfig(identity),
-      copyToWorktree: ["node_modules"], // visual-teach: TypeScript, not a .venv
+      copyToWorktree: ["node_modules"],
       branchStrategy: { type: "branch", branch },
       name: `address-pr-${pr}`,
       maxIterations: 30,

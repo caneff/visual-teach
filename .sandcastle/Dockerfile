@@ -1,3 +1,6 @@
+# Sandbox image for a JavaScript (npm) target repo. Runs the coding agent, git, gh,
+# and the target's toolchain. main.mts runs on the HOST (via tsx) — it is never
+# in this image; only the in-sandbox agent + its tools live here.
 FROM node:22-bookworm
 
 # Install system dependencies
@@ -31,18 +34,23 @@ RUN npx -y playwright@1.61.0 install-deps chromium \
 ARG AGENT_UID=1000
 ARG AGENT_GID=1000
 
-# Rename the base image's "node" user to "agent" and align UID/GID.
-RUN groupmod -o -g $AGENT_GID node && usermod -o -u $AGENT_UID -g $AGENT_GID -d /home/agent -m -l agent node
+# Rename the base image's own user — and its GROUP, hence `-n agent`; without
+# that the container reports gid=1000(node) and the two ecosystems hand the
+# orchestrator different identities — aligning it to the host UID/GID.
+RUN groupmod -o -g $AGENT_GID -n agent node \
+  && usermod -o -u $AGENT_UID -g $AGENT_GID -d /home/agent -m -s /bin/bash -l agent node
 USER ${AGENT_UID}:${AGENT_GID}
 
-# Install Claude Code CLI
+# Claude Code CLI (standalone binary — not a Node app).
 RUN curl -fsSL https://claude.ai/install.sh | bash
 
-# Chromium browser binary for Playwright. Installed as the agent user so it lands
-# in /home/agent/.cache/ms-playwright, where shot.mjs (run as agent) finds it.
+# sandcastle:local — Chromium browser binary for Playwright, which only this repo
+# uses (.sandcastle/shot.mjs captures visual proof). Installed as the agent user
+# so it lands in /home/agent/.cache/ms-playwright, where shot.mjs finds it; the
+# system libs above need root, hence the split.
 RUN npx -y playwright@1.61.0 install chromium
 
-# Add Claude to PATH
+# The tools installed above land under ~/.local/bin
 ENV PATH="/home/agent/.local/bin:$PATH"
 
 WORKDIR /home/agent
