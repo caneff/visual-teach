@@ -1,16 +1,17 @@
-<!-- sandcastle:local — the preamble names visual-teach and its component
-     library by name, and cites this repo's own ADR-0007 (docs/adr/) for the
-     typecheck rule and its eslint config. All three are facts about this repo,
-     so they cannot be lifted into the template. Rules 1-6 below are the
-     template's and are not edited here. -->
-
 # Sandcastle coding standards
+
+<!-- sandcastle:local — this paragraph names visual-teach and its component
+     library, which the template cannot do for an adopter it has not met. -->
 
 Standards for the **dev-only** orchestrator under `.sandcastle/` — the `.mts`
 sources and prompt-drawer `.md` files. This tooling _builds_
 visual-teach; it has no runtime relationship with the library and never ships.
 The shipped component library has its own standards in the root
 `CODING_STANDARDS.md`.
+
+<!-- sandcastle:local — this repo's orchestrator is also linted by eslint and
+     its typecheck rule is argued in root docs/adr/0007. Both are local gates
+     the template does not know about. -->
 
 Deliberately short. Strict `tsc --noEmit` (ADR-0007), eslint, and vitest already
 enforce the mechanical rules — restating them here would be noise. These are only

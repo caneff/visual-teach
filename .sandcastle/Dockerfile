@@ -60,7 +60,6 @@ ENV PATH="/home/agent/.local/bin:$PATH"
 
 WORKDIR /home/agent
 
-# In worktree sandbox mode, Sandcastle bind-mounts the git worktree at /home/agent/workspace
-# and overrides the working directory to /home/agent/workspace at container start.
-# Structure your Dockerfile so that /home/agent/workspace can serve as the project root.
+# In worktree sandbox mode, Sandcastle bind-mounts the git worktree at
+# /home/agent/workspace and overrides the working directory there at container start.
 ENTRYPOINT ["sleep", "infinity"]
