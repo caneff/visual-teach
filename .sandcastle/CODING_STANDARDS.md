@@ -12,7 +12,6 @@ The shipped component library has its own standards in the root
 <!-- sandcastle:local — this repo's orchestrator is also linted by eslint and
      its typecheck rule is argued in root docs/adr/0007. Both are local gates
      the template does not know about. -->
-
 Deliberately short. Strict `tsc --noEmit` (ADR-0007), eslint, and vitest already
 enforce the mechanical rules — restating them here would be noise. These are only
 the project-specific rules those gates **can't** catch.
