@@ -7,6 +7,7 @@ export default [
       "node_modules/**",
       "skills/visual-teach/assets/prism/**", // vendored, minified
       "skills/visual-teach/assets/katex/**", // vendored, minified
+      "skills/visual-teach/assets/mermaid.min.js", // vendored, minified
       "course-tests/**",
       "demo/adoption-demos/**", // generated A/B lesson output + vendored assets (#180)
       ".adoption-harness/**", // gitignored A/B scratch: generated runs + vendored assets

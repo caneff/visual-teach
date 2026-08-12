@@ -54,10 +54,25 @@ describe("vtMermaid.init", () => {
     expect(doc._scripts[0].src).toBe("https://fake/mermaid.js");
   });
 
-  it("uses default CDN URL when no cdn override given", () => {
+  it("falls back to the CDN when no script location is derivable", () => {
     const doc = makeDoc(1);
     vtm.init(doc);
-    expect(doc._scripts[0].src).toMatch(/mermaid/);
+    expect(doc._scripts[0].src).toMatch(/cdn\.jsdelivr\.net/);
+  });
+
+  it("prefers the vendored sibling derived from the script location", () => {
+    const doc = makeDoc(1);
+    vtm.init(doc, { self: "https://x/assets/mermaid.js" });
+    expect(doc._scripts[0].src).toBe("https://x/assets/mermaid.min.js");
+  });
+
+  it("falls back to the CDN when the local script fails to load", () => {
+    const doc = makeDoc(1);
+    vtm.init(doc, { self: "../assets/mermaid.js" });
+    expect(doc._scripts[0].src).toBe("../assets/mermaid.min.js");
+    doc._scripts[0].onerror();
+    expect(doc._scripts).toHaveLength(2);
+    expect(doc._scripts[1].src).toMatch(/cdn\.jsdelivr\.net/);
   });
 });
 
