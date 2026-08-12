@@ -4,6 +4,7 @@ demo/adoption-demos/
 # Vendored, minified
 skills/visual-teach/assets/prism/
 skills/visual-teach/assets/katex/
+skills/visual-teach/assets/mermaid.min.js
 # Rendered from the Sandcastle template, which owns how these files are
 # formatted (.sandcastle/CODING_STANDARDS.md rule 6). Reformatting them is
 # unmarked divergence and turns every template update into a merge conflict —
