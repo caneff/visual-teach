@@ -8,6 +8,12 @@
 // trigger a spurious re-implement; only an affirmative FAIL blocks acceptance.
 //
 // Pure function, unit-tested. The orchestrator passes review.stdout.
+//
+// ReviewAxis and the ReviewedOutcome union live in issue-lifecycle.mts — the
+// lifecycle vocabulary's one home — and are imported back here.
+
+import type { ReviewAxis, ReviewedOutcome } from "./issue-lifecycle.mts";
+export type { ReviewAxis } from "./issue-lifecycle.mts";
 
 export interface SpecVerdict {
   pass: boolean;
@@ -17,8 +23,6 @@ export interface SpecVerdict {
 
 // A single judge's verdict — both axes share this shape.
 export type AxisVerdict = SpecVerdict;
-
-export type ReviewAxis = "spec" | "standards";
 
 // Both judges gate the same way, differing only in their sentinel word: only an
 // explicit `SANDCASTLE_<AXIS>: FAIL` line blocks; a PASS or a missing sentinel
@@ -64,6 +68,27 @@ export function combineVerdicts(
     reasons.standards = standards.reason;
   }
   return { pass: failedAxes.length === 0, failedAxes, reasons };
+}
+
+// Fold the two judges' verdicts into that outcome (ReviewedOutcome — see
+// issue-lifecycle.mts). Absorbs combineVerdicts and
+// the per-axis detail assembly that used to sit inline in main's Phase-2 closure:
+// `done` when both pass, else `review-fail` naming the failed axes and keeping
+// only the failed axes' detail (a passing axis's detail is dropped). The caller
+// passes the fuller reviewer stdout per axis; the short FAIL lines stay inside
+// combineVerdicts for anyone who wants them.
+export function classifyReviewedOutcome(
+  spec: AxisVerdict,
+  standards: AxisVerdict,
+  detail: Partial<Record<ReviewAxis, string>>
+): ReviewedOutcome {
+  const combined = combineVerdicts(spec, standards);
+  if (combined.pass) return { kind: "done" };
+  const reasons: Partial<Record<ReviewAxis, string>> = {};
+  for (const axis of combined.failedAxes) {
+    if (detail[axis] !== undefined) reasons[axis] = detail[axis];
+  }
+  return { kind: "review-fail", failedAxes: combined.failedAxes, reasons };
 }
 
 // Distinguish a broken-harness fault from a genuine review failure.
