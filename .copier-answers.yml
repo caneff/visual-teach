@@ -1,4 +1,4 @@
 # Changes here will be overwritten by Copier; NEVER EDIT MANUALLY
 LANGUAGE: node
-_commit: sandcastle-template/v15
+_commit: sandcastle-template/v16
 _src_path: https://github.com/caneff/agent-skills.git
