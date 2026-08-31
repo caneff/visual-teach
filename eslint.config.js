@@ -11,7 +11,6 @@ export default [
       "course-tests/**",
       "demo/adoption-demos/**", // generated A/B lesson output + vendored assets (#180)
       ".adoption-harness/**", // gitignored A/B scratch: generated runs + vendored assets
-      ".sandcastle/**", // includes .mts (TypeScript), not linted here
     ],
   },
   js.configs.recommended,
