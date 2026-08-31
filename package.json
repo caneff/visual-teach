@@ -12,11 +12,9 @@
     "lint": "eslint . && npm run lint:css",
     "lint:css": "stylelint 'skills/visual-teach/assets/**/*.css'",
     "format": "prettier --write .",
-    "typecheck": "tsc -p .sandcastle/tsconfig.json",
     "prepare": "husky"
   },
   "devDependencies": {
-    "@ai-hero/sandcastle": "^0.10.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
     "@types/node": "^26.0.0",
@@ -29,9 +27,7 @@
     "playwright": "^1.61.0",
     "prettier": "^3.8.4",
     "stylelint": "^16.26.1",
-    "typescript": "^6.0.3",
-    "vitest": "^4.1.9",
-    "zod": "^4.4.3"
+    "vitest": "^4.1.9"
   },
   "type": "module"
 }

@@ -1,8 +1,7 @@
 # visual-teach coding standards
 
 Standards for the **shipped** component library under `skills/visual-teach/assets/` — the CSS/JS/HTML
-that runs in users' workspaces over `file://`. The Sandcastle dev-tooling has its
-own standards in `.sandcastle/CODING_STANDARDS.md`; this file never speaks to `.mts`.
+that runs in users' workspaces over `file://`.
 
 These are the project-specific rules a generic reviewer would miss — the footguns a
 linter can't see. They are not a restatement of general clean-code advice.
