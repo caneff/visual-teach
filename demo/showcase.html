@@ -127,12 +127,23 @@
               first one. Copy the <code>&lt;defs&gt;</code> block below
               verbatim.
             </li>
+            <li>
+              Optional breakout, still no JS: give the inline
+              <code>&lt;svg&gt;</code> an id, add a
+              <code>.vt-bpmn-expand</code> button with
+              <code>popovertarget</code>, and a <code>.vt-bpmn-pop</code>
+              <code>[popover]</code> holding
+              <code>&lt;use href="#that-id"&gt;</code>. The popover opens in the
+              top layer at up to 96vw — outside any column — scaled to fit; Esc
+              or clicking outside closes it. Both ids must be unique per page.
+            </li>
           </ul>
 
           <h2>Three-lane process</h2>
           <div class="vt-bpmn">
             <svg
               class="vt-bpmn-svg"
+              id="bpmn-demo"
               viewBox="0 0 860 340"
               width="860"
               height="340"
@@ -321,6 +332,18 @@
                 d="M570 201 L595 201 Q605 201 605 211 L605 280 Q605 290 615 290"
               />
               <line class="vt-bpmn-flow" x1="800" y1="290" x2="819" y2="290" />
+            </svg>
+          </div>
+          <button class="vt-bpmn-expand" popovertarget="bpmn-demo-pop">
+            ⤢ Full width
+          </button>
+          <div class="vt-bpmn-pop" id="bpmn-demo-pop" popover>
+            <svg
+              viewBox="0 0 860 340"
+              role="img"
+              aria-label="BPMN diagram: base.js wiring a lesson block, three lanes — Browser, base.js, Component"
+            >
+              <use href="#bpmn-demo" />
             </svg>
           </div>
           <p>

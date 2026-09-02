@@ -73,9 +73,52 @@
   fill: var(--vt-muted);
 }
 
+/* breakout — native popover lifts the diagram into the top layer, free of any
+   column width. Still no JS: <button popovertarget> opens it, Esc/outside-click
+   closes it, and the popover's <svg><use href="#…"> re-renders the inline
+   diagram scaled to the viewport (see demo.html). */
+.vt-bpmn-expand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--vt-rule);
+  background: var(--vt-paper);
+  color: var(--vt-muted);
+  border-radius: 6px;
+  padding: 0.25rem 0.6rem;
+  margin-top: 0.5rem;
+  font: 500 12px var(--vt-ui-font);
+  cursor: pointer;
+}
+.vt-bpmn-expand:hover {
+  color: var(--vt-ink);
+}
+
+.vt-bpmn-pop {
+  width: min(96vw, 1500px);
+  max-height: 92vh;
+  overflow: auto;
+  border: 1px solid var(--vt-rule);
+  border-radius: 10px;
+  background: var(--vt-paper);
+  padding: 1rem;
+}
+.vt-bpmn-pop svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.vt-bpmn-pop::backdrop {
+  /* neutral scrim; works over both themes, so no token needed */
+  background: oklch(0% 0 0 / 55%);
+}
+
 @media print {
   .vt-bpmn {
     /* stylelint-disable-next-line color-no-hex */
     border: 1px solid #ccc;
+  }
+  .vt-bpmn-expand {
+    display: none;
   }
 }
