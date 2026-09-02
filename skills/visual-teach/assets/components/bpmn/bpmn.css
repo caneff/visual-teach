@@ -95,7 +95,7 @@
 }
 
 .vt-bpmn-pop {
-  width: min(96vw, 1500px);
+  width: min(96vw, 1800px);
   max-height: 92vh;
   overflow: auto;
   border: 1px solid var(--vt-rule);
@@ -107,6 +107,10 @@
   display: block;
   width: 100%;
   height: auto;
+  /* never scale below natural size: a diagram wider than the viewport
+     scrolls inside the breakout instead of shrinking to mush. Needs the
+     width/height attributes on the popover copy for an intrinsic size. */
+  min-width: max-content;
 }
 .vt-bpmn-pop::backdrop {
   /* neutral scrim; works over both themes, so no token needed */
