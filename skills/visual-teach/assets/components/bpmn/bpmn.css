@@ -127,7 +127,9 @@
   border: 1px solid var(--vt-rule);
   border-radius: 10px;
   background: var(--vt-paper);
-  padding: 1rem;
+  /* no left padding: the sticky lane rail must sit flush against the frame
+     so no diagram shows to its left while scrolling */
+  padding: 1rem 1rem 1rem 0;
 }
 /* flex only while open — a plain display on [popover] would override the
    UA's display:none and paint the closed popover over the page */
