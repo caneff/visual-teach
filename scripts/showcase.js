@@ -11,6 +11,7 @@ const outPath = join(root, "demo", "showcase.html");
 
 // Every component that must have a demo — assertion fails if any is missing.
 const REQUIRED = [
+  "bpmn",
   "callout",
   "code",
   "table",
