@@ -5,22 +5,50 @@
 
 /* scroll wrap — wide diagrams scroll instead of shrinking to mush */
 .vt-bpmn {
+  display: flex;
+  align-items: flex-start;
   overflow-x: auto;
   border: 1px solid var(--vt-rule);
   border-radius: 8px;
 }
 
+/* lane rail — the actor labels live in HTML, not the SVG, so they can pin
+   to the left edge (position: sticky) while the diagram scrolls under them.
+   Each <span> gets flex:<lane height in svg units> so the rail tracks the
+   lane fractions at any rendered scale. */
+.vt-bpmn-lanes {
+  position: sticky;
+  left: 0;
+  align-self: stretch;
+  flex: 0 0 34px;
+  display: flex;
+  flex-direction: column;
+  background: var(--vt-stripe);
+  border-right: 1px solid var(--vt-rule);
+}
+.vt-bpmn-lanes span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: sideways-lr;
+  font: 600 12px var(--vt-ui-font);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--vt-muted);
+}
+.vt-bpmn-lanes span + span {
+  border-top: 1px solid var(--vt-rule);
+}
+
+.vt-bpmn-svg {
+  /* as a flex item the svg would shrink to the wrap; keep natural width so
+     wide diagrams overflow and scroll */
+  flex-shrink: 0;
+}
+
 .vt-bpmn-svg text {
   font: 500 13px var(--vt-ui-font);
   fill: var(--vt-ink);
-}
-
-/* lane title — the vertical actor label at the pool's left edge */
-.vt-bpmn-svg .vt-bpmn-lane-title {
-  font-weight: 600;
-  fill: var(--vt-muted);
-  font-size: 12px;
-  letter-spacing: 0.5px;
 }
 
 /* task shape — the default fill/stroke shared by tasks, events, gateways */
@@ -49,14 +77,12 @@
   fill: var(--vt-warn-dk);
 }
 
-/* pool/lane structure */
+/* pool/lane structure — divider lines only; the actor labels are the sticky
+   HTML .vt-bpmn-lanes rail */
 .vt-bpmn-svg .vt-bpmn-lane-line {
   stroke: var(--vt-rule);
   stroke-width: 1;
   fill: none;
-}
-.vt-bpmn-svg .vt-bpmn-lane-bg {
-  fill: var(--vt-stripe);
 }
 
 /* sequence flow — the connecting arrow; pair with a <marker id="arrow"> in the
@@ -103,9 +129,15 @@
   background: var(--vt-paper);
   padding: 1rem;
 }
+/* flex only while open — a plain display on [popover] would override the
+   UA's display:none and paint the closed popover over the page */
+.vt-bpmn-pop:popover-open {
+  display: flex;
+  align-items: flex-start;
+}
 .vt-bpmn-pop svg {
   display: block;
-  width: 100%;
+  flex: 1 0 auto;
   height: auto;
   /* never scale below natural size: a diagram wider than the viewport
      scrolls inside the breakout instead of shrinking to mush. Needs the

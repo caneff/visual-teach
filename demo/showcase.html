@@ -115,6 +115,16 @@
               (<code>overflow-x: auto</code>) instead of shrinking to mush.
             </li>
             <li>
+              The actor labels are an HTML <code>.vt-bpmn-lanes</code> rail, not
+              SVG text: it pins to the left edge while the diagram scrolls. Give
+              each <code>&lt;span&gt;</code>
+              <code>flex: &lt;its lane's height in svg units&gt;</code> so the
+              rail tracks the lane fractions at any scale, start the
+              <code>viewBox</code> x at the rail width (34), and mark the rail
+              <code>aria-hidden</code> — the lanes are named in the
+              <code>aria-label</code>.
+            </li>
+            <li>
               The <code>&lt;svg&gt;</code> carries <code>role="img"</code> and
               an <code>aria-label</code> summarizing the whole diagram — the SVG
               parts carry no text alternative of their own.
@@ -145,11 +155,16 @@
 
           <h2>Three-lane process</h2>
           <div class="vt-bpmn">
+            <div class="vt-bpmn-lanes" aria-hidden="true">
+              <span style="flex: 90">Browser</span>
+              <span style="flex: 150">base.js</span>
+              <span style="flex: 100">Component</span>
+            </div>
             <svg
               class="vt-bpmn-svg"
               id="bpmn-demo"
-              viewBox="0 0 2400 340"
-              width="2400"
+              viewBox="34 0 2366 340"
+              width="2366"
               height="340"
               role="img"
               aria-label="BPMN diagram: base.js wiring a quiz block and handling an answer, three lanes — Browser, base.js, Component"
@@ -168,23 +183,7 @@
                 </marker>
               </defs>
 
-              <!-- lanes -->
-              <rect
-                class="vt-bpmn-lane-bg"
-                x="0"
-                y="0"
-                width="34"
-                height="340"
-              />
-              <rect
-                class="vt-bpmn-lane-line"
-                x="0"
-                y="0"
-                width="2400"
-                height="340"
-                rx="6"
-              />
-              <line class="vt-bpmn-lane-line" x1="34" y1="0" x2="34" y2="340" />
+              <!-- lane dividers; the actor labels are the sticky rail in HTML -->
               <line
                 class="vt-bpmn-lane-line"
                 x1="34"
@@ -199,33 +198,6 @@
                 x2="2400"
                 y2="240"
               />
-              <text
-                class="vt-bpmn-lane-title"
-                x="21"
-                y="45"
-                transform="rotate(-90 21 45)"
-                text-anchor="middle"
-              >
-                BROWSER
-              </text>
-              <text
-                class="vt-bpmn-lane-title"
-                x="21"
-                y="165"
-                transform="rotate(-90 21 165)"
-                text-anchor="middle"
-              >
-                BASE.JS
-              </text>
-              <text
-                class="vt-bpmn-lane-title"
-                x="21"
-                y="290"
-                transform="rotate(-90 21 290)"
-                text-anchor="middle"
-              >
-                COMPONENT
-              </text>
 
               <!-- browser lane: start event + task -->
               <circle
@@ -425,9 +397,14 @@
             ⤢ Full width
           </button>
           <div class="vt-bpmn-pop" id="bpmn-demo-pop" popover>
+            <div class="vt-bpmn-lanes" aria-hidden="true">
+              <span style="flex: 90">Browser</span>
+              <span style="flex: 150">base.js</span>
+              <span style="flex: 100">Component</span>
+            </div>
             <svg
-              viewBox="0 0 2400 340"
-              width="2400"
+              viewBox="34 0 2366 340"
+              width="2366"
               height="340"
               role="img"
               aria-label="BPMN diagram: base.js wiring a quiz block and handling an answer, three lanes — Browser, base.js, Component"
