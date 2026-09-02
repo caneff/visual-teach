@@ -7,6 +7,7 @@ const root = resolve(__dirname, "../skills/visual-teach");
 
 const PAGES = [
   { name: "base", path: "assets/base/demo.html" },
+  { name: "bpmn", path: "assets/components/bpmn/demo.html" },
   { name: "callout", path: "assets/components/callout/demo.html" },
   { name: "checklist", path: "assets/components/checklist/demo.html" },
   { name: "chip", path: "assets/components/chip/demo.html" },
