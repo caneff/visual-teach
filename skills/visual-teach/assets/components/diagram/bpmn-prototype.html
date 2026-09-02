@@ -1,0 +1,449 @@
+<!doctype html>
+<!-- PROTOTYPE — throwaway. Question: what should a BPMN-style process block
+     look like in a visual-teach lesson? Three variants of the same process
+     ("how base.js wires a lesson's interactive blocks"), switchable via
+     #a / #b / #c and the floating bottom bar (or arrow keys). Hash, not
+     ?variant=, because query rewriting is unreliable over file://. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BPMN Prototype</title>
+    <link rel="stylesheet" href="../../base/base.css" />
+    <link rel="stylesheet" href="diagram.css" />
+    <script src="../../base/base.js"></script>
+    <script src="../../mermaid.js"></script>
+    <style>
+      /* off-screen, not display:none — mermaid must measure text at load */
+      .proto-variant.proto-hidden {
+        position: absolute;
+        left: -99999px;
+        top: 0;
+      }
+
+      /* ---- Variant B: CSS swimlanes ---- */
+      .bpmn-pool {
+        border: 1px solid var(--vt-rule);
+        border-radius: 8px;
+        overflow-x: auto;
+      }
+      .bpmn-lane {
+        display: grid;
+        grid-template-columns: 7rem 1fr;
+        border-top: 1px solid var(--vt-rule);
+      }
+      .bpmn-lane:first-child {
+        border-top: 0;
+      }
+      .bpmn-lane-label {
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        text-align: center;
+        padding: 0.75rem 0.4rem;
+        font: 600 0.8rem var(--vt-ui-font);
+        color: var(--vt-muted);
+        background: var(--vt-stripe);
+        border-left: 1px solid var(--vt-rule);
+        letter-spacing: 0.04em;
+      }
+      .bpmn-lane-flow {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.1rem 1rem;
+        flex-wrap: wrap;
+      }
+      .bpmn-task {
+        border: 1.5px solid var(--vt-ink);
+        border-radius: 8px;
+        padding: 0.5rem 0.8rem;
+        font: 500 0.85rem var(--vt-ui-font);
+        background: color-mix(in oklch, var(--vt-accent-soft), var(--vt-paper) 40%);
+      }
+      .bpmn-event {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border: 1.5px solid var(--vt-ink);
+        flex: none;
+        display: grid;
+        place-items: center;
+        font-size: 0.9rem;
+        background: var(--vt-paper);
+      }
+      .bpmn-event.end {
+        border-width: 3.5px;
+      }
+      .bpmn-gate {
+        width: 1.7rem;
+        height: 1.7rem;
+        border: 1.5px solid var(--vt-warn-dk);
+        background: var(--vt-warn-soft);
+        transform: rotate(45deg);
+        flex: none;
+        display: grid;
+        place-items: center;
+        margin: 0 0.35rem;
+      }
+      .bpmn-gate > span {
+        transform: rotate(-45deg);
+        font: 700 0.9rem var(--vt-ui-font);
+        color: var(--vt-warn-dk);
+      }
+      .bpmn-arrow {
+        color: var(--vt-muted);
+        flex: none;
+        font-size: 1.1rem;
+      }
+      .bpmn-arrow small {
+        font: 600 0.7rem var(--vt-ui-font);
+        vertical-align: super;
+      }
+
+      /* ---- Variant C: hand-built SVG BPMN ---- */
+      .bpmn-svg-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--vt-rule);
+        border-radius: 8px;
+      }
+      .bpmn-svg text {
+        font: 500 13px var(--vt-ui-font);
+        fill: var(--vt-ink);
+      }
+      .bpmn-svg .lane-title {
+        font-weight: 600;
+        fill: var(--vt-muted);
+        font-size: 12px;
+        letter-spacing: 0.5px;
+      }
+      .bpmn-svg .shape {
+        stroke: var(--vt-ink);
+        stroke-width: 1.5;
+        fill: color-mix(in oklch, var(--vt-accent-soft), var(--vt-paper) 40%);
+      }
+      .bpmn-svg .event {
+        fill: var(--vt-paper);
+      }
+      .bpmn-svg .event.end {
+        stroke-width: 3.5;
+      }
+      .bpmn-svg .gateway {
+        stroke: var(--vt-warn-dk);
+        fill: var(--vt-warn-soft);
+      }
+      .bpmn-svg .lane-line {
+        stroke: var(--vt-rule);
+        stroke-width: 1;
+        fill: none;
+      }
+      .bpmn-svg .lane-bg {
+        fill: var(--vt-stripe);
+      }
+      .bpmn-svg .flow {
+        stroke: var(--vt-muted);
+        stroke-width: 1.5;
+        fill: none;
+        marker-end: url(#arrow);
+      }
+      .bpmn-svg .flow-label {
+        font: 600 11px var(--vt-ui-font);
+        fill: var(--vt-muted);
+      }
+      .bpmn-svg .gate-x {
+        font: 700 14px var(--vt-ui-font);
+        fill: var(--vt-warn-dk);
+      }
+
+      .swimlane-scroll {
+        overflow-x: auto;
+      }
+      .swimlane-scroll svg {
+        max-width: none !important;
+      }
+
+      .bjs-breadcrumbs {
+        display: none;
+      }
+
+      /* ---- floating switcher (not part of the design under review) ---- */
+      .proto-bar {
+        position: fixed;
+        bottom: 1rem;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        background: var(--vt-ink);
+        color: var(--vt-paper);
+        border-radius: 999px;
+        padding: 0.4rem 0.9rem;
+        font: 600 0.85rem var(--vt-ui-font);
+        box-shadow: 0 4px 16px rgb(0 0 0 / 0.3);
+        z-index: 10;
+      }
+      .proto-bar button {
+        all: unset;
+        cursor: pointer;
+        padding: 0 0.3rem;
+        font-size: 1rem;
+      }
+      body {
+        padding-bottom: 5rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>BPMN block — prototype</h1>
+      <p class="vt-lede">
+        Same process three ways: how <code>base.js</code> wires a lesson's
+        interactive blocks. Flip with the bar below or ←/→.
+      </p>
+
+      <!-- ============ Variant A: mermaid flowchart with lane subgraphs ============ -->
+      <section class="proto-variant" id="variant-a" data-name="Mermaid subgraph lanes">
+        <h2>A — Mermaid, subgraphs as lanes</h2>
+        <div class="vt-diagram">
+          <pre class="vt-mermaid">
+flowchart TD
+  subgraph browser[Browser]
+    S([DOMContentLoaded fires])
+  end
+  subgraph basejs[base.js]
+    scan[Scan DOM for vt-* blocks]
+    g{Required children present?}
+    warn[console.warn, leave block inert]
+    wire[Wire behavior + listeners]
+  end
+  subgraph comp[Component JS]
+    ann[Announce state via live region]
+    E([Lesson interactive])
+  end
+  S --> scan --> g
+  g -- no --> warn
+  g -- yes --> wire --> ann --> E
+          </pre>
+          <p class="vt-diagram-caption">
+            Cheapest to author — the agent emits mermaid text. Lanes are
+            subgraphs, so vertical, not true swimlanes.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ Variant B: pure CSS horizontal swimlanes ============ -->
+      <section class="proto-variant" id="variant-b" data-name="CSS swimlanes">
+        <h2>B — CSS swimlanes, vt-diagram idiom</h2>
+        <div class="vt-diagram">
+          <div class="bpmn-pool">
+            <div class="bpmn-lane">
+              <div class="bpmn-lane-label">Browser</div>
+              <div class="bpmn-lane-flow">
+                <div class="bpmn-event" title="start event">▸</div>
+                <span class="bpmn-arrow">→</span>
+                <div class="bpmn-task">DOMContentLoaded fires</div>
+              </div>
+            </div>
+            <div class="bpmn-lane">
+              <div class="bpmn-lane-label">base.js</div>
+              <div class="bpmn-lane-flow">
+                <div class="bpmn-task">Scan DOM for <code>vt-*</code> blocks</div>
+                <span class="bpmn-arrow">→</span>
+                <div class="bpmn-gate" title="exclusive gateway"><span>×</span></div>
+                <span class="bpmn-arrow"><small>no</small>→</span>
+                <div class="bpmn-task">console.warn, leave inert</div>
+                <span class="bpmn-arrow"><small>yes</small>→</span>
+                <div class="bpmn-task">Wire behavior + listeners</div>
+              </div>
+            </div>
+            <div class="bpmn-lane">
+              <div class="bpmn-lane-label">Component</div>
+              <div class="bpmn-lane-flow">
+                <div class="bpmn-task">Announce state via live region</div>
+                <span class="bpmn-arrow">→</span>
+                <div class="bpmn-event end" title="end event"></div>
+              </div>
+            </div>
+          </div>
+          <p class="vt-diagram-caption">
+            No JS, no SVG — flows the vt-diagram way. Real horizontal lanes,
+            but cross-lane arrows are implied by reading order, not drawn.
+          </p>
+        </div>
+      </section>
+
+      <!-- ============ Variant C: hand-built SVG, true BPMN notation ============ -->
+      <section class="proto-variant" id="variant-c" data-name="True BPMN SVG">
+        <h2>C — SVG, true BPMN notation</h2>
+        <div class="vt-diagram">
+          <div class="bpmn-svg-wrap">
+            <svg class="bpmn-svg" viewBox="0 0 860 340" width="860" height="340" role="img"
+                 aria-label="BPMN diagram: base.js wiring a lesson block, three lanes">
+              <defs>
+                <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"
+                        markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                  <path d="M0 0 L10 5 L0 10 z" fill="var(--vt-muted)" />
+                </marker>
+              </defs>
+
+              <!-- lanes -->
+              <rect class="lane-bg" x="0" y="0" width="34" height="340" />
+              <rect class="lane-line" x="0" y="0" width="860" height="340" rx="6" />
+              <line class="lane-line" x1="34" y1="0" x2="34" y2="340" />
+              <line class="lane-line" x1="34" y1="90" x2="860" y2="90" />
+              <line class="lane-line" x1="34" y1="240" x2="860" y2="240" />
+              <text class="lane-title" x="21" y="45" transform="rotate(-90 21 45)" text-anchor="middle">BROWSER</text>
+              <text class="lane-title" x="21" y="165" transform="rotate(-90 21 165)" text-anchor="middle">BASE.JS</text>
+              <text class="lane-title" x="21" y="290" transform="rotate(-90 21 290)" text-anchor="middle">COMPONENT</text>
+
+              <!-- browser lane: start event + task -->
+              <circle class="shape event" cx="80" cy="45" r="16" />
+              <rect class="shape" x="130" y="24" width="170" height="42" rx="8" />
+              <text x="215" y="50" text-anchor="middle">DOMContentLoaded</text>
+
+              <!-- base.js lane -->
+              <rect class="shape" x="70" y="144" width="150" height="42" rx="8" />
+              <text x="145" y="170" text-anchor="middle">Scan vt-* blocks</text>
+
+              <path class="shape gateway" d="M295 140 L320 165 L295 190 L270 165 z" />
+              <text class="gate-x" x="295" y="170" text-anchor="middle">×</text>
+              <text class="flow-label" x="295" y="131" text-anchor="middle">children present?</text>
+
+              <rect class="shape" x="390" y="98" width="180" height="42" rx="8" />
+              <text x="480" y="124" text-anchor="middle">warn, leave inert</text>
+
+              <rect class="shape" x="390" y="180" width="180" height="42" rx="8" />
+              <text x="480" y="206" text-anchor="middle">Wire behavior</text>
+
+              <!-- component lane -->
+              <rect class="shape" x="620" y="269" width="180" height="42" rx="8" />
+              <text x="710" y="295" text-anchor="middle">Announce (live region)</text>
+              <circle class="shape event end" cx="835" cy="290" r="14" />
+
+              <!-- sequence flows -->
+              <line class="flow" x1="96" y1="45" x2="128" y2="45" />
+              <path class="flow" d="M215 66 L215 105 Q215 115 205 115 L155 115 Q145 115 145 125 L145 142" />
+              <line class="flow" x1="220" y1="165" x2="268" y2="165" />
+              <path class="flow" d="M320 165 L355 165 L355 119 L388 119" />
+              <text class="flow-label" x="362" y="150">no</text>
+              <path class="flow" d="M295 190 L295 201 L388 201" />
+              <text class="flow-label" x="330" y="196">yes</text>
+              <path class="flow" d="M570 201 L595 201 Q605 201 605 211 L605 280 Q605 290 615 290" />
+              <line class="flow" x1="800" y1="290" x2="819" y2="290" />
+            </svg>
+          </div>
+          <p class="vt-diagram-caption">
+            Real notation — thin/thick event circles, gateway diamond, drawn
+            cross-lane flows. Most expensive for an agent to lay out.
+          </p>
+        </div>
+      </section>
+      <!-- ============ Variant D: mermaid swimlane-beta (vendored 11.16.1) ============ -->
+      <section class="proto-variant" id="variant-d" data-name="Mermaid swimlane-beta">
+        <h2>D — Mermaid swimlane (beta), real lanes</h2>
+        <div class="vt-diagram">
+          <div class="swimlane-scroll">
+          <pre class="vt-mermaid">
+---
+config:
+  fontSize: 16
+  flowchart:
+    nodeSpacing: 30
+    rankSpacing: 30
+---
+swimlane-beta TB
+  subgraph browser[Browser]
+    S([Page opened])
+  end
+  subgraph basejs[base.js]
+    scan[Scan for vt-* blocks]
+    g{Children present?}
+    warn[Warn, leave inert]
+    wire[Wire behavior]
+  end
+  subgraph comp[Component JS]
+    ann[Announce via live region]
+    E([Interactive])
+  end
+  S --> scan --> g
+  g -->|no| warn
+  g -->|yes| wire --> ann --> E
+          </pre>
+          </div>
+          <p class="vt-diagram-caption">
+            Same authoring cost as A, but true lanes (as columns) with drawn
+            cross-lane flows — from the mermaid we already vendor. Beta syntax.
+          </p>
+        </div>
+      </section>
+      <!-- ============ Variant E: bpmn-js viewer + bpmn-auto-layout output ============ -->
+      <section class="proto-variant" id="variant-e" data-name="bpmn-js + auto-layout">
+        <h2>E — bpmn-js viewer, bpmn-auto-layout DI</h2>
+        <div class="vt-diagram">
+          <div id="bpmn-js-canvas" style="height: 420px; border: 1px solid var(--vt-rule); border-radius: 8px; background: var(--vt-paper)"></div>
+          <p class="vt-diagram-caption">
+            Real bpmn-js rendering XML laid out by bpmn-auto-layout at build
+            time. Caveat: auto-layout emits no DI for the pool/lanes, so the
+            swimlanes vanish — the flow renders flat.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div class="proto-bar">
+      <button id="proto-prev" aria-label="previous variant">←</button>
+      <span id="proto-label"></span>
+      <button id="proto-next" aria-label="next variant">→</button>
+    </div>
+
+    <script src="bpmn-viewer.prototype.min.js"></script>
+    <script src="bpmn-diagram.prototype.js"></script>
+    <script>
+      (function () {
+        var viewer = new BpmnJS({ container: "#bpmn-js-canvas" });
+        window.__bpmnRefit = function () {
+          viewer.get("canvas").resized();
+          viewer.get("canvas").zoom("fit-viewport");
+        };
+        viewer.importXML(window.PROTO_BPMN_XML).then(window.__bpmnRefit);
+      })();
+    </script>
+    <script>
+      (function () {
+        var keys = ["a", "b", "c", "d", "e"];
+        var current = keys.indexOf((location.hash || "").replace("#", ""));
+        if (current < 0) current = 0;
+
+        function show(i) {
+          current = (i + keys.length) % keys.length;
+          keys.forEach(function (k, j) {
+            document
+              .getElementById("variant-" + k)
+              .classList.toggle("proto-hidden", j !== current);
+          });
+          var sec = document.getElementById("variant-" + keys[current]);
+          document.getElementById("proto-label").textContent =
+            keys[current].toUpperCase() + " — " + sec.dataset.name;
+          location.hash = keys[current];
+          if (keys[current] === "e" && window.__bpmnRefit) {
+            setTimeout(window.__bpmnRefit, 0);
+          }
+        }
+
+        document.getElementById("proto-prev").onclick = function () { show(current - 1); };
+        document.getElementById("proto-next").onclick = function () { show(current + 1); };
+        document.addEventListener("keydown", function (e) {
+          var t = e.target;
+          if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+          if (e.key === "ArrowLeft") show(current - 1);
+          if (e.key === "ArrowRight") show(current + 1);
+        });
+
+        // let mermaid measure variant A before hiding anything
+        window.addEventListener("load", function () {
+          setTimeout(function () { show(current); }, 400);
+        });
+      })();
+    </script>
+  </body>
+</html>
