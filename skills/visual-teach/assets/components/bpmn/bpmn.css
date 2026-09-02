@@ -44,7 +44,7 @@
   stroke: var(--vt-warn-dk);
   fill: var(--vt-warn-soft);
 }
-.vt-bpmn-svg .vt-bpmn-gate-x {
+.vt-bpmn-svg .vt-bpmn-gateway-marker {
   font: 700 14px var(--vt-ui-font);
   fill: var(--vt-warn-dk);
 }
@@ -59,8 +59,8 @@
   fill: var(--vt-stripe);
 }
 
-/* sequence flow — the connecting arrow; pair with a <marker id="arrow"> the
-   diagram defines locally (see demo.html) since SVG markers can't live in an
+/* sequence flow — the connecting arrow; pair with a <marker id="arrow"> in the
+   diagram's own <defs> (see demo.html) since SVG markers can't live in an
    external stylesheet */
 .vt-bpmn-svg .vt-bpmn-flow {
   stroke: var(--vt-muted);

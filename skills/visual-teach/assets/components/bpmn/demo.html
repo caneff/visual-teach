@@ -43,6 +43,13 @@
           <code>aria-label</code> summarizing the whole diagram — the SVG parts
           carry no text alternative of their own.
         </li>
+        <li>
+          The arrowhead id is fixed: <code>.vt-bpmn-flow</code> points
+          <code>marker-end</code> at <code>#arrow</code>, so each diagram
+          defines that <code>&lt;marker&gt;</code> in its own
+          <code>&lt;defs&gt;</code> — and two diagrams on one page share the
+          first one. Copy the <code>&lt;defs&gt;</code> block below verbatim.
+        </li>
       </ul>
 
       <h2>Three-lane process</h2>
@@ -137,7 +144,12 @@
             class="vt-bpmn-shape vt-bpmn-gateway"
             d="M295 140 L320 165 L295 190 L270 165 z"
           />
-          <text class="vt-bpmn-gate-x" x="295" y="170" text-anchor="middle">
+          <text
+            class="vt-bpmn-gateway-marker"
+            x="295"
+            y="170"
+            text-anchor="middle"
+          >
             ×
           </text>
           <text class="vt-bpmn-flow-label" x="295" y="131" text-anchor="middle">
