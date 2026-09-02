@@ -1,0 +1,81 @@
+/* ====== bpmn vocabulary — hand-built SVG, true BPMN notation ======
+   No JS: each diagram is static SVG authored per lesson. Classes style the
+   SVG parts; the vt- prefix is load-bearing per the component convention
+   even though no JS scans for it here. */
+
+/* scroll wrap — wide diagrams scroll instead of shrinking to mush */
+.vt-bpmn {
+  overflow-x: auto;
+  border: 1px solid var(--vt-rule);
+  border-radius: 8px;
+}
+
+.vt-bpmn-svg text {
+  font: 500 13px var(--vt-ui-font);
+  fill: var(--vt-ink);
+}
+
+/* lane title — the vertical actor label at the pool's left edge */
+.vt-bpmn-svg .vt-bpmn-lane-title {
+  font-weight: 600;
+  fill: var(--vt-muted);
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+/* task shape — the default fill/stroke shared by tasks, events, gateways */
+.vt-bpmn-svg .vt-bpmn-shape {
+  stroke: var(--vt-ink);
+  stroke-width: 1.5;
+  fill: var(--vt-accent-faint);
+}
+
+/* start/end event — thin circle by default, thick (.end) marks the end event */
+.vt-bpmn-svg .vt-bpmn-event {
+  fill: var(--vt-paper);
+}
+.vt-bpmn-svg .vt-bpmn-event.end {
+  stroke-width: 3.5;
+}
+
+/* exclusive gateway — the diamond carries only its marker (×); the question
+   that decides the branch is a separate flow-label text placed outside it */
+.vt-bpmn-svg .vt-bpmn-gateway {
+  stroke: var(--vt-warn-dk);
+  fill: var(--vt-warn-soft);
+}
+.vt-bpmn-svg .vt-bpmn-gate-x {
+  font: 700 14px var(--vt-ui-font);
+  fill: var(--vt-warn-dk);
+}
+
+/* pool/lane structure */
+.vt-bpmn-svg .vt-bpmn-lane-line {
+  stroke: var(--vt-rule);
+  stroke-width: 1;
+  fill: none;
+}
+.vt-bpmn-svg .vt-bpmn-lane-bg {
+  fill: var(--vt-stripe);
+}
+
+/* sequence flow — the connecting arrow; pair with a <marker id="arrow"> the
+   diagram defines locally (see demo.html) since SVG markers can't live in an
+   external stylesheet */
+.vt-bpmn-svg .vt-bpmn-flow {
+  stroke: var(--vt-muted);
+  stroke-width: 1.5;
+  fill: none;
+  marker-end: url(#arrow);
+}
+.vt-bpmn-svg .vt-bpmn-flow-label {
+  font: 600 11px var(--vt-ui-font);
+  fill: var(--vt-muted);
+}
+
+@media print {
+  .vt-bpmn {
+    /* stylelint-disable-next-line color-no-hex */
+    border: 1px solid #ccc;
+  }
+}

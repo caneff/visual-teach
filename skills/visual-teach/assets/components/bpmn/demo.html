@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BPMN Component Demo</title>
+    <link rel="stylesheet" href="../../base/base.css" />
+    <link rel="stylesheet" href="bpmn.css" />
+  </head>
+  <body>
+    <main>
+      <h1>BPMN</h1>
+      <p class="vt-lede">
+        Hand-built SVG, true BPMN notation — who hands what to whom, across
+        actors. No JS: each diagram is static SVG authored per lesson.
+      </p>
+
+      <h2>Notation rules</h2>
+      <ul>
+        <li>
+          The gateway diamond (<code>.vt-bpmn-gateway</code>) holds only its
+          marker — <code>×</code> for exclusive — never the question.
+        </li>
+        <li>
+          The question that decides the branch labels the gateway from
+          <em>outside</em>, as a <code>.vt-bpmn-flow-label</code> above it.
+        </li>
+        <li>
+          Each outgoing flow gets its own <code>yes</code> / <code>no</code>
+          label; XOR branches run side by side, never stacked.
+        </li>
+        <li>
+          The start event (<code>.vt-bpmn-event</code>) is a thin circle; the
+          end event adds <code>.end</code> for a thick one.
+        </li>
+        <li>
+          A wide diagram scrolls inside its <code>.vt-bpmn</code> wrap (<code
+            >overflow-x: auto</code
+          >) instead of shrinking to mush.
+        </li>
+        <li>
+          The <code>&lt;svg&gt;</code> carries <code>role="img"</code> and an
+          <code>aria-label</code> summarizing the whole diagram — the SVG parts
+          carry no text alternative of their own.
+        </li>
+      </ul>
+
+      <h2>Three-lane process</h2>
+      <div class="vt-bpmn">
+        <svg
+          class="vt-bpmn-svg"
+          viewBox="0 0 860 340"
+          width="860"
+          height="340"
+          role="img"
+          aria-label="BPMN diagram: base.js wiring a lesson block, three lanes — Browser, base.js, Component"
+        >
+          <defs>
+            <marker
+              id="arrow"
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="7"
+              markerHeight="7"
+              orient="auto-start-reverse"
+            >
+              <path d="M0 0 L10 5 L0 10 z" fill="var(--vt-muted)" />
+            </marker>
+          </defs>
+
+          <!-- lanes -->
+          <rect class="vt-bpmn-lane-bg" x="0" y="0" width="34" height="340" />
+          <rect
+            class="vt-bpmn-lane-line"
+            x="0"
+            y="0"
+            width="860"
+            height="340"
+            rx="6"
+          />
+          <line class="vt-bpmn-lane-line" x1="34" y1="0" x2="34" y2="340" />
+          <line class="vt-bpmn-lane-line" x1="34" y1="90" x2="860" y2="90" />
+          <line class="vt-bpmn-lane-line" x1="34" y1="240" x2="860" y2="240" />
+          <text
+            class="vt-bpmn-lane-title"
+            x="21"
+            y="45"
+            transform="rotate(-90 21 45)"
+            text-anchor="middle"
+          >
+            BROWSER
+          </text>
+          <text
+            class="vt-bpmn-lane-title"
+            x="21"
+            y="165"
+            transform="rotate(-90 21 165)"
+            text-anchor="middle"
+          >
+            BASE.JS
+          </text>
+          <text
+            class="vt-bpmn-lane-title"
+            x="21"
+            y="290"
+            transform="rotate(-90 21 290)"
+            text-anchor="middle"
+          >
+            COMPONENT
+          </text>
+
+          <!-- browser lane: start event + task -->
+          <circle class="vt-bpmn-shape vt-bpmn-event" cx="80" cy="45" r="16" />
+          <rect
+            class="vt-bpmn-shape"
+            x="130"
+            y="24"
+            width="170"
+            height="42"
+            rx="8"
+          />
+          <text x="215" y="50" text-anchor="middle">DOMContentLoaded</text>
+
+          <!-- base.js lane -->
+          <rect
+            class="vt-bpmn-shape"
+            x="70"
+            y="144"
+            width="150"
+            height="42"
+            rx="8"
+          />
+          <text x="145" y="170" text-anchor="middle">Scan vt-* blocks</text>
+
+          <path
+            class="vt-bpmn-shape vt-bpmn-gateway"
+            d="M295 140 L320 165 L295 190 L270 165 z"
+          />
+          <text class="vt-bpmn-gate-x" x="295" y="170" text-anchor="middle">
+            ×
+          </text>
+          <text class="vt-bpmn-flow-label" x="295" y="131" text-anchor="middle">
+            children present?
+          </text>
+
+          <rect
+            class="vt-bpmn-shape"
+            x="390"
+            y="98"
+            width="180"
+            height="42"
+            rx="8"
+          />
+          <text x="480" y="124" text-anchor="middle">warn, leave inert</text>
+
+          <rect
+            class="vt-bpmn-shape"
+            x="390"
+            y="180"
+            width="180"
+            height="42"
+            rx="8"
+          />
+          <text x="480" y="206" text-anchor="middle">Wire behavior</text>
+
+          <!-- component lane -->
+          <rect
+            class="vt-bpmn-shape"
+            x="620"
+            y="269"
+            width="180"
+            height="42"
+            rx="8"
+          />
+          <text x="710" y="295" text-anchor="middle">
+            Announce (live region)
+          </text>
+          <circle
+            class="vt-bpmn-shape vt-bpmn-event end"
+            cx="835"
+            cy="290"
+            r="14"
+          />
+
+          <!-- sequence flows -->
+          <line class="vt-bpmn-flow" x1="96" y1="45" x2="128" y2="45" />
+          <path
+            class="vt-bpmn-flow"
+            d="M215 66 L215 105 Q215 115 205 115 L155 115 Q145 115 145 125 L145 142"
+          />
+          <line class="vt-bpmn-flow" x1="220" y1="165" x2="268" y2="165" />
+          <path class="vt-bpmn-flow" d="M320 165 L355 165 L355 119 L388 119" />
+          <text class="vt-bpmn-flow-label" x="362" y="150">no</text>
+          <path class="vt-bpmn-flow" d="M295 190 L295 201 L388 201" />
+          <text class="vt-bpmn-flow-label" x="330" y="196">yes</text>
+          <path
+            class="vt-bpmn-flow"
+            d="M570 201 L595 201 Q605 201 605 211 L605 280 Q605 290 615 290"
+          />
+          <line class="vt-bpmn-flow" x1="800" y1="290" x2="819" y2="290" />
+        </svg>
+      </div>
+      <p>
+        Real BPMN notation: thin/thick event circles, a marker-only gateway
+        diamond, and drawn cross-lane flows — XOR branches (<code>no</code> /
+        <code>yes</code>) run side by side. Wide at 860px, so the
+        <code>.vt-bpmn</code> wrap scrolls rather than shrinking.
+      </p>
+    </main>
+  </body>
+</html>
