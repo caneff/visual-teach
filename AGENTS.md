@@ -19,7 +19,7 @@ Issues tracked as GitHub issues via the `gh` CLI; external PRs are not a triage 
 
 ### Triage labels
 
-Five canonical triage labels, default vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix). See `docs/agents/triage-labels.md`.
+Six canonical triage labels, default vocabulary (needs-triage, needs-info, ready-for-agent, ready-for-human, backlog, wontfix). See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
