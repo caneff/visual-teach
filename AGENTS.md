@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Agent instructions for the visual-teach repo. See `docs/PRD.md` for the project
-spec, `CONTEXT.md` for the glossary, and `docs/adr/` for decisions.
+spec, `GLOSSARY.md` for the glossary, and `docs/adr/` for decisions.
 
 ## Component catalog is machine-enforced
 
@@ -23,7 +23,7 @@ Six canonical triage labels, default vocabulary (needs-triage, needs-info, ready
 
 ### Domain docs
 
-Single-context: `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+Single-context: `GLOSSARY.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
 
 ### Testing standards
 

@@ -3,7 +3,7 @@
 Status: draft · 2026-06-19 · owner: caneff
 
 The single front door. Decisions with lasting consequence are recorded as ADRs
-(`docs/adr/`) and linked here, not restated. Domain terms live in `CONTEXT.md`.
+(`docs/adr/`) and linked here, not restated. Domain terms live in `GLOSSARY.md`.
 
 ---
 
@@ -205,7 +205,7 @@ sandbox or multi-language runner.
 
 ## 11. Status & milestones
 
-- [x] Research + decisions (`docs/visual-plan-analysis.md`, ADRs, `CONTEXT.md`)
+- [x] Research + decisions (`docs/visual-plan-analysis.md`, ADRs, `GLOSSARY.md`)
 - [x] Composition feasibility de-risked — 5/5 empirical (ADR 0002)
 - [x] v1 prototype built: `SKILL.md` + `assets/visual-teach.{css,js,md}`
 - [x] Render-verified: CSS tokens + `color-mix`, quiz reveal, checklist
@@ -254,5 +254,5 @@ sandbox or multi-language runner.
 - ADR 0001 — copy assets into each workspace (`docs/adr/0001-*`)
 - ADR 0010 — thin separation, current distribution model; supersedes the owned fork of ADR 0006 (`docs/adr/0010-*`)
 - ADR 0004 — no Convert verb (`docs/adr/0004-*`)
-- `CONTEXT.md` — glossary (visual-teach, Component, Catalog, …)
+- `GLOSSARY.md` — glossary (visual-teach, Component, Catalog, …)
 - `docs/visual-plan-analysis.md` — the research that motivated the split
